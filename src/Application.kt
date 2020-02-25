@@ -1,26 +1,27 @@
 package no.nav
 
 import io.ktor.application.*
-import io.ktor.http.ContentType
-import io.ktor.response.*
-import io.ktor.request.*
+import io.ktor.features.CallLogging
+import io.ktor.response.respondText
 import io.ktor.routing.get
+import io.ktor.routing.route
 import io.ktor.routing.routing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
-    val server = embeddedServer(Netty, port = 8080) {
-        routing {
+    install(CallLogging)
+
+    routing {
+        route("/rekrutteringsbistand-statistikk-api") {
+            naisEndepunkt()
+
             get("/") {
-                call.respondText("Hello World!", ContentType.Text.Plain)
+                call.respondText("Hello World!")
             }
         }
     }
-    server.start(wait = true)
 }
 
