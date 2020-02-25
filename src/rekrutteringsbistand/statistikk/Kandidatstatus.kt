@@ -7,12 +7,14 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
+import no.nav.LOG
 import java.time.LocalDateTime
 
 fun Route.kandidatstatus() {
     route("/kandidatstatus") {
         post("/" ) {
             val kandidatstatus = call.receive<Kandidatstatus>()
+            LOG.info("Kandidatstatus post: \n${kandidatstatus}")
             call.respond(HttpStatusCode.OK)
         }
     }
