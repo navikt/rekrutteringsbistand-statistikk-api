@@ -17,7 +17,7 @@ fun Application.module(testing: Boolean = false) {
     val server = embeddedServer(Netty, port = 8080) {
         routing {
             get("/") {
-                call.respondText("Hello World!", ContentType.Text.Plain)
+                call.respondText("Hei, verden!", ContentType.Text.Plain)
             }
         }
     }
