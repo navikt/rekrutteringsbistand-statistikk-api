@@ -80,7 +80,7 @@ workflows:
       - godkjenn-til-dev:
           type: approval
           requires:
-            - build
+            - bygg_og_push
           filters:
             branches:
               ignore:
@@ -92,7 +92,7 @@ workflows:
       - deploy-til-dev:
           context: tag-ci
           requires:
-            - build
+            - bygg_og_push
           filters:
             branches:
               only:
@@ -100,7 +100,7 @@ workflows:
       - deploy-til-prod:
           context: tag-ci
           requires:
-            - build
+            - bygg_og_push
           filters:
             branches:
               only:
