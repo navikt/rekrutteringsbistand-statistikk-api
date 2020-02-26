@@ -30,7 +30,7 @@ jobs:
           key: v1-gradle-cache-{{ checksum "build.gradle" }}
 
       - nais/docker:
-          image: navikt/rekrutteringsbistand-statistikk-api
+          image: navikt/rekrutteringsbistand-statistikk-api/rekrutteringsbistand-statistikk-api
           registry: docker.pkg.github.com
 
 workflows:
