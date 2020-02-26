@@ -39,9 +39,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Unpack Private Key
-          command: echo $GITHUB_PRIVATE_KEY | base64 -d > .circleci/github.key.pem
-      - run:
           name: Deploy
           command: >
             /app/deploy
@@ -57,9 +54,6 @@ jobs:
       - image: navikt/deployment:v1
     steps:
       - checkout
-      - run:
-          name: Unpack Private Key
-          command: echo $GITHUB_PRIVATE_KEY | base64 -d > .circleci/github.key.pem
       - run:
           name: Deploy
           command: >
