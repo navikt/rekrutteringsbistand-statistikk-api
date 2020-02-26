@@ -19,7 +19,6 @@ import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 
 fun main() {
     val profil: String = System.getenv("PROFIL") ?: "lokal"
-    Database() //todo: assign variabel og send den rundt
     val server = embeddedServer(
         Netty,
         watchPaths = if (profil == "lokal") listOf("/no/nav/rekrutteringsbistand/statistikk") else emptyList(),
@@ -34,6 +33,9 @@ fun Application.module() {
     install(ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter())
     }
+
+    // TODO: assign variabel og send den rundt
+    Database()
 
     routing {
         route("/rekrutteringsbistand-statistikk-api") {
