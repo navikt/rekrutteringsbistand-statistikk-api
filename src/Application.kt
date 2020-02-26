@@ -1,14 +1,19 @@
 package no.nav
 
-import io.ktor.application.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
 import io.ktor.features.CallLogging
+import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
+import io.ktor.jackson.JacksonConverter
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import no.nav.rekrutteringsbistand.statistikk.kandidatstatus
 
 fun main(args: Array<String>) {
     val server = embeddedServer(
@@ -23,10 +28,14 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     install(CallLogging)
+    install(ContentNegotiation) {
+        register(ContentType.Application.Json, JacksonConverter())
+    }
 
     routing {
         route("/rekrutteringsbistand-statistikk-api") {
             naisEndepunkt()
+            kandidatstatus()
 
             get("/") {
                 call.respondText("{\"test\": 1337}", ContentType.Application.Json)
