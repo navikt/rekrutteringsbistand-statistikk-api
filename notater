@@ -1,0 +1,18 @@
+database:
+  navn: rekrutteringsbistand-statistikk
+  url: jdbc:postgresql://A01DBVL011.adeo.no:5432/rekrutteringsbistand-statistikk
+
+
+database:
+  navn: rekrutteringsbistand-statistikk
+  url: jdbc:postgresql://b27dbvl009.preprod.local:5432/rekrutteringsbistand-statistikk
+
+CREATE TABLE KANDIDATUTFALL (
+    ID SERIAL PRIMARY KEY,
+    AKTORID VARCHAR(36) UNIQUE,
+    UTFALL VARCHAR(36) UNIQUE,
+    NAVIDENT VARCHAR(25),
+    TIDSPUNKT TIMESTAMP(3)
+);
+
+	jdbc:h2:file

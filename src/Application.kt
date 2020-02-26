@@ -13,11 +13,13 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import no.nav.rekrutteringsbistand.statistikk.db.Database
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 
 fun main() {
     val profil: String = System.getenv("PROFIL") ?: "lokal"
+    Database() //todo: assign variabel og send den rundt
     val server = embeddedServer(
         Netty,
         watchPaths = if (profil == "lokal") listOf("/no/nav/rekrutteringsbistand/statistikk") else emptyList(),
