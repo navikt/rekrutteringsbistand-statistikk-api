@@ -11,9 +11,9 @@ jobs:
 
       # Hent cache
       - restore_cache:
-            key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+          key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
-            key: v1-gradle-cache-{{ checksum "build.gradle" }}
+          key: v1-gradle-cache-{{ checksum "build.gradle" }}
 
       - run:
           name: Bygg med Gradle
@@ -33,9 +33,75 @@ jobs:
           image: navikt/rekrutteringsbistand-statistikk-api/rekrutteringsbistand-statistikk-api
           registry: docker.pkg.github.com
 
+  deploy-til-dev:
+    docker:
+      - image: navikt/deployment:v1
+    steps:
+      - checkout
+      - run:
+          name: Unpack Private Key
+          command: echo $GITHUB_PRIVATE_KEY | base64 -d > .circleci/github.key.pem
+      - run:
+          name: Deploy
+          command: >
+            /app/deploy
+              --apikey="$NAIS_DEPLOY_APIKEY"
+              --cluster="dev-fss"
+              --owner="arbeidsgiver"
+              --repository="navikt/rekrutteringsbistand-statistikk-api"
+              --resource="nais-dev-fss.yaml"
+              --wait=true
+
+  deploy-til-prod:
+    docker:
+      - image: navikt/deployment:v1
+    steps:
+      - checkout
+      - run:
+          name: Unpack Private Key
+          command: echo $GITHUB_PRIVATE_KEY | base64 -d > .circleci/github.key.pem
+      - run:
+          name: Deploy
+          command: >
+            /app/deploy
+              --apikey="$NAIS_DEPLOY_APIKEY"
+              --cluster="prod-fss"
+              --owner="arbeidsgiver"
+              --repository="navikt/rekrutteringsbistand-statistikk-api"
+              --resource="nais-prod-fss.yaml"
+              --wait=true
+
 workflows:
   version: 2
   bygg_og_push_docker:
     jobs:
       - bygg_og_push:
           context: tag-ci
+      - godkjenn-til-dev:
+          type: approval
+          requires:
+            - build
+          filters:
+            branches:
+              ignore:
+                - master
+      - deploy-til-dev:
+          context: tag-ci
+          requires:
+            - godkjenn-til-dev
+      - deploy-til-dev:
+          context: tag-ci
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+      - deploy-til-prod:
+          context: tag-ci
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
