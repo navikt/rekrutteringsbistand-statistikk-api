@@ -49,7 +49,7 @@ jobs:
               --cluster="dev-fss"
               --owner="arbeidsgiver"
               --repository="navikt/rekrutteringsbistand-statistikk-api"
-              --resource="nais-dev-fss.yaml"
+              --resource="nais-dev.yaml"
               --wait=true
 
   deploy-til-prod:
@@ -68,7 +68,7 @@ jobs:
               --cluster="prod-fss"
               --owner="arbeidsgiver"
               --repository="navikt/rekrutteringsbistand-statistikk-api"
-              --resource="nais-prod-fss.yaml"
+              --resource="nais-prod.yaml"
               --wait=true
 
 workflows:
