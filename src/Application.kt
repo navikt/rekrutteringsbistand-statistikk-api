@@ -13,7 +13,7 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatstatus
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 
 fun main(args: Array<String>) {
@@ -36,7 +36,7 @@ fun Application.module() {
     routing {
         route("/rekrutteringsbistand-statistikk-api") {
             naisEndepunkt()
-            kandidatstatus()
+            kandidatutfall()
 
             get("/") {
                 call.respondText("{\"test\": 1337}", ContentType.Application.Json)
