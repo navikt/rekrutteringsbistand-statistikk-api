@@ -1,4 +1,4 @@
-package no.nav
+package no.nav.rekrutteringsbistand.statistikk.nais
 
 import io.ktor.application.call
 import io.ktor.response.respond

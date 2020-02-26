@@ -1,4 +1,4 @@
-package no.nav
+package no.nav.rekrutteringsbistand.statistikk
 
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -13,7 +13,8 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import no.nav.rekrutteringsbistand.statistikk.kandidatstatus
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatstatus
+import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 
 fun main(args: Array<String>) {
     val server = embeddedServer(
@@ -40,7 +41,6 @@ fun Application.module() {
             get("/") {
                 call.respondText("{\"test\": 1337}", ContentType.Application.Json)
             }
-
         }
     }
 }
