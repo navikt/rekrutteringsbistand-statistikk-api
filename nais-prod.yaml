@@ -1,0 +1,17 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: rekrutteringsbistand-statistikk-api
+  labels:
+    team: {{team}}
+spec:
+  image: {{version}}
+  ingresses:
+    - https://arbeidsgiver.nais.adeo.no//rekrutteringsbistand-statistikk-api/
+  liveness:
+    path: /rekrutteringsbistand-statistikk-api/internal/isAlive
+  readiness:
+    path: /rekrutteringsbistand-statistikk-api/internal/isReady
+  env:
+    - name: PROFIL
+      value: prod
