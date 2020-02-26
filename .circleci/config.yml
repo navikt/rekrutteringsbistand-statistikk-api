@@ -38,4 +38,4 @@ workflows:
   bygg_og_push_docker:
     jobs:
       - bygg_og_push:
-          context: NAIS deployment
+          context: tag-ci
