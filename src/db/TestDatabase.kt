@@ -9,9 +9,6 @@ import java.sql.Connection
 import java.time.LocalDateTime
 
 class TestDatabase : DatabaseInterface {
-    private val jdbcUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
-    private val username = "sa"
-    private val password = ""
 
     private val dataSource: HikariDataSource
 
@@ -21,15 +18,9 @@ class TestDatabase : DatabaseInterface {
     init {
         dataSource = HikariDataSource(
             HikariConfig().apply {
-                jdbcUrl = this@TestDatabase.jdbcUrl
-                username = this@TestDatabase.username
-                password = this@TestDatabase.password
-                maximumPoolSize = 3
-                minimumIdle = 1
-                idleTimeout = 10001
-                maxLifetime = 300000
-                isAutoCommit = false
-                transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+                jdbcUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
+                username = "sa"
+                password = ""
                 validate()
             })
 

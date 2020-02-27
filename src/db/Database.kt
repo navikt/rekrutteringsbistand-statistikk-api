@@ -61,4 +61,3 @@ class Database(env: Environment) : DatabaseInterface {
 interface DatabaseInterface {
     val connection: Connection
 }
-
