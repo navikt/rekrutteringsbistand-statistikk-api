@@ -13,6 +13,8 @@ spec:
     path: /rekrutteringsbistand-statistikk-api/internal/isAlive
   readiness:
     path: /rekrutteringsbistand-statistikk-api/internal/isReady
+  vault:
+    enabled: true
   env:
     - name: PROFIL
       value: prod
