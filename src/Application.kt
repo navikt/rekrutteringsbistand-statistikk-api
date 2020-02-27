@@ -13,16 +13,17 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import no.nav.rekrutteringsbistand.statistikk.db.Database
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 
 fun main() {
     val profil: String = System.getenv("PROFIL") ?: "lokal"
     val server = embeddedServer(
-        Netty,
-        watchPaths = if (profil == "lokal") listOf("/no/nav/rekrutteringsbistand/statistikk") else emptyList(),
-        port = 8080,
-        module = Application::module
+            Netty,
+            watchPaths = if (profil == "lokal") listOf("/no/nav/rekrutteringsbistand/statistikk") else emptyList(),
+            port = 8080,
+            module = Application::module
     )
     server.start(wait = true)
 }
@@ -32,6 +33,9 @@ fun Application.module() {
     install(ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter())
     }
+
+    // TODO: assign variabel og send den rundt
+    Database()
 
     routing {
         route("/rekrutteringsbistand-statistikk-api") {
