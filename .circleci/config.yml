@@ -40,7 +40,7 @@ jobs:
       - checkout
       - run:
           name: Deploy
-          command: /app/deploy --apikey="$NAIS_DEPLOY_APIKEY" --cluster="dev-fss" --owner="navikt" --team="arbeidsgiver" --repository="navikt/rekrutteringsbistand-statistikk-api" --resource="nais-dev.yaml" --wait=true
+          command: /app/deploy --apikey="$NAIS_DEPLOY_APIKEY" --cluster="dev-fss" --owner="navikt" --team="arbeidsgiver" --repository="navikt/rekrutteringsbistand-statistikk-api" --resource="nais-dev.yaml" --print-payload --wait=true
 
   deploy-til-prod:
     docker:
@@ -49,7 +49,7 @@ jobs:
       - checkout
       - run:
           name: Deploy
-          command: /app/deploy --apikey="$NAIS_DEPLOY_APIKEY" --cluster="prod-fss" --owner="navikt" --team="arbeidsgiver" --repository="navikt/rekrutteringsbistand-statistikk-api" --resource="nais-prod.yaml" --wait=true
+          command: /app/deploy --apikey="$NAIS_DEPLOY_APIKEY" --cluster="prod-fss" --owner="navikt" --team="arbeidsgiver" --repository="navikt/rekrutteringsbistand-statistikk-api" --resource="nais-prod.yaml" --print-payload --wait=true
 
 workflows:
   version: 2
