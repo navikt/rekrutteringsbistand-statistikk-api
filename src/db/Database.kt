@@ -34,6 +34,7 @@ class Database(env: Environment) : DatabaseInterface {
             jdbcUrl = config.jdbcUrl
             minimumIdle = 1
             maximumPoolSize = 2
+            driverClassName = "org.postgresql.Driver"
         }
 
         dataSource = HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
