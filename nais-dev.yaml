@@ -4,7 +4,7 @@ metadata:
   name: rekrutteringsbistand-statistikk-api
   namespace: default
   labels:
-    team: {{team}}
+    team: arbeidsgiver
 spec:
   image: {{version}}
   ingresses:
