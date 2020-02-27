@@ -30,6 +30,11 @@ class Database(env: Environment) : DatabaseInterface {
         get() = dataSource.connection
 
     init {
+        dataSource = opprettDataSource(role = "user")
+        kjørFlywayMigreringer()
+    }
+
+    private fun opprettDataSource(role: String): HikariDataSource {
         val hikariConfig = HikariConfig().apply {
             jdbcUrl = config.jdbcUrl
             minimumIdle = 1
@@ -37,18 +42,16 @@ class Database(env: Environment) : DatabaseInterface {
             driverClassName = "org.postgresql.Driver"
         }
 
-        dataSource = HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
+        return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
             hikariConfig,
             config.mountPath,
-            "rekrutteringsbistand-statistikk-user"
+            "rekrutteringsbistand-statistikk-$role"
         )
-
-        kjørFlywayMigreringer()
     }
 
     private fun kjørFlywayMigreringer() {
         Flyway.configure()
-            .dataSource(dataSource)
+            .dataSource(opprettDataSource(role = "admin"))
             .initSql("SET ROLE \"rekrutteringsbistand-statistikk-admin\"")
             .load()
             .migrate()
