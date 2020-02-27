@@ -4,8 +4,8 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.utils.Log
-import java.sql.Connection
 import org.flywaydb.core.Flyway
+import java.sql.Connection
 import java.time.LocalDateTime
 
 

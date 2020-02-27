@@ -20,10 +20,10 @@ import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 fun main() {
     val profil: String = System.getenv("PROFIL") ?: "lokal"
     val server = embeddedServer(
-        Netty,
-        watchPaths = if (profil == "lokal") listOf("/no/nav/rekrutteringsbistand/statistikk") else emptyList(),
-        port = 8080,
-        module = Application::module
+            Netty,
+            watchPaths = if (profil == "lokal") listOf("/no/nav/rekrutteringsbistand/statistikk") else emptyList(),
+            port = 8080,
+            module = Application::module
     )
     server.start(wait = true)
 }
