@@ -53,7 +53,7 @@ jobs:
 
 workflows:
   version: 2
-  bygg_og_push_docker:
+  bygg_push_deploy:
     jobs:
       - bygg_og_push:
           context: tag-ci
