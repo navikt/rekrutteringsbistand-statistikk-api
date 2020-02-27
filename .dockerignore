@@ -1,0 +1,10 @@
+src/*
+resources/*
+test/*
+testresources/*
+build/*
+!build/libs/rekrutteringsbistand-statistikk-api-all.jar
+gradle/*
+.circleci/*
+.git
+.gitignore
