@@ -9,12 +9,14 @@ import org.flywaydb.core.Flyway
 import java.time.LocalDateTime
 
 
-const val jdbcUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
-const val username = "sa"
-const val password = ""
+
 
 class Database {
     private val dataSource: HikariDataSource
+
+    private val jdbcUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
+    private val username = "sa"
+    private val password = ""
 
     val connection: Connection
         get() = dataSource.connection
@@ -26,9 +28,9 @@ class Database {
             .migrate()
 
         dataSource = HikariDataSource(HikariConfig().apply {
-            jdbcUrl = jdbcUrl
-            username = username
-            password = password
+            jdbcUrl = this@Database.jdbcUrl
+            username = this@Database.username
+            password = this@Database.password
             maximumPoolSize = 3
             minimumIdle = 1
             idleTimeout = 10001
