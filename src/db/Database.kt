@@ -9,8 +9,6 @@ import org.flywaydb.core.Flyway
 import java.time.LocalDateTime
 
 
-
-
 class Database {
     private val dataSource: HikariDataSource
 
@@ -23,9 +21,9 @@ class Database {
 
     init {
         Flyway.configure()
-            .dataSource(jdbcUrl, username, password)
-            .load()
-            .migrate()
+                .dataSource(jdbcUrl, username, password)
+                .load()
+                .migrate()
 
         dataSource = HikariDataSource(HikariConfig().apply {
             jdbcUrl = this@Database.jdbcUrl
@@ -52,11 +50,11 @@ class Database {
             val rs = connection.prepareStatement("SELECT * FROM kandidatutfall").executeQuery()
             while (rs.next()) {
                 val kandidatutfall = Kandidatutfall(
-                    aktørId = rs.getString("aktorid"),
-                    utfall = rs.getString("utfall"),
-                    navIdent = rs.getString("navident"),
-                    enhetsnr = rs.getString("enhetsnr"),
-                    tidspunkt = LocalDateTime.parse(rs.getString("tidspunkt").replace(' ', 'T'))
+                        aktørId = rs.getString("aktorid"),
+                        utfall = rs.getString("utfall"),
+                        navIdent = rs.getString("navident"),
+                        enhetsnr = rs.getString("enhetsnr"),
+                        tidspunkt = LocalDateTime.parse(rs.getString("tidspunkt").replace(' ', 'T'))
                 )
                 Log.info(kandidatutfall.toString())
             }
