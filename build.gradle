@@ -39,6 +39,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:$flyway_version")
     implementation("com.zaxxer:HikariCP:$hikari_version")
     implementation("no.nav:vault-jdbc:$vault_jdbc_version")
+    implementation("org.postgresql:postgresql:$postgres_version")
 
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
 }
