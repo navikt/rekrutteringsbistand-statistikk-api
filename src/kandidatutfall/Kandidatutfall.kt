@@ -18,9 +18,10 @@ data class Kandidatutfall(
 )
 
 fun Route.kandidatutfall() {
+
     post("/kandidatutfall") {
-        val kandidatstatus = call.receive<Kandidatutfall>()
-        Log.info("Kandidatstatus post: \n${kandidatstatus}")
-        call.respond(HttpStatusCode.OK)
+        val kandidatstatusListe = call.receive<List<Kandidatutfall>>()
+        Log.info("Kandidatstatusliste post: \n${kandidatstatusListe}")
+        call.respond(HttpStatusCode.NotImplemented)
     }
 }
