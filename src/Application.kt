@@ -26,6 +26,7 @@ import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.ktor.TokenSupportConfig
 import no.nav.security.token.support.ktor.tokenValidationSupport
 import no.nav.security.token.support.test.FileResourceRetriever
+import java.lang.RuntimeException
 
 fun main() {
     val profil: String = System.getenv("PROFIL") ?: "lokal"
@@ -40,6 +41,8 @@ fun main() {
 
 @KtorExperimentalAPI
 fun Application.module() {
+    val env = Environment()
+
     install(CallLogging)
     install(ContentNegotiation) {
         register(ContentType.Application.Json, JacksonConverter())
@@ -48,25 +51,42 @@ fun Application.module() {
     install(Authentication) {
         // TODO: miljø configs
 
-        // lokal
-        val issuerConfig = IssuerConfig(
-            name = "isso",
-            discoveryUrl = "http://metadata",
-            acceptedAudience = listOf("aud-localhost", "aud-isso"),
-            cookieName = "isso-idtoken"
-        )
+        val issuerConfig = when (env.profil) {
+            "lokal" -> IssuerConfig(
+                name = "isso",
+                discoveryUrl = "http://metadata",
+                acceptedAudience = listOf("aud-localhost", "aud-isso"),
+                cookieName = "isso-idtoken"
+            )
+            "dev" -> IssuerConfig(
+                name = "isso",
+                discoveryUrl = "https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration",
+                acceptedAudience = listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
+                cookieName = "isso-idtoken"
+            )
+            "prod" -> IssuerConfig(
+                name = "isso",
+                discoveryUrl = "https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration",
+                acceptedAudience = listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
+                cookieName = "isso-idtoken"
+            )
+            // TODO: Skikkelig feilmelding
+            else -> throw RuntimeException("Feil profil blbla")
+        }
 
+        // TODO: VIKTIG ikke ha resourceRetriever i miljø
         tokenValidationSupport(
             config = TokenSupportConfig(issuerConfig),
             resourceRetriever = FileResourceRetriever("/local-login/metadata.json", "/local-login/jwkset.json")
         )
+
+
     }
 
-    val environment = Environment()
-    val database: DatabaseInterface = if (environment.profil == "lokal") {
+    val database: DatabaseInterface = if (env.profil == "lokal") {
         TestDatabase()
     } else {
-        Database(environment)
+        Database(env)
     }
 
     routing {
