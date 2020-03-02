@@ -49,13 +49,13 @@ fun Application.module() {
 
     install(Authentication) {
         val config = AuthenticationConfig.tokenSupportConfig(env)
-        if (env.isLokal()) {
+        if (env.isDev() || env.isProd()) {
+            tokenValidationSupport(config = config)
+        } else {
             tokenValidationSupport(
                 config = config,
                 resourceRetriever = FileResourceRetriever("/local-login/metadata.json", "/local-login/jwkset.json")
             )
-        } else {
-            tokenValidationSupport(config = config)
         }
     }
 
