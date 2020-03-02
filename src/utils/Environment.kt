@@ -1,6 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk.utils
 
-private const val clusterEnvVar = "NAIS_CLUSTER_NAME"
+const val clusterEnvVar = "NAIS_CLUSTER_NAME"
 
 enum class Cluster {
     LOKALT, DEV_FSS, PROD_FSS
@@ -17,5 +17,3 @@ data class Environment(
     fun isDev() = cluster == Cluster.DEV_FSS
     fun isProd() = cluster == Cluster.PROD_FSS
 }
-
-
