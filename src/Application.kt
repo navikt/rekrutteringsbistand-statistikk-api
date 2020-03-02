@@ -22,6 +22,7 @@ import no.nav.rekrutteringsbistand.statistikk.db.TestDatabase
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 import no.nav.rekrutteringsbistand.statistikk.utils.Environment
+import no.nav.rekrutteringsbistand.statistikk.utils.Log
 import no.nav.rekrutteringsbistand.statistikk.utils.clusterEnvVar
 import no.nav.security.token.support.ktor.tokenValidationSupport
 import no.nav.security.token.support.test.FileResourceRetriever
@@ -41,6 +42,7 @@ fun main() {
 @KtorExperimentalAPI
 fun Application.module() {
     val env = Environment()
+    Log.info("Kjører med env.cluster: ${env.cluster}")
 
     install(CallLogging)
     install(ContentNegotiation) {
