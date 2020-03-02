@@ -15,3 +15,4 @@ spec:
     path: /rekrutteringsbistand-statistikk-api/internal/isReady
   vault:
     enabled: true
+  webproxy: true
