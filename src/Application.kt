@@ -16,23 +16,22 @@ import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
+import no.nav.rekrutteringsbistand.statistikk.auth.AuthenticationConfig
 import no.nav.rekrutteringsbistand.statistikk.db.Database
-import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
 import no.nav.rekrutteringsbistand.statistikk.db.TestDatabase
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 import no.nav.rekrutteringsbistand.statistikk.utils.Environment
-import no.nav.security.token.support.ktor.IssuerConfig
-import no.nav.security.token.support.ktor.TokenSupportConfig
+import no.nav.rekrutteringsbistand.statistikk.utils.clusterEnvVar
 import no.nav.security.token.support.ktor.tokenValidationSupport
 import no.nav.security.token.support.test.FileResourceRetriever
-import java.lang.RuntimeException
 
+@KtorExperimentalAPI
 fun main() {
-    val profil: String = System.getenv("PROFIL") ?: "lokal"
+    val skalKjøreAutoreload = System.getenv(clusterEnvVar) == null
     val server = embeddedServer(
         Netty,
-        watchPaths = if (profil == "lokal") listOf("/no/nav/rekrutteringsbistand/statistikk") else emptyList(),
+        watchPaths = if (skalKjøreAutoreload) listOf("/no/nav/rekrutteringsbistand/statistikk") else emptyList(),
         port = 8080,
         module = Application::module
     )
@@ -49,44 +48,21 @@ fun Application.module() {
     }
 
     install(Authentication) {
-        // TODO: miljø configs
-
-        val issuerConfig = when (env.profil) {
-            "lokal" -> IssuerConfig(
-                name = "isso",
-                discoveryUrl = "http://metadata",
-                acceptedAudience = listOf("aud-localhost", "aud-isso"),
-                cookieName = "isso-idtoken"
+        val config = AuthenticationConfig.tokenSupportConfig(env)
+        if (env.isLokal()) {
+            tokenValidationSupport(
+                config = config,
+                resourceRetriever = FileResourceRetriever("/local-login/metadata.json", "/local-login/jwkset.json")
             )
-            "dev" -> IssuerConfig(
-                name = "isso",
-                discoveryUrl = "https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration",
-                acceptedAudience = listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
-                cookieName = "isso-idtoken"
-            )
-            "prod" -> IssuerConfig(
-                name = "isso",
-                discoveryUrl = "https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration",
-                acceptedAudience = listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
-                cookieName = "isso-idtoken"
-            )
-            // TODO: Skikkelig feilmelding
-            else -> throw RuntimeException("Feil profil blbla")
+        } else {
+            tokenValidationSupport(config = config)
         }
-
-        // TODO: VIKTIG ikke ha resourceRetriever i miljø
-        tokenValidationSupport(
-            config = TokenSupportConfig(issuerConfig),
-            resourceRetriever = FileResourceRetriever("/local-login/metadata.json", "/local-login/jwkset.json")
-        )
-
-
     }
 
-    val database: DatabaseInterface = if (env.profil == "lokal") {
-        TestDatabase()
-    } else {
+    if (env.isDev() || env.isProd()) {
         Database(env)
+    } else {
+        TestDatabase()
     }
 
     routing {
