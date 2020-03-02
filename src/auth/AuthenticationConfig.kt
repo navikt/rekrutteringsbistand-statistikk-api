@@ -20,14 +20,14 @@ class AuthenticationConfig {
                 )
                 Cluster.DEV_FSS -> IssuerConfig(
                     name = "isso",
-                    discoveryUrl = "https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration",
-                    acceptedAudience = listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
+                    discoveryUrl = "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0/.well-known/openid-configuration",
+                    acceptedAudience = listOf("966ac572-f5b7-4bbe-aa88-c76419c0f851"),
                     cookieName = "isso-idtoken"
                 )
                 Cluster.PROD_FSS -> IssuerConfig(
                     name = "isso",
-                    discoveryUrl = "https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration",
-                    acceptedAudience = listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
+                    discoveryUrl = "https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/v2.0/.well-known/openid-configuration",
+                    acceptedAudience = listOf("62366534-1ec3-4962-8869-9b5535279d0b"),
                     cookieName = "isso-idtoken"
                 )
             }
