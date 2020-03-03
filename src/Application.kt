@@ -38,7 +38,7 @@ fun main() {
 @KtorExperimentalAPI
 fun Application.module() {
     val env = Environment()
-    Log.info("Kjører med env.cluster: ${env.cluster}")
+    Log.info("Kjører i miljø: ${env.miljø}")
 
     install(CallLogging)
     install(ContentNegotiation) {

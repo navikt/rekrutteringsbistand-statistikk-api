@@ -2,18 +2,18 @@ package no.nav.rekrutteringsbistand.statistikk.utils
 
 const val clusterEnvVar = "NAIS_CLUSTER_NAME"
 
-enum class Cluster {
+enum class Miljø {
     LOKALT, DEV_FSS, PROD_FSS
 }
 
 data class Environment(
-    val cluster: Cluster = when (System.getenv(clusterEnvVar)) {
-        "dev-fss" -> Cluster.DEV_FSS
-        "prod-fss" -> Cluster.PROD_FSS
-        else -> Cluster.LOKALT
+    val miljø: Miljø = when (System.getenv(clusterEnvVar)) {
+        "dev-fss" -> Miljø.DEV_FSS
+        "prod-fss" -> Miljø.PROD_FSS
+        else -> Miljø.LOKALT
     }
 ) {
-    fun isLokal() = cluster == Cluster.LOKALT
-    fun isDev() = cluster == Cluster.DEV_FSS
-    fun isProd() = cluster == Cluster.PROD_FSS
+    fun isLokal() = miljø == Miljø.LOKALT
+    fun isDev() = miljø == Miljø.DEV_FSS
+    fun isProd() = miljø == Miljø.PROD_FSS
 }

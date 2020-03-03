@@ -1,16 +1,16 @@
 <configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%green(%d{HH:mm:ss}) %cyan([%-5.5t]) %boldCyan(%0.-5p) %yellow(%-20.20logger{19}) %cyan(:) %m%n</pattern>
+    <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                <maxDepthPerThrowable>30</maxDepthPerThrowable>
+            </throwableConverter>
         </encoder>
     </appender>
 
-    <logger name="org.eclipse.jetty" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
-    <logger name="no.nav" level="DEBUG"/>
-    <logger name="io.ktor.auth" level="TRACE" />
+    <!-- Sett til "TRACE" hvis du vil se request logging -->
+    <logger name="ktor.application" level="INFO"/>
 
-    <root level="TRACE">
-        <appender-ref ref="STDOUT"/>
+    <root level="INFO">
+        <appender-ref ref="stdout_json" />
     </root>
 </configuration>
