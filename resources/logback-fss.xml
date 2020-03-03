@@ -3,7 +3,12 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <root level="info">
+    <logger name="org.eclipse.jetty" level="INFO"/>
+    <logger name="io.netty" level="INFO"/>
+    <logger name="no.nav" level="INFO"/>
+    <logger name="io.ktor.auth" level="TRACE" />
+
+    <root level="INFO">
         <appender-ref ref="stdout_json" />
     </root>
 </configuration>

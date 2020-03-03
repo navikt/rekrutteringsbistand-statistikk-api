@@ -1,6 +1,7 @@
 package no.nav.rekrutteringsbistand.statistikk.kandidatutfall
 
 import io.ktor.application.call
+import io.ktor.auth.authenticate
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -19,9 +20,11 @@ data class Kandidatutfall(
 
 fun Route.kandidatutfall() {
 
-    post("/kandidatutfall") {
-        val kandidatstatusListe = call.receive<List<Kandidatutfall>>()
-        Log.info("Kandidatstatusliste post: \n${kandidatstatusListe}")
-        call.respond(HttpStatusCode.NotImplemented)
+    authenticate {
+        post("/kandidatutfall") {
+            val kandidatstatusListe = call.receive<List<Kandidatutfall>>()
+            Log.info("Kandidatstatusliste post: \n${kandidatstatusListe}")
+            call.respond(HttpStatusCode.NotImplemented)
+        }
     }
 }

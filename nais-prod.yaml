@@ -15,6 +15,4 @@ spec:
     path: /rekrutteringsbistand-statistikk-api/internal/isReady
   vault:
     enabled: true
-  env:
-    - name: PROFIL
-      value: prod
+  webproxy: true
