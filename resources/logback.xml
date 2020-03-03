@@ -10,7 +10,7 @@
     <logger name="no.nav" level="DEBUG"/>
     <logger name="io.ktor.auth" level="TRACE" />
 
-    <root level="trace">
+    <root level="TRACE">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
