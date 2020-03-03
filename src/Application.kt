@@ -69,17 +69,8 @@ fun Application.module() {
 
     routing {
         route("/rekrutteringsbistand-statistikk-api") {
-            naisEndepunkt()
             kandidatutfall()
-
-            authenticate {
-                get("/closed") {
-                    call.respondText("{\"test\": 1337}", ContentType.Application.Json)
-                }
-            }
-            get("/open") {
-                call.respondText("{\"test\": 1337}", ContentType.Application.Json)
-            }
+            naisEndepunkt()
         }
     }
 }
