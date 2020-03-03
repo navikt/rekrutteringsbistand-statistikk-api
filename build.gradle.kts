@@ -9,6 +9,8 @@ val logstashEncoderVersion = "6.3"
 val vaultJdbcVersion = "1.3.1"
 val shadowVersion = "5.2.0"
 val postgresVersion = "42.2.10"
+val tokenValidationKtorVersion = "1.1.4"
+val tokenValidationTestSupportVersion = "1.1.4"
 
 plugins {
     application
@@ -30,7 +32,6 @@ kotlin.sourceSets["test"].kotlin.srcDirs("test")
 sourceSets["main"].resources.srcDirs("resources")
 sourceSets["test"].resources.srcDirs("testresources")
 
-
 repositories {
     mavenCentral()
     jcenter()
@@ -46,9 +47,14 @@ dependencies {
 
     implementation("com.h2database:h2:$h2Version")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
-    implementation("org.postgresql:postgresql:$postgresVersion")
+
+    implementation("no.nav.security:token-validation-ktor:$tokenValidationKtorVersion")
+    implementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
+        exclude(group = "org.springframework.boot")
+    }
 
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
 }
