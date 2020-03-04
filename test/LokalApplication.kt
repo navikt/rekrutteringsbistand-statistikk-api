@@ -1,8 +1,7 @@
 package no.nav.rekrutteringsbistand.statistikk
 
-import io.ktor.util.KtorExperimentalAPI
-import no.nav.rekrutteringsbistand.statistikk.application.lagApplicationEngine
 import io.ktor.auth.Authentication
+import io.ktor.util.KtorExperimentalAPI
 import no.nav.rekrutteringsbistand.statistikk.db.TestDatabase
 import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.ktor.TokenSupportConfig

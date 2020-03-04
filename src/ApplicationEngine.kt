@@ -1,4 +1,4 @@
-package no.nav.rekrutteringsbistand.statistikk.application
+package no.nav.rekrutteringsbistand.statistikk
 
 import io.ktor.application.install
 import io.ktor.auth.Authentication
