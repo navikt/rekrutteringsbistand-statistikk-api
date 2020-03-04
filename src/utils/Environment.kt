@@ -1,19 +1,20 @@
 package no.nav.rekrutteringsbistand.statistikk.utils
 
-private const val clusterEnvVar = "NAIS_CLUSTER_NAME"
+import java.lang.RuntimeException
 
-enum class Miljø {
-    LOKALT, DEV_FSS, PROD_FSS
+val clusterEnvVar: String? = System.getenv("NAIS_CLUSTER_NAME")
+
+enum class Cluster {
+    DEV_FSS, PROD_FSS
 }
 
 data class Environment(
-    val miljø: Miljø = when (System.getenv(clusterEnvVar)) {
-        "dev-fss" -> Miljø.DEV_FSS
-        "prod-fss" -> Miljø.PROD_FSS
-        else -> Miljø.LOKALT
+    val cluster: Cluster = when (clusterEnvVar) {
+        "dev-fss" -> Cluster.DEV_FSS
+        "prod-fss" -> Cluster.PROD_FSS
+        else -> throw RuntimeException("Ukjent cluster: $clusterEnvVar")
     }
 ) {
-    fun isLokal() = miljø == Miljø.LOKALT
-    fun isDev() = miljø == Miljø.DEV_FSS
-    fun isProd() = miljø == Miljø.PROD_FSS
+    fun isDev() = cluster == Cluster.DEV_FSS
+    fun isProd() = cluster == Cluster.PROD_FSS
 }
