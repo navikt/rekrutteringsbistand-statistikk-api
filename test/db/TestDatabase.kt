@@ -1,7 +1,8 @@
-package no.nav.rekrutteringsbistand.statistikk.db
+package db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.utils.Log
 import org.flywaydb.core.Flyway

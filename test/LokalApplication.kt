@@ -1,7 +1,7 @@
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.rekrutteringsbistand.statistikk.application.lagApplicationEngine
 import no.nav.rekrutteringsbistand.statistikk.auth.TokenValidationUtil
-import no.nav.rekrutteringsbistand.statistikk.db.TestDatabase
+import db.TestDatabase
 import no.nav.rekrutteringsbistand.statistikk.log
 import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.test.FileResourceRetriever
