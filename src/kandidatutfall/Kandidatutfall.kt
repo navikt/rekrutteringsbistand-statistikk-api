@@ -7,7 +7,7 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
-import no.nav.rekrutteringsbistand.statistikk.utils.Log
+import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDateTime
 
 data class Kandidatutfall(
@@ -23,7 +23,7 @@ fun Route.kandidatutfall() {
     authenticate {
         post("/kandidatutfall") {
             val kandidatstatusListe = call.receive<List<Kandidatutfall>>()
-            Log.info("Kandidatstatusliste post: \n${kandidatstatusListe}")
+            log.info("Kandidatstatusliste post: \n${kandidatstatusListe}")
             call.respond(HttpStatusCode.NotImplemented)
         }
     }

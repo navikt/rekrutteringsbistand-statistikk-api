@@ -3,7 +3,7 @@ package no.nav.rekrutteringsbistand.statistikk.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Kandidatutfall
-import no.nav.rekrutteringsbistand.statistikk.utils.Log
+import no.nav.rekrutteringsbistand.statistikk.log
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 import java.time.LocalDateTime
@@ -44,7 +44,7 @@ class TestDatabase : DatabaseInterface {
                     enhetsnr = rs.getString("enhetsnr"),
                     tidspunkt = LocalDateTime.parse(rs.getString("tidspunkt").replace(' ', 'T'))
                 )
-                Log.info(kandidatutfall.toString())
+                log.info(kandidatutfall.toString())
             }
             connection.commit()
         }
