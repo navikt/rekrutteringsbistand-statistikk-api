@@ -1,6 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk.utils
 
-const val clusterEnvVar = "NAIS_CLUSTER_NAME"
+private const val clusterEnvVar = "NAIS_CLUSTER_NAME"
 
 enum class Miljø {
     LOKALT, DEV_FSS, PROD_FSS
