@@ -1,4 +1,4 @@
-name: Build, push, and deploy
+name: Build and conditionally deploy
 
 on: [push]
 
@@ -6,12 +6,53 @@ env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/rekrutteringsbistand-statistikk-api:${{ github.sha }}
 
 jobs:
-
-  build:
-    name: Build and push Docker container
+  test:
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '11.x'
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('build.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-cache-
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-wrapper-
+      - name: Run tests
+        run: ./gradlew clean test
+
+  deploy-to-dev:
+    name: Deploy to dev
+    needs: test
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/bytt-fra-circleci-til-githubactions'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '11.x'
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('build.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-cache-
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-wrapper-
+      - name: Build jar with Gradle
+        run: ./gradlew build --exclude-task test
       - name: Build and publish Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -19,14 +60,6 @@ jobs:
           docker build --tag ${IMAGE} .
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
-
-  deploy-to-dev:
-    name: Deploy to dev
-    needs: build
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/my-featurebranch'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
