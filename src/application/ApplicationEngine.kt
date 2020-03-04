@@ -12,29 +12,21 @@ import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.rekrutteringsbistand.statistikk.auth.TokenValidationConfig
 import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
-import no.nav.security.token.support.ktor.tokenValidationSupport
 
 @KtorExperimentalAPI
 fun lagApplicationEngine(
     database: DatabaseInterface,
-    tokenValidationConfig: TokenValidationConfig
+    tokenValidationConfig: Authentication.Configuration.() -> Unit
 ): ApplicationEngine {
     return embeddedServer(Netty, port = 8080) {
         install(CallLogging)
         install(ContentNegotiation) {
             register(ContentType.Application.Json, JacksonConverter())
         }
-
-        install(Authentication) {
-            tokenValidationSupport(
-                config = tokenValidationConfig.config,
-                resourceRetriever = tokenValidationConfig.resourceRetriever
-            )
-        }
+        install(Authentication, tokenValidationConfig)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
