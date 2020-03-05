@@ -46,7 +46,7 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: jardir
-      - run: tree & mkdir -p build/libs && mv jardir/rekrutteringsbistand-statistikk-api-all.jar build/libs
+      - run: ls -R && mkdir -p build/libs && mv jardir/rekrutteringsbistand-statistikk-api-all.jar build/libs
       - name: Build and publish Docker image
         env:
           # TODO Are: Fjerne/inline?
