@@ -2,7 +2,7 @@ package no.nav.rekrutteringsbistand.statistikk.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.rekrutteringsbistand.statistikk.utils.Cluster
+import no.nav.rekrutteringsbistand.statistikk.Cluster
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.flywaydb.core.Flyway
 import java.sql.Connection
