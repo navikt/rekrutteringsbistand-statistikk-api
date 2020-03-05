@@ -1,10 +1,11 @@
 package no.nav.rekrutteringsbistand.statistikk
 
-import com.github.kittinunf.fuel.httpGet
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.get
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -12,6 +13,7 @@ import kotlin.test.assertEquals
 class TestTest {
 
     private val basePath = "http://localhost:8080/rekrutteringsbistand-statistikk-api"
+    private val client = HttpClient(Apache)
 
     @KtorExperimentalAPI
     companion object {
@@ -21,30 +23,19 @@ class TestTest {
     }
 
     @Test
-    fun `GET til isReady skal returnere 'Ready'`() {
-        val (_, _, result) = "$basePath/internal/isReady"
-            .httpGet()
-            .responseString()
-
-        assertEquals("Ready", result.get())
+    fun `GET til isReady skal returnere 'Ready'`() = runBlocking {
+        val response: String = client.get("$basePath/internal/isReady")
+        assertEquals("Ready", response)
     }
 
     @Test
-    fun `GET til isAlive skal returnere 'Alive'`() {
-        val (_, _, result) = "$basePath/internal/isAlive"
-            .httpGet()
-            .responseString()
-
-        assertEquals("Alive", result.get())
+    fun `GET til isAlive skal returnere 'Alive'`() = runBlocking {
+        val response: String = client.get("$basePath/internal/isAlive")
+        assertEquals("Alive", response)
     }
 
-    // TODO: Finne ut hvorfor default HTTP-client ikke fungerer
-//    @Test
-//    fun `Ktor client skal også fungere`() = runBlocking {
-//        val client = HttpClient()
-//        val response = client.get<String>("$basePath/internal/isAlive")
-//        println(response)
-//        client.close()
-//    }
+    @After
+    fun tearDown() {
+        client.close()
+    }
 }
-
