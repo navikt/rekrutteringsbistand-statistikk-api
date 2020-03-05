@@ -11,6 +11,7 @@ val shadowVersion = "5.2.0"
 val postgresVersion = "42.2.10"
 val tokenValidationKtorVersion = "1.1.4"
 val tokenValidationTestSupportVersion = "1.1.4"
+val fuelVersion = "2.2.1"
 
 plugins {
     application
@@ -41,6 +42,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
@@ -55,6 +57,8 @@ dependencies {
     implementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
         exclude(group = "org.springframework.boot")
     }
+
+    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
 
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
 }
