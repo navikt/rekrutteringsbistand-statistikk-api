@@ -32,6 +32,7 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: test
+    # DEVELOPERS: Insert your feature branch name here in addition to master if you want to deploy it to dev:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/bytt-fra-circleci-til-githubactions'
     runs-on: ubuntu-latest
     steps:
