@@ -26,13 +26,13 @@ jobs:
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-wrapper-
-      - name: Run tests
+      - name: Build jar
         run: ./gradlew build
       - name: Upload jar
-          uses: actions/upload-artifact@v1
-          with:
-            name: build/libs
-            path: build/libs/rekrutteringsbistand-statistikk-api-all.jar
+        uses: actions/upload-artifact@v1
+        with:
+          name: build/libs
+          path: build/libs/rekrutteringsbistand-statistikk-api-all.jar
 
   deploy-to-dev:
     name: Deploy to dev
