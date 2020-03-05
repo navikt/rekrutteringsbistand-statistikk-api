@@ -58,6 +58,5 @@ dependencies {
         exclude(group = "org.springframework.boot")
     }
 
-
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
 }
