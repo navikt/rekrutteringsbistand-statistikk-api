@@ -9,7 +9,6 @@ import org.junit.After
 import org.junit.Test
 import kotlin.test.assertEquals
 
-
 class HelsesjekkEndepunktTest {
 
     private val basePath = "http://localhost:8080/rekrutteringsbistand-statistikk-api"
