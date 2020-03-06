@@ -34,7 +34,7 @@ jobs:
         run: ./gradlew build
       - name: Upload jar
         uses: actions/upload-artifact@v1
-        if: SHOULD_DEPLOY_TO_DEV
+        if: env.SHOULD_DEPLOY_TO_DEV == true
         with:
           name: jardir
           path: build/libs/rekrutteringsbistand-statistikk-api-all.jar
@@ -42,7 +42,7 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: test
-    if: SHOULD_DEPLOY_TO_DEV
+    if: env.SHOULD_DEPLOY_TO_DEV == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
