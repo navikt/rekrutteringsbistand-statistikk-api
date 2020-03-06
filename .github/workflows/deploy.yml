@@ -28,8 +28,6 @@ jobs:
             ${{ runner.os }}-gradle-wrapper-
       - name: Run tests
         run: ./gradlew test
-      - name: Which files has been cached?
-        run: ls -R ~/.gradle
 
   deploy-to-dev:
     name: Deploy to dev
@@ -50,12 +48,24 @@ jobs:
           key: ${{ runner.os }}-gradle-cache-${{ hashFiles('build.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-gradle-cache-
+      - name: Cache hit
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: echo "Cache hit"
+      - name: Cache miss
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: echo "Cache miss"
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-wrapper-
+      - name: Cache hit
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: echo "Cache hit"
+      - name: Cache miss
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: echo "Cache miss"
       - name: Build jar with Gradle
         run: ./gradlew build --exclude-task test
       - name: Build and publish Docker image
