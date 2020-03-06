@@ -17,28 +17,30 @@ jobs:
       - name: Run tests
         run: ./gradlew test
       - uses: actions/cache@v1
+        id: c1
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-cache-${{ hashFiles('build.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-gradle-cache-
       - name: Cache hit
-        if: steps.cache.outputs.cache-hit == 'true'
+        if: steps.c1.outputs.cache-hit == 'true'
         run: echo "Cache hit"
       - name: Cache miss
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.c1.outputs.cache-hit != 'true'
         run: echo "Cache miss"
       - uses: actions/cache@v1
+        id: c2
         with:
           path: ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-wrapper-
       - name: Cache hit
-        if: steps.cache.outputs.cache-hit == 'true'
+        if: steps.c2.outputs.cache-hit == 'true'
         run: echo "Cache hit"
       - name: Cache miss
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.c2.outputs.cache-hit != 'true'
         run: echo "Cache miss"
 
   deploy-to-dev:
@@ -55,28 +57,30 @@ jobs:
         with:
           java-version: '13.x'
       - uses: actions/cache@v1
+        id: c3
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-cache-${{ hashFiles('build.gradle.kts') }}
           restore-keys: |
             ${{ runner.os }}-gradle-cache-
       - name: Cache hit
-        if: steps.cache.outputs.cache-hit == 'true'
+        if: steps.c3.outputs.cache-hit == 'true'
         run: echo "Cache hit"
       - name: Cache miss
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.c3.outputs.cache-hit != 'true'
         run: echo "Cache miss"
       - uses: actions/cache@v1
+        id: c4
         with:
           path: ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-wrapper-
       - name: Cache hit
-        if: steps.cache.outputs.cache-hit == 'true'
+        if: steps.c4.outputs.cache-hit == 'true'
         run: echo "Cache hit"
       - name: Cache miss
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.c4.outputs.cache-hit != 'true'
         run: echo "Cache miss"
       - name: Build jar with Gradle
         run: ./gradlew build --exclude-task test
