@@ -1,4 +1,4 @@
-name: Build and conditionally deploy
+name: Build & deploy
 
 on: [push]
 
