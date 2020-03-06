@@ -1,10 +1,7 @@
 # Hva er dette? Eksisterer for å slette jar-filer som lagres av bygg- & deploy-workflowen.
 # Se https://github.com/actions/upload-artifact/issues/5 og https://github.com/marketplace/actions/purge-artifacts
 name: 'Delete artifacts from old builds'
-on:
-  schedule:
-    - cron: '0 */3 * ? * *' # Every 3 minutes
-#    - cron: '0 * * * *' # every hour
+on: [push]
 
 jobs:
   delete-artifacts:
