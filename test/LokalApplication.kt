@@ -13,15 +13,17 @@ fun main() {
     log.info("Starter applikasjon lokalt")
     val database = TestDatabase()
 
-    val tokenSupportConfig = TokenSupportConfig(
-        IssuerConfig(
-            name = "isso",
-            discoveryUrl = "http://metadata",
-            acceptedAudience = listOf("aud-localhost", "aud-isso"),
-            cookieName = "isso-idtoken"
-        )
-    )
+
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
+        val tokenSupportConfig = TokenSupportConfig(
+            IssuerConfig(
+                name = "isso",
+                discoveryUrl = "http://metadata",
+                acceptedAudience = listOf("aud-localhost", "aud-isso"),
+                cookieName = "isso-idtoken"
+            )
+        )
+
         tokenValidationSupport(
             config = tokenSupportConfig,
             resourceRetriever = FileResourceRetriever("/metadata.json", "/jwkset.json")

@@ -26,7 +26,7 @@ fun Route.kandidatutfall() {
         post("/kandidatutfall") {
             val kandidatstatusListe = call.receive<List<Kandidatutfall>>()
             log.info("Kandidatstatusliste post: \n${kandidatstatusListe}")
-            call.respond(HttpStatusCode.NotImplemented)
+            call.respond(HttpStatusCode.OK)
         }
     }
 }
