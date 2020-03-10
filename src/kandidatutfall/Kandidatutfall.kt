@@ -15,7 +15,6 @@ data class Kandidatutfall(
         val utfall: String,
         val navIdent: String,
         val navKontor: String,
-        val tidspunkt: LocalDateTime,
         val kandidatlisteId: String,
         val stillingsId: String
 )
