@@ -17,7 +17,7 @@ data class Kandidatutfall(
         val navKontor: String,
         val tidspunkt: LocalDateTime,
         val kandidatlisteId: String,
-        val stillingsId: String?
+        val stillingsId: String
 )
 
 fun Route.kandidatutfall() {
