@@ -11,11 +11,13 @@ import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDateTime
 
 data class Kandidatutfall(
-    val aktørId: String,
-    val utfall: String,
-    val navIdent: String,
-    val enhetsnr: String,
-    val tidspunkt: LocalDateTime
+        val aktørId: String,
+        val utfall: String,
+        val navIdent: String,
+        val navKontor: String,
+        val tidspunkt: LocalDateTime,
+        val kandidatlisteId: String,
+        val stillingsId: String
 )
 
 fun Route.kandidatutfall() {
