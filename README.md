@@ -1,4 +1,4 @@
-# Rekrutteringsbistand-statistikk-api
+# rekrutteringsbistand-statistikk-api
 
 Aggregering, lagring og behandling av formidlingsstatistikk og annen statistikk knyttet til inkludering.
 
