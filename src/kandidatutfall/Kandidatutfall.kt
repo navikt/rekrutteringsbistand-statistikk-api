@@ -8,15 +8,14 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import no.nav.rekrutteringsbistand.statistikk.log
-import java.time.LocalDateTime
 
 data class Kandidatutfall(
-        val aktørId: String,
-        val utfall: String,
-        val navIdent: String,
-        val navKontor: String,
-        val kandidatlisteId: String,
-        val stillingsId: String
+    val aktørId: String,
+    val utfall: String,
+    val navIdent: String,
+    val navKontor: String,
+    val kandidatlisteId: String,
+    val stillingsId: String
 )
 
 fun Route.kandidatutfall() {
@@ -25,7 +24,7 @@ fun Route.kandidatutfall() {
         post("/kandidatutfall") {
             val kandidatstatusListe = call.receive<List<Kandidatutfall>>()
             log.info("Kandidatstatusliste post: \n${kandidatstatusListe}")
-            call.respond(HttpStatusCode.OK)
+            call.respond(HttpStatusCode.Created)
         }
     }
 }
