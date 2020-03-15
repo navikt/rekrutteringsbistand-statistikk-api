@@ -30,7 +30,7 @@ fun lagApplicationEngine(
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
-                kandidatutfall()
+                kandidatutfall(database)
                 naisEndepunkt()
             }
         }

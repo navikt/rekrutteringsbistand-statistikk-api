@@ -7,6 +7,7 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
+import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
 import no.nav.rekrutteringsbistand.statistikk.log
 
 data class Kandidatutfall(
@@ -18,12 +19,17 @@ data class Kandidatutfall(
     val stillingsId: String
 )
 
-fun Route.kandidatutfall() {
+fun Route.kandidatutfall(database: DatabaseInterface) {
 
     authenticate {
         post("/kandidatutfall") {
-            val kandidatstatusListe = call.receive<List<Kandidatutfall>>()
-            log.info("Kandidatstatusliste post: \n${kandidatstatusListe}")
+            val kandidatutfallListe:List<Kandidatutfall> = call.receive<List<Kandidatutfall>>()
+            log.info("Kandidatutfal: \n${kandidatutfallListe}")
+
+            kandidatutfallListe.forEach {
+                //database.lagreUtfall(it)
+            }
+
             call.respond(HttpStatusCode.Created)
         }
     }
