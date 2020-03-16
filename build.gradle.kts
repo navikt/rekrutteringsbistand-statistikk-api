@@ -1,22 +1,23 @@
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.1"
-val ktorVersion = "1.3.0"
-val kotlinVersion = "1.3.61"
+val ktorVersion = "1.3.2"
+val kotlinVersion = "1.3.70"
 val h2Version = "1.4.200"
-val flywayVersion = "6.2.4"
+val flywayVersion = "6.3.1"
 val hikariVersion = "3.4.2"
 val logstashEncoderVersion = "6.3"
-val vaultJdbcVersion = "1.3.1"
+val vaultJdbcVersion = "1.3.7"
 val shadowVersion = "5.2.0"
-val postgresVersion = "42.2.10"
+val postgresVersion = "42.2.11"
 val tokenValidationKtorVersion = "1.1.4"
 val tokenValidationTestSupportVersion = "1.1.4"
 
 plugins {
     application
-    kotlin("jvm") version "1.3.61"
+    kotlin("jvm") version "1.3.70"
 
     id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("com.github.ben-manes.versions") version "0.28.0"
 }
 
 apply(plugin = "kotlin")
@@ -53,7 +54,12 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
 
-    implementation("no.nav.security:token-validation-ktor:$tokenValidationKtorVersion")
+    implementation("no.nav.security:token-validation-ktor:$tokenValidationKtorVersion"){
+        exclude(group = "io.ktor", module = "ktor-auth")
+    }
+
+    implementation("io.ktor:ktor-auth:1.3.2")
+
     implementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
         exclude(group = "org.springframework.boot")
     }
