@@ -29,5 +29,6 @@ private fun Connection.lagreUtfall(kandidatutfall: Kandidatutfall) {
         it.setString(4, kandidatutfall.navIdent)
         it.setString(5, kandidatutfall.kandidatlisteId)
         it.setString(6, kandidatutfall.stillingsId)
+        it.executeUpdate()
     }
 }
