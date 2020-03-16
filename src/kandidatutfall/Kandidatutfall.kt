@@ -32,7 +32,7 @@ fun Route.kandidatutfall(database: DatabaseInterface) {
             val kandidatutfallListe: List<Kandidatutfall> = mapper.readValue(kandidatutfallListeString)
 
             kandidatutfallListe.forEach {
-                //database.lagreUtfall(it)
+                database.lagreUtfall(it)
             }
 
             call.respond(HttpStatusCode.Created)
