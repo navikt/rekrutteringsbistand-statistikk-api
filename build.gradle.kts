@@ -1,20 +1,20 @@
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.1"
 val ktorVersion = "1.3.2"
-val kotlinVersion = "1.3.70"
+val kotlinVersion = "1.3.72"
 val h2Version = "1.4.200"
-val flywayVersion = "6.3.1"
-val hikariVersion = "3.4.2"
-val logstashEncoderVersion = "6.3"
+val flywayVersion = "6.4.3"
+val hikariVersion = "3.4.5"
+val logstashEncoderVersion = "6.4"
 val vaultJdbcVersion = "1.3.7"
 val shadowVersion = "5.2.0"
-val postgresVersion = "42.2.11"
-val tokenValidationKtorVersion = "1.1.4"
-val tokenValidationTestSupportVersion = "1.1.4"
+val postgresVersion = "42.2.12"
+val tokenValidationKtorVersion = "1.1.5"
+val tokenValidationTestSupportVersion = "1.1.5"
 
 plugins {
     application
-    kotlin("jvm") version "1.3.70"
+    kotlin("jvm") version "1.3.72"
 
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("com.github.ben-manes.versions") version "0.28.0"
