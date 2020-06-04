@@ -18,10 +18,11 @@ import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 
 @KtorExperimentalAPI
 fun lagApplicationEngine(
+    port: Int = 8080,
     database: DatabaseInterface,
     tokenValidationConfig: Authentication.Configuration.() -> Unit
 ): ApplicationEngine {
-    return embeddedServer(Netty, port = 8080) {
+    return embeddedServer(Netty, port) {
         install(CallLogging)
         install(ContentNegotiation) {
             register(ContentType.Application.Json, JacksonConverter())
