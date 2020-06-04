@@ -1,17 +1,17 @@
-package no.nav.rekrutteringsbistand.statistikk
+package no.nav.rekrutteringsbistand.statistikk.db
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.get
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
+import no.nav.rekrutteringsbistand.statistikk.start
 import org.junit.Test
 import kotlin.random.Random
 import kotlin.test.assertEquals
 
-
 @KtorExperimentalAPI
-class HelsesjekkEndepunktTest {
+class DatabaseTest {
 
     private val basePath = "http://localhost:$port/rekrutteringsbistand-statistikk-api"
     private val client = HttpClient(Apache)
@@ -24,14 +24,9 @@ class HelsesjekkEndepunktTest {
     }
 
     @Test
-    fun `GET til isReady skal returnere 'Ready'`() = runBlocking {
+    fun `Skal kunne kjøre to tester om gangen`() = runBlocking {
+        // Denne skal endres til skikkelig test
         val response: String = client.get("$basePath/internal/isReady")
         assertEquals("Ready", response)
-    }
-
-    @Test
-    fun `GET til isAlive skal returnere 'Alive'`() = runBlocking {
-        val response: String = client.get("$basePath/internal/isAlive")
-        assertEquals("Alive", response)
     }
 }

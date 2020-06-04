@@ -10,6 +10,11 @@ import no.nav.security.token.support.test.FileResourceRetriever
 
 @KtorExperimentalAPI
 fun main() {
+    start()
+}
+
+@KtorExperimentalAPI
+fun start(port: Int = 8080) {
     log.info("Starter applikasjon lokalt")
     val database = TestDatabase()
 
@@ -31,6 +36,7 @@ fun main() {
     }
 
     val applicationEngine = lagApplicationEngine(
+        port,
         database,
         tokenValidationConfig
     )
