@@ -20,8 +20,8 @@ fun main() {
     }
 
     val applicationEngine = lagApplicationEngine(
-        database,
-        tokenValidationConfig
+        database = database,
+        tokenValidationConfig = tokenValidationConfig
     )
     applicationEngine.start()
     log.info("Applikasjon startet i miljø: ${Cluster.current}")
