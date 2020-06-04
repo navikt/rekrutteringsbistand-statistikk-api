@@ -10,14 +10,13 @@ import no.nav.security.token.support.test.FileResourceRetriever
 
 @KtorExperimentalAPI
 fun main() {
-    start()
+    start(port = 8080)
 }
 
 @KtorExperimentalAPI
-fun start(port: Int = 8080) {
+fun start(port: Int) {
     log.info("Starter applikasjon lokalt")
     val database = TestDatabase()
-
 
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
         val tokenSupportConfig = TokenSupportConfig(
