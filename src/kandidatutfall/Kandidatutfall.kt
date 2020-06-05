@@ -21,11 +21,20 @@ data class Kandidatutfall(
     val tidspunkt: LocalDateTime
 )
 
+data class OpprettKandidatutfall(
+    val aktørId: String,
+    val utfall: String,
+    val navIdent: String,
+    val navKontor: String,
+    val kandidatlisteId: String,
+    val stillingsId: String
+)
+
 fun Route.kandidatutfall(database: DatabaseInterface) {
 
     authenticate {
         post("/kandidatutfall") {
-            val kandidatutfall: Array<Kandidatutfall> = call.receive()
+            val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
             log.info("Mottok ${kandidatutfall.size} kandidatutfall")
 
             kandidatutfall.forEach {
