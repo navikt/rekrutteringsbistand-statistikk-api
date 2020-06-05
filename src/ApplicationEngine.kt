@@ -1,11 +1,13 @@
 package no.nav.rekrutteringsbistand.statistikk
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
-import io.ktor.http.ContentType
-import io.ktor.jackson.JacksonConverter
+import io.ktor.jackson.jackson
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.ApplicationEngine
@@ -25,7 +27,11 @@ fun lagApplicationEngine(
     return embeddedServer(Netty, port) {
         install(CallLogging)
         install(ContentNegotiation) {
-            register(ContentType.Application.Json, JacksonConverter())
+            jackson {
+                registerKotlinModule()
+                configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            }
         }
         install(Authentication, tokenValidationConfig)
 
