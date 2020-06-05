@@ -45,6 +45,13 @@ class LagreStatistikkTest {
         assertEquals(kandidatutfallTilLagring, database.hentUtfall())
     }
 
+    @Test
+    fun `POST til kandidatutfall skal gi unauthorized hvis man ikke er logget inn`() = runBlocking {
+        val uinnloggaClient = HttpClient(Apache)
+        val response: HttpResponse = uinnloggaClient.post("$basePath/kandidatutfall")
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
+
     private fun tilJson(objekt: Any): String =
         jacksonObjectMapper().writeValueAsString(objekt)
 }

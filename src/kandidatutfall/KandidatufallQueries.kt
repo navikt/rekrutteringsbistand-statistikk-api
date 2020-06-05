@@ -13,12 +13,13 @@ fun DatabaseInterface.lagreUtfall(kandidatutfall: Kandidatutfall) {
 private fun Connection.lagreUtfall(kandidatutfall: Kandidatutfall) {
     this.prepareStatement("""
         INSERT INTO kandidatutfall(
-        aktorid,
-        utfall,
-        navident,
-        navkontor,
-        kandidatlisteid,
-        stillingsid)
+            aktorid,
+            utfall,
+            navident,
+            navkontor,
+            kandidatlisteid,
+            stillingsid
+        )
         VALUES (?, ?, ?, ?, ?, ?)
     """).use {
         it.setString(1, kandidatutfall.aktorId)
