@@ -14,16 +14,15 @@ fun DatabaseInterface.lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
 
 private fun Connection.lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
     prepareStatement("""
-        INSERT INTO kandidatutfall(
-            aktorid,
-            utfall,
-            navident,
-            navkontor,
-            kandidatlisteid,
-            stillingsid,
-            tidspunkt
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO $kandidatutfallTabell (
+            $aktørId,
+            $utfall,
+            $navident,
+            $navkontor,
+            $kandidatlisteid,
+            $stillingsid,
+            $tidspunkt
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
     """).use {
         it.setString(1, kandidatutfall.aktørId)
         it.setString(2, kandidatutfall.utfall)
@@ -35,3 +34,12 @@ private fun Connection.lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
         it.executeUpdate()
     }
 }
+
+const val kandidatutfallTabell = "kandidatutfall"
+const val aktørId = "aktorid"
+const val utfall = "utfall"
+const val navident = "navident"
+const val navkontor = "navkontor"
+const val kandidatlisteid = "kandidatlisteid"
+const val stillingsid = "stillingsid"
+const val tidspunkt = "tidspunkt"

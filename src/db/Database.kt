@@ -59,3 +59,4 @@ class Database(cluster: Cluster) : DatabaseInterface {
 interface DatabaseInterface {
     val connection: Connection
 }
+
