@@ -26,7 +26,7 @@ fun Route.kandidatutfall(database: DatabaseInterface) {
     authenticate {
         post("/kandidatutfall") {
             val kandidatutfall: Array<Kandidatutfall> = call.receive()
-            log.info("Kandidatutfall: $kandidatutfall")
+            log.info("Mottok ${kandidatutfall.size} kandidatutfall")
 
             kandidatutfall.forEach {
                 database.lagreUtfall(it)
