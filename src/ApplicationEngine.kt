@@ -1,8 +1,7 @@
 package no.nav.rekrutteringsbistand.statistikk
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.features.CallLogging
@@ -28,9 +27,8 @@ fun lagApplicationEngine(
         install(CallLogging)
         install(ContentNegotiation) {
             jackson {
-                registerKotlinModule()
-                configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                registerModule(JavaTimeModule())
+                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             }
         }
         install(Authentication, tokenValidationConfig)

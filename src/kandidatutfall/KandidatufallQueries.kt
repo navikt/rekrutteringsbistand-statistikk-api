@@ -2,6 +2,7 @@ package no.nav.rekrutteringsbistand.statistikk.kandidatutfall
 
 import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
 import java.sql.Connection
+import java.sql.Timestamp
 
 fun DatabaseInterface.lagreUtfall(kandidatutfall: Kandidatutfall) {
     connection.use { connection ->
@@ -18,9 +19,10 @@ private fun Connection.lagreUtfall(kandidatutfall: Kandidatutfall) {
             navident,
             navkontor,
             kandidatlisteid,
-            stillingsid
+            stillingsid,
+            tidspunkt
         )
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """).use {
         it.setString(1, kandidatutfall.aktorId)
         it.setString(2, kandidatutfall.utfall)
@@ -28,6 +30,7 @@ private fun Connection.lagreUtfall(kandidatutfall: Kandidatutfall) {
         it.setString(4, kandidatutfall.navIdent)
         it.setString(5, kandidatutfall.kandidatlisteId)
         it.setString(6, kandidatutfall.stillingsId)
+        it.setTimestamp(7, Timestamp.valueOf(kandidatutfall.tidspunkt))
         it.executeUpdate()
     }
 }

@@ -49,6 +49,7 @@ class TestDatabase : DatabaseInterface {
             navIdent = resultSet.getString("navident"),
             navKontor = resultSet.getString("navkontor"),
             kandidatlisteId = resultSet.getString("kandidatlisteid"),
-            stillingsId = resultSet.getString("stillingsid")
+            stillingsId = resultSet.getString("stillingsid"),
+            tidspunkt = resultSet.getTimestamp("tidspunkt").toLocalDateTime()
         )
 }

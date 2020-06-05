@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
@@ -51,7 +53,4 @@ class LagreStatistikkTest {
         val response: HttpResponse = uinnloggaClient.post("$basePath/kandidatutfall")
         assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
-
-    private fun tilJson(objekt: Any): String =
-        jacksonObjectMapper().writeValueAsString(objekt)
 }

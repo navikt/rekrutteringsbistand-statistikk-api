@@ -9,14 +9,16 @@ import io.ktor.routing.Route
 import io.ktor.routing.post
 import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
 import no.nav.rekrutteringsbistand.statistikk.log
+import java.time.LocalDateTime
 
 data class Kandidatutfall(
-        val aktorId: String,
-        val utfall: String,
-        val navIdent: String,
-        val navKontor: String,
-        val kandidatlisteId: String,
-        val stillingsId: String
+    val aktorId: String,
+    val utfall: String,
+    val navIdent: String,
+    val navKontor: String,
+    val kandidatlisteId: String,
+    val stillingsId: String,
+    val tidspunkt: LocalDateTime
 )
 
 fun Route.kandidatutfall(database: DatabaseInterface) {

@@ -1,4 +1,5 @@
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Kandidatutfall
+import java.time.LocalDateTime
 
 val etKandidatutfall = Kandidatutfall(
     aktorId = "blbla",
@@ -6,7 +7,8 @@ val etKandidatutfall = Kandidatutfall(
     navIdent = "blabla",
     navKontor = "blabla",
     kandidatlisteId = "blabla",
-    stillingsId = "blabla"
+    stillingsId = "blabla",
+    tidspunkt = LocalDateTime.now()
 )
 
-val enNavIdent = "X123456"
+const val enNavIdent = "X123456"

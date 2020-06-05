@@ -11,6 +11,7 @@ val shadowVersion = "5.2.0"
 val postgresVersion = "42.2.12"
 val tokenValidationKtorVersion = "1.1.5"
 val tokenValidationTestSupportVersion = "1.1.5"
+val jacksonVersion = "2.11.0"
 
 plugins {
     application
@@ -47,6 +48,8 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
+
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
     implementation("com.h2database:h2:$h2Version")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
