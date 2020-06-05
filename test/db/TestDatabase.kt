@@ -33,8 +33,8 @@ class TestDatabase : DatabaseInterface {
     }
 
     fun hentUtfall(): List<Kandidatutfall> {
-        connection.use { connection ->
-            val resultSet = connection.prepareStatement("SELECT * FROM kandidatutfall").executeQuery()
+        connection.use {
+            val resultSet = it.prepareStatement("SELECT * FROM kandidatutfall").executeQuery()
             return generateSequence {
                 if (!resultSet.next()) null
                 else konverterTilKandidatutfall(resultSet)

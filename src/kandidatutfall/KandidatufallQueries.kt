@@ -5,9 +5,9 @@ import java.sql.Connection
 import java.sql.Timestamp
 
 fun DatabaseInterface.lagreUtfall(kandidatutfall: Kandidatutfall) {
-    connection.use { connection ->
-        connection.lagreUtfall(kandidatutfall)
-        connection.commit()
+    connection.use {
+        it.lagreUtfall(kandidatutfall)
+        it.commit()
     }
 }
 
