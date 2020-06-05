@@ -37,22 +37,13 @@ class LagreStatistikkTest {
 
     @Test
     fun `POST til kandidatutfall skal lagre til databasen`() = runBlocking {
-        val kandidatutfall = Kandidatutfall(
-            aktorId = "blbla",
-            utfall = "blabla",
-            navIdent = "blabla",
-            navKontor = "blabla",
-            kandidatlisteId = "blabla",
-            stillingsId = "blabla"
-        )
-
         val response: HttpResponse = client.post("$basePath/kandidatutfall") {
-            body = TextContent(jacksonObjectMapper().writeValueAsString(listOf(kandidatutfall)), ContentType.Application.Json)
+            body = TextContent(jacksonObjectMapper().writeValueAsString(listOf(etKandidatutfall)), ContentType.Application.Json)
         }
 
         assertEquals(HttpStatusCode.Created, response.status)
         database.hentUtfall().forEach {
-            assertEquals(kandidatutfall, it)
+            assertEquals(etKandidatutfall, it)
         }
     }
 }

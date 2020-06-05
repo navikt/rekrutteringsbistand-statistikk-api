@@ -4,8 +4,7 @@ import no.nav.security.token.support.test.JwtTokenGenerator
 import kotlin.random.Random
 
 fun lagCookie(): Cookie {
-    val subject = "X123456"
-    val token: SignedJWT = JwtTokenGenerator.createSignedJWT(subject)
+    val token: SignedJWT = JwtTokenGenerator.createSignedJWT(enNavIdent)
     return Cookie("isso-idtoken", token.serialize())
 }
 
