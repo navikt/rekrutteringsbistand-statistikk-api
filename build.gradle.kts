@@ -12,6 +12,7 @@ val postgresVersion = "42.2.12"
 val tokenValidationKtorVersion = "1.1.5"
 val tokenValidationTestSupportVersion = "1.1.5"
 val jacksonVersion = "2.11.0"
+val assertkVersion = "0.22"
 
 plugins {
     application
@@ -68,4 +69,5 @@ dependencies {
     }
 
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
 }

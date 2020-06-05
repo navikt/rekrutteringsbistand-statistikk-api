@@ -1,6 +1,5 @@
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.features.cookies.ConstantCookiesStorage
@@ -14,7 +13,8 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabase
 import org.junit.Test
-import kotlin.test.assertEquals
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @KtorExperimentalAPI
 class LagreStatistikkTest {
@@ -43,14 +43,22 @@ class LagreStatistikkTest {
             body = TextContent(tilJson(kandidatutfallTilLagring), ContentType.Application.Json)
         }
 
-        assertEquals(HttpStatusCode.Created, response.status)
-        assertEquals(kandidatutfallTilLagring, database.hentUtfall())
+        assertThat(response.status).isEqualTo(HttpStatusCode.Created)
+        database.hentUtfall().forEachIndexed { index, utfall ->
+            assertThat(utfall.aktorId).isEqualTo(kandidatutfallTilLagring[index].aktørId)
+            assertThat(utfall.utfall).isEqualTo(kandidatutfallTilLagring[index].utfall)
+            assertThat(utfall.navIdent).isEqualTo(kandidatutfallTilLagring[index].navIdent)
+            assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
+            assertThat(utfall.kandidatlisteId).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
+            assertThat(utfall.stillingsId).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
+            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+        }
     }
 
     @Test
     fun `POST til kandidatutfall skal gi unauthorized hvis man ikke er logget inn`() = runBlocking {
         val uinnloggaClient = HttpClient(Apache)
         val response: HttpResponse = uinnloggaClient.post("$basePath/kandidatutfall")
-        assertEquals(HttpStatusCode.Unauthorized, response.status)
+        assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
     }
 }
