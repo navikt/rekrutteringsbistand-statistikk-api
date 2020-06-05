@@ -11,7 +11,6 @@ import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabase
-import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Kandidatutfall
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -25,7 +24,6 @@ class LagreStatistikkTest {
         }
     }
 
-
     companion object {
         private val database = TestDatabase()
         private val port = randomPort()
@@ -37,13 +35,16 @@ class LagreStatistikkTest {
 
     @Test
     fun `POST til kandidatutfall skal lagre til databasen`() = runBlocking {
+        val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
+
         val response: HttpResponse = client.post("$basePath/kandidatutfall") {
-            body = TextContent(jacksonObjectMapper().writeValueAsString(listOf(etKandidatutfall)), ContentType.Application.Json)
+            body = TextContent(tilJson(kandidatutfallTilLagring), ContentType.Application.Json)
         }
 
         assertEquals(HttpStatusCode.Created, response.status)
-        database.hentUtfall().forEach {
-            assertEquals(etKandidatutfall, it)
-        }
+        assertEquals(kandidatutfallTilLagring, database.hentUtfall())
     }
+
+    private fun tilJson(objekt: Any): String =
+        jacksonObjectMapper().writeValueAsString(objekt)
 }
