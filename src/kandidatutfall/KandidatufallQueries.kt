@@ -27,7 +27,7 @@ private fun Connection.lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
         it.setString(1, kandidatutfall.aktørId)
         it.setString(2, kandidatutfall.utfall)
         it.setString(3, kandidatutfall.navIdent)
-        it.setString(4, kandidatutfall.navIdent)
+        it.setString(4, kandidatutfall.navKontor)
         it.setString(5, kandidatutfall.kandidatlisteId)
         it.setString(6, kandidatutfall.stillingsId)
         it.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
