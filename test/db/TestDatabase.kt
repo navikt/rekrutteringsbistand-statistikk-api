@@ -36,8 +36,8 @@ class TestDatabase : DatabaseInterface {
         connection.use {
             val resultSet = it.prepareStatement("SELECT * FROM $kandidatutfallTabell").executeQuery()
             return generateSequence {
-                if (!resultSet.next()) null
-                else konverterTilKandidatutfall(resultSet)
+                if (resultSet.next()) konverterTilKandidatutfall(resultSet)
+                else null
             }.toList()
         }
     }
