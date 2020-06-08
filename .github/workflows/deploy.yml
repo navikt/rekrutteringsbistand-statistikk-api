@@ -27,7 +27,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-wrapper-
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew test --info
 
   deploy-to-dev:
     name: Deploy to dev
