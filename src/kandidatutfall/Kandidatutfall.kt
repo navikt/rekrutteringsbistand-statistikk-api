@@ -7,9 +7,21 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
+import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
 import no.nav.rekrutteringsbistand.statistikk.log
+import java.time.LocalDateTime
 
 data class Kandidatutfall(
+    val aktorId: String,
+    val utfall: String,
+    val navIdent: String,
+    val navKontor: String,
+    val kandidatlisteId: String,
+    val stillingsId: String,
+    val tidspunkt: LocalDateTime
+)
+
+data class OpprettKandidatutfall(
     val aktørId: String,
     val utfall: String,
     val navIdent: String,
@@ -18,12 +30,17 @@ data class Kandidatutfall(
     val stillingsId: String
 )
 
-fun Route.kandidatutfall() {
+fun Route.kandidatutfall(database: DatabaseInterface) {
 
     authenticate {
         post("/kandidatutfall") {
-            val kandidatstatusListe = call.receive<List<Kandidatutfall>>()
-            log.info("Kandidatstatusliste post: \n${kandidatstatusListe}")
+            val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
+            log.info("Mottok ${kandidatutfall.size} kandidatutfall")
+
+            kandidatutfall.forEach {
+                database.lagreUtfall(it)
+            }
+
             call.respond(HttpStatusCode.Created)
         }
     }

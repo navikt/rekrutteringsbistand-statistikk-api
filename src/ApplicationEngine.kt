@@ -1,11 +1,12 @@
 package no.nav.rekrutteringsbistand.statistikk
 
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
-import io.ktor.http.ContentType
-import io.ktor.jackson.JacksonConverter
+import io.ktor.jackson.jackson
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.ApplicationEngine
@@ -25,13 +26,16 @@ fun lagApplicationEngine(
     return embeddedServer(Netty, port) {
         install(CallLogging)
         install(ContentNegotiation) {
-            register(ContentType.Application.Json, JacksonConverter())
+            jackson {
+                registerModule(JavaTimeModule())
+                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            }
         }
         install(Authentication, tokenValidationConfig)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
-                kandidatutfall()
+                kandidatutfall(database)
                 naisEndepunkt()
             }
         }

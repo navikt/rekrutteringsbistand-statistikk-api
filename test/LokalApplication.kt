@@ -1,8 +1,9 @@
-package no.nav.rekrutteringsbistand.statistikk
-
 import io.ktor.auth.Authentication
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.rekrutteringsbistand.statistikk.db.TestDatabase
+import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
+import db.TestDatabase
+import no.nav.rekrutteringsbistand.statistikk.lagApplicationEngine
+import no.nav.rekrutteringsbistand.statistikk.log
 import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.ktor.TokenSupportConfig
 import no.nav.security.token.support.ktor.tokenValidationSupport
@@ -10,14 +11,14 @@ import no.nav.security.token.support.test.FileResourceRetriever
 
 @KtorExperimentalAPI
 fun main() {
-    start(port = 8080)
+    start()
 }
 
 @KtorExperimentalAPI
-fun start(port: Int) {
-    log.info("Starter applikasjon lokalt")
-    val database = TestDatabase()
-
+fun start(
+    database: DatabaseInterface = TestDatabase(),
+    port: Int = 8080
+) {
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
         val tokenSupportConfig = TokenSupportConfig(
             IssuerConfig(
