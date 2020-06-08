@@ -3,5 +3,8 @@ CREATE TABLE kandidatutfall (
     aktorid TEXT,
     utfall TEXT,
     navident TEXT,
-    enhetsnr TEXT
+    navkontor TEXT,
+    kandidatlisteid TEXT,
+    stillingsid TEXT,
+    tidspunkt timestamp
 );
