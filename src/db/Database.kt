@@ -38,6 +38,7 @@ class Database(cluster: Cluster) : DatabaseInterface {
             minimumIdle = 1
             maximumPoolSize = 2
             driverClassName = "org.postgresql.Driver"
+            isAutoCommit = false
         }
 
         return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(

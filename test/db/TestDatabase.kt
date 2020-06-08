@@ -15,6 +15,7 @@ class TestDatabase : DatabaseInterface {
             jdbcUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
             username = "sa"
             password = ""
+            isAutoCommit = false
             validate()
         })
 
