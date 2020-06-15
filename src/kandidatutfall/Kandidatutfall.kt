@@ -40,7 +40,7 @@ fun Route.kandidatutfall(database: DatabaseInterface) {
 
             kandidatutfall.forEach {
                 database.lagreUtfall(it)
-                Metrics.counter("rekrutteringsbisatnd.statistikk.utfall.lagret").increment()
+                Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 
             call.respond(HttpStatusCode.Created)
