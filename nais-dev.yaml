@@ -13,6 +13,9 @@ spec:
     path: /rekrutteringsbistand-statistikk-api/internal/isAlive
   readiness:
     path: /rekrutteringsbistand-statistikk-api/internal/isReady
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
   vault:
     enabled: true
   webproxy: true
