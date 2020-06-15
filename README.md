@@ -4,6 +4,9 @@ Aggregering, lagring og behandling av formidlingsstatistikk og annen statistikk 
 Starte appen:
 Høyreklikk på `LokalApplication.kt` i IntelliJ og velg `Run`.
 
+## Grafana
+https://grafana.adeo.no/d/GhdRa3mMz/rekrutteringsbistand-statistikk-api
+
 
 # Henvendelser
 
