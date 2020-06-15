@@ -29,8 +29,8 @@ spec:
       expr: (100 * (sum by (backend) (rate(traefik_backend_requests_total{code=~"^5\\d\\d", backend=~"arbeidsgiver.nais.*/rekrutteringsbistand-statistikk-api/*"}[3m])) / sum by (backend) (rate(traefik_backend_requests_total{backend=~"arbeidsgiver.nais.*/rekrutteringsbistand-statistikk-api/*"}[3m])))) > 1
       for: 3m
       action: "Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP feilresponser"
-    - alert: Økning HTTP klientfeil (4xx responser andre enn 401)
+    - alert: Økning HTTP klientfeil (4xx responser)
       severity: warning
-      expr: (100 * (sum by (backend) (rate(traefik_backend_requests_total{code=~"^4\\d[0,2-9]", backend=~"arbeidsgiver.nais.*/rekrutteringsbistand-statistikk-api/*"}[3m])) / sum by (backend) (rate(traefik_backend_requests_total{backend=~"arbeidsgiver.nais.*/rekrutteringsbistand-statistikk-api/*"}[3m])))) > 1
+      expr: (100 * (sum by (backend) (rate(traefik_backend_requests_total{code=~"^4\\d\\d", backend=~"arbeidsgiver.nais.*/rekrutteringsbistand-statistikk-api/*"}[3m])) / sum by (backend) (rate(traefik_backend_requests_total{backend=~"arbeidsgiver.nais.*/rekrutteringsbistand-statistikk-api/*"}[3m])))) > 1
       for: 3m
       action: "Sjekk loggene for å se hvorfor {{ $labels.backend }} returnerer HTTP feilresponser"
