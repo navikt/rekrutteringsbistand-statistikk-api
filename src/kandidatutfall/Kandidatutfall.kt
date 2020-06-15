@@ -7,6 +7,7 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
+import io.micrometer.core.instrument.Metrics
 import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDateTime
@@ -39,6 +40,7 @@ fun Route.kandidatutfall(database: DatabaseInterface) {
 
             kandidatutfall.forEach {
                 database.lagreUtfall(it)
+                Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 
             call.respond(HttpStatusCode.Created)
