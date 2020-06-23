@@ -8,8 +8,10 @@ spec:
   receivers:
     slack:
       channel: 'inkludering-alerts-prod'
+      prependText: 'rekrutteringsbistand-statistikk-api: '
   alerts:
-    - alert: applikasjon nede
+    - alert: Applikasjonen er nede (ingen Kubernetes-pods er oppe)
+      severity: danger
       expr: sum(up{app="<appname>", job="kubernetes-pods"}) == 0
       for: 2m
       description: "App {{ $labels.app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
@@ -21,7 +23,7 @@ spec:
       action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye errors"
     - alert: Økning log level WARNING
       severity: warning
-      expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api",log_level=~"Warning"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api"}[3m]))) > 1
+      expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api",log_level=~"Warning"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api"}[3m]))) > 20
       for: 3m
       action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, for å se hvorfor det forekommer warnings"
     - alert: Økning HTTP serverfeil (5xx responser)
