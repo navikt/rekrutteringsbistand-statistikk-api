@@ -18,4 +18,7 @@ spec:
     path: /rekrutteringsbistand-statistikk-api/internal/prometheus
   vault:
     enabled: true
+    paths:
+      - kvPath: /serviceuser/data/dev/srv-rekbis-stat
+        mountPath: /secret/serviceuser
   webproxy: true
