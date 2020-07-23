@@ -16,8 +16,7 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabase
 import no.nav.common.KafkaEnvironment
-import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
-import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
+import no.nav.rekrutteringsbistand.statistikk.log
 import org.junit.Test
 import java.time.Duration
 import java.time.LocalDateTime
@@ -59,7 +58,7 @@ class LagreStatistikkTest {
             assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
             assertThat(utfall.kandidatlisteId).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
             assertThat(utfall.stillingsId).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
-            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))
         }
 
         lokalKafka.tearDown()
