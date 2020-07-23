@@ -39,6 +39,9 @@ sourceSets["test"].resources.srcDirs("testresources")
 repositories {
     mavenCentral()
     jcenter()
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
 }
 
 dependencies {
@@ -72,6 +75,9 @@ dependencies {
         exclude(group = "org.springframework.boot")
     }
 
+    implementation("org.apache.kafka:kafka-clients:2.4.0")
+
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
+    testImplementation("no.nav:kafka-embedded-env:2.4.0")
 }

@@ -7,6 +7,7 @@ metadata:
     team: arbeidsgiver
 spec:
   image: {{version}}
+  port: 8111
   ingresses:
     - https://arbeidsgiver.nais.adeo.no/rekrutteringsbistand-statistikk-api/
   liveness:

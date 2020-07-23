@@ -2,6 +2,8 @@ import io.ktor.auth.Authentication
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
 import db.TestDatabase
+import no.nav.common.KafkaEnvironment
+import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.lagApplicationEngine
 import no.nav.rekrutteringsbistand.statistikk.log
 import no.nav.security.token.support.ktor.IssuerConfig
@@ -17,7 +19,8 @@ fun main() {
 @KtorExperimentalAPI
 fun start(
     database: DatabaseInterface = TestDatabase(),
-    port: Int = 8080
+    port: Int = 8111,
+    lokalKafka: KafkaEnvironment = KafkaEnvironment()
 ) {
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
         val tokenSupportConfig = TokenSupportConfig(
@@ -35,11 +38,23 @@ fun start(
         )
     }
 
+    lokalKafka.start()
+
+    // Ikke inject denne men brokersURL
+    val datavarehusProducer = DatavarehusKafkaProducer(lokalKafka.brokersURL)
+
+    // TODO: Graceful tear down av Kafka
+    //       kafkaEnv.tearDown()
+
+    // TODO: Kafka AdminServer starter på localhost:8080, samme som Ktor serveren.
+    //       Slå av AdminServer eller endre port?
     val applicationEngine = lagApplicationEngine(
         port,
         database,
-        tokenValidationConfig
+        tokenValidationConfig,
+        datavarehusProducer
     )
     applicationEngine.start()
+
     log.info("Applikasjon startet")
 }
