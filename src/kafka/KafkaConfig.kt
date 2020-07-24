@@ -17,10 +17,9 @@ class KafkaConfig {
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
         }
 
-        // TODO: Riktig format? Eller "SASL_SSL://a01apvl00145.adeo.no:8443"
         private val bootstrapServers = when (Cluster.current) {
-            Cluster.DEV_FSS -> "b27apvl00045.preprod.local:8443, b27apvl00046.preprod.local:8443, b27apvl00047.preprod.local:8443"
-            Cluster.PROD_FSS -> "a01apvl00145.adeo.no:8443, a01apvl00146.adeo.no:8443, a01apvl00147.adeo.no:8443, a01apvl00148.adeo.no:8443, a01apvl00149.adeo.no:8443, a01apvl00150.adeo.no:8443"
+            Cluster.DEV_FSS -> "SASL_SSL://b27apvl00045.preprod.local:8443, SASL_SSL://b27apvl00046.preprod.local:8443, SASL_SSL://b27apvl00047.preprod.local:8443"
+            Cluster.PROD_FSS -> "SASL_SSL://a01apvl00145.adeo.no:8443, SASL_SSL://a01apvl00146.adeo.no:8443, SASL_SSL://a01apvl00147.adeo.no:8443, SASL_SSL://a01apvl00148.adeo.no:8443, SASL_SSL://a01apvl00149.adeo.no:8443, SASL_SSL://a01apvl00150.adeo.no:8443"
         }
         private val serviceuserUsername: String = System.getenv("SERVICEUSER_USERNAME")
         private val serviceuserPassword: String = System.getenv("SERVICEUSER_PASSWORD")
