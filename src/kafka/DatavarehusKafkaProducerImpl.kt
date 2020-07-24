@@ -32,7 +32,6 @@ class DatavarehusKafkaProducerImpl(bootstrapServers: String): DatavarehusKafkaPr
     }
 
     override fun send(kandidatutfall: OpprettKandidatutfall) {
-        // TODO: Bruk lagret ID og Avro
         producer.send(ProducerRecord(TOPIC, UUID.randomUUID().toString(), jacksonObjectMapper().writeValueAsString(kandidatutfall))) { _, _ ->
             log.info("Sendte melding")
         }

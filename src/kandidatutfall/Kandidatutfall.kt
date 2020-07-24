@@ -41,7 +41,6 @@ fun Route.kandidatutfall(database: DatabaseInterface, datavarehusKafkaProducer: 
 
             kandidatutfall.forEach {
                 database.lagreUtfall(it)
-                // TODO: Send det som lagres i databasen, inkludert ID
                 datavarehusKafkaProducer.send(it)
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
