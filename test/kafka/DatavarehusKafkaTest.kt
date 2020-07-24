@@ -1,5 +1,9 @@
 package kafka
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import db.TestDatabase
 import etKandidatutfall
 import io.ktor.client.HttpClient
@@ -11,14 +15,21 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
-import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import lagCookie
-import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
+import no.nav.common.KafkaEnvironment
+import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerImpl
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
+import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.junit.Test
 import randomPort
 import start
 import tilJson
+import java.time.Duration
+import java.util.*
 
 @KtorExperimentalAPI
 class DatavarehusKafkaTest {
@@ -33,22 +44,48 @@ class DatavarehusKafkaTest {
     companion object {
         private val database = TestDatabase()
         private val port = randomPort()
-        private val datavarehusKafkaProducer = mockk<DatavarehusKafkaProducer>()
+        private val lokalKafka = KafkaEnvironment()
+        private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(lokalKafka.brokersURL)
 
         init {
             start(database, port, datavarehusKafkaProducer)
+            lokalKafka.start()
         }
     }
 
     @Test
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
-        every { datavarehusKafkaProducer.send(any()) } returns Unit
+        val consumer = opprettConsumer(lokalKafka.brokersURL)
+        consumer.subscribe(listOf(DatavarehusKafkaProducerImpl.TOPIC))
 
         val response: HttpResponse = client.post("$basePath/kandidatutfall") {
             body = TextContent(tilJson(kandidatutfallTilLagring), ContentType.Application.Json)
         }
 
-        kandidatutfallTilLagring.forEach { verify { datavarehusKafkaProducer.send(it) } }
+        consumer.poll(Duration.ofSeconds(5))
+            .map { melding -> jacksonObjectMapper().readValue<OpprettKandidatutfall>(melding.value()) }
+            .forEachIndexed { index, melding ->
+                assertThat(melding.aktørId).isEqualTo(kandidatutfallTilLagring[index].aktørId)
+                assertThat(melding.utfall).isEqualTo(kandidatutfallTilLagring[index].utfall)
+                assertThat(melding.navIdent).isEqualTo(kandidatutfallTilLagring[index].navIdent)
+                assertThat(melding.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
+                assertThat(melding.kandidatlisteId).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
+                assertThat(melding.stillingsId).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
+            }
+
+        database.slettAlleUtfall()
+        lokalKafka.tearDown()
+    }
+
+    private fun opprettConsumer(bootstrapServers: String): KafkaConsumer<String, String> {
+        val consumerConfig: Properties = Properties().apply {
+            put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
+            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+            put(ConsumerConfig.GROUP_ID_CONFIG, "mingroupid")
+            put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
+            put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
+        }
+        return KafkaConsumer(consumerConfig)
     }
 }

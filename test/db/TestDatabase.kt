@@ -53,4 +53,8 @@ class TestDatabase : DatabaseInterface {
             stillingsId = resultSet.getString(stillingsid),
             tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime()
         )
+
+    fun slettAlleUtfall() {
+        connection.use { it.prepareStatement("DELETE FROM $kandidatutfallTabell").execute() }
+    }
 }
