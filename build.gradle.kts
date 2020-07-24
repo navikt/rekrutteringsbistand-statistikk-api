@@ -77,7 +77,8 @@ dependencies {
 
     implementation("org.apache.kafka:kafka-clients:2.4.0")
 
+    testImplementation("io.mockk:mockk:1.10.0")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
-    testImplementation("no.nav:kafka-embedded-env:2.4.0")
+//    testImplementation("no.nav:kafka-embedded-env:2.4.0")
 }

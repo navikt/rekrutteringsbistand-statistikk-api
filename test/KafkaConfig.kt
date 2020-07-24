@@ -1,7 +1,0 @@
-class KafkaConfig {
-
-    companion object {
-        
-    }
-
-}

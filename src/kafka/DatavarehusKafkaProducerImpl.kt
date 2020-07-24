@@ -1,6 +1,5 @@
 package no.nav.rekrutteringsbistand.statistikk.kafka
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.log
@@ -11,7 +10,11 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.*
 
-class DatavarehusKafkaProducer(bootstrapServers: String) {
+interface DatavarehusKafkaProducer {
+    fun send(kandidatutfall: OpprettKandidatutfall)
+}
+
+class DatavarehusKafkaProducerImpl(bootstrapServers: String): DatavarehusKafkaProducer {
 
     private val producer: KafkaProducer<String, String>
 
@@ -28,7 +31,7 @@ class DatavarehusKafkaProducer(bootstrapServers: String) {
         const val TOPIC = "en-topic"
     }
 
-    fun send(kandidatutfall: OpprettKandidatutfall) {
+    override fun send(kandidatutfall: OpprettKandidatutfall) {
         // TODO: Bruk lagret ID og Avro
         producer.send(ProducerRecord(TOPIC, UUID.randomUUID().toString(), jacksonObjectMapper().writeValueAsString(kandidatutfall))) { _, _ ->
             log.info("Sendte melding")
