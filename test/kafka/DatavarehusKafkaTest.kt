@@ -20,7 +20,6 @@ import lagCookie
 import no.nav.common.KafkaEnvironment
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerImpl
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
-import no.nav.rekrutteringsbistand.statistikk.log
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -61,7 +60,7 @@ class DatavarehusKafkaTest {
         val consumer = opprettConsumer(lokalKafka.brokersURL)
         consumer.subscribe(listOf(DatavarehusKafkaProducerImpl.TOPIC))
 
-        val response: HttpResponse = client.post("$basePath/kandidatutfall") {
+        client.post<HttpResponse>("$basePath/kandidatutfall") {
             body = TextContent(tilJson(kandidatutfallTilLagring), ContentType.Application.Json)
         }
 
