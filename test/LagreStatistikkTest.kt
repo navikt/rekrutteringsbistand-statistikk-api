@@ -1,12 +1,7 @@
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.features.cookies.ConstantCookiesStorage
-import io.ktor.client.features.cookies.HttpCookies
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
@@ -23,12 +18,8 @@ import java.time.temporal.ChronoUnit
 @KtorExperimentalAPI
 class LagreStatistikkTest {
 
-    private val basePath = "http://localhost:$port/rekrutteringsbistand-statistikk-api"
-    private val client = HttpClient(Apache) {
-        install(HttpCookies) {
-            storage = ConstantCookiesStorage(lagCookie())
-        }
-    }
+    private val basePath = basePath(port)
+    private val client = innloggaHttpClient()
 
     companion object {
         private val database = TestDatabase()

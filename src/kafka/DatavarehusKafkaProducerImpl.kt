@@ -3,29 +3,17 @@ package no.nav.rekrutteringsbistand.statistikk.kafka
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.log
-import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.StringSerializer
 import java.util.*
 
 interface DatavarehusKafkaProducer {
     fun send(kandidatutfall: OpprettKandidatutfall)
 }
 
-class DatavarehusKafkaProducerImpl(bootstrapServers: String): DatavarehusKafkaProducer {
+class DatavarehusKafkaProducerImpl(config: Properties): DatavarehusKafkaProducer {
 
-    private val producer: KafkaProducer<String, String>
-
-    init {
-        val producerConfig: Properties = Properties().apply {
-            put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
-            put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
-            put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
-        }
-        producer = KafkaProducer(producerConfig)
-    }
+    private val producer: KafkaProducer<String, String> = KafkaProducer(config)
 
     companion object {
         const val TOPIC = "en-topic"
