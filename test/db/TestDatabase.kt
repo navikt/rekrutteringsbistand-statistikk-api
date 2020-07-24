@@ -55,6 +55,9 @@ class TestDatabase : DatabaseInterface {
         )
 
     fun slettAlleUtfall() {
-        connection.use { it.prepareStatement("DELETE FROM $kandidatutfallTabell").execute() }
+        connection.use {
+            it.prepareStatement("DELETE FROM $kandidatutfallTabell").execute()
+            it.commit()
+        }
     }
 }

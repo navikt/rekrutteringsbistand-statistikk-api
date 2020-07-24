@@ -20,10 +20,12 @@ import lagCookie
 import no.nav.common.KafkaEnvironment
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerImpl
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
+import no.nav.rekrutteringsbistand.statistikk.log
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
+import org.junit.After
 import org.junit.Test
 import randomPort
 import start
@@ -73,9 +75,6 @@ class DatavarehusKafkaTest {
                 assertThat(melding.kandidatlisteId).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
                 assertThat(melding.stillingsId).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
             }
-
-        database.slettAlleUtfall()
-        lokalKafka.tearDown()
     }
 
     private fun opprettConsumer(bootstrapServers: String): KafkaConsumer<String, String> {
@@ -87,5 +86,11 @@ class DatavarehusKafkaTest {
             put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
         }
         return KafkaConsumer(consumerConfig)
+    }
+
+    @After
+    fun cleanUp() {
+        database.slettAlleUtfall()
+        lokalKafka.tearDown()
     }
 }

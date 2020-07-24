@@ -15,6 +15,8 @@ import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabase
+import no.nav.rekrutteringsbistand.statistikk.log
+import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -63,5 +65,10 @@ class LagreStatistikkTest {
         val uinnloggaClient = HttpClient(Apache)
         val response: HttpResponse = uinnloggaClient.post("$basePath/kandidatutfall")
         assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+    }
+
+    @After
+    fun cleanUp() {
+        database.slettAlleUtfall()
     }
 }
