@@ -14,6 +14,9 @@ val tokenValidationTestSupportVersion = "1.1.6"
 val jacksonVersion = "2.11.0"
 val assertkVersion = "0.22"
 val micrometerPrometheusVersion = "1.5.1"
+val kafkaClientsVersion = "2.4.0"
+val mockkVersion = "1.10.0"
+val kafkaEmbeddedEnvironmentVersion = "2.4.0"
 
 plugins {
     application
@@ -39,6 +42,9 @@ sourceSets["test"].resources.srcDirs("testresources")
 repositories {
     mavenCentral()
     jcenter()
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
 }
 
 dependencies {
@@ -59,19 +65,21 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
 
+    implementation("io.ktor:ktor-auth:$ktorVersion")
     implementation("no.nav.security:token-validation-ktor:$tokenValidationKtorVersion"){
         exclude(group = "io.ktor", module = "ktor-auth")
     }
 
-    implementation("io.ktor:ktor-auth:$ktorVersion")
-
     implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerPrometheusVersion")
 
-    implementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
+    implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
+
+    testImplementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
         exclude(group = "org.springframework.boot")
     }
-
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
+    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
 }

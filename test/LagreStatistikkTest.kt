@@ -1,5 +1,8 @@
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.features.cookies.ConstantCookiesStorage
@@ -12,6 +15,7 @@ import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabase
+import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -51,7 +55,7 @@ class LagreStatistikkTest {
             assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
             assertThat(utfall.kandidatlisteId).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
             assertThat(utfall.stillingsId).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
-            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))
         }
     }
 
@@ -60,5 +64,10 @@ class LagreStatistikkTest {
         val uinnloggaClient = HttpClient(Apache)
         val response: HttpResponse = uinnloggaClient.post("$basePath/kandidatutfall")
         assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+    }
+
+    @After
+    fun cleanUp() {
+        database.slettAlleUtfall()
     }
 }
