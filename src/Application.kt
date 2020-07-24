@@ -3,7 +3,9 @@ package no.nav.rekrutteringsbistand.statistikk
 import io.ktor.auth.Authentication
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.rekrutteringsbistand.statistikk.db.Database
+import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerImpl
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerStub
+import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaConfig
 import no.nav.security.token.support.ktor.tokenValidationSupport
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,10 +21,15 @@ fun main() {
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
+    val datavarehusKafkaProducer = when (Cluster.current) {
+        Cluster.DEV_FSS -> DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
+        Cluster.PROD_FSS -> DatavarehusKafkaProducerStub()
+    }
+
     val applicationEngine = lagApplicationEngine(
         database = database,
         tokenValidationConfig = tokenValidationConfig,
-        datavarehusKafkaProducer = DatavarehusKafkaProducerStub()
+        datavarehusKafkaProducer = datavarehusKafkaProducer
     )
     applicationEngine.start()
     log.info("Applikasjon startet i miljø: ${Cluster.current}")

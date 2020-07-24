@@ -1,0 +1,29 @@
+package no.nav.rekrutteringsbistand.statistikk.kafka
+
+import no.nav.rekrutteringsbistand.statistikk.Cluster
+import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.config.SaslConfigs
+import org.apache.kafka.common.serialization.StringSerializer
+import java.util.*
+
+class KafkaConfig {
+
+    companion object {
+        fun producerConfig(): Properties = Properties().apply {
+            put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
+            put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig)
+            put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
+            put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
+        }
+
+        // TODO: Riktig format? Eller "SASL_SSL://a01apvl00145.adeo.no:8443"
+        private val bootstrapServers = when (Cluster.current) {
+            Cluster.DEV_FSS -> "b27apvl00045.preprod.local:8443, b27apvl00046.preprod.local:8443, b27apvl00047.preprod.local:8443"
+            Cluster.PROD_FSS -> "a01apvl00145.adeo.no:8443, a01apvl00146.adeo.no:8443, a01apvl00147.adeo.no:8443, a01apvl00148.adeo.no:8443, a01apvl00149.adeo.no:8443, a01apvl00150.adeo.no:8443"
+        }
+        private val serviceuserUsername: String = System.getenv("SERVICEUSER_USERNAME")
+        private val serviceuserPassword: String = System.getenv("SERVICEUSER_PASSWORD")
+        private val saslJaasConfig = "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${serviceuserUsername}\" password=\"${serviceuserPassword}\";"
+    }
+}
