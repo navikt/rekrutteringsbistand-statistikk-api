@@ -10,7 +10,7 @@ Bruk oneshot-endepunktet med følgende config for å opprette topic med evig ret
 {
   "topics": [
     {
-      "topicName": "privat-formidlingsutfallEndret-v1",
+      "topicName": "aapen-formidlingsutfallEndret-v1",
       "members": [
         { "member": "srv-rekbis-stat", "role": "PRODUCER" },
         { "member": "M154663", "role": "MANAGER" },
