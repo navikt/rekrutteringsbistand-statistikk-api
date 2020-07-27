@@ -65,7 +65,7 @@ dependencies {
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
 
     implementation("io.ktor:ktor-auth:$ktorVersion")
-    implementation("no.nav.security:token-validation-ktor:$tokenValidationKtorVersion"){
+    implementation("no.nav.security:token-validation-ktor:$tokenValidationKtorVersion") {
         exclude(group = "io.ktor", module = "ktor-auth")
     }
 
@@ -74,10 +74,11 @@ dependencies {
 
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
 
-    testImplementation("com.h2database:h2:$h2Version")
     testImplementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
         exclude(group = "org.springframework.boot")
     }
+    testImplementation("com.h2database:h2:$h2Version")
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
