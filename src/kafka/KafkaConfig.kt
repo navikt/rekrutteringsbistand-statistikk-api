@@ -26,7 +26,6 @@ class KafkaConfig {
 
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
-            put(ProducerConfig.RETRIES_CONFIG, 5)
             put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000)
         }
 
