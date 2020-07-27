@@ -16,7 +16,7 @@ class DatavarehusKafkaProducerImpl(config: Properties): DatavarehusKafkaProducer
     private val producer: KafkaProducer<String, String> = KafkaProducer(config)
 
     companion object {
-        const val TOPIC = "en-topic"
+        const val TOPIC = "aapen-formidlingsutfallEndret-v1"
     }
 
     override fun send(kandidatutfall: OpprettKandidatutfall) {
