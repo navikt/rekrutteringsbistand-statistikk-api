@@ -1,0 +1,15 @@
+{
+  "namespace": "no.nav.rekrutteringsbistand",
+  "type": "record",
+  "name": "KandidatUtfall",
+  "fields": [
+    { "name":  "aktørId", "type": "string" },
+    { "name":  "utfall", "type": "string" },
+    { "name":  "navIdent", "type": "string" },
+    { "name":  "navKontor", "type": "string" },
+    { "name":  "kandidatlisteId", "type": "string" },
+    { "name":  "stillingsId", "type": "string" },
+    { "name":  "tidspunkt", "type": "string" }
+  ]
+}
+

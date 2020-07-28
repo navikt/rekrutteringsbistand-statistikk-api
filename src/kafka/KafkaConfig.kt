@@ -1,5 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk.kafka
 
+import io.confluent.kafka.serializers.KafkaAvroSerializer
 import no.nav.rekrutteringsbistand.statistikk.Cluster
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -25,10 +26,11 @@ class KafkaConfig {
             }
 
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
-            put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
+            put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
             put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000)
         }
 
+        // Servernavn hentet fra: https://confluence.adeo.no/pages/viewpage.action?pageId=239339073
         private val bootstrapServers = when (Cluster.current) {
             Cluster.DEV_FSS -> "b27apvl00045.preprod.local:8443, b27apvl00046.preprod.local:8443, b27apvl00047.preprod.local:8443"
             Cluster.PROD_FSS -> "a01apvl00145.adeo.no:8443, a01apvl00146.adeo.no:8443, a01apvl00147.adeo.no:8443, a01apvl00148.adeo.no:8443, a01apvl00149.adeo.no:8443, a01apvl00150.adeo.no:8443"
