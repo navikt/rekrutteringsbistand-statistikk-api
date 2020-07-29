@@ -17,6 +17,7 @@ val micrometerPrometheusVersion = "1.5.1"
 val kafkaClientsVersion = "2.4.0"
 val mockkVersion = "1.10.0"
 val kafkaEmbeddedEnvironmentVersion = "2.4.0"
+val kafkaAvroSerializerVersion = "5.4.0"
 
 plugins {
     application
@@ -24,6 +25,7 @@ plugins {
 
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("com.github.ben-manes.versions") version "0.28.0"
+    id("com.commercehub.gradle.plugin.avro") version "0.21.0"
 }
 
 apply(plugin = "kotlin")
@@ -73,6 +75,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerPrometheusVersion")
 
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
+    implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
 
     testImplementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
         exclude(group = "org.springframework.boot")

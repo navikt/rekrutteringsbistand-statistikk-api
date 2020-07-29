@@ -2,8 +2,6 @@ package kafka
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import db.TestDatabase
 import etKandidatutfall
 import innloggaHttpClient
@@ -15,7 +13,6 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import no.nav.common.KafkaEnvironment
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerImpl
-import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.junit.After
 import org.junit.Test
@@ -23,6 +20,7 @@ import randomPort
 import start
 import tilJson
 import basePath
+import no.nav.rekrutteringsbistand.KandidatUtfall
 import java.time.Duration
 
 @KtorExperimentalAPI
@@ -34,8 +32,10 @@ class DatavarehusKafkaTest {
     companion object {
         private val database = TestDatabase()
         private val port = randomPort()
-        private val lokalKafka = KafkaEnvironment()
-        private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(producerConfig(lokalKafka.brokersURL))
+        private val lokalKafka = KafkaEnvironment(withSchemaRegistry = true)
+        private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(
+            producerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url)
+        )
 
         init {
             start(database, port, datavarehusKafkaProducer)
@@ -46,7 +46,7 @@ class DatavarehusKafkaTest {
     @Test
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
-        val consumer = KafkaConsumer<String, String>(consumerConfig(lokalKafka.brokersURL))
+        val consumer = KafkaConsumer<String, KandidatUtfall>(consumerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url))
         consumer.subscribe(listOf(DatavarehusKafkaProducerImpl.TOPIC))
 
         client.post<HttpResponse>("$basePath/kandidatutfall") {
@@ -54,14 +54,14 @@ class DatavarehusKafkaTest {
         }
 
         consumer.poll(Duration.ofSeconds(5))
-            .map { melding -> jacksonObjectMapper().readValue<OpprettKandidatutfall>(melding.value()) }
+            .map { melding -> melding.value() }
             .forEachIndexed { index, melding ->
-                assertThat(melding.aktørId).isEqualTo(kandidatutfallTilLagring[index].aktørId)
-                assertThat(melding.utfall).isEqualTo(kandidatutfallTilLagring[index].utfall)
-                assertThat(melding.navIdent).isEqualTo(kandidatutfallTilLagring[index].navIdent)
-                assertThat(melding.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
-                assertThat(melding.kandidatlisteId).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
-                assertThat(melding.stillingsId).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
+                assertThat(melding.getAktørId()).isEqualTo(kandidatutfallTilLagring[index].aktørId)
+                assertThat(melding.getUtfall()).isEqualTo(kandidatutfallTilLagring[index].utfall)
+                assertThat(melding.getNavIdent()).isEqualTo(kandidatutfallTilLagring[index].navIdent)
+                assertThat(melding.getNavKontor()).isEqualTo(kandidatutfallTilLagring[index].navKontor)
+                assertThat(melding.getKandidatlisteId()).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
+                assertThat(melding.getStillingsId()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
             }
     }
 
