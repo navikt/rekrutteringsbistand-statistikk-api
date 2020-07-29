@@ -9,7 +9,7 @@
     <logger name="org.flywaydb.core" level="INFO"/>
     <logger name="com.zaxxer.hikari" level="INFO"/>
 
-    <root level="TRACE">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

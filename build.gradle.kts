@@ -14,6 +14,10 @@ val tokenValidationTestSupportVersion = "1.1.6"
 val jacksonVersion = "2.11.0"
 val assertkVersion = "0.22"
 val micrometerPrometheusVersion = "1.5.1"
+val kafkaClientsVersion = "2.4.0"
+val mockkVersion = "1.10.0"
+val kafkaEmbeddedEnvironmentVersion = "2.4.0"
+val kafkaAvroSerializerVersion = "5.4.0"
 
 plugins {
     application
@@ -21,6 +25,7 @@ plugins {
 
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("com.github.ben-manes.versions") version "0.28.0"
+    id("com.commercehub.gradle.plugin.avro") version "0.21.0"
 }
 
 apply(plugin = "kotlin")
@@ -39,6 +44,9 @@ sourceSets["test"].resources.srcDirs("testresources")
 repositories {
     mavenCentral()
     jcenter()
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
 }
 
 dependencies {
@@ -53,25 +61,28 @@ dependencies {
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
-    implementation("com.h2database:h2:$h2Version")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
 
-    implementation("no.nav.security:token-validation-ktor:$tokenValidationKtorVersion"){
+    implementation("io.ktor:ktor-auth:$ktorVersion")
+    implementation("no.nav.security:token-validation-ktor:$tokenValidationKtorVersion") {
         exclude(group = "io.ktor", module = "ktor-auth")
     }
-
-    implementation("io.ktor:ktor-auth:$ktorVersion")
 
     implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerPrometheusVersion")
 
-    implementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
+    implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
+    implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
+
+    testImplementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
         exclude(group = "org.springframework.boot")
     }
-
+    testImplementation("com.h2database:h2:$h2Version")
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
+    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
 }

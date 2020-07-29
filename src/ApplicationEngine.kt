@@ -18,14 +18,16 @@ import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
+import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 
 @KtorExperimentalAPI
 fun lagApplicationEngine(
-    port: Int = 8080,
+    port: Int = 8111,
     database: DatabaseInterface,
-    tokenValidationConfig: Authentication.Configuration.() -> Unit
+    tokenValidationConfig: Authentication.Configuration.() -> Unit,
+    datavarehusKafkaProducer: DatavarehusKafkaProducer
 ): ApplicationEngine {
     return embeddedServer(Netty, port) {
         install(CallLogging)
@@ -46,7 +48,7 @@ fun lagApplicationEngine(
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 naisEndepunkt(prometheusMeterRegistry)
-                kandidatutfall(database)
+                kandidatutfall(database, datavarehusKafkaProducer)
             }
         }
     }

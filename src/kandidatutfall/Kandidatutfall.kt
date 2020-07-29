@@ -9,6 +9,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.micrometer.core.instrument.Metrics
 import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
+import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDateTime
 
@@ -31,7 +32,7 @@ data class OpprettKandidatutfall(
     val stillingsId: String
 )
 
-fun Route.kandidatutfall(database: DatabaseInterface) {
+fun Route.kandidatutfall(database: DatabaseInterface, datavarehusKafkaProducer: DatavarehusKafkaProducer) {
 
     authenticate {
         post("/kandidatutfall") {
@@ -40,6 +41,7 @@ fun Route.kandidatutfall(database: DatabaseInterface) {
 
             kandidatutfall.forEach {
                 database.lagreUtfall(it)
+                datavarehusKafkaProducer.send(it)
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 

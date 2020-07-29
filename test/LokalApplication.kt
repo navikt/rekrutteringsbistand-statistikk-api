@@ -2,6 +2,8 @@ import io.ktor.auth.Authentication
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
 import db.TestDatabase
+import kafka.DatavarehusKafkaProducerStub
+import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.lagApplicationEngine
 import no.nav.rekrutteringsbistand.statistikk.log
 import no.nav.security.token.support.ktor.IssuerConfig
@@ -17,7 +19,8 @@ fun main() {
 @KtorExperimentalAPI
 fun start(
     database: DatabaseInterface = TestDatabase(),
-    port: Int = 8080
+    port: Int = 8111,
+    datavarehusKafkaProducer: DatavarehusKafkaProducer = DatavarehusKafkaProducerStub()
 ) {
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
         val tokenSupportConfig = TokenSupportConfig(
@@ -38,8 +41,10 @@ fun start(
     val applicationEngine = lagApplicationEngine(
         port,
         database,
-        tokenValidationConfig
+        tokenValidationConfig,
+        datavarehusKafkaProducer
     )
     applicationEngine.start()
+
     log.info("Applikasjon startet")
 }

@@ -11,7 +11,7 @@ import org.junit.Test
 @KtorExperimentalAPI
 class HelsesjekkEndepunktTest {
 
-    private val basePath = "http://localhost:$port/rekrutteringsbistand-statistikk-api"
+    private val basePath = basePath(port)
     private val client = HttpClient(Apache)
 
     companion object {

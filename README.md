@@ -12,7 +12,7 @@ Får statistikk fra to kilder:
 
 For hver endring av utfall på en kandidat, lagres en ny rad i databasen.
 
-Kan sjekker formidlingene tre plasser:
+Kan sjekke formidlingene tre plasser:
 - Amplitude: https://analytics.amplitude.com/nav/dashboard/rp6el7n
 - Grafana: https://grafana.adeo.no/d/GhdRa3mMz/rekrutteringsbistand-statistikk-api
 - Sjekke i databasen: 
@@ -21,6 +21,8 @@ Kan sjekker formidlingene tre plasser:
     - Bruk favoritt SQL-reader i tynnklient
     - JDBC-URL: `jdbc:postgresql://A01DBVL011.adeo.no:5432/rekrutteringsbistand-statistikk`
     - Logg inn med brukernavn og passord fra Vault
+    
+Diverse dokumentasjon ligger i [doc mappa](./doc).
 
 ## Kibana
 `application: rekrutteringsbistand-statistikk-api AND cluster: prod-fss AND (level: Warning OR level: Error)`

@@ -2,8 +2,6 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
-import io.ktor.client.features.cookies.ConstantCookiesStorage
-import io.ktor.client.features.cookies.HttpCookies
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
@@ -12,6 +10,7 @@ import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabase
+import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -19,12 +18,8 @@ import java.time.temporal.ChronoUnit
 @KtorExperimentalAPI
 class LagreStatistikkTest {
 
-    private val basePath = "http://localhost:$port/rekrutteringsbistand-statistikk-api"
-    private val client = HttpClient(Apache) {
-        install(HttpCookies) {
-            storage = ConstantCookiesStorage(lagCookie())
-        }
-    }
+    private val basePath = basePath(port)
+    private val client = innloggaHttpClient()
 
     companion object {
         private val database = TestDatabase()
@@ -51,7 +46,7 @@ class LagreStatistikkTest {
             assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
             assertThat(utfall.kandidatlisteId).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
             assertThat(utfall.stillingsId).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
-            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))
         }
     }
 
@@ -60,5 +55,10 @@ class LagreStatistikkTest {
         val uinnloggaClient = HttpClient(Apache)
         val response: HttpResponse = uinnloggaClient.post("$basePath/kandidatutfall")
         assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+    }
+
+    @After
+    fun cleanUp() {
+        database.slettAlleUtfall()
     }
 }
