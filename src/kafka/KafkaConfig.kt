@@ -26,7 +26,7 @@ class KafkaConfig {
                 put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, System.getenv("NAV_TRUSTSTORE_PASSWORD"))
             }
 
-            put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://kafka-schema-registry.tpa:8081")
+            put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://kafka-schema-registry.tpa.svc.nais.local:8081")
 
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
