@@ -20,7 +20,7 @@ import randomPort
 import start
 import tilJson
 import basePath
-import no.nav.rekrutteringsbistand.statistikk.KandidatUtfall
+import no.nav.rekrutteringsbistand.KandidatUtfall
 import java.time.Duration
 
 @KtorExperimentalAPI
