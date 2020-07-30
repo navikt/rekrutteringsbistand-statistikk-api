@@ -3,18 +3,8 @@ package db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.rekrutteringsbistand.statistikk.db.Database
-import no.nav.rekrutteringsbistand.statistikk.db.Repository.Companion.aktørId
-import no.nav.rekrutteringsbistand.statistikk.db.Repository.Companion.kandidatlisteid
-import no.nav.rekrutteringsbistand.statistikk.db.Repository.Companion.kandidatutfallTabell
-import no.nav.rekrutteringsbistand.statistikk.db.Repository.Companion.navident
-import no.nav.rekrutteringsbistand.statistikk.db.Repository.Companion.navkontor
-import no.nav.rekrutteringsbistand.statistikk.db.Repository.Companion.stillingsid
-import no.nav.rekrutteringsbistand.statistikk.db.Repository.Companion.tidspunkt
-import no.nav.rekrutteringsbistand.statistikk.db.Repository.Companion.utfall
-import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Kandidatutfall
 import org.flywaydb.core.Flyway
 import java.sql.Connection
-import java.sql.ResultSet
 import javax.sql.DataSource
 
 class TestDatabaseImpl : Database {

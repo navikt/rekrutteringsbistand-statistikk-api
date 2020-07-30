@@ -28,15 +28,15 @@ class Repository(private val connection: Connection) {
                                             $stillingsid,
                                             $tidspunkt
                                         ) VALUES (?, ?, ?, ?, ?, ?, ?)"""
-        ).use {
-            it.setString(1, kandidatutfall.aktørId)
-            it.setString(2, kandidatutfall.utfall)
-            it.setString(3, kandidatutfall.navIdent)
-            it.setString(4, kandidatutfall.navKontor)
-            it.setString(5, kandidatutfall.kandidatlisteId)
-            it.setString(6, kandidatutfall.stillingsId)
-            it.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
-            it.executeUpdate()
+        ).apply {
+            setString(1, kandidatutfall.aktørId)
+            setString(2, kandidatutfall.utfall)
+            setString(3, kandidatutfall.navIdent)
+            setString(4, kandidatutfall.navKontor)
+            setString(5, kandidatutfall.kandidatlisteId)
+            setString(6, kandidatutfall.stillingsId)
+            setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
+            executeUpdate()
         }
     }
 
