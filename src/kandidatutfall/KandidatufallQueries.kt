@@ -1,11 +1,11 @@
 package no.nav.rekrutteringsbistand.statistikk.kandidatutfall
 
-import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
+import no.nav.rekrutteringsbistand.statistikk.db.Database
 import java.sql.Connection
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
-fun DatabaseInterface.lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
+fun Database.lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
     connection.use {
         it.lagreUtfall(kandidatutfall)
         it.commit()

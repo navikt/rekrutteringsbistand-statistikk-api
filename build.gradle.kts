@@ -76,6 +76,8 @@ dependencies {
 
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
+    implementation("net.javacrumbs.shedlock:shedlock-core:4.12.0")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.12.0")
 
     testImplementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
         exclude(group = "org.springframework.boot")

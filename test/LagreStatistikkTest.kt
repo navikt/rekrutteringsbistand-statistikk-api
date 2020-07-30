@@ -9,7 +9,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
-import db.TestDatabase
+import db.TestDatabaseImpl
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
@@ -22,7 +22,7 @@ class LagreStatistikkTest {
     private val client = innloggaHttpClient()
 
     companion object {
-        private val database = TestDatabase()
+        private val database = TestDatabaseImpl()
         private val port = randomPort()
 
         init {

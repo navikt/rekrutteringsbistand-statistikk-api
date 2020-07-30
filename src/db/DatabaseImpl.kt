@@ -2,12 +2,14 @@ package no.nav.rekrutteringsbistand.statistikk.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import no.nav.rekrutteringsbistand.KandidatUtfall
 import no.nav.rekrutteringsbistand.statistikk.Cluster
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.flywaydb.core.Flyway
 import java.sql.Connection
+import javax.sql.DataSource
 
-class Database(cluster: Cluster) : DatabaseInterface {
+class DatabaseImpl(cluster: Cluster) : Database {
 
     data class DbConf(val mountPath: String, val jdbcUrl: String)
 
@@ -22,7 +24,7 @@ class Database(cluster: Cluster) : DatabaseInterface {
         )
     }
 
-    private val dataSource: HikariDataSource
+    override val dataSource: DataSource
 
     override val connection: Connection
         get() = dataSource.connection
@@ -57,7 +59,8 @@ class Database(cluster: Cluster) : DatabaseInterface {
     }
 }
 
-interface DatabaseInterface {
+interface Database {
     val connection: Connection
+    val dataSource: DataSource
 }
 

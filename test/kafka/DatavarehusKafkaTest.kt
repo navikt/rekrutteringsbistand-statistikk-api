@@ -2,7 +2,7 @@ package kafka
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import db.TestDatabase
+import db.TestDatabaseImpl
 import etKandidatutfall
 import innloggaHttpClient
 import io.ktor.client.request.post
@@ -30,7 +30,7 @@ class DatavarehusKafkaTest {
     private val client = innloggaHttpClient()
 
     companion object {
-        private val database = TestDatabase()
+        private val database = TestDatabaseImpl()
         private val port = randomPort()
         private val lokalKafka = KafkaEnvironment(withSchemaRegistry = true)
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(
