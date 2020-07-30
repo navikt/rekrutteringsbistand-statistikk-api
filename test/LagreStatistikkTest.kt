@@ -10,6 +10,7 @@ import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabaseImpl
+import db.TestRepository
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
@@ -23,6 +24,7 @@ class LagreStatistikkTest {
 
     companion object {
         private val database = TestDatabaseImpl()
+        private val repository = TestRepository(database.connection)
         private val port = randomPort()
 
         init {
@@ -39,7 +41,7 @@ class LagreStatistikkTest {
         }
 
         assertThat(response.status).isEqualTo(HttpStatusCode.Created)
-        database.hentUtfall().forEachIndexed { index, utfall ->
+        repository.hentUtfall().forEachIndexed { index, utfall ->
             assertThat(utfall.aktorId).isEqualTo(kandidatutfallTilLagring[index].aktørId)
             assertThat(utfall.utfall).isEqualTo(kandidatutfallTilLagring[index].utfall)
             assertThat(utfall.navIdent).isEqualTo(kandidatutfallTilLagring[index].navIdent)
@@ -59,6 +61,6 @@ class LagreStatistikkTest {
 
     @After
     fun cleanUp() {
-        database.slettAlleUtfall()
+        repository.slettAlleUtfall()
     }
 }

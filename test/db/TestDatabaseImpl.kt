@@ -42,31 +42,4 @@ class TestDatabaseImpl : Database {
             .migrate()
     }
 
-    fun hentUtfall(): List<Kandidatutfall> {
-        connection.use {
-            val resultSet = it.prepareStatement("SELECT * FROM $kandidatutfallTabell").executeQuery()
-            return generateSequence {
-                if (resultSet.next()) konverterTilKandidatutfall(resultSet)
-                else null
-            }.toList()
-        }
-    }
-
-    private fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
-        Kandidatutfall(
-            aktorId = resultSet.getString(aktørId),
-            utfall = resultSet.getString(utfall),
-            navIdent = resultSet.getString(navident),
-            navKontor = resultSet.getString(navkontor),
-            kandidatlisteId = resultSet.getString(kandidatlisteid),
-            stillingsId = resultSet.getString(stillingsid),
-            tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime()
-        )
-
-    fun slettAlleUtfall() {
-        connection.use {
-            it.prepareStatement("DELETE FROM $kandidatutfallTabell").execute()
-            it.commit()
-        }
-    }
 }

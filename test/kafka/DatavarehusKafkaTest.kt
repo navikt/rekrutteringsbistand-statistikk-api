@@ -20,6 +20,7 @@ import randomPort
 import start
 import tilJson
 import basePath
+import db.TestRepository
 import no.nav.rekrutteringsbistand.KandidatUtfall
 import java.time.Duration
 
@@ -31,6 +32,7 @@ class DatavarehusKafkaTest {
 
     companion object {
         private val database = TestDatabaseImpl()
+        private val repository = TestRepository(database.connection)
         private val port = randomPort()
         private val lokalKafka = KafkaEnvironment(withSchemaRegistry = true)
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(
@@ -67,7 +69,7 @@ class DatavarehusKafkaTest {
 
     @After
     fun cleanUp() {
-        database.slettAlleUtfall()
+        repository.slettAlleUtfall()
         lokalKafka.tearDown()
     }
 }
