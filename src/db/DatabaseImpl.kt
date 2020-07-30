@@ -2,7 +2,6 @@ package no.nav.rekrutteringsbistand.statistikk.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.rekrutteringsbistand.KandidatUtfall
 import no.nav.rekrutteringsbistand.statistikk.Cluster
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.flywaydb.core.Flyway
@@ -20,7 +19,7 @@ class DatabaseImpl(cluster: Cluster) : Database {
         )
         Cluster.PROD_FSS -> DbConf(
             mountPath = "postgresql/prod-fss",
-            jdbcUrl = "jdbc:postgresql://A01DBVL011.adeo.no:5432/rekrutteringsbistand-statistikk"
+            jdbcUrl = "jdbc:postgresql://a01dbvl011.adeo.no:5432/rekrutteringsbistand-statistikk"
         )
     }
 
@@ -63,4 +62,3 @@ interface Database {
     val connection: Connection
     val dataSource: DataSource
 }
-

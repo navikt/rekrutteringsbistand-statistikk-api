@@ -6,6 +6,4 @@ fun sendKafkaMeldingTilDatavarehus(db: Database, kafkaProducer: DatavarehusKafka
     // Finn databserad
     // sende
     // skriv at er sendt til db
-
-
 }

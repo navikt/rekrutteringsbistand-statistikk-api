@@ -18,6 +18,7 @@ import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.rekrutteringsbistand.statistikk.db.Database
+import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.kafka.startScheduler
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
@@ -46,14 +47,16 @@ fun lagApplicationEngine(
         }
         Metrics.addRegistry(prometheusMeterRegistry)
 
+        val repository = Repository(database.connection)
+
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 naisEndepunkt(prometheusMeterRegistry)
-                kandidatutfall(database, datavarehusKafkaProducer)
+                kandidatutfall(repository, datavarehusKafkaProducer)
             }
         }
 
-        startScheduler(database)
+//        startScheduler(database)
     }
 }
 
