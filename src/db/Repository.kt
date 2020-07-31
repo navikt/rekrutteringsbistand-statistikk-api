@@ -1,6 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
-import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.*
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import javax.sql.DataSource
@@ -16,11 +16,16 @@ class Repository(private val dataSource: DataSource) {
         const val kandidatlisteid = "kandidatlisteid"
         const val stillingsid = "stillingsid"
         const val tidspunkt = "tidspunkt"
+        const val sendtStatus = "sendt_status"
+        const val antallSendtForsøk = "antall_sendt_forsok"
+        const val sisteSendtForsøk = "siste_sendt_forsok"
+
     }
 
     fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
         dataSource.connection.use {
-            it.prepareStatement("""INSERT INTO $kandidatutfallTabell (
+            it.prepareStatement(
+                """INSERT INTO $kandidatutfallTabell (
                                             $aktørId,
                                             $utfall,
                                             $navident,
@@ -42,7 +47,10 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentUsendteUtfall() {
+    fun connection() = dataSource.connection
+
+    fun hentUsendteUtfall(): List<Kandidatutfall> {
         // TODO
+        return listOf<Kandidatutfall>()
     }
 }

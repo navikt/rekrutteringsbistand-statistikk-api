@@ -20,7 +20,6 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.rekrutteringsbistand.statistikk.db.Database
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
-import no.nav.rekrutteringsbistand.statistikk.kafka.startScheduler
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 
@@ -52,7 +51,7 @@ fun lagApplicationEngine(
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 naisEndepunkt(prometheusMeterRegistry)
-                kandidatutfall(repository, datavarehusKafkaProducer)
+                kandidatutfall(repository)
             }
         }
 
