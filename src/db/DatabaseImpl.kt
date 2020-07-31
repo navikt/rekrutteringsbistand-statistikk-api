@@ -5,7 +5,6 @@ import com.zaxxer.hikari.HikariDataSource
 import no.nav.rekrutteringsbistand.statistikk.Cluster
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.flywaydb.core.Flyway
-import java.sql.Connection
 import javax.sql.DataSource
 
 class DatabaseImpl(cluster: Cluster) : Database {
@@ -25,9 +24,6 @@ class DatabaseImpl(cluster: Cluster) : Database {
 
     override val dataSource: DataSource
 
-    override val connection: Connection
-        get() = dataSource.connection
-
     init {
         dataSource = opprettDataSource(role = "user")
         kjørFlywayMigreringer()
@@ -39,7 +35,6 @@ class DatabaseImpl(cluster: Cluster) : Database {
             minimumIdle = 1
             maximumPoolSize = 2
             driverClassName = "org.postgresql.Driver"
-            isAutoCommit = false
         }
 
         return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
@@ -59,6 +54,5 @@ class DatabaseImpl(cluster: Cluster) : Database {
 }
 
 interface Database {
-    val connection: Connection
     val dataSource: DataSource
 }

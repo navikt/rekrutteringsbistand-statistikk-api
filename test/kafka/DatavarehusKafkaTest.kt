@@ -32,7 +32,7 @@ class DatavarehusKafkaTest {
 
     companion object {
         private val database = TestDatabaseImpl()
-        private val repository = TestRepository(database.connection)
+        private val repository = TestRepository(database.dataSource)
         private val port = randomPort()
         private val lokalKafka = KafkaEnvironment(withSchemaRegistry = true)
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(

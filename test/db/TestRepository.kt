@@ -2,21 +2,25 @@ package db
 
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Kandidatutfall
-import java.sql.Connection
 import java.sql.ResultSet
+import javax.sql.DataSource
 
-class TestRepository(private val connection: Connection) {
+class TestRepository(private val dataSource: DataSource) {
 
     fun slettAlleUtfall() {
-        connection.prepareStatement("DELETE FROM ${Repository.kandidatutfallTabell}").execute()
+        dataSource.connection.use {
+            it.prepareStatement("DELETE FROM ${Repository.kandidatutfallTabell}").execute()
+        }
     }
 
     fun hentUtfall(): List<Kandidatutfall> {
-        val resultSet = connection.prepareStatement("SELECT * FROM ${Repository.kandidatutfallTabell}").executeQuery()
-        return generateSequence {
-            if (resultSet.next()) konverterTilKandidatutfall(resultSet)
-            else null
-        }.toList()
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement("SELECT * FROM ${Repository.kandidatutfallTabell}").executeQuery()
+            return generateSequence {
+                if (resultSet.next()) konverterTilKandidatutfall(resultSet)
+                else null
+            }.toList()
+        }
     }
 
     private fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =

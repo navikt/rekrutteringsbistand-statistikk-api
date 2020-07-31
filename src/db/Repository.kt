@@ -1,11 +1,11 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.*
-import java.sql.Connection
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import javax.sql.DataSource
 
-class Repository(private val connection: Connection) {
+class Repository(private val dataSource: DataSource) {
 
     companion object {
         const val kandidatutfallTabell = "kandidatutfall"
@@ -19,7 +19,8 @@ class Repository(private val connection: Connection) {
     }
 
     fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
-        connection.prepareStatement("""INSERT INTO $kandidatutfallTabell (
+        dataSource.connection.use {
+            it.prepareStatement("""INSERT INTO $kandidatutfallTabell (
                                             $aktørId,
                                             $utfall,
                                             $navident,
@@ -28,15 +29,16 @@ class Repository(private val connection: Connection) {
                                             $stillingsid,
                                             $tidspunkt
                                         ) VALUES (?, ?, ?, ?, ?, ?, ?)"""
-        ).apply {
-            setString(1, kandidatutfall.aktørId)
-            setString(2, kandidatutfall.utfall)
-            setString(3, kandidatutfall.navIdent)
-            setString(4, kandidatutfall.navKontor)
-            setString(5, kandidatutfall.kandidatlisteId)
-            setString(6, kandidatutfall.stillingsId)
-            setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
-            executeUpdate()
+            ).apply {
+                setString(1, kandidatutfall.aktørId)
+                setString(2, kandidatutfall.utfall)
+                setString(3, kandidatutfall.navIdent)
+                setString(4, kandidatutfall.navKontor)
+                setString(5, kandidatutfall.kandidatlisteId)
+                setString(6, kandidatutfall.stillingsId)
+                setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
+                executeUpdate()
+            }
         }
     }
 

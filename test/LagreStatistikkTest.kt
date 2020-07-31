@@ -24,7 +24,7 @@ class LagreStatistikkTest {
 
     companion object {
         private val database = TestDatabaseImpl()
-        private val repository = TestRepository(database.connection)
+        private val repository = TestRepository(database.dataSource)
         private val port = randomPort()
 
         init {

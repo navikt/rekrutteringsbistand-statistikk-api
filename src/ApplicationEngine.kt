@@ -47,7 +47,7 @@ fun lagApplicationEngine(
         }
         Metrics.addRegistry(prometheusMeterRegistry)
 
-        val repository = Repository(database.connection)
+        val repository = Repository(database.dataSource)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
