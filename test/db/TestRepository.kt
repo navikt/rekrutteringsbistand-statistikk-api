@@ -37,7 +37,7 @@ class TestRepository(private val dataSource: DataSource) {
             tidspunkt = resultSet.getTimestamp(Repository.tidspunkt).toLocalDateTime(),
             antallSendtForsøk = resultSet.getInt(Repository.antallSendtForsøk),
             sendtStatus = SendtStatus.valueOf(resultSet.getString(Repository.sendtStatus)),
-            sisteSendtForsøk = resultSet.getTimestamp(Repository.sisteSendtForsøk).toLocalDateTime()
+            sisteSendtForsøk = resultSet.getTimestamp(Repository.sisteSendtForsøk)?.toLocalDateTime()
         )
 
 }

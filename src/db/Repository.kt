@@ -19,7 +19,6 @@ class Repository(private val dataSource: DataSource) {
         const val sendtStatus = "sendt_status"
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
-
     }
 
     fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {

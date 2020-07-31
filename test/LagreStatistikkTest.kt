@@ -1,5 +1,6 @@
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.post
@@ -11,6 +12,7 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabaseImpl
 import db.TestRepository
+import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
@@ -43,12 +45,15 @@ class LagreStatistikkTest {
         assertThat(response.status).isEqualTo(HttpStatusCode.Created)
         repository.hentUtfall().forEachIndexed { index, utfall ->
             assertThat(utfall.aktorId).isEqualTo(kandidatutfallTilLagring[index].aktørId)
-            assertThat(utfall.utfall).isEqualTo(kandidatutfallTilLagring[index].utfall)
+            assertThat(utfall.utfall.name).isEqualTo(kandidatutfallTilLagring[index].utfall)
             assertThat(utfall.navIdent).isEqualTo(kandidatutfallTilLagring[index].navIdent)
             assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
-            assertThat(utfall.kandidatlisteId).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
-            assertThat(utfall.stillingsId).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
+            assertThat(utfall.kandidatlisteId.toString()).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
+            assertThat(utfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
             assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))
+            assertThat(utfall.sendtStatus).isEqualTo(SendtStatus.IKKE_SENDT)
+            assertThat(utfall.antallSendtForsøk).isEqualTo(0)
+            assertThat(utfall.sisteSendtForsøk).isNull()
         }
     }
 

@@ -55,8 +55,11 @@ class DatavarehusKafkaTest {
             body = TextContent(tilJson(kandidatutfallTilLagring), ContentType.Application.Json)
         }
 
-        consumer.poll(Duration.ofSeconds(5))
-            .map { melding -> melding.value() }
+        val meldinger = consumer.poll(Duration.ofSeconds(5))
+
+        assertThat(meldinger.count()).isEqualTo(2)
+        meldinger
+            .map { it.value() }
             .forEachIndexed { index, melding ->
                 assertThat(melding.getAktørId()).isEqualTo(kandidatutfallTilLagring[index].aktørId)
                 assertThat(melding.getUtfall()).isEqualTo(kandidatutfallTilLagring[index].utfall)
