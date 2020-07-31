@@ -32,6 +32,8 @@ fun Route.kandidatutfall(repository: Repository) {
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 
+//            triggsendingtilkafka()
+
             call.respond(HttpStatusCode.Created)
         }
     }

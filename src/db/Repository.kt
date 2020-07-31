@@ -1,9 +1,13 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
+import java.sql.Connection
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import javax.sql.DataSource
+import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
+import java.sql.ResultSet
+import java.util.*
 
 class Repository(private val dataSource: DataSource) {
 
@@ -19,6 +23,20 @@ class Repository(private val dataSource: DataSource) {
         const val sendtStatus = "sendt_status"
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
+
+        fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
+            Kandidatutfall(
+                aktorId = resultSet.getString(aktørId),
+                utfall = Utfall.valueOf(resultSet.getString(utfall)),
+                navIdent = resultSet.getString(navident),
+                navKontor = resultSet.getString(navkontor),
+                kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteid)),
+                stillingsId = UUID.fromString(resultSet.getString(stillingsid)),
+                tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime(),
+                antallSendtForsøk = resultSet.getInt(antallSendtForsøk),
+                sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
+                sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime()
+            )
     }
 
     fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
@@ -46,10 +64,17 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun connection() = dataSource.connection
+    fun connection(): Connection = dataSource.connection
 
     fun hentUsendteUtfall(): List<Kandidatutfall> {
-        // TODO
-        return listOf<Kandidatutfall>()
+        dataSource.connection.use {
+            val resultSet =
+                it.prepareStatement("SELECT * FROM $kandidatutfallTabell WHERE $sendtStatus = '${IKKE_SENDT.name}'")
+                    .executeQuery()
+            return generateSequence {
+                if (resultSet.next()) konverterTilKandidatutfall(resultSet)
+                else null
+            }.toList()
+        }
     }
 }
