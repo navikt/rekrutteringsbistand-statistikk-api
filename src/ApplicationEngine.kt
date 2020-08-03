@@ -17,18 +17,18 @@ import io.ktor.util.KtorExperimentalAPI
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.rekrutteringsbistand.statistikk.db.Database
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
+import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
 import no.nav.rekrutteringsbistand.statistikk.kafka.sendKafkaMeldingTilDatavarehus
-import no.nav.rekrutteringsbistand.statistikk.kafka.startScheduler
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
+import javax.sql.DataSource
 
 @KtorExperimentalAPI
 fun lagApplicationEngine(
     port: Int = 8111,
-    database: Database,
+    dataSource: DataSource,
     tokenValidationConfig: Authentication.Configuration.() -> Unit,
     datavarehusKafkaProducer: DatavarehusKafkaProducer
 ): ApplicationEngine {
@@ -48,17 +48,18 @@ fun lagApplicationEngine(
         }
         Metrics.addRegistry(prometheusMeterRegistry)
 
-        val repository = Repository(database.dataSource)
+        val repository = Repository(dataSource)
+        val sendKafkaMelding: Runnable = sendKafkaMeldingTilDatavarehus(repository, datavarehusKafkaProducer)
+        val scheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding);
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 naisEndepunkt(prometheusMeterRegistry)
-                kandidatutfall(repository)
+                kandidatutfall(repository, scheduler)
             }
         }
 
-        val sendKafkaMelding = sendKafkaMeldingTilDatavarehus(repository, datavarehusKafkaProducer)
-        startScheduler(database.dataSource, sendKafkaMelding)
+        scheduler.executePeriodically()
     }
 }
 

@@ -40,7 +40,7 @@ fun start(
 
     val applicationEngine = lagApplicationEngine(
         port,
-        database,
+        database.dataSource,
         tokenValidationConfig,
         datavarehusKafkaProducer
     )

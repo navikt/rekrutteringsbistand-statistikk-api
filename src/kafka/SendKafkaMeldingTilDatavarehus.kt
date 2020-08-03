@@ -11,16 +11,12 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 
 fun sendKafkaMeldingTilDatavarehus(repository: Repository, kafkaProducer: DatavarehusKafkaProducer) = Runnable {
-    // Finn databserad
     val skalSendes = repository.hentUsendteUtfall()
 
     repository.connection().use { conn ->
-        // autocommit false
         conn.autoCommit = false
-
         try {
             skalSendes.forEach {
-                // skriv at er sendt til db
                 conn.prepareStatement(
                     """UPDATE $kandidatutfallTabell
                           SET $sendtStatus = ?,
@@ -31,14 +27,10 @@ fun sendKafkaMeldingTilDatavarehus(repository: Repository, kafkaProducer: Datava
                     setInt(2, it.antallSendtForsøk + 1)
                     setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()))
                 }
-
-                // sende
-                kafkaProducer.send(it) // TODO type
-                // commit
+                kafkaProducer.send(it)
                 conn.commit()
             }
         } catch (e: Exception) {
-            // rollback
             log.error("Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall", e)
             conn.rollback()
         }

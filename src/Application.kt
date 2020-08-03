@@ -27,7 +27,7 @@ fun main() {
     }
 
     val applicationEngine = lagApplicationEngine(
-        database = database,
+        dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer
     )

@@ -9,6 +9,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.micrometer.core.instrument.Metrics
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
+import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
 import no.nav.rekrutteringsbistand.statistikk.log
 
 data class OpprettKandidatutfall(
@@ -20,7 +21,7 @@ data class OpprettKandidatutfall(
     val stillingsId: String
 )
 
-fun Route.kandidatutfall(repository: Repository) {
+fun Route.kandidatutfall(repository: Repository, sendStatistikk: KafkaTilDataverehusScheduler) {
 
     authenticate {
         post("/kandidatutfall") {
@@ -32,8 +33,7 @@ fun Route.kandidatutfall(repository: Repository) {
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 
-//            triggsendingtilkafka()
-
+            sendStatistikk.executeOnceAsync()
             call.respond(HttpStatusCode.Created)
         }
     }

@@ -26,6 +26,8 @@ plugins {
     id("com.github.johnrengelman.shadow") version "5.2.0"
     id("com.github.ben-manes.versions") version "0.28.0"
     id("com.commercehub.gradle.plugin.avro") version "0.21.0"
+
+    idea
 }
 
 apply(plugin = "kotlin")
@@ -88,3 +90,4 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
 }
+
