@@ -31,7 +31,7 @@ class DatavarehusKafkaProducerImpl(config: Properties) : DatavarehusKafkaProduce
             LocalDateTime.now().toString()
         )
         producer.send(ProducerRecord(TOPIC, UUID.randomUUID().toString(), melding)) { _, _ ->
-            log.info("Sendte melding")
+            log.info("Sendte melding for $kandidatutfall")
         }
     }
 }

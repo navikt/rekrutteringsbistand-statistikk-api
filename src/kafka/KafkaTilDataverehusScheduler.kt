@@ -9,7 +9,7 @@ import javax.sql.DataSource
 import kotlin.concurrent.fixedRateTimer
 import kotlin.concurrent.timerTask
 
-class KafkaTilDataverehusScheduler(val dataSource: DataSource, private val runnable: Runnable) {
+class KafkaTilDataverehusScheduler(dataSource: DataSource, private val runnable: Runnable) {
 
     private val lockProvider = JdbcLockProvider(dataSource)
     private val lockingExecutor = DefaultLockingTaskExecutor(lockProvider)
@@ -17,7 +17,7 @@ class KafkaTilDataverehusScheduler(val dataSource: DataSource, private val runna
     private val runnableMedLås: TimerTask.() -> Unit = {
         lockingExecutor.executeWithLock(
             runnable,
-            LockConfiguration("retry-lock", Duration.ofMinutes(10), Duration.ofSeconds(10))
+            LockConfiguration("retry-lock", Duration.ofMinutes(10), Duration.ofMillis(0L))
         )
     }
 

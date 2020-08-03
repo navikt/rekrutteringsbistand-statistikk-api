@@ -16,7 +16,7 @@ fun sendKafkaMeldingTilDatavarehus(repository: Repository, kafkaProducer: Datava
     repository.connection().use { conn ->
         conn.autoCommit = false
         try {
-            skalSendes.forEach {
+            skalSendes.forEach { utfall ->
                 conn.prepareStatement(
                     """UPDATE $kandidatutfallTabell
                           SET $sendtStatus = ?,
@@ -24,11 +24,11 @@ fun sendKafkaMeldingTilDatavarehus(repository: Repository, kafkaProducer: Datava
                               $sisteSendtForsøk = ?"""
                 ).apply {
                     setString(1, SENDT.name)
-                    setInt(2, it.antallSendtForsøk + 1)
+                    setInt(2, utfall.antallSendtForsøk + 1)
                     setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()))
                     executeUpdate()
                 }
-                kafkaProducer.send(it)
+                kafkaProducer.send(utfall)
                 conn.commit()
             }
         } catch (e: Exception) {
