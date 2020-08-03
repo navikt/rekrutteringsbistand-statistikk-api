@@ -22,7 +22,10 @@ import tilJson
 import basePath
 import db.TestRepository
 import no.nav.rekrutteringsbistand.KandidatUtfall
+import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.SENDT
 import java.time.Duration
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @KtorExperimentalAPI
 class DatavarehusKafkaTest {
@@ -70,9 +73,31 @@ class DatavarehusKafkaTest {
             }
     }
 
+    @Test
+    fun `Sending på Kafka-topic skal endre status fra IKKE_SENDT til SENDT`() = runBlocking {
+        val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
+
+        client.post<HttpResponse>("$basePath/kandidatutfall") {
+            body = TextContent(tilJson(kandidatutfallTilLagring), ContentType.Application.Json)
+        }
+
+        val consumer = KafkaConsumer<String, KandidatUtfall>(consumerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url))
+        consumer.subscribe(listOf(DatavarehusKafkaProducerImpl.TOPIC))
+        consumer.poll(Duration.ofSeconds(5))
+
+        repository.hentUtfall().forEach {
+            assertThat(it.sendtStatus).isEqualTo(SENDT)
+            assertThat(it.antallSendtForsøk).isEqualTo(1)
+            assertThat(it.sisteSendtForsøk!!.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))
+        }
+    }
+
     @After
     fun cleanUp() {
         repository.slettAlleUtfall()
-        lokalKafka.tearDown()
+
+//        lokalKafka.tearDown()
+
+        lokalKafka.adminClient?.deleteTopics(listOf(DatavarehusKafkaProducerImpl.TOPIC))
     }
 }

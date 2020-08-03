@@ -26,6 +26,7 @@ fun sendKafkaMeldingTilDatavarehus(repository: Repository, kafkaProducer: Datava
                     setString(1, SENDT.name)
                     setInt(2, it.antallSendtForsøk + 1)
                     setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()))
+                    executeUpdate()
                 }
                 kafkaProducer.send(it)
                 conn.commit()
