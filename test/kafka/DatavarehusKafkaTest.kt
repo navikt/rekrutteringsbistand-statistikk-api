@@ -28,7 +28,6 @@ import start
 import tilJson
 import java.time.Duration
 import java.time.LocalDateTime.now
-import java.time.temporal.ChronoUnit.SECONDS
 
 @KtorExperimentalAPI
 class DatavarehusKafkaTest {
@@ -64,16 +63,13 @@ class DatavarehusKafkaTest {
         }
         consumeKafka() // Vent
 
+        val now = now()
         val actuals = repository.hentUtfall()
-        val nowInSeconds = now().truncatedTo(SECONDS)
         actuals.forEach {
             assertThat(it.sendtStatus).isEqualTo(SENDT)
             assertThat(it.antallSendtForsøk).isEqualTo(1)
             assertThat(it.sisteSendtForsøk).isNotNull()
-            assertThat(it.sisteSendtForsøk!!.truncatedTo(SECONDS)).isBetween(
-                nowInSeconds.minusSeconds(10),
-                nowInSeconds
-            )
+            assertThat(it.sisteSendtForsøk!!).isBetween(now.minusSeconds(10), now)
         }
     }
 
