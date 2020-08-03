@@ -33,7 +33,7 @@ fun Route.kandidatutfall(repository: Repository, sendStatistikk: KafkaTilDataver
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 
-            sendStatistikk.executeOnceAsync()
+            sendStatistikk.kjørEnGangAsync()
             call.respond(HttpStatusCode.Created)
         }
     }

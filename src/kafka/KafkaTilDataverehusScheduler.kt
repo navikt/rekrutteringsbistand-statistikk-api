@@ -9,44 +9,29 @@ import javax.sql.DataSource
 import kotlin.concurrent.fixedRateTimer
 import kotlin.concurrent.timerTask
 
-//TODO: Are: Slettes
-//fun startScheduler(dataSource: DataSource, runnable: Runnable) {
-//    val lockProvider = JdbcLockProvider(dataSource)
-//    val lockingExecutor = DefaultLockingTaskExecutor(lockProvider)
-//
-//    fixedRateTimer(period = Duration.ofMinutes(1).toMillis()) {
-//        lockingExecutor.executeWithLock(
-//            runnable,
-//            LockConfiguration("retry-lock", Duration.ofMinutes(10), Duration.ofSeconds(10))
-//        )
-//    }
-//}
+class KafkaTilDataverehusScheduler(val dataSource: DataSource, private val runnable: Runnable) {
 
-class KafkaTilDataverehusScheduler(private val dataSource: DataSource, private val runnable: Runnable) {
+    private val lockProvider = JdbcLockProvider(dataSource)
+    private val lockingExecutor = DefaultLockingTaskExecutor(lockProvider)
 
-    fun executePeriodically() {
-        val shedlockedRunnable = withShedlock(dataSource, runnable)
-        fixedRateTimer(period = Duration.ofMinutes(1).toMillis(), action = shedlockedRunnable)
+    private val runnableMedLås: TimerTask.() -> Unit = {
+        lockingExecutor.executeWithLock(
+            runnable,
+            LockConfiguration("retry-lock", Duration.ofMinutes(10), Duration.ofSeconds(10))
+        )
     }
 
-    suspend fun executeOnceAsync(delay: Long = 0L) {
-        val shedlockedRunnable = withShedlock(dataSource, runnable)
-        val timerTask = timerTask(shedlockedRunnable)
-        val timer = Timer("Send Kafka-mleding til Datavarehus")
+    fun kjørPeriodisk() {
+        fixedRateTimer(
+            name = "Send Kafka-meleding til Datavarehus periodisk",
+            period = Duration.ofMinutes(1).toMillis(),
+            action = runnableMedLås
+        )
+    }
+
+    fun kjørEnGangAsync(delay: Long = 0L) {
+        val timerTask = timerTask(runnableMedLås)
+        val timer = Timer("Send Kafka-meleding til Datavarehus én gang")
         timer.schedule(timerTask, delay)
-    }
-
-    companion object {
-
-        private fun withShedlock(dataSource: DataSource, runnable: Runnable): TimerTask.() -> Unit {
-            val lockProvider = JdbcLockProvider(dataSource)
-            val lockingExecutor = DefaultLockingTaskExecutor(lockProvider)
-            return {
-                lockingExecutor.executeWithLock(
-                    runnable,
-                    LockConfiguration("retry-lock", Duration.ofMinutes(10), Duration.ofSeconds(10))
-                )
-            }
-        }
     }
 }

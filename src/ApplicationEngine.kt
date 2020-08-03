@@ -59,7 +59,7 @@ fun lagApplicationEngine(
             }
         }
 
-        scheduler.executePeriodically()
+        scheduler.kjørPeriodisk()
     }
 }
 
