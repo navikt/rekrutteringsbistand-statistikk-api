@@ -12,6 +12,7 @@ import javax.sql.DataSource
 class Repository(private val dataSource: DataSource) {
 
     companion object {
+        const val dbId = "id"
         const val kandidatutfallTabell = "kandidatutfall"
         const val aktørId = "aktorid"
         const val utfall = "utfall"
@@ -26,6 +27,7 @@ class Repository(private val dataSource: DataSource) {
 
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
             Kandidatutfall(
+                dbId = resultSet.getLong(dbId),
                 aktorId = resultSet.getString(aktørId),
                 utfall = Utfall.valueOf(resultSet.getString(utfall)),
                 navIdent = resultSet.getString(navident),
@@ -59,6 +61,36 @@ class Repository(private val dataSource: DataSource) {
                 setString(5, kandidatutfall.kandidatlisteId)
                 setString(6, kandidatutfall.stillingsId)
                 setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
+                executeUpdate()
+            }
+        }
+    }
+
+    fun registrerSendtForsøk(utfall: Kandidatutfall) {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """UPDATE $kandidatutfallTabell
+                      SET $antallSendtForsøk = ?,
+                          $sisteSendtForsøk = ?
+                    WHERE $dbId = ?"""
+            ).apply {
+                setInt(1, utfall.antallSendtForsøk + 1)
+                setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+                setLong(3, utfall.dbId)
+                executeUpdate()
+            }
+        }
+    }
+
+    fun registrerSomSendt(utfall: Kandidatutfall) {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """UPDATE $kandidatutfallTabell
+                      SET $sendtStatus = ?
+                    WHERE $dbId = ?"""
+            ).apply {
+                setString(1, SendtStatus.SENDT.name)
+                setLong(2, utfall.dbId)
                 executeUpdate()
             }
         }

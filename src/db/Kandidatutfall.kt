@@ -1,9 +1,11 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
+import java.math.BigInteger
 import java.time.LocalDateTime
 import java.util.*
 
 data class Kandidatutfall(
+    val dbId: Long,
     val aktorId: String,
     val utfall: Utfall,
     val navIdent: String,

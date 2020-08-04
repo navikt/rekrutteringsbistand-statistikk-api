@@ -13,37 +13,18 @@ import java.sql.Connection
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
-fun sendKafkaMeldingTilDatavarehus(repository: Repository, kafkaProducer: DatavarehusKafkaProducer) = Runnable {
+fun hentUsendteUtfallOgSendPåKafka(repository: Repository, kafkaProducer: DatavarehusKafkaProducer) = Runnable {
     val skalSendes = repository.hentUsendteUtfall()
 
     repository.connection().use { conn ->
-        conn.autoCommit = false
         skalSendes.forEach { utfall ->
-            // endre antallSendtForsøk og sisteSendtForsøk
-            // commit
+            repository.registrerSendtForsøk(utfall)
 
             try {
-
                 kafkaProducer.send(utfall)
-
-                // endre sendtStatus
-                conn.prepareStatement(
-                    """UPDATE $kandidatutfallTabell
-                          SET $sendtStatus = ?,
-                              $antallSendtForsøk = ?,
-                              $sisteSendtForsøk = ?"""
-                ).apply {
-                    setString(1, SENDT.name)
-                    setInt(2, utfall.antallSendtForsøk + 1)
-                    setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()))
-                    executeUpdate()
-                }
-                // commit
-                conn.commit()
-
+                repository.registrerSomSendt(utfall)
             } catch (e: Exception) {
                 log.error("Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall", e)
-//                conn.rollback()
                 oppdaterFeiletForsøk(conn, utfall)
                 return@forEach
             }

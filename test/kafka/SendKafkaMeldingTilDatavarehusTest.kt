@@ -9,11 +9,11 @@ import etKandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.db.Kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
+import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.SENDT
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
-import no.nav.rekrutteringsbistand.statistikk.kafka.sendKafkaMeldingTilDatavarehus
+import no.nav.rekrutteringsbistand.statistikk.kafka.hentUsendteUtfallOgSendPåKafka
 import org.junit.After
 import org.junit.Test
-import java.lang.Exception
 import java.time.LocalDateTime.now
 
 class SendKafkaMeldingTilDatavarehusTest {
@@ -23,9 +23,13 @@ class SendKafkaMeldingTilDatavarehusTest {
         private val repository = Repository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
 
-        private val producerSomFeiler = object : DatavarehusKafkaProducer {
+        private val producerSomFeilerEtterFørsteKall = object : DatavarehusKafkaProducer {
+            var førsteKall = true
             override fun send(kandidatutfall: Kandidatutfall) {
-                throw Exception()
+                if (førsteKall) {
+                    førsteKall = false
+                    return
+                } else throw Exception()
             }
         }
     }
@@ -33,17 +37,19 @@ class SendKafkaMeldingTilDatavarehusTest {
     @Test
     fun `Feilsending med Kafka skal oppdatere antallSendtForsøk og sisteSendtForsøk`() {
         repository.lagreUtfall(etKandidatutfall)
-        sendKafkaMeldingTilDatavarehus(repository, producerSomFeiler).run()
+        repository.lagreUtfall(etKandidatutfall.copy(aktørId = "10000254879659"))
+        hentUsendteUtfallOgSendPåKafka(repository, producerSomFeilerEtterFørsteKall).run()
 
         val nå = now()
-        val utfall = testRepository.hentUtfall()[0]
-        assertThat(utfall.sendtStatus).isEqualTo(IKKE_SENDT)
-        assertThat(utfall.antallSendtForsøk).isEqualTo(1)
-        assertThat(utfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
+        val vellyketUtfall = testRepository.hentUtfall()[0]
+        assertThat(vellyketUtfall.sendtStatus).isEqualTo(SENDT)
+        assertThat(vellyketUtfall.antallSendtForsøk).isEqualTo(1)
+        assertThat(vellyketUtfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
 
-        sendKafkaMeldingTilDatavarehus(repository, producerSomFeiler).run()
-        val utfall2 = testRepository.hentUtfall()[0]
-        assertThat(utfall2.antallSendtForsøk).isEqualTo(2)
+        val feiletUtfall = testRepository.hentUtfall()[1]
+        assertThat(vellyketUtfall.sendtStatus).isEqualTo(IKKE_SENDT)
+        assertThat(feiletUtfall.antallSendtForsøk).isEqualTo(1)
+        assertThat(vellyketUtfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
     }
 
     @After

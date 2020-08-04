@@ -20,7 +20,7 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
-import no.nav.rekrutteringsbistand.statistikk.kafka.sendKafkaMeldingTilDatavarehus
+import no.nav.rekrutteringsbistand.statistikk.kafka.hentUsendteUtfallOgSendPåKafka
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
 import javax.sql.DataSource
@@ -49,7 +49,7 @@ fun lagApplicationEngine(
         Metrics.addRegistry(prometheusMeterRegistry)
 
         val repository = Repository(dataSource)
-        val sendKafkaMelding: Runnable = sendKafkaMeldingTilDatavarehus(repository, datavarehusKafkaProducer)
+        val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer)
         val scheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
         routing {

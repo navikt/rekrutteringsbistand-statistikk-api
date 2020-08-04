@@ -15,7 +15,7 @@ class TestRepository(private val dataSource: DataSource) {
 
     fun hentUtfall(): List<Kandidatutfall> {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("SELECT * FROM ${Repository.kandidatutfallTabell}").executeQuery()
+            val resultSet = it.prepareStatement("SELECT * FROM ${Repository.kandidatutfallTabell} ORDER BY id ASC").executeQuery()
             return generateSequence {
                 if (resultSet.next()) konverterTilKandidatutfall(resultSet)
                 else null
