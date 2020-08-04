@@ -44,14 +44,14 @@ class Repository(private val dataSource: DataSource) {
         dataSource.connection.use {
             it.prepareStatement(
                 """INSERT INTO $kandidatutfallTabell (
-                                            $aktørId,
-                                            $utfall,
-                                            $navident,
-                                            $navkontor,
-                                            $kandidatlisteid,
-                                            $stillingsid,
-                                            $tidspunkt
-                                        ) VALUES (?, ?, ?, ?, ?, ?, ?)"""
+                               $aktørId,
+                               $utfall,
+                               $navident,
+                               $navkontor,
+                               $kandidatlisteid,
+                               $stillingsid,
+                               $tidspunkt
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, kandidatutfall.aktørId)
                 setString(2, kandidatutfall.utfall)

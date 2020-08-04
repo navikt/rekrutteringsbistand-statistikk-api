@@ -1,6 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk.kafka
 
-import no.nav.rekrutteringsbistand.KandidatUtfall
+import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.db.Kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.log
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -14,14 +14,14 @@ interface DatavarehusKafkaProducer {
 
 class DatavarehusKafkaProducerImpl(config: Properties) : DatavarehusKafkaProducer {
 
-    private val producer: KafkaProducer<String, KandidatUtfall> = KafkaProducer(config)
+    private val producer: KafkaProducer<String, AvroKandidatutfall> = KafkaProducer(config)
 
     companion object {
         const val TOPIC = "aapen-formidlingsutfallEndret-v1"
     }
 
     override fun send(kandidatutfall: Kandidatutfall) {
-        val melding = KandidatUtfall(
+        val melding = AvroKandidatutfall(
             kandidatutfall.aktorId,
             kandidatutfall.utfall.name,
             kandidatutfall.navIdent,

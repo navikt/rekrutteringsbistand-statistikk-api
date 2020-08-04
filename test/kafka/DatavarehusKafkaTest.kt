@@ -16,7 +16,8 @@ import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import no.nav.common.KafkaEnvironment
-import no.nav.rekrutteringsbistand.KandidatUtfall
+import no.nav.rekrutteringsbistand.AvroKandidatutfall
+import no.nav.rekrutteringsbistand.statistikk.db.Kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.SENDT
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerImpl
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -27,6 +28,7 @@ import randomPort
 import start
 import tilJson
 import java.time.Duration
+import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 
 @KtorExperimentalAPI
@@ -41,7 +43,7 @@ class DatavarehusKafkaTest {
             body = TextContent(tilJson(expected), ContentType.Application.Json)
         }
 
-        val actuals = consumeKafka()
+        val actuals: List<AvroKandidatutfall> = consumeKafka()
 
         assertThat(actuals.count()).isEqualTo(2)
         actuals.forEachIndexed { index, actual ->
@@ -51,6 +53,7 @@ class DatavarehusKafkaTest {
             assertThat(actual.getNavKontor()).isEqualTo(expected[index].navKontor)
             assertThat(actual.getKandidatlisteId()).isEqualTo(expected[index].kandidatlisteId)
             assertThat(actual.getStillingsId()).isEqualTo(expected[index].stillingsId)
+            assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(now().minusSeconds(10), now())
         }
     }
 
@@ -64,7 +67,7 @@ class DatavarehusKafkaTest {
         consumeKafka() // Vent
 
         val now = now()
-        val actuals = repository.hentUtfall()
+        val actuals: List<Kandidatutfall> = repository.hentUtfall()
         actuals.forEach {
             assertThat(it.sendtStatus).isEqualTo(SENDT)
             assertThat(it.antallSendtForsøk).isEqualTo(1)
@@ -92,8 +95,8 @@ class DatavarehusKafkaTest {
             producerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url)
         )
 
-        private fun consumeKafka(): List<KandidatUtfall> {
-            val consumer = KafkaConsumer<String, KandidatUtfall>(
+        private fun consumeKafka(): List<AvroKandidatutfall> {
+            val consumer = KafkaConsumer<String, AvroKandidatutfall>(
                 consumerConfig(
                     lokalKafka.brokersURL,
                     lokalKafka.schemaRegistry!!.url
