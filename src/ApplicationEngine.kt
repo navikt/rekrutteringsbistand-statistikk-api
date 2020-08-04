@@ -50,7 +50,7 @@ fun lagApplicationEngine(
 
         val repository = Repository(dataSource)
         val sendKafkaMelding: Runnable = sendKafkaMeldingTilDatavarehus(repository, datavarehusKafkaProducer)
-        val scheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding);
+        val scheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
