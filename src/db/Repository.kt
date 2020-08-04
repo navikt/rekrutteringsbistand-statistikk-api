@@ -2,7 +2,6 @@ package no.nav.rekrutteringsbistand.statistikk.db
 
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
-import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -95,8 +94,6 @@ class Repository(private val dataSource: DataSource) {
             }
         }
     }
-
-    fun connection(): Connection = dataSource.connection
 
     fun hentUsendteUtfall(): List<Kandidatutfall> {
         dataSource.connection.use {

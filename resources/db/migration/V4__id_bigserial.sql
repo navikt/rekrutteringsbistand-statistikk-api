@@ -1,1 +1,0 @@
-ALTER TABLE kandidatutfall ALTER COLUMN id TYPE bigserial;

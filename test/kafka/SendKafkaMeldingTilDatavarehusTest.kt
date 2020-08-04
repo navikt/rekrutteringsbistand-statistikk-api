@@ -47,9 +47,9 @@ class SendKafkaMeldingTilDatavarehusTest {
         assertThat(vellyketUtfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
 
         val feiletUtfall = testRepository.hentUtfall()[1]
-        assertThat(vellyketUtfall.sendtStatus).isEqualTo(IKKE_SENDT)
+        assertThat(feiletUtfall.sendtStatus).isEqualTo(IKKE_SENDT)
         assertThat(feiletUtfall.antallSendtForsøk).isEqualTo(1)
-        assertThat(vellyketUtfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
+        assertThat(feiletUtfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
     }
 
     @After
