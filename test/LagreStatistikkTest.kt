@@ -51,9 +51,6 @@ class LagreStatistikkTest {
             assertThat(utfall.kandidatlisteId.toString()).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
             assertThat(utfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
             assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))
-            assertThat(utfall.sendtStatus).isEqualTo(SendtStatus.IKKE_SENDT)
-            assertThat(utfall.antallSendtForsøk).isEqualTo(0)
-            assertThat(utfall.sisteSendtForsøk).isNull()
         }
     }
 
