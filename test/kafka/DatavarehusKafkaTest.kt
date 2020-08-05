@@ -23,7 +23,6 @@ import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerImpl
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.junit.After
 import org.junit.AfterClass
-import org.junit.Ignore
 import org.junit.Test
 import randomPort
 import start
@@ -32,7 +31,6 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 
-@Ignore
 @KtorExperimentalAPI
 class DatavarehusKafkaTest {
 
