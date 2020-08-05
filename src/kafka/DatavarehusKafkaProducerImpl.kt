@@ -35,5 +35,6 @@ class DatavarehusKafkaProducerImpl(config: Properties) : DatavarehusKafkaProduce
             log.info("Sendte melding på Kafka. dbId: ${kandidatutfall.dbId}," +
                      "kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
         }
+        throw Exception()
     }
 }
