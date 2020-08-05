@@ -7,7 +7,7 @@ import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.flywaydb.core.Flyway
 import javax.sql.DataSource
 
-class DatabaseImpl(cluster: Cluster) : Database {
+class Database(cluster: Cluster) {
 
     data class DbConf(val mountPath: String, val jdbcUrl: String)
 
@@ -22,7 +22,7 @@ class DatabaseImpl(cluster: Cluster) : Database {
         )
     }
 
-    override val dataSource: DataSource
+    val dataSource: DataSource
 
     init {
         dataSource = opprettDataSource(role = "user")
@@ -51,8 +51,4 @@ class DatabaseImpl(cluster: Cluster) : Database {
             .load()
             .migrate()
     }
-}
-
-interface Database {
-    val dataSource: DataSource
 }

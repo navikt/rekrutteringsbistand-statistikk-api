@@ -2,13 +2,12 @@ package db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.rekrutteringsbistand.statistikk.db.Database
 import org.flywaydb.core.Flyway
 import javax.sql.DataSource
 
-class TestDatabaseImpl : Database {
+class TestDatabase {
 
-    override val dataSource: DataSource = HikariDataSource(
+    val dataSource: DataSource = HikariDataSource(
         HikariConfig().apply {
             jdbcUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
             username = "sa"

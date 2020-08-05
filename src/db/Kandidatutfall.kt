@@ -1,6 +1,5 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
-import java.math.BigInteger
 import java.time.LocalDateTime
 import java.util.*
 

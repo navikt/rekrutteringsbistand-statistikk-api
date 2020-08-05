@@ -2,7 +2,7 @@ package no.nav.rekrutteringsbistand.statistikk
 
 import io.ktor.auth.Authentication
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.rekrutteringsbistand.statistikk.db.DatabaseImpl
+import no.nav.rekrutteringsbistand.statistikk.db.Database
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerImpl
 import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaConfig
 import no.nav.security.token.support.ktor.tokenValidationSupport
@@ -13,7 +13,7 @@ val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistik
 
 @KtorExperimentalAPI
 fun main() {
-    val database = DatabaseImpl(Cluster.current)
+    val database = Database(Cluster.current)
 
     val tokenSupportConfig = tokenSupportConfig(Cluster.current)
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {

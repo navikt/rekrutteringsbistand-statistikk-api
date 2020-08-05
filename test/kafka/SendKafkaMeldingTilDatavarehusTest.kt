@@ -3,7 +3,7 @@ package kafka
 import assertk.assertThat
 import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
-import db.TestDatabaseImpl
+import db.TestDatabase
 import db.TestRepository
 import etKandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.db.Kandidatutfall
@@ -19,7 +19,7 @@ import java.time.LocalDateTime.now
 class SendKafkaMeldingTilDatavarehusTest {
 
     companion object {
-        private val database = TestDatabaseImpl()
+        private val database = TestDatabase()
         private val repository = Repository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
 

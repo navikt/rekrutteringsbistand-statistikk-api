@@ -1,7 +1,6 @@
 import io.ktor.auth.Authentication
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.rekrutteringsbistand.statistikk.db.Database
-import db.TestDatabaseImpl
+import db.TestDatabase
 import kafka.DatavarehusKafkaProducerStub
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.lagApplicationEngine
@@ -18,7 +17,7 @@ fun main() {
 
 @KtorExperimentalAPI
 fun start(
-    database: Database = TestDatabaseImpl(),
+    database: TestDatabase = TestDatabase(),
     port: Int = 8111,
     datavarehusKafkaProducer: DatavarehusKafkaProducer = DatavarehusKafkaProducerStub()
 ) {

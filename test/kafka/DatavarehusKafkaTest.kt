@@ -5,7 +5,7 @@ import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import basePath
-import db.TestDatabaseImpl
+import db.TestDatabase
 import db.TestRepository
 import etKandidatutfall
 import innloggaHttpClient
@@ -87,7 +87,7 @@ class DatavarehusKafkaTest {
     private val client = innloggaHttpClient()
 
     companion object {
-        private val database = TestDatabaseImpl()
+        private val database = TestDatabase()
         private val repository = TestRepository(database.dataSource)
         private val port = randomPort()
         private val lokalKafka = KafkaEnvironment(withSchemaRegistry = true)

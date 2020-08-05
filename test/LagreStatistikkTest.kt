@@ -1,7 +1,6 @@
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import assertk.assertions.isNull
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.post
@@ -11,9 +10,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
-import db.TestDatabaseImpl
+import db.TestDatabase
 import db.TestRepository
-import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
@@ -26,7 +24,7 @@ class LagreStatistikkTest {
     private val client = innloggaHttpClient()
 
     companion object {
-        private val database = TestDatabaseImpl()
+        private val database = TestDatabase()
         private val repository = TestRepository(database.dataSource)
         private val port = randomPort()
 
