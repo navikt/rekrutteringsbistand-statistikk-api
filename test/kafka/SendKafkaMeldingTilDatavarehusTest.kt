@@ -13,11 +13,9 @@ import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.SENDT
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.kafka.hentUsendteUtfallOgSendPåKafka
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Test
 import java.time.LocalDateTime.now
 
-@Ignore
 class SendKafkaMeldingTilDatavarehusTest {
 
     companion object {
