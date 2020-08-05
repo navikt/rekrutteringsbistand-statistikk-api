@@ -5,9 +5,9 @@ import com.zaxxer.hikari.HikariDataSource
 import no.nav.rekrutteringsbistand.statistikk.Cluster
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.flywaydb.core.Flyway
-import java.sql.Connection
+import javax.sql.DataSource
 
-class Database(cluster: Cluster) : DatabaseInterface {
+class Database(cluster: Cluster) {
 
     data class DbConf(val mountPath: String, val jdbcUrl: String)
 
@@ -18,14 +18,11 @@ class Database(cluster: Cluster) : DatabaseInterface {
         )
         Cluster.PROD_FSS -> DbConf(
             mountPath = "postgresql/prod-fss",
-            jdbcUrl = "jdbc:postgresql://A01DBVL011.adeo.no:5432/rekrutteringsbistand-statistikk"
+            jdbcUrl = "jdbc:postgresql://a01dbvl011.adeo.no:5432/rekrutteringsbistand-statistikk"
         )
     }
 
-    private val dataSource: HikariDataSource
-
-    override val connection: Connection
-        get() = dataSource.connection
+    val dataSource: DataSource
 
     init {
         dataSource = opprettDataSource(role = "user")
@@ -38,7 +35,6 @@ class Database(cluster: Cluster) : DatabaseInterface {
             minimumIdle = 1
             maximumPoolSize = 2
             driverClassName = "org.postgresql.Driver"
-            isAutoCommit = false
         }
 
         return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
@@ -56,8 +52,3 @@ class Database(cluster: Cluster) : DatabaseInterface {
             .migrate()
     }
 }
-
-interface DatabaseInterface {
-    val connection: Connection
-}
-

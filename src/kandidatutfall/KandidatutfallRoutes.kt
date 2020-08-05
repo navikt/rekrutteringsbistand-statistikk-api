@@ -8,20 +8,9 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.micrometer.core.instrument.Metrics
-import no.nav.rekrutteringsbistand.statistikk.db.DatabaseInterface
-import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
+import no.nav.rekrutteringsbistand.statistikk.db.Repository
+import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
 import no.nav.rekrutteringsbistand.statistikk.log
-import java.time.LocalDateTime
-
-data class Kandidatutfall(
-    val aktorId: String,
-    val utfall: String,
-    val navIdent: String,
-    val navKontor: String,
-    val kandidatlisteId: String,
-    val stillingsId: String,
-    val tidspunkt: LocalDateTime
-)
 
 data class OpprettKandidatutfall(
     val aktørId: String,
@@ -32,7 +21,7 @@ data class OpprettKandidatutfall(
     val stillingsId: String
 )
 
-fun Route.kandidatutfall(database: DatabaseInterface, datavarehusKafkaProducer: DatavarehusKafkaProducer) {
+fun Route.kandidatutfall(repository: Repository, sendStatistikk: KafkaTilDataverehusScheduler) {
 
     authenticate {
         post("/kandidatutfall") {
@@ -40,11 +29,11 @@ fun Route.kandidatutfall(database: DatabaseInterface, datavarehusKafkaProducer: 
             log.info("Mottok ${kandidatutfall.size} kandidatutfall")
 
             kandidatutfall.forEach {
-                database.lagreUtfall(it)
-                datavarehusKafkaProducer.send(it)
+                repository.lagreUtfall(it)
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 
+            sendStatistikk.kjørEnGangAsync()
             call.respond(HttpStatusCode.Created)
         }
     }

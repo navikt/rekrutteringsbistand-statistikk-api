@@ -1,5 +1,6 @@
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.post
@@ -10,6 +11,7 @@ import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabase
+import db.TestRepository
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
@@ -23,6 +25,7 @@ class LagreStatistikkTest {
 
     companion object {
         private val database = TestDatabase()
+        private val repository = TestRepository(database.dataSource)
         private val port = randomPort()
 
         init {
@@ -39,14 +42,17 @@ class LagreStatistikkTest {
         }
 
         assertThat(response.status).isEqualTo(HttpStatusCode.Created)
-        database.hentUtfall().forEachIndexed { index, utfall ->
+        repository.hentUtfall().forEachIndexed { index, utfall ->
+            assertThat(utfall.dbId).isNotNull()
             assertThat(utfall.aktorId).isEqualTo(kandidatutfallTilLagring[index].aktørId)
-            assertThat(utfall.utfall).isEqualTo(kandidatutfallTilLagring[index].utfall)
+            assertThat(utfall.utfall.name).isEqualTo(kandidatutfallTilLagring[index].utfall)
             assertThat(utfall.navIdent).isEqualTo(kandidatutfallTilLagring[index].navIdent)
             assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
-            assertThat(utfall.kandidatlisteId).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
-            assertThat(utfall.stillingsId).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
-            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES))
+            assertThat(utfall.kandidatlisteId.toString()).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
+            assertThat(utfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
+            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
+                LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+            )
         }
     }
 
@@ -59,6 +65,6 @@ class LagreStatistikkTest {
 
     @After
     fun cleanUp() {
-        database.slettAlleUtfall()
+        repository.slettAlleUtfall()
     }
 }
