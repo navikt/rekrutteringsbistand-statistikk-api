@@ -5,7 +5,6 @@ import no.nav.rekrutteringsbistand.statistikk.db.Kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.log
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
-import java.time.LocalDateTime
 import java.util.*
 
 interface DatavarehusKafkaProducer {
@@ -28,7 +27,7 @@ class DatavarehusKafkaProducerImpl(config: Properties) : DatavarehusKafkaProduce
             kandidatutfall.navKontor,
             kandidatutfall.kandidatlisteId.toString(),
             kandidatutfall.stillingsId.toString(),
-            LocalDateTime.now().toString()
+            kandidatutfall.tidspunkt.toString()
         )
         val kafkaId = UUID.randomUUID().toString()
         producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, _ ->
