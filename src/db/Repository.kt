@@ -81,7 +81,7 @@ class Repository(private val dataSource: DataSource) {
     fun hentUsendteUtfall(): List<Kandidatutfall> {
         dataSource.connection.use {
             val resultSet =
-                it.prepareStatement("SELECT * FROM $kandidatutfallTabell WHERE $sendtStatus = '${IKKE_SENDT.name}'")
+                it.prepareStatement("SELECT * FROM $kandidatutfallTabell WHERE $sendtStatus = '${IKKE_SENDT.name}' ORDER BY $dbId ASC")
                     .executeQuery()
             return generateSequence {
                 if (resultSet.next()) konverterTilKandidatutfall(resultSet)
