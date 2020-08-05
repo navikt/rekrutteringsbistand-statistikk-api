@@ -2,7 +2,7 @@ package db
 
 import no.nav.rekrutteringsbistand.statistikk.db.Kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
-import no.nav.rekrutteringsbistand.statistikk.db.Repository.Companion.konverterTilKandidatutfall
+import no.nav.rekrutteringsbistand.statistikk.db.konverterTilKandidatutfall
 import javax.sql.DataSource
 
 class TestRepository(private val dataSource: DataSource) {

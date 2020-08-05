@@ -2,10 +2,8 @@ package no.nav.rekrutteringsbistand.statistikk.db
 
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
-import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDateTime
-import java.util.*
 import javax.sql.DataSource
 
 class Repository(private val dataSource: DataSource) {
@@ -23,21 +21,6 @@ class Repository(private val dataSource: DataSource) {
         const val sendtStatus = "sendt_status"
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
-
-        fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
-            Kandidatutfall(
-                dbId = resultSet.getLong(dbId),
-                aktorId = resultSet.getString(aktørId),
-                utfall = Utfall.valueOf(resultSet.getString(utfall)),
-                navIdent = resultSet.getString(navident),
-                navKontor = resultSet.getString(navkontor),
-                kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteid)),
-                stillingsId = UUID.fromString(resultSet.getString(stillingsid)),
-                tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime(),
-                antallSendtForsøk = resultSet.getInt(antallSendtForsøk),
-                sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
-                sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime()
-            )
     }
 
     fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
