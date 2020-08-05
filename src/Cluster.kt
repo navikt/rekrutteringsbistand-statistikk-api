@@ -3,6 +3,7 @@ package no.nav.rekrutteringsbistand.statistikk
 enum class Cluster {
     DEV_FSS, PROD_FSS;
 
+
     companion object {
         val current: Cluster by lazy {
             when (val c = System.getenv("NAIS_CLUSTER_NAME")) {
