@@ -18,7 +18,7 @@ fun hentUsendteUtfallOgSendPåKafka(repository: Repository, kafkaProducer: Datav
                 "rekrutteringsbistand.statistikk.kafka.feilet",
                 "antallSendtForsøk", it.antallSendtForsøk.toString()
             ).increment()
-            return@forEach
+            return@Runnable
         }
     }
 }
