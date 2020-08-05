@@ -18,6 +18,7 @@ val kafkaClientsVersion = "2.4.0"
 val mockkVersion = "1.10.0"
 val kafkaEmbeddedEnvironmentVersion = "2.4.0"
 val kafkaAvroSerializerVersion = "5.4.0"
+val shedlockVersion = "4.12.0"
 
 plugins {
     application
@@ -78,8 +79,8 @@ dependencies {
 
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
-    implementation("net.javacrumbs.shedlock:shedlock-core:4.12.0")
-    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:4.12.0")
+    implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
+    implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
 
     testImplementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
         exclude(group = "org.springframework.boot")
