@@ -30,8 +30,10 @@ class DatavarehusKafkaProducerImpl(config: Properties) : DatavarehusKafkaProduce
             kandidatutfall.stillingsId.toString(),
             LocalDateTime.now().toString()
         )
-        producer.send(ProducerRecord(TOPIC, UUID.randomUUID().toString(), melding)) { _, _ ->
-            log.info("Sendte melding for $kandidatutfall")
+        val kafkaId = UUID.randomUUID().toString()
+        producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, _ ->
+            log.info("Sendte melding på Kafka. dbId: ${kandidatutfall.dbId}," +
+                     "kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
         }
     }
 }
