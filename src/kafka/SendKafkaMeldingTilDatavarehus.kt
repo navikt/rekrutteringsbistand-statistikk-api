@@ -45,6 +45,7 @@ object ByClusterStrategy : Strategy {
     }
 
     override fun isEnabled(parameters: Map<String, String>?): Boolean {
+        val endring = "hei"
         val clustersParameter = parameters?.get("cluster") ?: return false
         val alleClustere = clustersParameter.split(",").map { it.trim() }.map { it.toLowerCase() }.toList()
         return alleClustere.contains(Cluster.current.name.toLowerCase())
