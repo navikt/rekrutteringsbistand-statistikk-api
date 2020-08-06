@@ -17,6 +17,7 @@ import io.ktor.util.KtorExperimentalAPI
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import no.finn.unleash.Unleash
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
@@ -30,7 +31,8 @@ fun lagApplicationEngine(
     port: Int = 8111,
     dataSource: DataSource,
     tokenValidationConfig: Authentication.Configuration.() -> Unit,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer
+    datavarehusKafkaProducer: DatavarehusKafkaProducer,
+    unleash: Unleash
 ): ApplicationEngine {
     return embeddedServer(Netty, port) {
         install(CallLogging)
@@ -49,7 +51,7 @@ fun lagApplicationEngine(
         Metrics.addRegistry(prometheusMeterRegistry)
 
         val repository = Repository(dataSource)
-        val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer)
+        val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer, unleash)
         val scheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
         routing {
