@@ -24,7 +24,7 @@ class KafkaTilDataverehusScheduler(dataSource: DataSource, private val runnable:
     fun kjørPeriodisk() {
         fixedRateTimer(
             name = "Send Kafka-meleding til Datavarehus periodisk",
-            period = Duration.ofMinutes(1).toMillis(),
+            period = Duration.ofMinutes(10).toMillis(),
             action = runnableMedLås
         )
     }

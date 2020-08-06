@@ -19,12 +19,13 @@ val mockkVersion = "1.10.0"
 val kafkaEmbeddedEnvironmentVersion = "2.4.0"
 val kafkaAvroSerializerVersion = "5.4.0"
 val shedlockVersion = "4.12.0"
+val unleashClientJavaVersion = "3.3.3"
 
 plugins {
     application
     kotlin("jvm") version "1.3.72"
 
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("com.github.johnrengelman.shadow") version "6.0.0"
     id("com.github.ben-manes.versions") version "0.28.0"
     id("com.commercehub.gradle.plugin.avro") version "0.21.0"
 
@@ -45,7 +46,6 @@ sourceSets["main"].resources.srcDirs("resources")
 sourceSets["test"].resources.srcDirs("testresources")
 
 repositories {
-    mavenCentral()
     jcenter()
     maven {
         url = uri("https://packages.confluent.io/maven/")
@@ -81,6 +81,7 @@ dependencies {
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
+    implementation("no.finn.unleash:unleash-client-java:$unleashClientJavaVersion")
 
     testImplementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
         exclude(group = "org.springframework.boot")

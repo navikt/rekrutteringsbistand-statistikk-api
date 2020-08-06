@@ -1,12 +1,19 @@
 package no.nav.rekrutteringsbistand.statistikk.kafka
 
 import io.micrometer.core.instrument.Metrics
+import no.finn.unleash.Unleash
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.log
+import no.nav.rekrutteringsbistand.statistikk.unleash.SEND_KANDIDATUTFALL_PÅ_KAFKA
 
-fun hentUsendteUtfallOgSendPåKafka(repository: Repository, kafkaProducer: DatavarehusKafkaProducer) = Runnable {
+fun hentUsendteUtfallOgSendPåKafka(
+    repository: Repository,
+    kafkaProducer: DatavarehusKafkaProducer,
+    unleash: Unleash
+) = Runnable {
+    if (!unleash.isEnabled(SEND_KANDIDATUTFALL_PÅ_KAFKA)) return@Runnable
+
     val skalSendes = repository.hentUsendteUtfall()
-
     skalSendes.forEach {
         repository.registrerSendtForsøk(it)
         try {
@@ -22,3 +29,4 @@ fun hentUsendteUtfallOgSendPåKafka(repository: Repository, kafkaProducer: Datav
         }
     }
 }
+

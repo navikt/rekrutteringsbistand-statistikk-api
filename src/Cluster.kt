@@ -12,5 +12,4 @@ enum class Cluster {
             }
         }
     }
-
 }

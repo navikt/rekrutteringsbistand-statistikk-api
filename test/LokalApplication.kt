@@ -2,6 +2,7 @@ import io.ktor.auth.Authentication
 import io.ktor.util.KtorExperimentalAPI
 import db.TestDatabase
 import kafka.DatavarehusKafkaProducerStub
+import no.finn.unleash.FakeUnleash
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.lagApplicationEngine
 import no.nav.rekrutteringsbistand.statistikk.log
@@ -37,11 +38,16 @@ fun start(
         )
     }
 
+    val unleash = FakeUnleash().apply {
+        enableAll()
+    }
+
     val applicationEngine = lagApplicationEngine(
         port,
         database.dataSource,
         tokenValidationConfig,
-        datavarehusKafkaProducer
+        datavarehusKafkaProducer,
+        unleash
     )
     applicationEngine.start()
 
