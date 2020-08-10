@@ -6,6 +6,8 @@ import no.finn.unleash.strategy.Strategy
 import no.finn.unleash.util.UnleashConfig
 import no.nav.rekrutteringsbistand.statistikk.Cluster
 
+const val SEND_KANDIDATUTFALL_PÅ_KAFKA = "rekrutteringsbistand-statistikk-api.send-kandidatutfall-paa-kafka-til-dvh"
+
 class UnleashConfig {
 
     companion object {
@@ -15,9 +17,9 @@ class UnleashConfig {
             .unleashAPI("https://unleash.nais.adeo.no/api/")
             .build()
 
-        val unleash: Unleash = DefaultUnleash(config, ByClusterStrategy)
+        val unleash: Unleash = DefaultUnleash(config, ByClusterStrategy(Cluster.current))
 
-        private object ByClusterStrategy : Strategy {
+        class ByClusterStrategy(private val currentCluster: Cluster) : Strategy {
             override fun getName(): String {
                 return "byCluster"
             }
@@ -25,9 +27,8 @@ class UnleashConfig {
             override fun isEnabled(parameters: Map<String, String>?): Boolean {
                 val clustersParameter = parameters?.get("cluster") ?: return false
                 val alleClustere = clustersParameter.split(",").map { it.trim() }.map { it.toLowerCase() }.toList()
-                return alleClustere.contains(Cluster.current.name.toLowerCase().replace("_", "-"))
+                return alleClustere.contains(currentCluster.asString())
             }
         }
     }
 }
-
