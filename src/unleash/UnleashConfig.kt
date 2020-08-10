@@ -20,9 +20,7 @@ class UnleashConfig {
         val unleash: Unleash = DefaultUnleash(config, ByClusterStrategy(Cluster.current))
 
         class ByClusterStrategy(private val currentCluster: Cluster) : Strategy {
-            override fun getName(): String {
-                return "byCluster"
-            }
+            override fun getName(): String = "byCluster"
 
             override fun isEnabled(parameters: Map<String, String>?): Boolean {
                 val clustersParameter = parameters?.get("cluster") ?: return false
