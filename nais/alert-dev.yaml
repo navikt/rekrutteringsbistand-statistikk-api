@@ -1,7 +1,7 @@
 apiVersion: "nais.io/v1"
 kind: "Alert"
 metadata:
-  name: rekrutteringsbistand-statistikk-api-alert
+  name: rekrutteringsbistand-statistikk-api
   labels:
     team: arbeidsgiver
 spec:
@@ -10,6 +10,12 @@ spec:
       channel: 'inkludering-alerts-dev'
       prependText: 'rekrutteringsbistand-statistikk-api: '
   alerts:
+    - alert: Applikasjonen er nede (ingen Kubernetes-pods er oppe)
+      severity: danger
+      expr: sum(up{app="rekrutteringsbistand-statistikk-api", job="kubernetes-pods"}) == 0
+      for: 2m
+      description: "App {{ $labels.app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
+      action: "`kubectl describe pod {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for events, og `kubectl logs {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for logger"
     - alert: Sending av kandidatutfall på Kafka til Datavarehus feilet
       expr: sum(increase(rekrutteringsbistand_statistikk_kafka_feilet_total[5m])) > 0
       for: 10s
