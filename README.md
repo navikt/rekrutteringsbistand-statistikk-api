@@ -49,4 +49,4 @@ https://analytics.amplitude.com/nav/dashboard/rp6el7n (nederst på siden)
 
 * Opprett gjerne en issue i Github for alle typer spørsmål
 * IT-utviklerne i Github-teamet https://github.com/orgs/navikt/teams/arbeidsgiver
-* IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
+* IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon) 
