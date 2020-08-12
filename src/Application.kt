@@ -29,4 +29,5 @@ fun main() {
     )
     applicationEngine.start()
     log.info("Applikasjon startet i miljø: ${Cluster.current}")
+    log.error("Logger error for å se om vi får alert på Slack") // TODO Fjern
 }
