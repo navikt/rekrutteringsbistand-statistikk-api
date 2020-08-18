@@ -1,7 +1,7 @@
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.1"
 val ktorVersion = "1.3.2"
-val kotlinVersion = "1.3.72"
+val kotlinVersion = "1.4.0"
 val h2Version = "1.4.200"
 val flywayVersion = "6.4.4"
 val hikariVersion = "3.4.5"
@@ -23,7 +23,7 @@ val unleashClientJavaVersion = "3.3.3"
 
 plugins {
     application
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.0"
 
     id("com.github.johnrengelman.shadow") version "6.0.0"
     id("com.github.ben-manes.versions") version "0.28.0"
