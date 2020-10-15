@@ -1,6 +1,6 @@
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.1"
-val ktorVersion = "1.3.2"
+val ktorVersion = "1.4.0"
 val kotlinVersion = "1.4.0"
 val h2Version = "1.4.200"
 val flywayVersion = "6.4.4"
@@ -14,10 +14,10 @@ val tokenValidationTestSupportVersion = "1.1.6"
 val jacksonVersion = "2.11.0"
 val assertkVersion = "0.22"
 val micrometerPrometheusVersion = "1.5.1"
-val kafkaClientsVersion = "2.4.0"
+val kafkaClientsVersion = "2.5.0"
 val mockkVersion = "1.10.0"
-val kafkaEmbeddedEnvironmentVersion = "2.4.0"
-val kafkaAvroSerializerVersion = "5.4.0"
+val kafkaEmbeddedEnvironmentVersion = "2.5.0"
+val kafkaAvroSerializerVersion = "5.5.0"
 val shedlockVersion = "4.12.0"
 val unleashClientJavaVersion = "3.3.3"
 
@@ -49,6 +49,9 @@ repositories {
     jcenter()
     maven {
         url = uri("https://packages.confluent.io/maven/")
+    }
+    maven {
+        url = uri("https://jitpack.io")
     }
 }
 
@@ -88,7 +91,9 @@ dependencies {
     }
     testImplementation("com.h2database:h2:$h2Version")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
+        exclude(group = "org.eclipse.jetty")
+    }
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
 }
