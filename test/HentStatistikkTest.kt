@@ -9,10 +9,13 @@ import db.TestDatabase
 import db.TestRepository
 import io.ktor.client.request.*
 import io.ktor.http.*
-import no.nav.rekrutteringsbistand.statistikk.StatistikkDto
+import no.nav.rekrutteringsbistand.statistikk.StatistikkInboundDto
+import no.nav.rekrutteringsbistand.statistikk.StatistikkOutboundDto
+import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.db.Utfall
 import org.junit.After
 import org.junit.Test
+import java.time.LocalDate
 
 @KtorExperimentalAPI
 class HentStatistikkTest {
@@ -22,7 +25,8 @@ class HentStatistikkTest {
 
     companion object {
         private val database = TestDatabase()
-        private val repository = TestRepository(database.dataSource)
+        private val repository = Repository(database.dataSource)
+        private val testRepository = TestRepository(database.dataSource)
         private val port = randomPort()
 
         init {
@@ -31,17 +35,22 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `GET til statistikk skal returnere statistikk`() = runBlocking {
-        val kandidatutfallTilLagring = listOf(
-            etKandidatutfall.copy(utfall = Utfall.PRESENTERT.name),
-            etKandidatutfall.copy(utfall = Utfall.FATT_JOBBEN.name)
-        )
-        client.post<HttpResponse>("$basePath/kandidatutfall") {
-            body = kandidatutfallTilLagring
+    fun `GET til statistikk skal returnere telling for siste registrerte formidling pr kandidat i gitt tidperiode`() = runBlocking {
+        listOf(
+            Pair(etKandidatutfall.copy(utfall = Utfall.PRESENTERT.name, aktørId = "1"), LocalDate.of(2020, 10, 1).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = Utfall.FATT_JOBBEN.name, aktørId = "1"), LocalDate.of(2020, 10, 31).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = Utfall.PRESENTERT.name, aktørId = "2"), LocalDate.of(2020, 10, 1).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = Utfall.FATT_JOBBEN.name, aktørId = "2"), LocalDate.of(2020, 11, 1).atStartOfDay())
+        ).forEach {
+            repository.lagreUtfall(it.first, it.second)
         }
 
-        val response: StatistikkDto = client.get("$basePath/statistikk")
-        // TODO: Finn ut av hvordan vi skal gjøre tellingen
+        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+            body = StatistikkInboundDto(
+                fraOgMed = LocalDate.of(2020, 10, 1),
+                tilOgMed = LocalDate.of(2020, 10, 31)
+            )
+        }
         assertThat(response.antallPresentert).isEqualTo(1)
         assertThat(response.antallFåttJobben).isEqualTo(1)
     }
@@ -55,6 +64,6 @@ class HentStatistikkTest {
 
     @After
     fun cleanUp() {
-        repository.slettAlleUtfall()
+        testRepository.slettAlleUtfall()
     }
 }
