@@ -23,7 +23,7 @@ class Repository(private val dataSource: DataSource) {
         const val sisteSendtForsøk = "siste_sendt_forsok"
     }
 
-    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
+    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall, registrertTidspunkt: LocalDateTime) {
         dataSource.connection.use {
             it.prepareStatement(
                 """INSERT INTO $kandidatutfallTabell (
@@ -42,7 +42,7 @@ class Repository(private val dataSource: DataSource) {
                 setString(4, kandidatutfall.navKontor)
                 setString(5, kandidatutfall.kandidatlisteId)
                 setString(6, kandidatutfall.stillingsId)
-                setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
+                setTimestamp(7, Timestamp.valueOf(registrertTidspunkt))
                 executeUpdate()
             }
         }
