@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.nimbusds.jwt.SignedJWT
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
@@ -21,7 +23,10 @@ fun innloggaHttpClient() = HttpClient(Apache) {
         storage = ConstantCookiesStorage(lagCookie())
     }
     install(JsonFeature) {
-        serializer = JacksonSerializer()
+        serializer = JacksonSerializer {
+            registerModule(JavaTimeModule())
+            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        }
     }
     defaultRequest {
         contentType(ContentType.Application.Json)
