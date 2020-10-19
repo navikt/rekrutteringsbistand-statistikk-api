@@ -31,6 +31,9 @@ fun innloggaHttpClient() = HttpClient(Apache) {
     defaultRequest {
         contentType(ContentType.Application.Json)
     }
+    install(HttpTimeout) {
+        requestTimeoutMillis = 99999
+    }
 }
 
 fun basePath(port: Int) = "http://localhost:$port/rekrutteringsbistand-statistikk-api"

@@ -28,7 +28,7 @@ fun Route.hentStatistikk(repository: Repository) {
             val antallPresentert = repository.hentAntallPresentert(inboundDto.fraOgMed, inboundDto.tilOgMed)
             val antallFåttJobben = repository.hentAntallFåttJobben(inboundDto.fraOgMed, inboundDto.tilOgMed)
 
-            call.respond(StatistikkOutboundDto(1, antallFåttJobben))
+            call.respond(StatistikkOutboundDto(antallPresentert, antallFåttJobben))
         }
     }
 }

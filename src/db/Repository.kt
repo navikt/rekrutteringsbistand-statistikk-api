@@ -1,6 +1,7 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
+import no.nav.rekrutteringsbistand.statistikk.db.Utfall.*
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
 import java.lang.RuntimeException
 import java.sql.Date
@@ -79,18 +80,14 @@ class Repository(private val dataSource: DataSource) {
     }
 
     fun hentAntallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
-        // todo
-    }
-
-    fun hentAntallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
-        // Vi teller PRESENTERT hvis nyeste registrering er PRESENTERT hvis vi filtrerer bort FATT_JOBBEN
+        // Vi teller presentert hvis nyeste registrering for et aktørId-kandidatlisteId-par er PRESENTERT eller FATT_JOBBEN
         dataSource.connection.use {
             val resultSet = it.prepareStatement("""
                 SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
                 (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2 GROUP BY $aktørId, $kandidatlisteid) as k2
                   WHERE
                         k1.$dbId = k2.maksId
-                    AND k1.$utfall = 'FATT_JOBBEN'
+                    AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
                     AND k1.$tidspunkt BETWEEN ? AND ?
             """.trimIndent()).apply {
                 setDate(1, Date.valueOf(fraOgMed))
@@ -100,7 +97,30 @@ class Repository(private val dataSource: DataSource) {
             if (resultSet.next()) {
                 return resultSet.getInt(1)
             } else {
-                throw RuntimeException("Prøvde å hente antall fått jobben fra databasen")
+                throw RuntimeException("Prøvde å hente antall presenterte kandidater fra databasen")
+            }
+        }
+    }
+
+    fun hentAntallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+        // Vi teller PRESENTERT hvis nyeste registrering for et aktørId-kandidatlisteId-par er PRESENTERT hvis vi filtrerer bort FATT_JOBBEN
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement("""
+                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
+                (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2 GROUP BY $aktørId, $kandidatlisteid) as k2
+                  WHERE
+                        k1.$dbId = k2.maksId
+                    AND k1.$utfall = '${FATT_JOBBEN.name}'
+                    AND k1.$tidspunkt BETWEEN ? AND ?
+            """.trimIndent()).apply {
+                setDate(1, Date.valueOf(fraOgMed))
+                setDate(2, Date.valueOf(tilOgMed))
+            }.executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall kandidater som har fått jobben fra databasen")
             }
         }
     }

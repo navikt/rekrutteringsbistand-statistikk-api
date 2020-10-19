@@ -13,6 +13,7 @@ import no.nav.rekrutteringsbistand.statistikk.StatistikkInboundDto
 import no.nav.rekrutteringsbistand.statistikk.StatistikkOutboundDto
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.db.Utfall
+import no.nav.rekrutteringsbistand.statistikk.db.Utfall.*
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
@@ -37,10 +38,11 @@ class HentStatistikkTest {
     @Test
     fun `GET til statistikk skal returnere telling for siste registrerte formidling pr kandidat i gitt tidperiode`() = runBlocking {
         listOf(
-            Pair(etKandidatutfall.copy(utfall = Utfall.PRESENTERT.name, aktørId = "1"), LocalDate.of(2020, 10, 1).atStartOfDay()),
-            Pair(etKandidatutfall.copy(utfall = Utfall.FATT_JOBBEN.name, aktørId = "1"), LocalDate.of(2020, 10, 31).atStartOfDay()),
-            Pair(etKandidatutfall.copy(utfall = Utfall.PRESENTERT.name, aktørId = "2"), LocalDate.of(2020, 10, 1).atStartOfDay()),
-            Pair(etKandidatutfall.copy(utfall = Utfall.FATT_JOBBEN.name, aktørId = "2"), LocalDate.of(2020, 11, 1).atStartOfDay())
+            Pair(etKandidatutfall.copy(utfall = PRESENTERT.name, aktørId = "1"), LocalDate.of(2020, 10, 1).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = FATT_JOBBEN.name, aktørId = "1"), LocalDate.of(2020, 10, 2).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = PRESENTERT.name, aktørId = "2"), LocalDate.of(2020, 10, 1).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = FATT_JOBBEN.name, aktørId = "2"), LocalDate.of(2020, 11, 1).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = FATT_JOBBEN.name, aktørId = "3"), LocalDate.of(2021, 1, 1).atStartOfDay())
         ).forEach {
             repository.lagreUtfall(it.first, it.second)
         }
@@ -51,8 +53,45 @@ class HentStatistikkTest {
                 tilOgMed = LocalDate.of(2020, 10, 31)
             )
         }
-        assertThat(response.antallPresentert).isEqualTo(1)
+        assertThat(response.antallPresentert).isEqualTo(2)
         assertThat(response.antallFåttJobben).isEqualTo(1)
+    }
+
+    @Test
+    fun `Registrert formidling før og etter gitte tidspunkt skal ikke telles`() = runBlocking {
+        listOf(
+            Pair(etKandidatutfall.copy(utfall = PRESENTERT.name, aktørId = "1"), LocalDate.of(2019, 10, 1).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = FATT_JOBBEN.name, aktørId = "1"), LocalDate.of(2019, 10, 2).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = PRESENTERT.name, aktørId = "2"), LocalDate.of(2020, 1, 1).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = FATT_JOBBEN.name, aktørId = "2"), LocalDate.of(2020, 11, 1).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = PRESENTERT.name, aktørId = "3"), LocalDate.of(2021, 1, 1).atStartOfDay()),
+            Pair(etKandidatutfall.copy(utfall = FATT_JOBBEN.name, aktørId = "3"), LocalDate.of(2021, 1, 1).atStartOfDay())
+        ).forEach {
+            repository.lagreUtfall(it.first, it.second)
+        }
+
+        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+            body = StatistikkInboundDto(
+                fraOgMed = LocalDate.of(2020, 10, 1),
+                tilOgMed = LocalDate.of(2020, 10, 31)
+            )
+        }
+
+        assertThat(response.antallPresentert).isEqualTo(0)
+        assertThat(response.antallFåttJobben).isEqualTo(0)
+    }
+
+    fun `Hvis man har vært innom fått jobben men det ikke er nyeste registrering skal den ikke bli telt`() = runBlocking {
+
+
+    }
+
+    fun `Selv om lang historie skal tellingen bli 1 til slutt`() = runBlocking {
+
+    }
+
+    fun `Skal ikke telle antall fått jobben hvis ingen registrerte fått jobben`() = runBlocking {
+
     }
 
     @Test
