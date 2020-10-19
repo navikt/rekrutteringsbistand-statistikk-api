@@ -80,7 +80,6 @@ class Repository(private val dataSource: DataSource) {
     }
 
     fun hentAntallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
-        // Vi teller presentert hvis nyeste registrering for et aktørId-kandidatlisteId-par er PRESENTERT eller FATT_JOBBEN
         dataSource.connection.use {
             val resultSet = it.prepareStatement("""
                 SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
@@ -105,7 +104,6 @@ class Repository(private val dataSource: DataSource) {
     }
 
     fun hentAntallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
-        // Vi teller PRESENTERT hvis nyeste registrering for et aktørId-kandidatlisteId-par er PRESENTERT hvis vi filtrerer bort FATT_JOBBEN
         dataSource.connection.use {
             val resultSet = it.prepareStatement("""
                 SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
