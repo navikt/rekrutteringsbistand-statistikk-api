@@ -94,7 +94,6 @@ class Repository(private val dataSource: DataSource) {
             """.trimIndent()).apply {
                 setDate(1, Date.valueOf(fraOgMed))
                 setDate(2, Date.valueOf(tilOgMed))
-                println("hasd")
             }.executeQuery()
 
             if (resultSet.next()) {
