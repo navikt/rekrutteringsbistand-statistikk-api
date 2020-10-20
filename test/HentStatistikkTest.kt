@@ -49,7 +49,7 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Siste registrerte fått jobben på en kandidat og kandidatliste skal telles`() = runBlocking {
+    fun `Siste registrerte fått jobben på en kandidat og kandidatliste skal telles som presentert og fått jobben`() = runBlocking {
         repository.lagreUtfall(etKandidatutfall.copy(utfall = FATT_JOBBEN.name), LocalDate.of(2020, 10, 15).atStartOfDay())
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
