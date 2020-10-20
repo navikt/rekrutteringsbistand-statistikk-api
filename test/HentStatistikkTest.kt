@@ -156,8 +156,8 @@ class HentStatistikkTest {
 
     @Test
     fun `Fått jobben to ganger på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() = runBlocking {
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT.name), LocalDate.of(2020, 1, 1).atStartOfDay())
         repository.lagreUtfall(etKandidatutfall.copy(utfall = FATT_JOBBEN.name), LocalDate.of(2020, 1, 1).atStartOfDay())
+        repository.lagreUtfall(etKandidatutfall.copy(utfall = FATT_JOBBEN.name), LocalDate.of(2020, 1, 2).atStartOfDay())
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
