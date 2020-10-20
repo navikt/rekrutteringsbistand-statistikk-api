@@ -11,8 +11,7 @@ import etKandidatutfall
 import innloggaHttpClient
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.http.content.TextContent
+import io.ktor.http.*
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import no.nav.common.KafkaEnvironment
@@ -26,7 +25,6 @@ import org.junit.AfterClass
 import org.junit.Test
 import randomPort
 import start
-import tilJson
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
@@ -40,7 +38,7 @@ class DatavarehusKafkaTest {
         val expected = listOf(etKandidatutfall, etKandidatutfall)
 
         client.post<HttpResponse>("$basePath/kandidatutfall") {
-            body = TextContent(tilJson(expected), ContentType.Application.Json)
+            body = expected
         }
 
         val actuals: List<AvroKandidatutfall> = consumeKafka()
@@ -62,7 +60,7 @@ class DatavarehusKafkaTest {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
 
         client.post<HttpResponse>("$basePath/kandidatutfall") {
-            body = TextContent(tilJson(kandidatutfallTilLagring), ContentType.Application.Json)
+            body = kandidatutfallTilLagring
         }
         consumeKafka() // Vent
 

@@ -1,7 +1,7 @@
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.1"
-val ktorVersion = "1.4.0"
-val kotlinVersion = "1.4.0"
+val ktorVersion = "1.4.1"
+val kotlinVersion = "1.4.10"
 val h2Version = "1.4.200"
 val flywayVersion = "6.4.4"
 val hikariVersion = "3.4.5"
@@ -9,8 +9,7 @@ val logstashEncoderVersion = "6.4"
 val vaultJdbcVersion = "1.3.7"
 val shadowVersion = "5.2.0"
 val postgresVersion = "42.2.14"
-val tokenValidationKtorVersion = "1.1.6"
-val tokenValidationTestSupportVersion = "1.1.6"
+val tokenValidationVersion = "1.3.1"
 val jacksonVersion = "2.11.0"
 val assertkVersion = "0.22"
 val micrometerPrometheusVersion = "1.5.1"
@@ -23,7 +22,7 @@ val unleashClientJavaVersion = "3.3.3"
 
 plugins {
     application
-    kotlin("jvm") version "1.4.0"
+    kotlin("jvm") version "1.4.10"
 
     id("com.github.johnrengelman.shadow") version "6.0.0"
     id("com.github.ben-manes.versions") version "0.28.0"
@@ -58,13 +57,14 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    implementation("io.ktor:ktor-jackson:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
+    implementation("io.ktor:ktor-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
     implementation("org.flywaydb:flyway-core:$flywayVersion")
@@ -73,7 +73,7 @@ dependencies {
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
 
     implementation("io.ktor:ktor-auth:$ktorVersion")
-    implementation("no.nav.security:token-validation-ktor:$tokenValidationKtorVersion") {
+    implementation("no.nav.security:token-validation-ktor:$tokenValidationVersion") {
         exclude(group = "io.ktor", module = "ktor-auth")
     }
 
@@ -86,7 +86,7 @@ dependencies {
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
     implementation("no.finn.unleash:unleash-client-java:$unleashClientJavaVersion")
 
-    testImplementation("no.nav.security:token-validation-test-support:$tokenValidationTestSupportVersion") {
+    testImplementation("no.nav.security:token-validation-test-support:$tokenValidationVersion") {
         exclude(group = "org.springframework.boot")
     }
     testImplementation("com.h2database:h2:$h2Version")

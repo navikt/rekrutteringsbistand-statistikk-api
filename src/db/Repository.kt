@@ -1,29 +1,18 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
+import no.nav.rekrutteringsbistand.statistikk.db.Utfall.*
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
+import java.lang.RuntimeException
+import java.sql.Date
 import java.sql.Timestamp
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.sql.DataSource
 
 class Repository(private val dataSource: DataSource) {
 
-    companion object {
-        const val dbId = "id"
-        const val kandidatutfallTabell = "kandidatutfall"
-        const val aktørId = "aktorid"
-        const val utfall = "utfall"
-        const val navident = "navident"
-        const val navkontor = "navkontor"
-        const val kandidatlisteid = "kandidatlisteid"
-        const val stillingsid = "stillingsid"
-        const val tidspunkt = "tidspunkt"
-        const val sendtStatus = "sendt_status"
-        const val antallSendtForsøk = "antall_sendt_forsok"
-        const val sisteSendtForsøk = "siste_sendt_forsok"
-    }
-
-    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
+    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall, registrertTidspunkt: LocalDateTime) {
         dataSource.connection.use {
             it.prepareStatement(
                 """INSERT INTO $kandidatutfallTabell (
@@ -42,7 +31,7 @@ class Repository(private val dataSource: DataSource) {
                 setString(4, kandidatutfall.navKontor)
                 setString(5, kandidatutfall.kandidatlisteId)
                 setString(6, kandidatutfall.stillingsId)
-                setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
+                setTimestamp(7, Timestamp.valueOf(registrertTidspunkt))
                 executeUpdate()
             }
         }
@@ -88,5 +77,68 @@ class Repository(private val dataSource: DataSource) {
                 else null
             }.toList()
         }
+    }
+
+    fun hentAntallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement("""
+                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
+                
+                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
+                     WHERE k2.$tidspunkt BETWEEN ? AND ?
+                     GROUP BY $aktørId, $kandidatlisteid) as k2
+                     
+                WHERE k1.$dbId = k2.maksId
+                  AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+            """.trimIndent()).apply {
+                setDate(1, Date.valueOf(fraOgMed))
+                setDate(2, Date.valueOf(tilOgMed))
+            }.executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall presenterte kandidater fra databasen")
+            }
+        }
+    }
+
+    fun hentAntallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement("""
+                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
+                
+                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
+                     WHERE k2.$tidspunkt BETWEEN ? AND ?
+                     GROUP BY $aktørId, $kandidatlisteid) as k2
+                     
+                WHERE k1.$dbId = k2.maksId
+                  AND k1.$utfall = '${FATT_JOBBEN.name}'
+            """.trimIndent()).apply {
+                setDate(1, Date.valueOf(fraOgMed))
+                setDate(2, Date.valueOf(tilOgMed))
+            }.executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall kandidater som har fått jobben fra databasen")
+            }
+        }
+    }
+
+    companion object {
+        const val dbId = "id"
+        const val kandidatutfallTabell = "kandidatutfall"
+        const val aktørId = "aktorid"
+        const val utfall = "utfall"
+        const val navident = "navident"
+        const val navkontor = "navkontor"
+        const val kandidatlisteid = "kandidatlisteid"
+        const val stillingsid = "stillingsid"
+        const val tidspunkt = "tidspunkt"
+        const val sendtStatus = "sendt_status"
+        const val antallSendtForsøk = "antall_sendt_forsok"
+        const val sisteSendtForsøk = "siste_sendt_forsok"
     }
 }

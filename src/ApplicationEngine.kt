@@ -6,7 +6,7 @@ import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
-import io.ktor.jackson.jackson
+import io.ktor.jackson.*
 import io.ktor.metrics.micrometer.MicrometerMetrics
 import io.ktor.routing.route
 import io.ktor.routing.routing
@@ -58,6 +58,7 @@ fun lagApplicationEngine(
             route("/rekrutteringsbistand-statistikk-api") {
                 naisEndepunkt(prometheusMeterRegistry)
                 kandidatutfall(repository, scheduler)
+                hentStatistikk(repository)
             }
         }
 

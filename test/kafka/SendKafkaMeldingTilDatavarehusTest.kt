@@ -41,8 +41,8 @@ class SendKafkaMeldingTilDatavarehusTest {
 
     @Test
     fun `Feilsending med Kafka skal oppdatere antallSendtForsøk og sisteSendtForsøk`() {
-        repository.lagreUtfall(etKandidatutfall)
-        repository.lagreUtfall(etKandidatutfall.copy(aktørId = "10000254879659"))
+        repository.lagreUtfall(etKandidatutfall, now())
+        repository.lagreUtfall(etKandidatutfall.copy(aktørId = "10000254879659"), now())
         hentUsendteUtfallOgSendPåKafka(repository, producerSomFeilerEtterFørsteKall, unleash).run()
 
         val nå = now()
@@ -59,7 +59,7 @@ class SendKafkaMeldingTilDatavarehusTest {
 
     @Test
     fun `Skal ikke sende kandidatutfall til Kafka hvis feature toggle er slått av`() {
-        repository.lagreUtfall(etKandidatutfall)
+        repository.lagreUtfall(etKandidatutfall, now())
         val unleashMedSlåttAvFeatureToggle = FakeUnleash()
         hentUsendteUtfallOgSendPåKafka(repository, producerSomFeilerEtterFørsteKall, unleashMedSlåttAvFeatureToggle).run()
 

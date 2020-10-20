@@ -11,6 +11,7 @@ import io.micrometer.core.instrument.Metrics
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
 import no.nav.rekrutteringsbistand.statistikk.log
+import java.time.LocalDateTime
 
 data class OpprettKandidatutfall(
     val aktørId: String,
@@ -29,7 +30,7 @@ fun Route.kandidatutfall(repository: Repository, sendStatistikk: KafkaTilDataver
             log.info("Mottok ${kandidatutfall.size} kandidatutfall")
 
             kandidatutfall.forEach {
-                repository.lagreUtfall(it)
+                repository.lagreUtfall(it, LocalDateTime.now())
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 

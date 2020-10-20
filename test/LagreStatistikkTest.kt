@@ -5,13 +5,12 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabase
 import db.TestRepository
+import io.ktor.http.*
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
@@ -38,7 +37,7 @@ class LagreStatistikkTest {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
 
         val response: HttpResponse = client.post("$basePath/kandidatutfall") {
-            body = TextContent(tilJson(kandidatutfallTilLagring), ContentType.Application.Json)
+            body = kandidatutfallTilLagring
         }
 
         assertThat(response.status).isEqualTo(HttpStatusCode.Created)
