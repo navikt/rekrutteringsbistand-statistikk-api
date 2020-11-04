@@ -79,7 +79,7 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate, navkontor: String): Int {
+    fun hentAntallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate, navkontorInput: String): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -89,14 +89,14 @@ class Repository(private val dataSource: DataSource) {
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktørId, $kandidatlisteid) as k2
                      
-                WHERE k1.navkontor = ? 
+                WHERE k1.$navkontor = ? 
                   AND k1.$dbId = k2.maksId
                   AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
             """.trimIndent()
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
                 setDate(2, Date.valueOf(tilOgMed))
-                setString(3, navkontor)
+                setString(3, navkontorInput)
             }.executeQuery()
 
             if (resultSet.next()) {
@@ -107,7 +107,7 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate, navkontor: String): Int {
+    fun hentAntallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate, navkontorInput: String): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -117,14 +117,14 @@ class Repository(private val dataSource: DataSource) {
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktørId, $kandidatlisteid) as k2
                      
-                WHERE k1.navkontor = ?
+                WHERE k1.$navkontor = ?
                   AND k1.$dbId = k2.maksId
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
             """.trimIndent()
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
                 setDate(2, Date.valueOf(tilOgMed))
-                setString(3, navkontor)
+                setString(3, navkontorInput)
             }.executeQuery()
 
             if (resultSet.next()) {

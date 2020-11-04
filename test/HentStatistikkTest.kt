@@ -251,20 +251,20 @@ class HentStatistikkTest {
     fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor2),
-                LocalDate.of(2020, 11, 15).atStartOfDay()
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor2),
+                LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 body = StatistikkInboundDto(
                     fraOgMed = LocalDate.of(2020, 10, 1),
                     tilOgMed = LocalDate.of(2020, 10, 31),
-                    navKontor = kontor1
+                    navKontor = etKontor1
                 )
             }
 
@@ -275,20 +275,20 @@ class HentStatistikkTest {
     fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor2),
-                LocalDate.of(2020, 11, 15).atStartOfDay()
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor2),
+                LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 body = StatistikkInboundDto(
                     fraOgMed = LocalDate.of(2020, 10, 1),
                     tilOgMed = LocalDate.of(2020, 10, 31),
-                    navKontor = kontor2
+                    navKontor = etKontor2
                 )
             }
 
@@ -299,20 +299,20 @@ class HentStatistikkTest {
     fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor1),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
-                LocalDate.of(2020, 11, 15).atStartOfDay()
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+                LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 body = StatistikkInboundDto(
                     fraOgMed = LocalDate.of(2020, 10, 1),
                     tilOgMed = LocalDate.of(2020, 10, 31),
-                    navKontor = kontor1
+                    navKontor = etKontor1
                 )
             }
 
@@ -323,20 +323,20 @@ class HentStatistikkTest {
     fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor1),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
-                LocalDate.of(2020, 11, 15).atStartOfDay()
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+                LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 body = StatistikkInboundDto(
                     fraOgMed = LocalDate.of(2020, 10, 1),
                     tilOgMed = LocalDate.of(2020, 10, 31),
-                    navKontor = kontor2
+                    navKontor = etKontor2
                 )
             }
 
@@ -347,20 +347,20 @@ class HentStatistikkTest {
     fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 1 være 1`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
-                LocalDate.of(2020, 11, 15).atStartOfDay()
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+                LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 body = StatistikkInboundDto(
                     fraOgMed = LocalDate.of(2020, 10, 1),
                     tilOgMed = LocalDate.of(2020, 10, 31),
-                    navKontor = kontor1
+                    navKontor = etKontor1
                 )
             }
 
@@ -371,20 +371,20 @@ class HentStatistikkTest {
     fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 2 være 0`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
-                LocalDate.of(2020, 11, 15).atStartOfDay()
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+                LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 body = StatistikkInboundDto(
                     fraOgMed = LocalDate.of(2020, 10, 1),
                     tilOgMed = LocalDate.of(2020, 10, 31),
-                    navKontor = kontor2
+                    navKontor = etKontor2
                 )
             }
 
@@ -394,20 +394,20 @@ class HentStatistikkTest {
     @Test
     fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 1 være 0`() = runBlocking {
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+            etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
             LocalDate.of(2020, 10, 15).atStartOfDay()
         )
 
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
-            LocalDate.of(2020, 11, 15).atStartOfDay()
+            etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+            LocalDate.of(2020, 10, 16).atStartOfDay()
         )
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
                 fraOgMed = LocalDate.of(2020, 10, 1),
                 tilOgMed = LocalDate.of(2020, 10, 31),
-                navKontor = kontor1
+                navKontor = etKontor1
             )
         }
 
@@ -417,20 +417,20 @@ class HentStatistikkTest {
     @Test
     fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 2 være 1`() = runBlocking {
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+            etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
             LocalDate.of(2020, 10, 15).atStartOfDay()
         )
 
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
-            LocalDate.of(2020, 11, 15).atStartOfDay()
+            etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+            LocalDate.of(2020, 10, 16).atStartOfDay()
         )
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
                 fraOgMed = LocalDate.of(2020, 10, 1),
                 tilOgMed = LocalDate.of(2020, 10, 31),
-                navKontor = kontor2
+                navKontor = etKontor2
             )
         }
 
