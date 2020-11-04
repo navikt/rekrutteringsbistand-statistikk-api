@@ -1,14 +1,14 @@
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.apache.Apache
-import io.ktor.client.statement.HttpResponse
-import io.ktor.util.KtorExperimentalAPI
-import kotlinx.coroutines.runBlocking
 import db.TestDatabase
 import db.TestRepository
+import io.ktor.client.*
+import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.util.*
+import kotlinx.coroutines.runBlocking
 import no.nav.rekrutteringsbistand.statistikk.StatistikkInboundDto
 import no.nav.rekrutteringsbistand.statistikk.StatistikkOutboundDto
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
@@ -248,43 +248,193 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() {
-        TODO("Not yet implemented")
+    fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() =
+        runBlocking {
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+                LocalDate.of(2020, 10, 15).atStartOfDay()
+            )
+
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor2),
+                LocalDate.of(2020, 11, 15).atStartOfDay()
+            )
+
+            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+                body = StatistikkInboundDto(
+                    fraOgMed = LocalDate.of(2020, 10, 1),
+                    tilOgMed = LocalDate.of(2020, 10, 31),
+                    navKontor = kontor1
+                )
+            }
+
+            assertThat(response.antallPresentert).isEqualTo(0)
+        }
+
+    @Test
+    fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() =
+        runBlocking {
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+                LocalDate.of(2020, 10, 15).atStartOfDay()
+            )
+
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor2),
+                LocalDate.of(2020, 11, 15).atStartOfDay()
+            )
+
+            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+                body = StatistikkInboundDto(
+                    fraOgMed = LocalDate.of(2020, 10, 1),
+                    tilOgMed = LocalDate.of(2020, 10, 31),
+                    navKontor = kontor2
+                )
+            }
+
+            assertThat(response.antallPresentert).isEqualTo(1)
+        }
+
+    @Test
+    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() =
+        runBlocking {
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor1),
+                LocalDate.of(2020, 10, 15).atStartOfDay()
+            )
+
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
+                LocalDate.of(2020, 11, 15).atStartOfDay()
+            )
+
+            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+                body = StatistikkInboundDto(
+                    fraOgMed = LocalDate.of(2020, 10, 1),
+                    tilOgMed = LocalDate.of(2020, 10, 31),
+                    navKontor = kontor1
+                )
+            }
+
+            assertThat(response.antallPresentert).isEqualTo(0)
+        }
+
+    @Test
+    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() =
+        runBlocking {
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor1),
+                LocalDate.of(2020, 10, 15).atStartOfDay()
+            )
+
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
+                LocalDate.of(2020, 11, 15).atStartOfDay()
+            )
+
+            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+                body = StatistikkInboundDto(
+                    fraOgMed = LocalDate.of(2020, 10, 1),
+                    tilOgMed = LocalDate.of(2020, 10, 31),
+                    navKontor = kontor2
+                )
+            }
+
+            assertThat(response.antallPresentert).isEqualTo(1)
+        }
+
+    @Test
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 1 være 1`() =
+        runBlocking {
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+                LocalDate.of(2020, 10, 15).atStartOfDay()
+            )
+
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
+                LocalDate.of(2020, 11, 15).atStartOfDay()
+            )
+
+            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+                body = StatistikkInboundDto(
+                    fraOgMed = LocalDate.of(2020, 10, 1),
+                    tilOgMed = LocalDate.of(2020, 10, 31),
+                    navKontor = kontor1
+                )
+            }
+
+            assertThat(response.antallPresentert).isEqualTo(1)
+        }
+
+    @Test
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 2 være 0`() =
+        runBlocking {
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+                LocalDate.of(2020, 10, 15).atStartOfDay()
+            )
+
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
+                LocalDate.of(2020, 11, 15).atStartOfDay()
+            )
+
+            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+                body = StatistikkInboundDto(
+                    fraOgMed = LocalDate.of(2020, 10, 1),
+                    tilOgMed = LocalDate.of(2020, 10, 31),
+                    navKontor = kontor2
+                )
+            }
+
+            assertThat(response.antallPresentert).isEqualTo(0)
+        }
+
+    @Test
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 1 være 0`() = runBlocking {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
+
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
+            LocalDate.of(2020, 11, 15).atStartOfDay()
+        )
+
+        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+            body = StatistikkInboundDto(
+                fraOgMed = LocalDate.of(2020, 10, 1),
+                tilOgMed = LocalDate.of(2020, 10, 31),
+                navKontor = kontor1
+            )
+        }
+
+        assertThat(response.antallFåttJobben).isEqualTo(0)
     }
 
     @Test
-    fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() {
-        TODO("Not yet implemented")
-    }
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 2 være 1`() = runBlocking {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = kontor1),
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
-    @Test
-    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() {
-        TODO("Not yet implemented")
-    }
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = kontor2),
+            LocalDate.of(2020, 11, 15).atStartOfDay()
+        )
 
-    @Test
-    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() {
-        TODO("Not yet implemented")
-    }
+        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+            body = StatistikkInboundDto(
+                fraOgMed = LocalDate.of(2020, 10, 1),
+                tilOgMed = LocalDate.of(2020, 10, 31),
+                navKontor = kontor2
+            )
+        }
 
-    @Test
-    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 1 være 1`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 2 være 0`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 1 være 0`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 2 være 1`() {
-        TODO("Not yet implemented")
+        assertThat(response.antallFåttJobben).isEqualTo(1)
     }
 
 

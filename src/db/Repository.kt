@@ -117,7 +117,7 @@ class Repository(private val dataSource: DataSource) {
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktørId, $kandidatlisteid) as k2
                      
-                WHERE navkontor = ? 
+                WHERE k1.navkontor = ?
                   AND k1.$dbId = k2.maksId
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
             """.trimIndent()
