@@ -11,7 +11,7 @@ import java.time.LocalDate
 data class StatistikkInboundDto(
     val fraOgMed: LocalDate,
     val tilOgMed: LocalDate,
-    val navkontor: String
+    val navKontor: String
 )
 
 data class StatistikkOutboundDto(
@@ -26,9 +26,9 @@ fun Route.hentStatistikk(repository: Repository) {
             val inboundDto: StatistikkInboundDto = call.receive()
 
             val antallPresentert =
-                repository.hentAntallPresentert(inboundDto.fraOgMed, inboundDto.tilOgMed, inboundDto.navkontor)
+                repository.hentAntallPresentert(inboundDto.fraOgMed, inboundDto.tilOgMed, inboundDto.navKontor)
             val antallFåttJobben =
-                repository.hentAntallFåttJobben(inboundDto.fraOgMed, inboundDto.tilOgMed, inboundDto.navkontor)
+                repository.hentAntallFåttJobben(inboundDto.fraOgMed, inboundDto.tilOgMed, inboundDto.navKontor)
 
             call.respond(StatistikkOutboundDto(antallPresentert, antallFåttJobben))
         }

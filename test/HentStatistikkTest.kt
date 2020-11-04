@@ -36,12 +36,16 @@ class HentStatistikkTest {
 
     @Test
     fun `Siste registrerte presentering på en kandidat og kandidatliste skal telles`() = runBlocking {
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT.name), LocalDate.of(2020, 10, 15).atStartOfDay())
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = PRESENTERT.name),
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
                 fraOgMed = LocalDate.of(2020, 10, 1),
-                tilOgMed = LocalDate.of(2020, 10, 31)
+                tilOgMed = LocalDate.of(2020, 10, 31),
+                navKontor = etKandidatutfall.navKontor
             )
         }
 
@@ -49,28 +53,37 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Siste registrerte fått jobben på en kandidat og kandidatliste skal telles som presentert og fått jobben`() = runBlocking {
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = FATT_JOBBEN.name), LocalDate.of(2020, 10, 15).atStartOfDay())
-
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            body = StatistikkInboundDto(
-                fraOgMed = LocalDate.of(2020, 10, 1),
-                tilOgMed = LocalDate.of(2020, 10, 31)
+    fun `Siste registrerte fått jobben på en kandidat og kandidatliste skal telles som presentert og fått jobben`() =
+        runBlocking {
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name),
+                LocalDate.of(2020, 10, 15).atStartOfDay()
             )
-        }
 
-        assertThat(response.antallFåttJobben).isEqualTo(1)
-        assertThat(response.antallPresentert).isEqualTo(1)
-    }
+            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+                body = StatistikkInboundDto(
+                    fraOgMed = LocalDate.of(2020, 10, 1),
+                    tilOgMed = LocalDate.of(2020, 10, 31),
+                    navKontor = etKandidatutfall.navKontor
+                )
+            }
+
+            assertThat(response.antallFåttJobben).isEqualTo(1)
+            assertThat(response.antallPresentert).isEqualTo(1)
+        }
 
     @Test
     fun `Ikke presentert skal ikke telles`() = runBlocking {
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = IKKE_PRESENTERT.name), LocalDate.of(2020, 10, 15).atStartOfDay())
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = IKKE_PRESENTERT.name),
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
                 fraOgMed = LocalDate.of(2020, 10, 1),
-                tilOgMed = LocalDate.of(2020, 10, 31)
+                tilOgMed = LocalDate.of(2020, 10, 31),
+                navKontor = etKandidatutfall.navKontor
             )
         }
 
@@ -85,7 +98,8 @@ class HentStatistikkTest {
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
                 fraOgMed = LocalDate.of(2020, 10, 1),
-                tilOgMed = LocalDate.of(2020, 10, 31)
+                tilOgMed = LocalDate.of(2020, 10, 31),
+                navKontor = etKandidatutfall.navKontor
             )
         }
 
@@ -100,7 +114,8 @@ class HentStatistikkTest {
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
                 fraOgMed = LocalDate.of(2020, 2, 1),
-                tilOgMed = LocalDate.of(2020, 4, 1)
+                tilOgMed = LocalDate.of(2020, 4, 1),
+                navKontor = etKandidatutfall.navKontor
             )
         }
 
@@ -116,7 +131,8 @@ class HentStatistikkTest {
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
                 fraOgMed = LocalDate.of(2020, 1, 1),
-                tilOgMed = LocalDate.of(2020, 1, 2)
+                tilOgMed = LocalDate.of(2020, 1, 2),
+                navKontor = etKandidatutfall.navKontor
             )
         }
 
@@ -131,7 +147,8 @@ class HentStatistikkTest {
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
                 fraOgMed = LocalDate.of(2020, 1, 1),
-                tilOgMed = LocalDate.of(2020, 1, 2)
+                tilOgMed = LocalDate.of(2020, 1, 2),
+                navKontor = etKandidatutfall.navKontor
             )
         }
 
@@ -139,36 +156,52 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Presentert og fått jobben på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() = runBlocking {
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT.name), LocalDate.of(2020, 1, 1).atStartOfDay())
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = FATT_JOBBEN.name), LocalDate.of(2020, 1, 1).atStartOfDay())
-
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            body = StatistikkInboundDto(
-                fraOgMed = LocalDate.of(2020, 1, 1),
-                tilOgMed = LocalDate.of(2020, 1, 2)
+    fun `Presentert og fått jobben på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() =
+        runBlocking {
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = PRESENTERT.name),
+                LocalDate.of(2020, 1, 1).atStartOfDay()
             )
-        }
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name),
+                LocalDate.of(2020, 1, 1).atStartOfDay()
+            )
 
-        assertThat(response.antallPresentert).isEqualTo(1)
-        assertThat(response.antallFåttJobben).isEqualTo(1)
-    }
+            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+                body = StatistikkInboundDto(
+                    fraOgMed = LocalDate.of(2020, 1, 1),
+                    tilOgMed = LocalDate.of(2020, 1, 2),
+                    navKontor = etKandidatutfall.navKontor
+                )
+            }
+
+            assertThat(response.antallPresentert).isEqualTo(1)
+            assertThat(response.antallFåttJobben).isEqualTo(1)
+        }
 
     @Test
-    fun `Fått jobben to ganger på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() = runBlocking {
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = FATT_JOBBEN.name), LocalDate.of(2020, 1, 1).atStartOfDay())
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = FATT_JOBBEN.name), LocalDate.of(2020, 1, 2).atStartOfDay())
-
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            body = StatistikkInboundDto(
-                fraOgMed = LocalDate.of(2020, 1, 1),
-                tilOgMed = LocalDate.of(2020, 1, 2)
+    fun `Fått jobben to ganger på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() =
+        runBlocking {
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name),
+                LocalDate.of(2020, 1, 1).atStartOfDay()
             )
-        }
+            repository.lagreUtfall(
+                etKandidatutfall.copy(utfall = FATT_JOBBEN.name),
+                LocalDate.of(2020, 1, 2).atStartOfDay()
+            )
 
-        assertThat(response.antallPresentert).isEqualTo(1)
-        assertThat(response.antallFåttJobben).isEqualTo(1)
-    }
+            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+                body = StatistikkInboundDto(
+                    fraOgMed = LocalDate.of(2020, 1, 1),
+                    tilOgMed = LocalDate.of(2020, 1, 2),
+                    navKontor = etKandidatutfall.navKontor
+                )
+            }
+
+            assertThat(response.antallPresentert).isEqualTo(1)
+            assertThat(response.antallFåttJobben).isEqualTo(1)
+        }
 
     @Test
     fun `Presentert to ganger på samme kandidat og samme kandidatliste skal kun telles som presentert`() = runBlocking {
@@ -178,7 +211,8 @@ class HentStatistikkTest {
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
                 fraOgMed = LocalDate.of(2020, 1, 1),
-                tilOgMed = LocalDate.of(2020, 1, 3)
+                tilOgMed = LocalDate.of(2020, 1, 3),
+                navKontor = etKandidatutfall.navKontor
             )
         }
 
@@ -188,13 +222,17 @@ class HentStatistikkTest {
 
     @Test
     fun `Fått jobben skal ikke telles hvis det ikke er nyeste registrering`() = runBlocking {
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = FATT_JOBBEN.name), LocalDate.of(2020, 1, 1).atStartOfDay())
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = FATT_JOBBEN.name),
+            LocalDate.of(2020, 1, 1).atStartOfDay()
+        )
         repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT.name), LocalDate.of(2020, 1, 2).atStartOfDay())
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             body = StatistikkInboundDto(
                 fraOgMed = LocalDate.of(2020, 1, 1),
-                tilOgMed = LocalDate.of(2020, 1, 3)
+                tilOgMed = LocalDate.of(2020, 1, 3),
+                navKontor = etKandidatutfall.navKontor
             )
         }
 
