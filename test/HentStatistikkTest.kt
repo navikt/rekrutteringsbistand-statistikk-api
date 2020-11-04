@@ -247,6 +247,47 @@ class HentStatistikkTest {
         assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
     }
 
+    @Test
+    fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 1 være 1`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 2 være 0`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 1 være 0`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 2 være 1`() {
+        TODO("Not yet implemented")
+    }
+
+
     @After
     fun cleanUp() {
         testRepository.slettAlleUtfall()
