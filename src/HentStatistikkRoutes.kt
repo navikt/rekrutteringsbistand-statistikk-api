@@ -6,12 +6,12 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
-import no.nav.rekrutteringsbistand.statistikk.db.Utfall.*
 import java.time.LocalDate
 
 data class StatistikkInboundDto(
     val fraOgMed: LocalDate,
-    val tilOgMed: LocalDate
+    val tilOgMed: LocalDate,
+    val navkontor: String
 )
 
 data class StatistikkOutboundDto(
@@ -25,8 +25,10 @@ fun Route.hentStatistikk(repository: Repository) {
         get("/statistikk") {
             val inboundDto: StatistikkInboundDto = call.receive()
 
-            val antallPresentert = repository.hentAntallPresentert(inboundDto.fraOgMed, inboundDto.tilOgMed)
-            val antallFåttJobben = repository.hentAntallFåttJobben(inboundDto.fraOgMed, inboundDto.tilOgMed)
+            val antallPresentert =
+                repository.hentAntallPresentert(inboundDto.fraOgMed, inboundDto.tilOgMed, inboundDto.navkontor)
+            val antallFåttJobben =
+                repository.hentAntallFåttJobben(inboundDto.fraOgMed, inboundDto.tilOgMed, inboundDto.navkontor)
 
             call.respond(StatistikkOutboundDto(antallPresentert, antallFåttJobben))
         }
