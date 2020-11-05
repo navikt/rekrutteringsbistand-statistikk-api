@@ -1,5 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
+import no.nav.rekrutteringsbistand.statistikk.HentStatistikk
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
 import no.nav.rekrutteringsbistand.statistikk.db.Utfall.FATT_JOBBEN
 import no.nav.rekrutteringsbistand.statistikk.db.Utfall.PRESENTERT
@@ -79,7 +80,7 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate, navkontorInput: String): Int {
+    fun hentAntallPresentert(hentStatistikk: HentStatistikk): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -94,9 +95,9 @@ class Repository(private val dataSource: DataSource) {
                   AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
             """.trimIndent()
             ).apply {
-                setDate(1, Date.valueOf(fraOgMed))
-                setDate(2, Date.valueOf(tilOgMed))
-                setString(3, navkontorInput)
+                setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
+                setDate(2, Date.valueOf(hentStatistikk.tilOgMed))
+                setString(3, hentStatistikk.navKontor)
             }.executeQuery()
 
             if (resultSet.next()) {
@@ -107,7 +108,7 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate, navkontorInput: String): Int {
+    fun hentAntallFåttJobben(hentStatistikk: HentStatistikk): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -122,9 +123,9 @@ class Repository(private val dataSource: DataSource) {
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
             """.trimIndent()
             ).apply {
-                setDate(1, Date.valueOf(fraOgMed))
-                setDate(2, Date.valueOf(tilOgMed))
-                setString(3, navkontorInput)
+                setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
+                setDate(2, Date.valueOf(hentStatistikk.tilOgMed))
+                setString(3, hentStatistikk.navKontor)
             }.executeQuery()
 
             if (resultSet.next()) {
