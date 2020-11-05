@@ -41,26 +41,21 @@ fun Route.hentStatistikk(repository: Repository) {
                 call.respond(HttpStatusCode.BadRequest, "Alle parametere må ha verdi")
             } else {
 
-                hentStatistikk(
-                    HentStatistikk(
-                        fraOgMed = LocalDate.parse(fraOgMedParameter),
-                        tilOgMed = LocalDate.parse(tilOgMedParameter),
-                        navKontor = navKontorParameter
-                    ),
-                    repository
+                val hentStatistikk = HentStatistikk(
+                    fraOgMed = LocalDate.parse(fraOgMedParameter),
+                    tilOgMed = LocalDate.parse(tilOgMedParameter),
+                    navKontor = navKontorParameter
                 )
+
+                val antallPresentert =
+                    repository.hentAntallPresentert(hentStatistikk)
+                val antallFåttJobben =
+                    repository.hentAntallFåttJobben(hentStatistikk)
+
+                call.respond(StatistikkOutboundDto(antallPresentert, antallFåttJobben))
             }
         }
     }
 }
 
-private suspend fun PipelineContext<Unit, ApplicationCall>.hentStatistikk(
-    hentStatistikk: HentStatistikk,
-    repository: Repository
-) {
-    val antallPresentert =
-        repository.hentAntallPresentert(hentStatistikk)
-    val antallFåttJobben =
-        repository.hentAntallFåttJobben(hentStatistikk)
-    call.respond(StatistikkOutboundDto(antallPresentert, antallFåttJobben))
-}
+

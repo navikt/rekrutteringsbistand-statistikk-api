@@ -45,6 +45,7 @@ class HentStatistikkTest {
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
 
             leggTilQueryParametere(
+                this,
                 HentStatistikk(
                     fraOgMed = LocalDate.of(2020, 10, 1),
                     tilOgMed = LocalDate.of(2020, 10, 31),
@@ -67,6 +68,7 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 10, 1),
                         tilOgMed = LocalDate.of(2020, 10, 31),
@@ -89,6 +91,7 @@ class HentStatistikkTest {
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             leggTilQueryParametere(
+                this,
                 HentStatistikk(
                     fraOgMed = LocalDate.of(2020, 10, 1),
                     tilOgMed = LocalDate.of(2020, 10, 31),
@@ -107,6 +110,7 @@ class HentStatistikkTest {
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             leggTilQueryParametere(
+                this,
                 HentStatistikk(
                     fraOgMed = LocalDate.of(2020, 10, 1),
                     tilOgMed = LocalDate.of(2020, 10, 31),
@@ -125,6 +129,7 @@ class HentStatistikkTest {
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             leggTilQueryParametere(
+                this,
                 HentStatistikk(
                     fraOgMed = LocalDate.of(2020, 2, 1),
                     tilOgMed = LocalDate.of(2020, 4, 1),
@@ -144,6 +149,7 @@ class HentStatistikkTest {
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             leggTilQueryParametere(
+                this,
                 HentStatistikk(
                     fraOgMed = LocalDate.of(2020, 1, 1),
                     tilOgMed = LocalDate.of(2020, 1, 2),
@@ -162,6 +168,7 @@ class HentStatistikkTest {
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             leggTilQueryParametere(
+                this,
                 HentStatistikk(
                     fraOgMed = LocalDate.of(2020, 1, 1),
                     tilOgMed = LocalDate.of(2020, 1, 2),
@@ -187,6 +194,7 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 1, 1),
                         tilOgMed = LocalDate.of(2020, 1, 2),
@@ -213,6 +221,7 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 1, 1),
                         tilOgMed = LocalDate.of(2020, 1, 2),
@@ -232,6 +241,7 @@ class HentStatistikkTest {
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             leggTilQueryParametere(
+                this,
                 HentStatistikk(
                     fraOgMed = LocalDate.of(2020, 1, 1),
                     tilOgMed = LocalDate.of(2020, 1, 3),
@@ -254,6 +264,7 @@ class HentStatistikkTest {
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             leggTilQueryParametere(
+                this,
                 HentStatistikk(
                     fraOgMed = LocalDate.of(2020, 1, 1),
                     tilOgMed = LocalDate.of(2020, 1, 3),
@@ -288,6 +299,7 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 10, 1),
                         tilOgMed = LocalDate.of(2020, 10, 31),
@@ -314,6 +326,7 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 10, 1),
                         tilOgMed = LocalDate.of(2020, 10, 31),
@@ -340,6 +353,7 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 10, 1),
                         tilOgMed = LocalDate.of(2020, 10, 31),
@@ -366,6 +380,7 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 10, 1),
                         tilOgMed = LocalDate.of(2020, 10, 31),
@@ -392,6 +407,7 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 10, 1),
                         tilOgMed = LocalDate.of(2020, 10, 31),
@@ -418,6 +434,7 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 10, 1),
                         tilOgMed = LocalDate.of(2020, 10, 31),
@@ -444,6 +461,7 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 10, 1),
                         tilOgMed = LocalDate.of(2020, 10, 31),
@@ -470,6 +488,8 @@ class HentStatistikkTest {
 
             val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
                 leggTilQueryParametere(
+                    this,
+
                     HentStatistikk(
                         fraOgMed = LocalDate.of(2020, 10, 1),
                         tilOgMed = LocalDate.of(2020, 10, 31),
@@ -487,8 +507,8 @@ class HentStatistikkTest {
         testRepository.slettAlleUtfall()
     }
 
-    private fun HttpRequestBuilder.leggTilQueryParametere(hentStatistikk: HentStatistikk) {
-        this.url.parameters.apply {
+    private fun leggTilQueryParametere(httpRequestBuilder: HttpRequestBuilder, hentStatistikk: HentStatistikk) {
+        httpRequestBuilder.url.parameters.apply {
             append(StatistikkParametere.fraOgMed, hentStatistikk.fraOgMed.toString())
             append(StatistikkParametere.tilOgMed, hentStatistikk.tilOgMed.toString())
             append(StatistikkParametere.navKontor, hentStatistikk.navKontor)
