@@ -1,9 +1,10 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
+import no.nav.rekrutteringsbistand.statistikk.HentStatistikk
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
-import no.nav.rekrutteringsbistand.statistikk.db.Utfall.*
+import no.nav.rekrutteringsbistand.statistikk.db.Utfall.FATT_JOBBEN
+import no.nav.rekrutteringsbistand.statistikk.db.Utfall.PRESENTERT
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
-import java.lang.RuntimeException
 import java.sql.Date
 import java.sql.Timestamp
 import java.time.LocalDate
@@ -79,20 +80,24 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+    fun hentAntallPresentert(hentStatistikk: HentStatistikk): Int {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("""
+            val resultSet = it.prepareStatement(
+                """
                 SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
                 
                   (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktørId, $kandidatlisteid) as k2
                      
-                WHERE k1.$dbId = k2.maksId
+                WHERE k1.$navkontor = ? 
+                  AND k1.$dbId = k2.maksId
                   AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-            """.trimIndent()).apply {
-                setDate(1, Date.valueOf(fraOgMed))
-                setDate(2, Date.valueOf(tilOgMed))
+            """.trimIndent()
+            ).apply {
+                setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
+                setDate(2, Date.valueOf(hentStatistikk.tilOgMed))
+                setString(3, hentStatistikk.navKontor)
             }.executeQuery()
 
             if (resultSet.next()) {
@@ -103,20 +108,24 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+    fun hentAntallFåttJobben(hentStatistikk: HentStatistikk): Int {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("""
+            val resultSet = it.prepareStatement(
+                """
                 SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
                 
                   (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktørId, $kandidatlisteid) as k2
                      
-                WHERE k1.$dbId = k2.maksId
+                WHERE k1.$navkontor = ?
+                  AND k1.$dbId = k2.maksId
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
-            """.trimIndent()).apply {
-                setDate(1, Date.valueOf(fraOgMed))
-                setDate(2, Date.valueOf(tilOgMed))
+            """.trimIndent()
+            ).apply {
+                setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
+                setDate(2, Date.valueOf(hentStatistikk.tilOgMed))
+                setString(3, hentStatistikk.navKontor)
             }.executeQuery()
 
             if (resultSet.next()) {
