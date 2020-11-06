@@ -24,6 +24,11 @@ Kan sjekke formidlingene tre plasser:
     
 Diverse dokumentasjon ligger i [doc mappa](./doc).
 
+## Koble til H2-database med IntelliJ
+- Bytt ut `jdbcUrl` i `TestDatabase.kt` til `jdbc:h2:~/test;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE`. Da lagres databasen til en fil `test` på home path.
+- I IntelliJ, velg "Database", new DataSource, H2 og lim inn samme URL og koble til.
+- Høyreklikk på databasen og velg "Open query console" for å kunne gjøre spørringer mot databasen.
+
 ## Kibana
 `application: rekrutteringsbistand-statistikk-api AND cluster: prod-fss AND (level: Warning OR level: Error)`
 

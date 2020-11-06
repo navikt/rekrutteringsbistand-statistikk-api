@@ -43,7 +43,7 @@ fun Route.hentStatistikk(repository: Repository) {
 
                 val hentStatistikk = HentStatistikk(
                     fraOgMed = LocalDate.parse(fraOgMedParameter),
-                    tilOgMed = LocalDate.parse(tilOgMedParameter),
+                    tilOgMed = LocalDate.parse(tilOgMedParameter).plusDays(1),
                     navKontor = navKontorParameter
                 )
 

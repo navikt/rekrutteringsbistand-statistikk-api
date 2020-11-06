@@ -501,6 +501,49 @@ class HentStatistikkTest {
             assertThat(response.antallFåttJobben).isEqualTo(1)
         }
 
+    @Test
+    fun `Gitt en presentering en gitt dag så skal vi få presentering hvis tilOgMed er samme dag`() = runBlocking {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
+            LocalDate.of(2020, 1, 1).atTime(13, 55)
+        )
+
+        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+            leggTilQueryParametere(
+                this,
+
+                HentStatistikk(
+                    fraOgMed = LocalDate.of(2019, 1, 1),
+                    tilOgMed = LocalDate.of(2020, 1, 1),
+                    navKontor = etKontor1
+                )
+            )
+        }
+
+        assertThat(response.antallPresentert).isEqualTo(1)
+    }
+
+    @Test
+    fun `Gitt en presentering en gitt dag så skal vi få presentering hvis fraOgMed er samme dag`() = runBlocking {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
+            LocalDate.of(2020, 1, 1).atTime(19, 54)
+        )
+
+        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
+            leggTilQueryParametere(
+                this,
+
+                HentStatistikk(
+                    fraOgMed = LocalDate.of(2020, 1, 1),
+                    tilOgMed = LocalDate.of(2020, 1, 2),
+                    navKontor = etKontor1
+                )
+            )
+        }
+
+        assertThat(response.antallPresentert).isEqualTo(1)
+    }
 
     @After
     fun cleanUp() {
