@@ -11,22 +11,27 @@ fun hentUsendteUtfallOgSendPåKafka(
     kafkaProducer: DatavarehusKafkaProducer,
     unleash: Unleash
 ) = Runnable {
-    if (!unleash.isEnabled(SEND_KANDIDATUTFALL_PÅ_KAFKA)) return@Runnable
+    val skalSendePåKafka = unleash.isEnabled(SEND_KANDIDATUTFALL_PÅ_KAFKA, true)
+    if (skalSendePåKafka) {
 
-    val skalSendes = repository.hentUsendteUtfall()
-    skalSendes.forEach {
-        repository.registrerSendtForsøk(it)
-        try {
-            kafkaProducer.send(it)
-            repository.registrerSomSendt(it)
-        } catch (e: Exception) {
-            log.error("Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall", e)
-            Metrics.counter(
-                "rekrutteringsbistand.statistikk.kafka.feilet",
-                "antallSendtForsøk", it.antallSendtForsøk.toString()
-            ).increment()
-            return@Runnable
+        val skalSendes = repository.hentUsendteUtfall()
+        skalSendes.forEach {
+            repository.registrerSendtForsøk(it)
+            try {
+                kafkaProducer.send(it)
+                repository.registrerSomSendt(it)
+            } catch (e: Exception) {
+                log.error("Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall", e)
+                Metrics.counter(
+                    "rekrutteringsbistand.statistikk.kafka.feilet",
+                    "antallSendtForsøk", it.antallSendtForsøk.toString()
+                ).increment()
+                return@Runnable
+            }
         }
+
+    } else {
+        return@Runnable
     }
 }
 
