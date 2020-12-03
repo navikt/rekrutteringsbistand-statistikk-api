@@ -11,7 +11,7 @@ fun hentUsendteUtfallOgSendPåKafka(
     kafkaProducer: DatavarehusKafkaProducer,
     unleash: Unleash
 ) = Runnable {
-    val skalSendePåKafka = unleash.isEnabled(SEND_KANDIDATUTFALL_PÅ_KAFKA, true)
+    val skalSendePåKafka = unleash.isEnabled(SEND_KANDIDATUTFALL_PÅ_KAFKA)
     if (skalSendePåKafka) {
 
         val skalSendes = repository.hentUsendteUtfall()
