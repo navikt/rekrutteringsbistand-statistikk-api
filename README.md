@@ -39,7 +39,6 @@ Diverse dokumentasjon ligger i [doc mappa](./doc).
 https://grafana.adeo.no/d/GhdRa3mMz/rekrutteringsbistand-statistikk-api
 https://analytics.amplitude.com/nav/dashboard/rp6el7n (nederst på siden)
 
-
 # Henvendelser
 
 ## For Nav-ansatte
