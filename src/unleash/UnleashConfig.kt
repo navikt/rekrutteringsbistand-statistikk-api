@@ -14,7 +14,7 @@ class UnleashConfig {
         private val config: UnleashConfig = UnleashConfig.builder()
             .appName("rekrutteringsbistand-statistikk-api")
             .instanceId("rekrutteringsbistand-statistikk-api-${Cluster.current}")
-            .unleashAPI("https://unleash.nais.adeo.no/api/")
+            .unleashAPI("https://unleash.nais.io/api/")
             .build()
 
         val unleash: Unleash = DefaultUnleash(config, ByClusterStrategy(Cluster.current))
