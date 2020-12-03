@@ -16,7 +16,9 @@ Bruk oneshot-endepunktet med følgende config for å opprette topic med evig ret
         { "member": "srvpamcvdvhkafka", "role": "CONSUMER" },
         { "member": "M154663", "role": "MANAGER" },
         { "member": "H152121", "role": "MANAGER" },
-        { "member": "S154510", "role": "MANAGER" }
+        { "member": "S154510", "role": "MANAGER" },
+        { "member": "G137876", "role": "MANAGER" },
+        { "member": "A100622", "role": "MANAGER" }
       ],
       "numPartitions": 1,
       "configEntries": {
