@@ -17,7 +17,7 @@ val mockkVersion = "1.10.6"
 val kafkaEmbeddedEnvironmentVersion = "2.5.0"
 val kafkaAvroSerializerVersion = "5.5.3" // Kan ikke oppgradere til 6.1.0 siden no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion baserer seg på 5.4
 val shedlockVersion = "4.20.0"
-val unleashClientJavaVersion = "3.3.3"
+val unleashClientJavaVersion = "4.0.1"
 
 plugins {
     application
