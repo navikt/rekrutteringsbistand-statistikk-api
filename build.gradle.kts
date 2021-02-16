@@ -3,20 +3,20 @@ val logbackVersion = "1.2.3"
 val ktorVersion = "1.4.1" // Bug i Ktor hindrer oppgradering til 1.4.2 og Kotlin 1.4.20: https://youtrack.jetbrains.com/issue/KTOR-1286
 val kotlinVersion = "1.4.30"
 val h2Version = "1.4.200"
-val flywayVersion = "7.3.0"
-val hikariVersion = "3.4.5"
+val flywayVersion = "7.5.3"
+val hikariVersion = "4.0.2"
 val logstashEncoderVersion = "6.5" // Denne er problematisk
 val vaultJdbcVersion = "1.3.7"
 val postgresVersion = "42.2.18"
 val tokenValidationVersion = "1.3.1"
-val jacksonVersion = "2.11.0"
+val jacksonVersion = "2.11.0" // Denne er problematisk
 val assertkVersion = "0.23.1"
 val micrometerPrometheusVersion = "1.6.3"
 val kafkaClientsVersion = "2.5.0"
 val mockkVersion = "1.10.6"
 val kafkaEmbeddedEnvironmentVersion = "2.5.0"
 val kafkaAvroSerializerVersion = "5.5.0"
-val shedlockVersion = "4.16.0"
+val shedlockVersion = "4.20.0"
 val unleashClientJavaVersion = "3.3.3"
 
 plugins {
