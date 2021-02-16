@@ -31,7 +31,7 @@ jobs:
     #########################
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/oppgradere-avhengigheter'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/feb-2020-avhengigheter'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
