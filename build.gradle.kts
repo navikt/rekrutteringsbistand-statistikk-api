@@ -1,6 +1,6 @@
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.3"
-val ktorVersion = "1.4.1" // Håndterer unauthorized annerledes
+val ktorVersion = "1.5.1"
 val kotlinVersion = "1.4.30"
 val h2Version = "1.4.200"
 val flywayVersion = "7.5.3"

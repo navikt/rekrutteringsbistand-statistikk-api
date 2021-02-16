@@ -57,7 +57,9 @@ class LagreStatistikkTest {
 
     @Test
     fun `POST til kandidatutfall skal gi unauthorized hvis man ikke er logget inn`() = runBlocking {
-        val uinnloggaClient = HttpClient(Apache)
+        val uinnloggaClient = HttpClient(Apache) {
+            expectSuccess = false
+        }
         val response: HttpResponse = uinnloggaClient.post("$basePath/kandidatutfall")
         assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
     }
