@@ -18,7 +18,7 @@ class KafkaTilDataverehusScheduler(dataSource: DataSource, private val runnable:
     private val runnableMedLås: TimerTask.() -> Unit = {
         lockingExecutor.executeWithLock(
             runnable,
-            LockConfiguration( "retry-lock", Duration.ofMinutes(10), Duration.ofMillis(0L))
+            LockConfiguration(Instant.now(),"retry-lock", Duration.ofMinutes(10), Duration.ofMillis(0L))
         )
     }
 
