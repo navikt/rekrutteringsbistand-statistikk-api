@@ -3,8 +3,8 @@ import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfa
 
 const val enNavIdent = "X123456"
 
-val etKontor1 = "1234"
-val etKontor2 = "2000"
+const val etKontor1 = "1234"
+const val etKontor2 = "2000"
 
 val etKandidatutfall = OpprettKandidatutfall(
     aktørId = "10000254879658",

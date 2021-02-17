@@ -1,7 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk
 
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.rekrutteringsbistand.statistikk.Cluster
 import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.ktor.TokenSupportConfig
 

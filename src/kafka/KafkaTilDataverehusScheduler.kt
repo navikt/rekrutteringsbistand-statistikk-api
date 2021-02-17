@@ -4,6 +4,7 @@ import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor
 import net.javacrumbs.shedlock.core.LockConfiguration
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import java.time.Duration
+import java.time.Instant
 import java.util.*
 import javax.sql.DataSource
 import kotlin.concurrent.fixedRateTimer
@@ -17,7 +18,7 @@ class KafkaTilDataverehusScheduler(dataSource: DataSource, private val runnable:
     private val runnableMedLås: TimerTask.() -> Unit = {
         lockingExecutor.executeWithLock(
             runnable,
-            LockConfiguration("retry-lock", Duration.ofMinutes(10), Duration.ofMillis(0L))
+            LockConfiguration(Instant.now(),"retry-lock", Duration.ofMinutes(10), Duration.ofMillis(0L))
         )
     }
 

@@ -5,7 +5,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.content.TextContent
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import db.TestDatabase
@@ -57,7 +56,9 @@ class LagreStatistikkTest {
 
     @Test
     fun `POST til kandidatutfall skal gi unauthorized hvis man ikke er logget inn`() = runBlocking {
-        val uinnloggaClient = HttpClient(Apache)
+        val uinnloggaClient = HttpClient(Apache) {
+            expectSuccess = false
+        }
         val response: HttpResponse = uinnloggaClient.post("$basePath/kandidatutfall")
         assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
     }

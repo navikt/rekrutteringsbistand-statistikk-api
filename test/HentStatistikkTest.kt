@@ -279,7 +279,10 @@ class HentStatistikkTest {
 
     @Test
     fun `Statistikk skal returnere unauthorized hvis man ikke er logget inn`() = runBlocking {
-        val uinnloggaClient = HttpClient(Apache)
+        val uinnloggaClient = HttpClient(Apache) {
+            expectSuccess = false
+        }
+
         val response: HttpResponse = uinnloggaClient.get("$basePath/statistikk")
         assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
     }

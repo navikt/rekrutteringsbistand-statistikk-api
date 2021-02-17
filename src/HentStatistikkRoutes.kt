@@ -5,7 +5,6 @@ import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.util.pipeline.*
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import java.time.LocalDate
 
@@ -32,7 +31,7 @@ fun Route.hentStatistikk(repository: Repository) {
 
     authenticate {
         get("/statistikk") {
-            val queryParameters = call.parameters;
+            val queryParameters = call.parameters
             val fraOgMedParameter = queryParameters[StatistikkParametere.fraOgMed]
             val tilOgMedParameter = queryParameters[StatistikkParametere.tilOgMed]
             val navKontorParameter = queryParameters[StatistikkParametere.navKontor]

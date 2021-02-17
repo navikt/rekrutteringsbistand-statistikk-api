@@ -11,7 +11,6 @@ import etKandidatutfall
 import innloggaHttpClient
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.*
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import no.nav.common.KafkaEnvironment
