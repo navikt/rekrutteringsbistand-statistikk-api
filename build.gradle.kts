@@ -5,11 +5,11 @@ val kotlinVersion = "1.4.30"
 val h2Version = "1.4.200"
 val flywayVersion = "7.5.3"
 val hikariVersion = "4.0.2"
-val logstashEncoderVersion = "6.5" // Denne er problematisk
+val logstashEncoderVersion = "6.5" // Oppgradering til 6.6 tar inn jackson:2.12.0 som ikke er kompatibel med jackson-versjonen til kafka
 val vaultJdbcVersion = "1.3.7"
 val postgresVersion = "42.2.18"
 val tokenValidationVersion = "1.3.3"
-val jacksonVersion = "2.11.0" // Denne er problematisk
+val jacksonVersion = "2.11.0"  // Oppgradering til 2.12.1 lar seg foreløpig ikke gjøre: https://github.com/spring-projects/spring-boot/issues/23979
 val assertkVersion = "0.23.1"
 val micrometerPrometheusVersion = "1.6.3"
 val kafkaClientsVersion = "2.7.0"
@@ -96,4 +96,3 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
 }
-
