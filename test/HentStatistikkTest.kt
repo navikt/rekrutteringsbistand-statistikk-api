@@ -1,13 +1,9 @@
 import assertk.assertThat
-import assertk.assertions.hasCause
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import db.TestDatabase
 import db.TestRepository
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

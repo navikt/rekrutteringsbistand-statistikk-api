@@ -7,7 +7,6 @@ import no.nav.rekrutteringsbistand.statistikk.db.Utfall.PRESENTERT
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
 import java.sql.Date
 import java.sql.Timestamp
-import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.sql.DataSource
 
