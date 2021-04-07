@@ -34,7 +34,6 @@ fun Route.kandidatutfall(repository: Repository, sendStatistikk: KafkaTilDataver
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 
-            // TODO: Gjøre noe med statistikk?
             sendStatistikk.kjørEnGangAsync()
             call.respond(HttpStatusCode.Created)
         }

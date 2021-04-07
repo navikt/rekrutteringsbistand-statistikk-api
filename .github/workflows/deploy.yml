@@ -65,7 +65,7 @@ jobs:
   deploy-to-prod:
     name: Deploy to prod
     needs: deploy-to-dev
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/hull-i-cv'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
