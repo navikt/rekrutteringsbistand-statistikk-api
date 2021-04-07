@@ -12,7 +12,7 @@ fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
         navKontor = resultSet.getString(Repository.navkontor),
         kandidatlisteId = UUID.fromString(resultSet.getString(Repository.kandidatlisteid)),
         stillingsId = UUID.fromString(resultSet.getString(Repository.stillingsid)),
-        hullICv = resultSet.getBoolean(Repository.hullICv),
+        hullICv = if(resultSet.getObject(Repository.hullICv) == null)  null  else resultSet.getBoolean(Repository.hullICv),
         tidspunkt = resultSet.getTimestamp(Repository.tidspunkt).toLocalDateTime(),
         antallSendtForsøk = resultSet.getInt(Repository.antallSendtForsøk),
         sendtStatus = SendtStatus.valueOf(resultSet.getString(Repository.sendtStatus)),
