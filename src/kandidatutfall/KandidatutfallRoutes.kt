@@ -18,7 +18,8 @@ data class OpprettKandidatutfall(
     val navIdent: String,
     val navKontor: String,
     val kandidatlisteId: String,
-    val stillingsId: String
+    val stillingsId: String,
+    val hullICv: Boolean?
 )
 
 fun Route.kandidatutfall(repository: Repository, sendStatistikk: KafkaTilDataverehusScheduler) {
@@ -33,6 +34,7 @@ fun Route.kandidatutfall(repository: Repository, sendStatistikk: KafkaTilDataver
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 
+            // TODO: Gjøre noe med statistikk?
             sendStatistikk.kjørEnGangAsync()
             call.respond(HttpStatusCode.Created)
         }

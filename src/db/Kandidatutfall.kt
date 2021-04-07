@@ -11,6 +11,7 @@ data class Kandidatutfall(
     val navKontor: String,
     val kandidatlisteId: UUID,
     val stillingsId: UUID,
+    val hullICv: Boolean?,
     val tidspunkt: LocalDateTime,
     val sendtStatus: SendtStatus,
     val antallSendtForsøk: Int,

@@ -33,7 +33,7 @@ class LagreStatistikkTest {
 
     @Test
     fun `POST til kandidatutfall skal lagre til databasen`() = runBlocking {
-        val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
+        val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
 
         val response: HttpResponse = client.post("$basePath/kandidatutfall") {
             body = kandidatutfallTilLagring
@@ -48,6 +48,7 @@ class LagreStatistikkTest {
             assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
             assertThat(utfall.kandidatlisteId.toString()).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
             assertThat(utfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
+            assertThat(utfall.hullICv).isEqualTo(kandidatutfallTilLagring[index].hullICv)
             assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
                 LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
             )
