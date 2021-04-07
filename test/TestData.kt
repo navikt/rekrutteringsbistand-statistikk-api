@@ -14,7 +14,7 @@ val etKandidatutfall = OpprettKandidatutfall(
     navKontor = etKontor1,
     kandidatlisteId = "385c74d1-0d14-48d7-9a9b-b219beff22c8",
     stillingsId = "24f0074a-a99a-4b9a-aeaa-860fe6a7dbe2",
-    hullICv = true
+    harHullICv = true
 )
 
 val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(
@@ -24,6 +24,6 @@ val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(
     navKontor = etKontor1,
     kandidatlisteId = "385c74d1-0d14-48d7-9a9b-b219beff22c8",
     stillingsId = "24f0074a-a99a-4b9a-aeaa-860fe6a7dbe2",
-    hullICv = null
+    harHullICv = null
 )
 
