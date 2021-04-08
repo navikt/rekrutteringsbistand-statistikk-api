@@ -13,25 +13,29 @@ fun sendHullICvTilDatakatalog(repository: Repository) = Runnable {
 
     log.info("Henter data for hull for katakatalog for dager: $datoer")
 
-    val iDag = LocalDate.now()
-    val fåttJobbenMedHull = repository.hentAntallFåttJobben(harHull = true, iDag.minusYears(5), iDag.plusYears(1))
-    val fåttJobbenUtenHull = repository.hentAntallFåttJobben(harHull = false, iDag.minusYears(5), iDag.plusYears(1))
-    val fåttJobbenUkjentHull = repository.hentAntallFåttJobben(harHull = null, iDag.minusYears(5), iDag.plusYears(1))
+    datoer.map {
+        val fåttJobbenMedHull = repository.hentAntallFåttJobben(harHull = true, it, it)
+        val fåttJobbenUtenHull = repository.hentAntallFåttJobben(harHull = false, it, it)
+        val fåttJobbenUkjentHull = repository.hentAntallFåttJobben(harHull = null, it, it)
+
+        val presentertMedHull = repository.hentAntallPresentert(harHull = true, it, it)
+        val presentertUtenHull = repository.hentAntallPresentert(harHull = false, it, it)
+        val presentertUkjentHull = repository.hentAntallPresentert(harHull = null, it, it)
 
 
-    val presentertMedHull = repository.hentAntallPresentert(harHull = true, iDag.minusYears(5), iDag.plusYears(1))
-    val presentertUtenHull = repository.hentAntallPresentert(harHull = false, iDag.minusYears(5), iDag.plusYears(1))
-    val presentertUkjentHull = repository.hentAntallPresentert(harHull = null, iDag.minusYears(5), iDag.plusYears(1))
 
-    log.info(
-        "Har hentet data for hull for datakatalog: " +
-                "fåttJobbenMedHull: $fåttJobbenMedHull, " +
-                "fåttJobbenUtenHull: $fåttJobbenUtenHull, " +
-                "fåttJobbenUkjentHull: $fåttJobbenUkjentHull, " +
-                "presentertMedHull: $presentertMedHull, " +
-                "presentertUtenHull: $presentertUtenHull, " +
-                "presentertUkjentHull: $presentertUkjentHull"
-    )
+        log.info(
+            "Har hentet data for hull for datakatalog: " +
+                    "fåttJobbenMedHull: $fåttJobbenMedHull, " +
+                    "fåttJobbenUtenHull: $fåttJobbenUtenHull, " +
+                    "fåttJobbenUkjentHull: $fåttJobbenUkjentHull, " +
+                    "presentertMedHull: $presentertMedHull, " +
+                    "presentertUtenHull: $presentertUtenHull, " +
+                    "presentertUkjentHull: $presentertUkjentHull"
+        )
+    }
+
+
 
     return@Runnable
 }
