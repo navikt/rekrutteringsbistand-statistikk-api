@@ -14,13 +14,13 @@ fun sendHullICvTilDatakatalog(repository: Repository) = Runnable {
     log.info("Henter data for hull for katakatalog for dager: $datoer")
 
     datoer.map {
-        val fåttJobbenMedHull = repository.hentAntallFåttJobben(harHull = true, it, it)
-        val fåttJobbenUtenHull = repository.hentAntallFåttJobben(harHull = false, it, it)
-        val fåttJobbenUkjentHull = repository.hentAntallFåttJobben(harHull = null, it, it)
+        val fåttJobbenMedHull = repository.hentAntallFåttJobben(harHull = true, it.minusDays(1), it)
+        val fåttJobbenUtenHull = repository.hentAntallFåttJobben(harHull = false, it.minusDays(1), it)
+        val fåttJobbenUkjentHull = repository.hentAntallFåttJobben(harHull = null, it.minusDays(1), it)
 
-        val presentertMedHull = repository.hentAntallPresentert(harHull = true, it, it)
-        val presentertUtenHull = repository.hentAntallPresentert(harHull = false, it, it)
-        val presentertUkjentHull = repository.hentAntallPresentert(harHull = null, it, it)
+        val presentertMedHull = repository.hentAntallPresentert(harHull = true, it.minusDays(1), it)
+        val presentertUtenHull = repository.hentAntallPresentert(harHull = false, it.minusDays(1), it)
+        val presentertUkjentHull = repository.hentAntallPresentert(harHull = null, it.minusDays(1), it)
 
 
 
