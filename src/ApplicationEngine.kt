@@ -18,6 +18,8 @@ import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.finn.unleash.Unleash
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.HullICvTilDatakatalogScheduler
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.sendHullICvTilDatakatalog
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
@@ -52,17 +54,21 @@ fun lagApplicationEngine(
 
         val repository = Repository(dataSource)
         val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer, unleash)
-        val scheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
+        val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
+
+        val sendHullICvTilDatakatalog = sendHullICvTilDatakatalog(repository)
+        val hullICvTilDatakatalogScheduler = HullICvTilDatakatalogScheduler(dataSource, sendHullICvTilDatakatalog)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 naisEndepunkt(prometheusMeterRegistry)
-                kandidatutfall(repository, scheduler)
+                kandidatutfall(repository, datavarehusScheduler)
                 hentStatistikk(repository)
             }
         }
 
-        scheduler.kjørPeriodisk()
+        datavarehusScheduler.kjørPeriodisk()
+        hullICvTilDatakatalogScheduler.kjørPeriodisk()
     }
 }
 
