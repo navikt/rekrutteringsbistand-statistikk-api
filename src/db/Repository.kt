@@ -152,12 +152,12 @@ class Repository(private val dataSource: DataSource) {
                      
                 WHERE  k1.$dbId = k2.maksId
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
-                  AND k1.$hullICv = ?
-            """.trimIndent()
+                  AND k1.$hullICv
+            """.trimIndent() + if (harHull != null) " = ?" else " IS NULL"
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
                 setDate(2, Date.valueOf(tilOgMed))
-                if(harHull != null)setBoolean(3,  harHull) else setNull(3, 0)
+                if (harHull != null) setBoolean(3, harHull)
             }.executeQuery()
 
             if (resultSet.next()) {
@@ -180,12 +180,12 @@ class Repository(private val dataSource: DataSource) {
                      
                 WHERE  k1.$dbId = k2.maksId
                   AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                  AND k1.$hullICv = ?
-            """.trimIndent()
+                  AND k1.$hullICv
+            """.trimIndent() + if (harHull != null) " = ?" else " IS NULL"
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
                 setDate(2, Date.valueOf(tilOgMed))
-                if(harHull != null)setBoolean(3,  harHull) else setNull(3, 0)
+                if (harHull != null) setBoolean(3, harHull)
             }.executeQuery()
 
             if (resultSet.next()) {
