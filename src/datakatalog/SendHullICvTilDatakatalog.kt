@@ -25,7 +25,7 @@ fun sendHullICvTilDatakatalog(repository: Repository) = Runnable {
 
 
         log.info(
-            "Har hentet data for hull for datakatalog: " +
+            "Har hentet data for hull for datakatalog for $it: " +
                     "fåttJobbenMedHull: $fåttJobbenMedHull, " +
                     "fåttJobbenUtenHull: $fåttJobbenUtenHull, " +
                     "fåttJobbenUkjentHull: $fåttJobbenUkjentHull, " +
