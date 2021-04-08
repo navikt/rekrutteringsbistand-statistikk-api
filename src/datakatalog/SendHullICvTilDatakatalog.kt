@@ -7,14 +7,14 @@ import java.time.LocalDate
 fun sendHullICvTilDatakatalog(repository: Repository) = Runnable {
     log.info("Henter data for hull for katakatalog")
     val iDag = LocalDate.now()
-    val fåttJobbenMedHull = repository.hentAntallFåttJobben(harHull = true, iDag.minusYears(5), iDag)
-    val fåttJobbenUtenHull = repository.hentAntallFåttJobben(harHull = true, iDag.minusYears(5), iDag)
-    val fåttJobbenUkjentHull = repository.hentAntallFåttJobben(harHull = null, iDag.minusYears(5), iDag)
+    val fåttJobbenMedHull = repository.hentAntallFåttJobben(harHull = true, iDag.minusYears(5), iDag.plusYears(1))
+    val fåttJobbenUtenHull = repository.hentAntallFåttJobben(harHull = false, iDag.minusYears(5), iDag.plusYears(1))
+    val fåttJobbenUkjentHull = repository.hentAntallFåttJobben(harHull = null, iDag.minusYears(5), iDag.plusYears(1))
 
 
-    val presentertMedHull = repository.hentAntallPresentert(harHull = true, iDag.minusYears(5), iDag)
-    val presentertUtenHull = repository.hentAntallPresentert(harHull = true, iDag.minusYears(5), iDag)
-    val presentertUkjentHull = repository.hentAntallPresentert(harHull = null, iDag.minusYears(5), iDag)
+    val presentertMedHull = repository.hentAntallPresentert(harHull = true, iDag.minusYears(5), iDag.plusYears(1))
+    val presentertUtenHull = repository.hentAntallPresentert(harHull = false, iDag.minusYears(5), iDag.plusYears(1))
+    val presentertUkjentHull = repository.hentAntallPresentert(harHull = null, iDag.minusYears(5), iDag.plusYears(1))
 
     log.info("Har hentet data for hull for datakatalog: " +
             "fåttJobbenMedHull: $fåttJobbenMedHull, " +
