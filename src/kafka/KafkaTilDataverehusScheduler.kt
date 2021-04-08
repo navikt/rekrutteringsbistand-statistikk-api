@@ -32,7 +32,7 @@ class KafkaTilDataverehusScheduler(dataSource: DataSource, private val runnable:
 
     fun kjørEnGangAsync(delay: Long = 0L) {
         val timerTask = timerTask(runnableMedLås)
-        val timer = Timer("Send Kafka-meleding til Datavarehus én gang")
+        val timer = Timer("Send Kafka-melding til Datavarehus én gang")
         timer.schedule(timerTask, delay)
     }
 }

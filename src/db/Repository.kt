@@ -22,8 +22,9 @@ class Repository(private val dataSource: DataSource) {
                                $navkontor,
                                $kandidatlisteid,
                                $stillingsid,
-                               $tidspunkt
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)"""
+                               $tidspunkt,
+                               $hullICv
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, kandidatutfall.aktørId)
                 setString(2, kandidatutfall.utfall)
@@ -32,6 +33,8 @@ class Repository(private val dataSource: DataSource) {
                 setString(5, kandidatutfall.kandidatlisteId)
                 setString(6, kandidatutfall.stillingsId)
                 setTimestamp(7, Timestamp.valueOf(registrertTidspunkt))
+//                if (kandidatutfall.harHullICv != null) setBoolean(8, kandidatutfall.harHullICv) else setNull(8, 0)
+                setNull(8, 0)
                 executeUpdate()
             }
         }
@@ -145,6 +148,7 @@ class Repository(private val dataSource: DataSource) {
         const val kandidatlisteid = "kandidatlisteid"
         const val stillingsid = "stillingsid"
         const val tidspunkt = "tidspunkt"
+        const val hullICv = "hull_i_cv"
         const val sendtStatus = "sendt_status"
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
