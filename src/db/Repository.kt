@@ -33,7 +33,8 @@ class Repository(private val dataSource: DataSource) {
                 setString(5, kandidatutfall.kandidatlisteId)
                 setString(6, kandidatutfall.stillingsId)
                 setTimestamp(7, Timestamp.valueOf(registrertTidspunkt))
-                if (kandidatutfall.harHullICv != null) setBoolean(8, kandidatutfall.harHullICv) else setNull(8, 0)
+//                if (kandidatutfall.harHullICv != null) setBoolean(8, kandidatutfall.harHullICv) else setNull(8, 0)
+                setNull(8, 0)
                 executeUpdate()
             }
         }

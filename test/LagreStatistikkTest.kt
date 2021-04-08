@@ -1,6 +1,7 @@
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.isNull
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.client.request.post
@@ -48,7 +49,8 @@ class LagreStatistikkTest {
             assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
             assertThat(utfall.kandidatlisteId.toString()).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
             assertThat(utfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
-            assertThat(utfall.hullICv).isEqualTo(kandidatutfallTilLagring[index].harHullICv)
+//            assertThat(utfall.hullICv).isEqualTo(kandidatutfallTilLagring[index].harHullICv)
+            assertThat(utfall.hullICv).isNull()
             assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
                 LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
             )
