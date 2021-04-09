@@ -51,6 +51,8 @@ repositories {
     maven {
         url = uri("https://jitpack.io")
     }
+    maven("https://dl.bintray.com/mipt-npm/dataforge")
+    maven("https://dl.bintray.com/mipt-npm/kscience")
 }
 
 dependencies {
@@ -84,6 +86,8 @@ dependencies {
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
     implementation("no.finn.unleash:unleash-client-java:$unleashClientJavaVersion")
+
+    implementation("kscience.plotlykt:plotlykt-server:0.3.0")
 
     testImplementation("no.nav.security:token-validation-test-support:$tokenValidationVersion") {
         exclude(group = "org.springframework.boot")
