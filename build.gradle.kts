@@ -19,6 +19,8 @@ val kafkaAvroSerializerVersion = "5.5.3" // Kan ikke oppgradere til 6.1.0 siden 
 val shedlockVersion = "4.20.0"
 val unleashClientJavaVersion = "4.0.1"
 
+
+
 plugins {
     application
     kotlin("jvm") version "1.4.10"
@@ -33,6 +35,17 @@ plugins {
 apply(plugin = "kotlin")
 apply(plugin = "application")
 apply(plugin = "com.github.johnrengelman.shadow")
+
+tasks {
+    compileKotlin {
+        kotlinOptions.jvmTarget = "13"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "13"
+    }
+}
+
+
 
 application {
     mainClassName = "no.nav.rekrutteringsbistand.statistikk.ApplicationKt"
@@ -50,6 +63,9 @@ repositories {
     }
     maven {
         url = uri("https://jitpack.io")
+    }
+    maven {
+        url = uri("https://dl.bintray.com/mipt-npm/dev")
     }
     maven("https://dl.bintray.com/mipt-npm/dataforge")
     maven("https://dl.bintray.com/mipt-npm/kscience")

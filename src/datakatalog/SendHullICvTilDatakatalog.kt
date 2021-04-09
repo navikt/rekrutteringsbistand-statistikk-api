@@ -1,5 +1,7 @@
 package no.nav.rekrutteringsbistand.statistikk.datakatalog
 
+import kscience.plotly.Plotly
+import kscience.plotly.histogram
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate
@@ -22,6 +24,13 @@ fun sendHullICvTilDatakatalog(repository: Repository) = Runnable {
         val presentertUtenHull = repository.hentAntallPresentert(harHull = false, it, it.plusDays(1))
         val presentertUkjentHull = repository.hentAntallPresentert(harHull = null, it, it.plusDays(1))
 
+
+
+        Plotly.plot {
+            this.histogram {
+
+            }
+        }
 
 
         log.info(
