@@ -16,5 +16,6 @@ fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
         tidspunkt = resultSet.getTimestamp(Repository.tidspunkt).toLocalDateTime(),
         antallSendtForsøk = resultSet.getInt(Repository.antallSendtForsøk),
         sendtStatus = SendtStatus.valueOf(resultSet.getString(Repository.sendtStatus)),
-        sisteSendtForsøk = resultSet.getTimestamp(Repository.sisteSendtForsøk)?.toLocalDateTime()
+        sisteSendtForsøk = resultSet.getTimestamp(Repository.sisteSendtForsøk)?.toLocalDateTime(),
+        alder = if(resultSet.getObject(Repository.alder) == null) null else resultSet.getInt(Repository.alder)
     )
