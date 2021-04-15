@@ -35,7 +35,7 @@ class Repository(private val dataSource: DataSource) {
                 setString(6, kandidatutfall.stillingsId)
                 setTimestamp(7, Timestamp.valueOf(registrertTidspunkt))
                 if (kandidatutfall.harHullICv != null) setBoolean(8, kandidatutfall.harHullICv) else setNull(8, 0)
-                setInt(9, kandidatutfall.alder)
+                if (kandidatutfall.alder != null) setInt(9, kandidatutfall.alder) else setNull(9, 0)
                 executeUpdate()
             }
         }

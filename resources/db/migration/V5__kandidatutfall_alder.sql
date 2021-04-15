@@ -1,1 +1,1 @@
-ALTER TABLE kandidatutfall ADD alder INTEGER NOT NULL;
+ALTER TABLE kandidatutfall ADD alder INTEGER;

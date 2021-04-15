@@ -16,7 +16,7 @@ data class Kandidatutfall(
     val sendtStatus: SendtStatus,
     val antallSendtForsøk: Int,
     val sisteSendtForsøk: LocalDateTime?,
-    val alder: Int
+    val alder: Int?
 )
 
 enum class SendtStatus {
