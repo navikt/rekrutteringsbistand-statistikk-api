@@ -19,7 +19,8 @@ data class OpprettKandidatutfall(
     val navKontor: String,
     val kandidatlisteId: String,
     val stillingsId: String,
-    val harHullICv: Boolean?
+    val harHullICv: Boolean?,
+    val alder: Int
 )
 
 fun Route.kandidatutfall(repository: Repository, sendStatistikk: KafkaTilDataverehusScheduler) {

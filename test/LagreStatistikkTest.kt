@@ -50,6 +50,7 @@ class LagreStatistikkTest {
             assertThat(utfall.kandidatlisteId.toString()).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
             assertThat(utfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
             assertThat(utfall.hullICv).isEqualTo(kandidatutfallTilLagring[index].harHullICv)
+            assertThat(utfall.alder).isEqualTo(kandidatutfallTilLagring[index].alder)
             assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
                 LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
             )
