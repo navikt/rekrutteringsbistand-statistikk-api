@@ -1,10 +1,21 @@
 package no.nav.rekrutteringsbistand.statistikk.datakatalog
 
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import io.ktor.client.*
+import io.ktor.client.engine.apache.*
+import io.ktor.client.features.*
+import io.ktor.client.features.json.*
+import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import kscience.plotly.*
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate
-import java.util.*
 
 
 fun sendHullICvTilDatakatalog(repository: Repository) = Runnable {
@@ -43,13 +54,68 @@ fun sendHullICvTilDatakatalog(repository: Repository) = Runnable {
 
         getLayout()
     }
+    val plotlyJson = plot.toJsonString()
+    log.info("Plotty klargjort: ${plotlyJson}")
 
-    log.info("Plotty: ${plot.toJsonString()}")
+    //e0745dcae428b0fa4309b3c065f7706b
+    fun datapakkeHttpClient() = HttpClient(Apache) {
+        install(JsonFeature) {
+            serializer = JacksonSerializer {
+                registerModule(JavaTimeModule())
+                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            }
+        }
+        defaultRequest {
+            //contentType(ContentType.Json)
+        }
+    }
+
+    runBlocking {
+        val response: HttpResponse = datapakkeHttpClient()
+            .put("https://datakatalog-api.dev.intern.nav.no/v1/datapackage/e0745dcae428b0fa4309b3c065f7706b/attachments") {
+                body = MultiPartFormDataContent(
+                    formData {
+                        this.append("files", plot.toJsonString(),
+                            Headers.build {
+                                append(HttpHeaders.ContentType, ContentType.Application.Json)
+                                append(HttpHeaders.ContentDisposition, " filename=antallhull.json")
+                            })
+                    }
+                )
+            }
+        log.info("Svar fra datakatalog filapi $response")
+    }
+
+    runBlocking {
+        val datapakke = Datapakke(
+            title = "Hull i cv",
+            description = "Vise hull i cv",
+            resources = emptyList(),
+            views = listOf(
+                View(
+                    title = "Antall hull i cv",
+                    description = "Vise antall hull i cv",
+                    specType = "plotly",
+                    spec = Spec(
+                        url = "antallhull.json"
+                    )
+                )
+            )
+        )
+
+        val response: HttpResponse = datapakkeHttpClient()
+            .put("https://datakatalog-api.dev.intern.nav.no/v1/datapackage/e0745dcae428b0fa4309b3c065f7706b") {
+                body = datapakke
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+            }
+        log.info("Svar fra datakatalog datapakke api $response")
+    }
+
+
 
 
     return@Runnable
 }
-
 
 
 private fun Plot.getLayout() {
