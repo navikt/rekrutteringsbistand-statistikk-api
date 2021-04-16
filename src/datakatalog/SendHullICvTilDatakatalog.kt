@@ -46,27 +46,50 @@ fun sendHullICvTilDatakatalog(repository: Repository) = Runnable {
     }
 
     val plot = Plotly.plot {
-        histogram {
+        bar {
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { repository.hentAntallPresentert(harHull = true, it, it.plusDays(1)) }
             name = "Antall presentert med hull"
         }
+        bar {
+           x.strings = datoer.map { it.toString() }
+            y.numbers = datoer.map { repository.hentAntallPresentert(harHull = false, it, it.plusDays(1)) }
+            name = "Antall presentert uten hull"
+        }
+        bar {
+            x.strings = datoer.map { it.toString() }
+            y.numbers = datoer.map { repository.hentAntallPresentert(harHull = null, it, it.plusDays(1)) }
+            name = "Antall presentert ukjent om de har hull"
+        }
+
+        bar {
+            x.strings = datoer.map { it.toString() }
+            y.numbers = datoer.map { repository.hentAntallFåttJobben(harHull = true, it, it.plusDays(1)) }
+            name = "Antall fått jobben med hull"
+        }
+        bar {
+            x.strings = datoer.map { it.toString() }
+            y.numbers = datoer.map { repository.hentAntallFåttJobben(harHull = false, it, it.plusDays(1)) }
+            name = "Antall fått jobben uten hull"
+        }
+        bar {
+            x.strings = datoer.map { it.toString() }
+            y.numbers = datoer.map { repository.hentAntallFåttJobben(harHull = null, it, it.plusDays(1)) }
+            name = "Antall fått jobben ukjent om de har hull"
+        }
+
 
         getLayout()
     }
     val plotlyJson = plot.toJsonString()
     log.info("Plotty klargjort: ${plotlyJson}")
 
-    //e0745dcae428b0fa4309b3c065f7706b
     fun datapakkeHttpClient() = HttpClient(Apache) {
         install(JsonFeature) {
             serializer = JacksonSerializer {
                 registerModule(JavaTimeModule())
                 disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             }
-        }
-        defaultRequest {
-            //contentType(ContentType.Json)
         }
     }
 
