@@ -25,8 +25,9 @@ class HullICvTilDatakatalogScheduler(dataSource: DataSource, private val runnabl
     fun kjørPeriodisk() {
         fixedRateTimer(
             name = "Send hull i cv til Datakatalog periodisk",
-            period = Duration.ofSeconds(20).toMillis(),
-            action = runnableMedLås
+            period = Duration.ofSeconds(60).toMillis(),
+            action = runnableMedLås,
+            initialDelay = Duration.ofSeconds(30).toMillis()
         )
     }
 
