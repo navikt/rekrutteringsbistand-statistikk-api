@@ -36,8 +36,6 @@ apply(plugin = "kotlin")
 apply(plugin = "application")
 apply(plugin = "com.github.johnrengelman.shadow")
 
-
-
 tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = "13"
