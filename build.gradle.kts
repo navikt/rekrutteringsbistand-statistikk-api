@@ -1,7 +1,3 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat.*
-import org.gradle.api.tasks.testing.logging.TestLogEvent.*
-
-
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.3"
 val ktorVersion = "1.5.1"
@@ -48,16 +44,6 @@ tasks {
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = "13"
-    }
-
-    test {
-        testLogging {
-            events(FAILED, STANDARD_ERROR, SKIPPED)
-            exceptionFormat = FULL
-            showExceptions = true
-            showCauses = true
-            showStackTraces = true
-        }
     }
 }
 
