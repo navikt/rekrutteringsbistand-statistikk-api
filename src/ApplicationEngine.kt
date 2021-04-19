@@ -68,7 +68,7 @@ fun lagApplicationEngine(
         }
 
         datavarehusScheduler.kjørPeriodisk()
-        hullICvTilDatakatalogScheduler.kjørPeriodisk()
+        //hullICvTilDatakatalogScheduler.kjørPeriodisk()
     }
 }
 
