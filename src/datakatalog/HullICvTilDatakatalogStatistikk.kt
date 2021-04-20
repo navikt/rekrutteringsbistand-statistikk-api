@@ -37,10 +37,10 @@ class HullICvTilDatakatalogStatistikk(private val repository: Repository, privat
     )
 
     private fun lagPlot() = Plotly.plot {
-        fun Plot.lagBar(f: (Boolean?, LocalDate, LocalDate)-> Int, harHull: Boolean?, description: String) = bar {
+        fun Plot.lagBar(hentAntall: (Boolean?, LocalDate, LocalDate)-> Int, harHull: Boolean?, description: String) = bar {
             val datoer = dagerMellom(fraDato, dagensDato())
             x.strings = datoer.map { it.toString() }
-            y.numbers = datoer.map { f(harHull, it, it.plusDays(1)) }
+            y.numbers = datoer.map { hentAntall(harHull, it, it.plusDays(1)) }
             name = description
         }
 
