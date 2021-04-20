@@ -7,7 +7,8 @@ import java.time.LocalDate
 import java.time.Period
 
 
-class HullICvTilDatakatalogStatistikk(private val repository: Repository, private val datakatalogKlient: DatakatalogKlient): Runnable {
+class HullICvTilDatakatalogStatistikk(private val repository: Repository, private val datakatalogKlient: DatakatalogKlient,
+                                      private val dagensDato: () -> LocalDate): Runnable {
 
     companion object {
          internal val filnavn: String = "antallhull.json"
@@ -37,7 +38,7 @@ class HullICvTilDatakatalogStatistikk(private val repository: Repository, privat
 
     private fun lagPlot() = Plotly.plot {
         fun Plot.lagBar(f: (Boolean?, LocalDate, LocalDate)-> Int, harHull: Boolean?, description: String) = bar {
-            val datoer = dagerMellom(fraDato, LocalDate.now())
+            val datoer = dagerMellom(fraDato, dagensDato())
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { f(harHull, it, it.plusDays(1)) }
             name = description
@@ -86,5 +87,5 @@ private fun Plot.getLayout() {
 
 private fun dagerMellom(fraDato: LocalDate, tilDato: LocalDate) = Period.between(fraDato, tilDato).days
     .let { antallDager ->
-        (0..antallDager).map { LocalDate.now() - Period.ofDays(antallDager + it) }
+        (0..antallDager).map { fraDato + Period.ofDays(it) }
 }

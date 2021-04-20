@@ -25,6 +25,7 @@ import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
 import no.nav.rekrutteringsbistand.statistikk.kafka.hentUsendteUtfallOgSendPåKafka
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
+import java.time.LocalDate
 import javax.sql.DataSource
 
 @KtorExperimentalAPI
@@ -56,7 +57,7 @@ fun lagApplicationEngine(
         val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer, unleash)
         val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
-        val sendHullICvTilDatakatalog = HullICvTilDatakatalogStatistikk(repository, DatakatalogKlient(url = url))
+        val sendHullICvTilDatakatalog = HullICvTilDatakatalogStatistikk(repository, DatakatalogKlient(url = url), dagensDato = { LocalDate.now() })
         val hullICvTilDatakatalogScheduler = HullICvTilDatakatalogScheduler(dataSource, sendHullICvTilDatakatalog)
 
         routing {
