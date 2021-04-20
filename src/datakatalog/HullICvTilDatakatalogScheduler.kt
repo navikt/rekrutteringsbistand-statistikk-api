@@ -27,7 +27,7 @@ class HullICvTilDatakatalogScheduler(dataSource: DataSource, private val runnabl
             name = "Send hull i cv til Datakatalog periodisk",
             period = Duration.ofSeconds(60).toMillis(),
             action = runnableMedLås,
-            initialDelay = Duration.ofSeconds(30).toMillis()
+            initialDelay = Duration.ofSeconds(60).toMillis()
         )
     }
 
