@@ -20,6 +20,7 @@ class Database(cluster: Cluster) {
             mountPath = "postgresql/prod-fss",
             jdbcUrl = "jdbc:postgresql://a01dbvl011.adeo.no:5432/rekrutteringsbistand-statistikk"
         )
+        Cluster.LOKAL -> throw UnsupportedOperationException()
     }
 
     val dataSource: DataSource

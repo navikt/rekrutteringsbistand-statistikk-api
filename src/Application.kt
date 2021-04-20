@@ -1,7 +1,8 @@
 package no.nav.rekrutteringsbistand.statistikk
 
-import io.ktor.auth.Authentication
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.auth.*
+import io.ktor.util.*
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogUrl
 import no.nav.rekrutteringsbistand.statistikk.db.Database
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerImpl
 import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaConfig
@@ -23,11 +24,14 @@ fun main() {
 
     val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
 
+    val statistikkConfig = DatakatalogUrl(Cluster.current)
+
     val applicationEngine = lagApplicationEngine(
         dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer,
-        unleash = UnleashConfig.unleash
+        unleash = UnleashConfig.unleash,
+        url = statistikkConfig
     )
     applicationEngine.start()
     log.info("Applikasjon startet i miljø: ${Cluster.current}")

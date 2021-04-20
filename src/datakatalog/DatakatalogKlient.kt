@@ -22,13 +22,11 @@ private fun datapakkeHttpClient() = HttpClient(Apache) {
 }
 
 class DatakatalogKlient(private val httpClient: HttpClient = datapakkeHttpClient(),
-                        private val rootURL: String = "https://datakatalog-api.dev.intern.nav.no/v1/datapackage/",
-                        private val datapakkeId: String = "e0745dcae428b0fa4309b3c065f7706b") {
-
+                        private val url: DatakatalogUrl) {
     fun sendPlotlyFilTilDatavarehus(plotlyJson: String) {
         runBlocking {
             val response: HttpResponse = httpClient
-                .put("$rootURL$datapakkeId/attachments") {
+                .put(url.ressursfil()) {
                     body = MultiPartFormDataContent(
                         formData {
                             this.append("files", plotlyJson,
@@ -45,7 +43,7 @@ class DatakatalogKlient(private val httpClient: HttpClient = datapakkeHttpClient
     fun sendDatapakke(lagDatapakke: Datapakke) {
         runBlocking {
             val response: HttpResponse = httpClient
-                .put("$rootURL$datapakkeId") {
+                .put(url.datapakke()) {
                     body = lagDatapakke
                     header(HttpHeaders.ContentType, ContentType.Application.Json)
                 }
