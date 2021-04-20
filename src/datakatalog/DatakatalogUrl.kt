@@ -14,7 +14,7 @@ class DatakatalogUrl(cluster: Cluster) {
         }
 
         private fun datapakkeIdFra(cluster: Cluster) = when (cluster) {
-            Cluster.PROD_FSS -> ""
+            Cluster.PROD_FSS -> "e0745dcae428b0fa4309b3c065f7706b"
             Cluster.DEV_FSS -> "e0745dcae428b0fa4309b3c065f7706b"
             Cluster.LOKAL -> "10d33ba3796b95b53ac1466015aa0ac7"
         }
