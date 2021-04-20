@@ -24,14 +24,14 @@ fun main() {
 
     val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
 
-    val statistikkConfig = DatakatalogUrl(Cluster.current)
+    val datakatalogUrl = DatakatalogUrl(Cluster.current)
 
     val applicationEngine = lagApplicationEngine(
         dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer,
         unleash = UnleashConfig.unleash,
-        url = statistikkConfig
+        url = datakatalogUrl
     )
     applicationEngine.start()
     log.info("Applikasjon startet i miljø: ${Cluster.current}")
