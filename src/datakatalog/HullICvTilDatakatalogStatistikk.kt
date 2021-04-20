@@ -10,8 +10,8 @@ import java.time.Period
 class HullICvTilDatakatalogStatistikk(private val repository: Repository, private val datakatalogKlient: DatakatalogKlient): Runnable {
 
     companion object {
-        private val filnavn: String = "antallhull.json"
-        private val fraDato = LocalDate.of(2021, 4, 6)
+         internal val filnavn: String = "antallhull.json"
+         internal val fraDato = LocalDate.of(2021, 4, 6)
     }
 
     override fun run() {

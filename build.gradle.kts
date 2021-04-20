@@ -115,4 +115,5 @@ dependencies {
     }
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
+    testImplementation ("io.ktor:ktor-client-mock:$ktorVersion")
 }
