@@ -10,7 +10,6 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
-import kscience.plotly.toJsonString
 import no.nav.rekrutteringsbistand.statistikk.log
 
 private fun datapakkeHttpClient() = HttpClient(Apache) {
