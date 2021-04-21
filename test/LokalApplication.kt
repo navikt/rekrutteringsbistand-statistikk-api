@@ -1,8 +1,11 @@
-import io.ktor.auth.Authentication
-import io.ktor.util.KtorExperimentalAPI
+
 import db.TestDatabase
+import io.ktor.auth.*
+import io.ktor.util.*
 import kafka.DatavarehusKafkaProducerStub
 import no.finn.unleash.FakeUnleash
+import no.nav.rekrutteringsbistand.statistikk.Cluster
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogUrl
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.lagApplicationEngine
 import no.nav.rekrutteringsbistand.statistikk.log
@@ -47,7 +50,8 @@ fun start(
         database.dataSource,
         tokenValidationConfig,
         datavarehusKafkaProducer,
-        unleash
+        unleash,
+        DatakatalogUrl(Cluster.LOKAL)
     )
     applicationEngine.start()
 

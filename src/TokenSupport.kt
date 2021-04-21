@@ -1,6 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk
 
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.*
 import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.ktor.TokenSupportConfig
 
@@ -20,6 +20,7 @@ fun tokenSupportConfig(cluster: Cluster): TokenSupportConfig {
             acceptedAudience = listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
             cookieName = "isso-idtoken"
         )
+        Cluster.LOKAL -> throw UnsupportedOperationException()
     }
     return TokenSupportConfig(issuerConfig)
 }

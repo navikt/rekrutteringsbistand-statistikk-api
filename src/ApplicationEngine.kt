@@ -2,28 +2,30 @@ package no.nav.rekrutteringsbistand.statistikk
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import io.ktor.application.install
-import io.ktor.auth.Authentication
-import io.ktor.features.CallLogging
-import io.ktor.features.ContentNegotiation
+import io.ktor.application.*
+import io.ktor.auth.*
+import io.ktor.features.*
 import io.ktor.jackson.*
-import io.ktor.metrics.micrometer.MicrometerMetrics
-import io.ktor.routing.route
-import io.ktor.routing.routing
-import io.ktor.server.engine.ApplicationEngine
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.metrics.micrometer.*
+import io.ktor.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.util.*
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.finn.unleash.Unleash
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogKlient
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogUrl
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.HullICvTilDatakatalogScheduler
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.HullICvTilDatakatalogStatistikk
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
 import no.nav.rekrutteringsbistand.statistikk.kafka.hentUsendteUtfallOgSendPåKafka
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.nais.naisEndepunkt
+import java.time.LocalDate
 import javax.sql.DataSource
 
 @KtorExperimentalAPI
@@ -32,7 +34,8 @@ fun lagApplicationEngine(
     dataSource: DataSource,
     tokenValidationConfig: Authentication.Configuration.() -> Unit,
     datavarehusKafkaProducer: DatavarehusKafkaProducer,
-    unleash: Unleash
+    unleash: Unleash,
+    url: DatakatalogUrl
 ): ApplicationEngine {
     return embeddedServer(Netty, port) {
         install(CallLogging)
@@ -52,17 +55,21 @@ fun lagApplicationEngine(
 
         val repository = Repository(dataSource)
         val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer, unleash)
-        val scheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
+        val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
+
+        val sendHullICvTilDatakatalog = HullICvTilDatakatalogStatistikk(repository, DatakatalogKlient(url = url), dagensDato = { LocalDate.now() })
+        val hullICvTilDatakatalogScheduler = HullICvTilDatakatalogScheduler(dataSource, sendHullICvTilDatakatalog)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 naisEndepunkt(prometheusMeterRegistry)
-                kandidatutfall(repository, scheduler)
+                kandidatutfall(repository, datavarehusScheduler)
                 hentStatistikk(repository)
             }
         }
 
-        scheduler.kjørPeriodisk()
+        datavarehusScheduler.kjørPeriodisk()
+        hullICvTilDatakatalogScheduler.kjørPeriodisk()
     }
 }
 

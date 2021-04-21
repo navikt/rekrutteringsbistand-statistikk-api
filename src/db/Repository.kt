@@ -7,6 +7,7 @@ import no.nav.rekrutteringsbistand.statistikk.db.Utfall.PRESENTERT
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
 import java.sql.Date
 import java.sql.Timestamp
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.sql.DataSource
 
@@ -135,6 +136,62 @@ class Repository(private val dataSource: DataSource) {
                 return resultSet.getInt(1)
             } else {
                 throw RuntimeException("Prøvde å hente antall kandidater som har fått jobben fra databasen")
+            }
+        }
+    }
+
+    fun hentAntallFåttJobben(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
+                
+                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
+                    WHERE k2.$tidspunkt BETWEEN ? AND ?
+                     GROUP BY $aktørId, $kandidatlisteid) as k2
+                     
+                WHERE  k1.$dbId = k2.maksId
+                  AND k1.$utfall = '${FATT_JOBBEN.name}'
+                  AND k1.$hullICv
+            """.trimIndent() + if (harHull != null) " = ?" else " IS NULL"
+            ).apply {
+                setDate(1, Date.valueOf(fraOgMed))
+                setDate(2, Date.valueOf(tilOgMed))
+                if (harHull != null) setBoolean(3, harHull)
+            }.executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall kandidater med harHull=$harHull som har fått jobben fra databasen")
+            }
+        }
+    }
+
+    fun hentAntallPresentert(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
+                
+                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
+                     WHERE k2.$tidspunkt BETWEEN ? AND ?
+                     GROUP BY $aktørId, $kandidatlisteid) as k2
+                     
+                WHERE  k1.$dbId = k2.maksId
+                  AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+                  AND k1.$hullICv
+            """.trimIndent() + if (harHull != null) " = ?" else " IS NULL"
+            ).apply {
+                setDate(1, Date.valueOf(fraOgMed))
+                setDate(2, Date.valueOf(tilOgMed))
+                if (harHull != null) setBoolean(3, harHull)
+            }.executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall presenterte kandidater fra databasen")
             }
         }
     }
