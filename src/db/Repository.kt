@@ -198,14 +198,15 @@ class Repository(private val dataSource: DataSource) {
     }
 
     fun hentHullDatagrunnlag(datoer: List<LocalDate>): HullDatagrunnlag {
-        return HullDatagrunnlag(datoer.flatMap { dag ->
-            listOf(true, false, null).map { harHull ->
-                (dag to harHull) to hentAntallPresentert(harHull, dag, dag.plusDays(1))
-            }
-        }.toMap(),
+        return HullDatagrunnlag(
             datoer.flatMap { dag ->
                 listOf(true, false, null).map { harHull ->
                     (dag to harHull) to hentAntallPresentert(harHull, dag, dag.plusDays(1))
+                }
+            }.toMap(),
+            datoer.flatMap { dag ->
+                listOf(true, false, null).map { harHull ->
+                    (dag to harHull) to hentAntallFåttJobben(harHull, dag, dag.plusDays(1))
                 }
             }.toMap()
         )
