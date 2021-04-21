@@ -23,17 +23,19 @@ private fun datapakkeHttpClient() = HttpClient(Apache) {
 
 class DatakatalogKlient(private val httpClient: HttpClient = datapakkeHttpClient(),
                         private val url: DatakatalogUrl) {
-    fun sendPlotlyFilTilDatavarehus(plotlyJson: String) {
+    fun sendPlotlyFilTilDatavarehus(vararg plotlyJsons: Pair<String, String>) {
         runBlocking {
             val response: HttpResponse = httpClient
                 .put(url.ressursfil()) {
                     body = MultiPartFormDataContent(
                         formData {
-                            this.append("files", plotlyJson,
-                                Headers.build {
-                                    append(HttpHeaders.ContentType, ContentType.Application.Json)
-                                    append(HttpHeaders.ContentDisposition, " filename=${HullICvTilDatakatalogStatistikk.filnavn}")
-                                })
+                            plotlyJsons.forEach { plotlyJson ->
+                                this.append("files", plotlyJson.second,
+                                    Headers.build {
+                                        append(HttpHeaders.ContentType, ContentType.Application.Json)
+                                        append(HttpHeaders.ContentDisposition, " filename=${plotlyJson.first}")
+                                    })
+                            }
                         }
                     )
                 }

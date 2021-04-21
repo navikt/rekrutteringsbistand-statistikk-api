@@ -5,18 +5,22 @@ import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate
 import java.time.Period
+import kotlin.math.roundToInt
 
 
 class HullICvTilDatakatalogStatistikk(private val repository: Repository, private val datakatalogKlient: DatakatalogKlient,
                                       private val dagensDato: () -> LocalDate): Runnable {
 
     companion object {
-         internal val filnavn: String = "antallhull.json"
-         internal val fraDato = LocalDate.of(2021, 4, 6)
+        private val filnavnAntallHull: String = "antallhull.json"
+        private val filnavnAndelHull: String = "andelhull.json"
+        private val fraDato = LocalDate.of(2021, 4, 8)
     }
 
     override fun run() {
-        datakatalogKlient.sendPlotlyFilTilDatavarehus(lagPlot().toJsonString())
+        datakatalogKlient.sendPlotlyFilTilDatavarehus(
+            filnavnAntallHull to lagPlot().toJsonString(),
+            filnavnAndelHull to lagPlotAndelHull().toJsonString())
         datakatalogKlient.sendDatapakke(lagDatapakke())
     }
 
@@ -30,27 +34,53 @@ class HullICvTilDatakatalogStatistikk(private val repository: Repository, privat
                 description = "Vise antall hull i cv",
                 specType = "plotly",
                 spec = Spec(
-                    url = filnavn
+                    url = filnavnAntallHull
+                )
+            ),
+            View(
+                title = "Andel hull i cv",
+                description = "Vise andel hull i cv",
+                specType = "plotly",
+                spec = Spec(
+                    url = filnavnAndelHull
                 )
             )
         )
     )
 
+
+
     private fun lagPlot() = Plotly.plot {
-        fun Plot.lagBar(hentAntall: (Boolean?, LocalDate, LocalDate)-> Int, harHull: Boolean?, description: String) = bar {
+        fun Plot.lagBarAntallHull(hentVerdi: (Boolean?, LocalDate)-> Int, harHull: Boolean?, description: String) = bar {
             val datoer = dagerMellom(fraDato, dagensDato())
             x.strings = datoer.map { it.toString() }
-            y.numbers = datoer.map { hentAntall(harHull, it, it.plusDays(1)) }
+            y.numbers = datoer.map { hentVerdi(harHull, it) }
             name = description
         }
+        val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDato, dagensDato()))
 
         log.info("Henter data for hull for datakatalog")
-        lagBar(repository::hentAntallPresentert, true, "Antall presentert med hull")
-        lagBar(repository::hentAntallPresentert, false, "Antall presentert uten hull")
-        lagBar(repository::hentAntallPresentert, null, "Antall presentert ukjent om de har hull")
-        lagBar(repository::hentAntallFåttJobben, true, "Antall fått jobben med hull")
-        lagBar(repository::hentAntallFåttJobben, false, "Antall fått jobben uten hull")
-        lagBar(repository::hentAntallFåttJobben, null, "Antall fått jobben ukjent om de har hull")
+        lagBarAntallHull(hullDatakatalog::hentAntallPresentert, true, "Antall presentert med hull")
+        lagBarAntallHull(hullDatakatalog::hentAntallPresentert, false, "Antall presentert uten hull")
+        lagBarAntallHull(hullDatakatalog::hentAntallPresentert, null, "Antall presentert ukjent om de har hull")
+        lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, true, "Antall fått jobben med hull")
+        lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, false, "Antall fått jobben uten hull")
+        lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, null, "Antall fått jobben ukjent om de har hull")
+        getLayout()
+    }
+
+    private fun lagPlotAndelHull() = Plotly.plot {
+        fun Plot.lagBarAndelHull(hentVerdi: (LocalDate)-> Double, description: String) = bar {
+            val datoer = dagerMellom(fraDato, dagensDato())
+            x.strings = datoer.map { it.toString() }
+            y.numbers = datoer.map { (hentVerdi(it)*100).roundToInt() }
+            name = description
+        }
+        val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDato, dagensDato()))
+        log.info("Henter data for hull for datakatalog")
+
+        lagBarAndelHull(hullDatakatalog::hentAndelPresentert, "Andel presentert med hull")
+        lagBarAndelHull(hullDatakatalog::hentAndelFåttJobben, "Andel fått jobben med hull")
         getLayout()
     }
 }

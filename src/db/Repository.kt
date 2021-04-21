@@ -1,6 +1,7 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
 import no.nav.rekrutteringsbistand.statistikk.HentStatistikk
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.HullDatagrunnlag
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
 import no.nav.rekrutteringsbistand.statistikk.db.Utfall.FATT_JOBBEN
 import no.nav.rekrutteringsbistand.statistikk.db.Utfall.PRESENTERT
@@ -194,6 +195,20 @@ class Repository(private val dataSource: DataSource) {
                 throw RuntimeException("Prøvde å hente antall presenterte kandidater fra databasen")
             }
         }
+    }
+
+    fun hentHullDatagrunnlag(datoer: List<LocalDate>): HullDatagrunnlag {
+        return HullDatagrunnlag(datoer.flatMap { dag ->
+            listOf(true, false, null).map { harHull ->
+                (dag to harHull) to hentAntallPresentert(harHull, dag, dag.plusDays(1))
+            }
+        }.toMap(),
+            datoer.flatMap { dag ->
+                listOf(true, false, null).map { harHull ->
+                    (dag to harHull) to hentAntallPresentert(harHull, dag, dag.plusDays(1))
+                }
+            }.toMap()
+        )
     }
 
     companion object {
