@@ -11,12 +11,13 @@ class HullICvTilDatakatalogStatistikk(private val repository: Repository, privat
                                       private val dagensDato: () -> LocalDate): Runnable {
 
     companion object {
-         internal val filnavn: String = "antallhull.json"
-         internal val fraDato = LocalDate.of(2021, 4, 6)
+        internal val filnavnAntallHull: String = "antallhull.json"
+        internal val filnavnAndelHull: String = "andelhull.json"
+         internal val fraDato = LocalDate.of(2021, 4, 8)
     }
 
     override fun run() {
-        datakatalogKlient.sendPlotlyFilTilDatavarehus(lagPlot().toJsonString())
+        datakatalogKlient.sendPlotlyFilTilDatavarehus(lagPlotAntallHull().toJsonString(), lagPlotAndelHull().toJsonString())
         datakatalogKlient.sendDatapakke(lagDatapakke())
     }
 
@@ -30,13 +31,21 @@ class HullICvTilDatakatalogStatistikk(private val repository: Repository, privat
                 description = "Vise antall hull i cv",
                 specType = "plotly",
                 spec = Spec(
-                    url = filnavn
+                    url = filnavnAntallHull
+                )
+            ),
+            View(
+                title = "Andel hull i cv",
+                description = "Vise andel hull i cv",
+                specType = "plotly",
+                spec = Spec(
+                    url = filnavnAndelHull
                 )
             )
         )
     )
 
-    private fun lagPlot() = Plotly.plot {
+    private fun lagPlotAntallHull() = Plotly.plot {
         fun Plot.lagBar(hentAntall: (Boolean?, LocalDate, LocalDate)-> Int, harHull: Boolean?, description: String) = bar {
             val datoer = dagerMellom(fraDato, dagensDato())
             x.strings = datoer.map { it.toString() }
@@ -51,6 +60,20 @@ class HullICvTilDatakatalogStatistikk(private val repository: Repository, privat
         lagBar(repository::hentAntallFåttJobben, true, "Antall fått jobben med hull")
         lagBar(repository::hentAntallFåttJobben, false, "Antall fått jobben uten hull")
         lagBar(repository::hentAntallFåttJobben, null, "Antall fått jobben ukjent om de har hull")
+        getLayout()
+    }
+
+    private fun lagPlotAndelHull() = Plotly.plot {
+        fun Plot.lagBar(hentAntall: (Boolean?, LocalDate, LocalDate)-> Int, harHull: Boolean?, description: String) = bar {
+            val datoer = dagerMellom(fraDato, dagensDato())
+            x.strings = datoer.map { it.toString() }
+            y.numbers = datoer.map { hentAntall(harHull, it, it.plusDays(1)) }
+            name = description
+        }
+
+        log.info("Henter data for hull for datakatalog")
+        lagBar(repository::hentAntallPresentert, true, "Andel presentert med hull")
+        lagBar(repository::hentAndelFåttJobben, false, "Andel fått jobben med hull")
         getLayout()
     }
 }

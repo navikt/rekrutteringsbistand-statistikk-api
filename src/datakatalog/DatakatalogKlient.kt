@@ -32,7 +32,7 @@ class DatakatalogKlient(private val httpClient: HttpClient = datapakkeHttpClient
                             this.append("files", plotlyJson,
                                 Headers.build {
                                     append(HttpHeaders.ContentType, ContentType.Application.Json)
-                                    append(HttpHeaders.ContentDisposition, " filename=${HullICvTilDatakatalogStatistikk.filnavn}")
+                                    append(HttpHeaders.ContentDisposition, " filename=${HullICvTilDatakatalogStatistikk.filnavnAntallHull}")
                                 })
                         }
                     )
