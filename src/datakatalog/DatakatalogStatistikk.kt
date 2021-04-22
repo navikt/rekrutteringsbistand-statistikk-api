@@ -8,7 +8,7 @@ import java.time.Period
 import kotlin.math.roundToInt
 
 
-class HullICvTilDatakatalogStatistikk(
+class DatakatalogStatistikk(
     private val repository: Repository, private val datakatalogKlient: DatakatalogKlient,
     private val dagensDato: () -> LocalDate
 ) : Runnable {
@@ -38,8 +38,8 @@ class HullICvTilDatakatalogStatistikk(
     }
 
     private fun lagDatapakke() = Datapakke(
-        title = "Hull i cv",
-        description = "Vise hull i cv",
+        title = "Rekrutteringsbistand statistikk",
+        description = "Vise rekrutteringsbistand statistikk",
         resources = emptyList(),
         views = listOf(
             View(

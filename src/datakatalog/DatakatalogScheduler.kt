@@ -10,7 +10,7 @@ import javax.sql.DataSource
 import kotlin.concurrent.fixedRateTimer
 import kotlin.concurrent.timerTask
 
-class HullICvTilDatakatalogScheduler(dataSource: DataSource, private val runnable: Runnable) {
+class DatakatalogScheduler(dataSource: DataSource, private val runnable: Runnable) {
 
     private val lockProvider = JdbcLockProvider(dataSource)
     private val lockingExecutor = DefaultLockingTaskExecutor(lockProvider)

@@ -13,13 +13,13 @@ import io.ktor.http.*
 import no.nav.rekrutteringsbistand.statistikk.Cluster
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogKlient
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogUrl
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.HullICvTilDatakatalogStatistikk
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogStatistikk
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import org.junit.Test
 import java.time.LocalDate
 import kotlin.test.assertEquals
 
-class HullICvTilDatakatalogStatistikkTest {
+class DatakatalogStatistikkTest {
     companion object {
         private val database = TestDatabase()
         private val repository = Repository(database.dataSource)
@@ -60,10 +60,10 @@ class HullICvTilDatakatalogStatistikkTest {
     }
 
 
-    val hullICvTilDatakatalogStatistikk = HullICvTilDatakatalogStatistikk(repository, DatakatalogKlient(client, DatakatalogUrl(Cluster.LOKAL)), dagensDato = { LocalDate.of(2021, 4, 20)})
+    val DatakatalogStatistikk = DatakatalogStatistikk(repository, DatakatalogKlient(client, DatakatalogUrl(Cluster.LOKAL)), dagensDato = { LocalDate.of(2021, 4, 20)})
 
     @Test
     fun testSendFil() {
-        hullICvTilDatakatalogStatistikk.run()
+        DatakatalogStatistikk.run()
     }
 }

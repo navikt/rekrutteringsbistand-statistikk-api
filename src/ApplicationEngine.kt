@@ -17,8 +17,8 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.finn.unleash.Unleash
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogKlient
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogUrl
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.HullICvTilDatakatalogScheduler
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.HullICvTilDatakatalogStatistikk
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogScheduler
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogStatistikk
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
@@ -57,8 +57,8 @@ fun lagApplicationEngine(
         val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer, unleash)
         val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
-        val sendHullICvTilDatakatalog = HullICvTilDatakatalogStatistikk(repository, DatakatalogKlient(url = url), dagensDato = { LocalDate.now() })
-        val hullICvTilDatakatalogScheduler = HullICvTilDatakatalogScheduler(dataSource, sendHullICvTilDatakatalog)
+        val sendHullICvTilDatakatalog = DatakatalogStatistikk(repository, DatakatalogKlient(url = url), dagensDato = { LocalDate.now() })
+        val hullICvTilDatakatalogScheduler = DatakatalogScheduler(dataSource, sendHullICvTilDatakatalog)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
