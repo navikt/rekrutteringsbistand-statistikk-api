@@ -104,8 +104,8 @@ class DatakatalogStatistikk(
             }
 
         val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato()))
-
         log.info("Henter data for hull for datakatalog")
+
         lagBarAntallHull(hullDatakatalog::hentAntallPresentert, true, "Antall presentert med hull")
         lagBarAntallHull(hullDatakatalog::hentAntallPresentert, false, "Antall presentert uten hull")
         lagBarAntallHull(hullDatakatalog::hentAntallPresentert, null, "Antall presentert ukjent om de har hull")
@@ -142,6 +142,7 @@ class DatakatalogStatistikk(
     private fun lagPlotAlderPresentert() = Plotly.plot {
 
         val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
+        log.info("Henter data for alder for datakatalog")
 
         lagBarAlder(alderDatakatalog::hentAntallPresentert, Aldersgruppe.under30, "Antall presentert under 30")
         lagBarAlder(alderDatakatalog::hentAntallPresentert, Aldersgruppe.over50, "Antall presentert over 50")
@@ -162,6 +163,7 @@ class DatakatalogStatistikk(
 
     private fun lagPlotAlderAndelPresentert() = Plotly.plot {
         val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
+        log.info("Henter data for alder for datakatalog")
 
         lagBarAndelAlder(alderDatakatalog::hentAndelPresentertUng, "Antall presentert under 30")
         lagBarAndelAlder(alderDatakatalog::hentAndelPresentertSenior, "Antall presentert over 50")
@@ -171,6 +173,7 @@ class DatakatalogStatistikk(
     private fun lagPlotAlderFåttJobben() = Plotly.plot {
 
         val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
+        log.info("Henter data for alder for datakatalog")
 
         lagBarAlder(alderDatakatalog::hentAntallFåttJobben, Aldersgruppe.under30, "Antall fått jobben under 30")
         lagBarAlder(alderDatakatalog::hentAntallFåttJobben, Aldersgruppe.over50, "Antall fått jobben over 50")
@@ -184,6 +187,7 @@ class DatakatalogStatistikk(
 
     private fun lagPlotAlderAndelFåttJobben() = Plotly.plot {
         val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
+        log.info("Henter data for alder for datakatalog")
 
         lagBarAndelAlder(alderDatakatalog::hentAndelFåttJobbenUng, "Antall fått jobben under 30")
         lagBarAndelAlder(alderDatakatalog::hentAndelFåttJobbenSenior, "Antall fått jobben over 50")
