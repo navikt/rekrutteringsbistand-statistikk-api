@@ -28,62 +28,6 @@ class DatakatalogStatistikkTest {
         private val repository = Repository(database.dataSource)
     }
 
-    val client = HttpClient(MockEngine) {
-        install(JsonFeature) {
-            serializer = JacksonSerializer {
-                registerModule(JavaTimeModule())
-                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            }
-        }
-        engine {
-            addHandler { request ->
-                when (request.url.fullPath) {
-                    "/v1/datapackage/10d33ba3796b95b53ac1466015aa0ac7/attachments" -> {
-                        val multiPartFormDataContent = request.body as MultiPartFormDataContent
-
-                        val actualPartsInput = multiPartFormDataContent.hentPartsMedReflection()
-
-                        val expectedAntallHull =
-                            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert uten hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert ukjent om de har hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben uten hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben ukjent om de har hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
-                        assertThat(actualPartsInput).contains(expectedAntallHull)
-
-                        val expectedAndelHull =
-                            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel presentert med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel fått jobben med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
-                        assertThat(actualPartsInput).contains(expectedAndelHull)
-
-                        val expectedAntallAlderPresentert =
-                            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert under 30","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert over 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert mellom 30 og 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
-                        assertThat(actualPartsInput).contains(expectedAntallAlderPresentert)
-
-                        val expectedAndelAlderPresentert =
-                            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben under 30","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben over 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben mellom 30 og 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
-                        assertThat(actualPartsInput).contains(expectedAndelAlderPresentert)
-
-
-                        val expectedAntallAlderFåttJobben =
-                            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert under 30","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert over 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
-                        assertThat(actualPartsInput).contains(expectedAntallAlderFåttJobben)
-
-                        val expectedAndelAlderFåttJobben =
-                            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben under 30","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben over 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
-                        assertThat(actualPartsInput).contains(expectedAndelAlderFåttJobben)
-
-
-                        respond("")
-                    }
-                    "/v1/datapackage/10d33ba3796b95b53ac1466015aa0ac7" -> {
-                        val expected =
-                            """{"title":"Rekrutteringsbistand statistikk","description":"Vise rekrutteringsbistand statistikk","views":[{"title":"Antall hull i cv","description":"Vise antall hull i cv","specType":"plotly","spec":{"url":"antallhull.json"}},{"title":"Andel hull i cv","description":"Vise andel hull i cv","specType":"plotly","spec":{"url":"andelhull.json"}},{"title":"Antall alder presentert","description":"Vise antal alder presentert","specType":"plotly","spec":{"url":"alderPresentert.json"}},{"title":"Andel alder presentert","description":"Vise andel alder presentert","specType":"plotly","spec":{"url":"alderAndelPresentert.json"}},{"title":"Antall alder fått jobben","description":"Vise antal alder fått jobben","specType":"plotly","spec":{"url":"aalderFåttJobben.json"}},{"title":"Andel alder fått jobben","description":"Vise andel alder fått jobben","specType":"plotly","spec":{"url":"alderAndelFåttJobben.json"}}],"resources":[]}"""
-                        val actual = String(request.body.toByteArray())
-                        assertEquals(expected, actual)
-                        respond("")
-                    }
-
-                    else -> error("Unhandled ${request.url.fullPath}")
-                }
-            }
-        }
-    }
 
     fun MultiPartFormDataContent.hentPartsMedReflection(): List<String> {
         val partListe = this.javaClass.getDeclaredField("rawParts").let {
@@ -100,19 +44,8 @@ class DatakatalogStatistikkTest {
         }
     }
 
-
-    val datakatalogStatistikkVar = DatakatalogStatistikk(
-        repository,
-        DatakatalogKlient(client, DatakatalogUrl(Cluster.LOKAL)),
-        dagensDato = { LocalDate.of(2021, 4, 20) })
-
     @Test
-    fun testSendFil() {
-        datakatalogStatistikkVar.run()
-    }
-
-    @Test
-    fun testDatapakkeMedBoolean() {
+    fun `datapakke skal sendes`() {
         var kalt = false
         val client = lagVerifiableHttpClient(datapakkeAsserts = { body ->
             val expected =
@@ -120,42 +53,65 @@ class DatakatalogStatistikkTest {
             assertEquals(expected, body)
             kalt = true
         })
-        val datakatalogStatistikk = lagDatakatalogStatistikk(client)
-        datakatalogStatistikk.run()
+        lagDatakatalogStatistikk(client).run()
         assertTrue(kalt)
     }
 
     @Test
-    fun testDatapakkeMedCallVerifier() {
-        val callVerifier = VerifiserbarFunksjon<String> { body ->
-            val expected =
-                """{"title":"Rekrutteringsbistand statistikk","description":"Vise rekrutteringsbistand statistikk","views":[{"title":"Antall hull i cv","description":"Vise antall hull i cv","specType":"plotly","spec":{"url":"antallhull.json"}},{"title":"Andel hull i cv","description":"Vise andel hull i cv","specType":"plotly","spec":{"url":"andelhull.json"}},{"title":"Antall alder presentert","description":"Vise antal alder presentert","specType":"plotly","spec":{"url":"alderPresentert.json"}},{"title":"Andel alder presentert","description":"Vise andel alder presentert","specType":"plotly","spec":{"url":"alderAndelPresentert.json"}},{"title":"Antall alder fått jobben","description":"Vise antal alder fått jobben","specType":"plotly","spec":{"url":"aalderFåttJobben.json"}},{"title":"Andel alder fått jobben","description":"Vise andel alder fått jobben","specType":"plotly","spec":{"url":"alderAndelFåttJobben.json"}}],"resources":[]}"""
-            assertEquals(expected, body)
-        }
-        val client = lagVerifiableHttpClient(datapakkeAsserts = callVerifier())
-        val datakatalogStatistikk = lagDatakatalogStatistikk(client)
-        datakatalogStatistikk.run()
-        callVerifier.verifiser()
+    fun `Hull i cv med antall hull skal sendes`() {
+        verifiserPlotSendt(
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert uten hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert ukjent om de har hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben uten hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben ukjent om de har hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
+
+        )
     }
 
     @Test
-    fun testDatapakkeMedCallVerifierOneLiner() {
-        VerifiserbarFunksjon<String> { body ->
-            val expected =
-                """{"title":"Rekrutteringsbistand statistikk","description":"Vise rekrutteringsbistand statistikk","views":[{"title":"Antall hull i cv","description":"Vise antall hull i cv","specType":"plotly","spec":{"url":"antallhull.json"}},{"title":"Andel hull i cv","description":"Vise andel hull i cv","specType":"plotly","spec":{"url":"andelhull.json"}},{"title":"Antall alder presentert","description":"Vise antal alder presentert","specType":"plotly","spec":{"url":"alderPresentert.json"}},{"title":"Andel alder presentert","description":"Vise andel alder presentert","specType":"plotly","spec":{"url":"alderAndelPresentert.json"}},{"title":"Antall alder fått jobben","description":"Vise antal alder fått jobben","specType":"plotly","spec":{"url":"aalderFåttJobben.json"}},{"title":"Andel alder fått jobben","description":"Vise andel alder fått jobben","specType":"plotly","spec":{"url":"alderAndelFåttJobben.json"}}],"resources":[]}"""
-            assertEquals(expected, body)
-        }.apply {
-            lagVerifiableHttpClient(datapakkeAsserts = this())
-                .let(this@DatakatalogStatistikkTest::lagDatakatalogStatistikk)
-                .let(DatakatalogStatistikk::run)
-        }.verifiser()
+    fun `Hull i cv med andel hull skal sendes`() {
+        verifiserPlotSendt(
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Andel %","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel presentert med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel fått jobben med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
+
+        )
     }
 
-    class VerifiserbarFunksjon<T>(private val function: (T)->Unit) {
-        private var invoked = false
 
-        operator fun invoke(): (T) -> Unit = { parameter:T -> function(parameter).apply { invoked=true } }
-        fun verifiser() = assertTrue(invoked, "no.frodank.CallVerifier was never invoked before verified.")
+    @Test
+    fun `Antall alder presentert skal sendes`() {
+        verifiserPlotSendt(
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert under 30","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert over 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert mellom 30 og 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
+        )
+    }
+
+    @Test
+    fun `Andel alder presentert skal sendes`() {
+        verifiserPlotSendt(
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Andel %","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel presentert med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel fått jobben med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
+        )
+    }
+
+    @Test
+    fun `Antall alder fått jobben skal sendes`() {
+        verifiserPlotSendt(
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben under 30","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben over 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben mellom 30 og 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
+        )
+    }
+
+    @Test
+    fun `Andel alder fått jobben skal sendes`() {
+        verifiserPlotSendt(
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Andel %","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel fått jobben under 30","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel fått jobben over 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
+        )
+    }
+
+    fun verifiserPlotSendt(json: String) {
+        var kalt = false
+        val client = lagVerifiableHttpClient(attachementAsserts = { partListe ->
+            val expected = json
+            assertThat(partListe).contains(expected)
+            kalt = true
+        })
+
+        lagDatakatalogStatistikk(client).run()
+        assertTrue(kalt)
     }
 
     private fun lagDatakatalogStatistikk(client: HttpClient) = DatakatalogStatistikk(
@@ -163,31 +119,34 @@ class DatakatalogStatistikkTest {
         DatakatalogKlient(client, DatakatalogUrl(Cluster.LOKAL)),
         dagensDato = { LocalDate.of(2021, 4, 20) })
 
-    private fun lagVerifiableHttpClient(attachementAsserts: (List<String>) -> Unit = {}, datapakkeAsserts: (String) -> Unit = {}) =
-        HttpClient(MockEngine) {
-        install(JsonFeature) {
-            serializer = JacksonSerializer {
-                registerModule(JavaTimeModule())
-                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    private fun lagVerifiableHttpClient(
+        attachementAsserts: (List<String>) -> Unit = {},
+        datapakkeAsserts: (String) -> Unit = {}
+    ) =
+         HttpClient(MockEngine) {
+            install(JsonFeature) {
+                serializer = JacksonSerializer {
+                    registerModule(JavaTimeModule())
+                    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                }
             }
-        }
-        engine {
-            addHandler { request ->
-                when (request.url.fullPath) {
-                    "/v1/datapackage/10d33ba3796b95b53ac1466015aa0ac7/attachments" -> {
-                        val multiPartFormDataContent = request.body as MultiPartFormDataContent
-                        val actualPartsInput = multiPartFormDataContent.hentPartsMedReflection()
-                        attachementAsserts(actualPartsInput)
-                        respond("")
-                    }
-                    "/v1/datapackage/10d33ba3796b95b53ac1466015aa0ac7" -> {
-                        datapakkeAsserts(String(request.body.toByteArray()))
-                        respond("")
-                    }
+            engine {
+                addHandler { request ->
+                    when (request.url.fullPath) {
+                        "/v1/datapackage/10d33ba3796b95b53ac1466015aa0ac7/attachments" -> {
+                            val multiPartFormDataContent = request.body as MultiPartFormDataContent
+                            val actualPartsInput = multiPartFormDataContent.hentPartsMedReflection()
+                            attachementAsserts(actualPartsInput)
+                            respond("")
+                        }
+                        "/v1/datapackage/10d33ba3796b95b53ac1466015aa0ac7" -> {
+                            datapakkeAsserts(String(request.body.toByteArray()))
+                            respond("")
+                        }
 
-                    else -> error("Unhandled ${request.url.fullPath}")
+                        else -> error("Unhandled ${request.url.fullPath}")
+                    }
                 }
             }
         }
-    }
 }

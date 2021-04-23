@@ -112,7 +112,7 @@ class DatakatalogStatistikk(
         lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, true, "Antall fått jobben med hull")
         lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, false, "Antall fått jobben uten hull")
         lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, null, "Antall fått jobben ukjent om de har hull")
-        getLayout()
+        getLayout("Antall")
     }
 
     private fun lagPlotAndelHull() = Plotly.plot {
@@ -128,7 +128,7 @@ class DatakatalogStatistikk(
 
         lagBarAndelHull(hullDatakatalog::hentAndelPresentert, "Andel presentert med hull")
         lagBarAndelHull(hullDatakatalog::hentAndelFåttJobben, "Andel fått jobben med hull")
-        getLayout()
+        getLayout("Andel %")
     }
 
     fun Plot.lagBarAlder(hentVerdi: (Aldersgruppe, LocalDate) -> Int, aldersgruppe: Aldersgruppe, description: String) =
@@ -151,7 +151,7 @@ class DatakatalogStatistikk(
             Aldersgruppe.mellom30og50,
             "Antall presentert mellom 30 og 50"
         )
-        getLayout()
+        getLayout("Antall")
     }
 
     fun Plot.lagBarAndelAlder(hentVerdi: (LocalDate) -> Double, description: String) = bar {
@@ -165,9 +165,9 @@ class DatakatalogStatistikk(
         val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
         log.info("Henter data for alder for datakatalog")
 
-        lagBarAndelAlder(alderDatakatalog::hentAndelPresentertUng, "Antall presentert under 30")
-        lagBarAndelAlder(alderDatakatalog::hentAndelPresentertSenior, "Antall presentert over 50")
-        getLayout()
+        lagBarAndelAlder(alderDatakatalog::hentAndelPresentertUng, "Andel presentert under 30")
+        lagBarAndelAlder(alderDatakatalog::hentAndelPresentertSenior, "Andel presentert over 50")
+        getLayout("Andel %")
     }
 
     private fun lagPlotAlderFåttJobben() = Plotly.plot {
@@ -182,22 +182,22 @@ class DatakatalogStatistikk(
             Aldersgruppe.mellom30og50,
             "Antall fått jobben mellom 30 og 50"
         )
-        getLayout()
+        getLayout("Antall")
     }
 
     private fun lagPlotAlderAndelFåttJobben() = Plotly.plot {
         val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
         log.info("Henter data for alder for datakatalog")
 
-        lagBarAndelAlder(alderDatakatalog::hentAndelFåttJobbenUng, "Antall fått jobben under 30")
-        lagBarAndelAlder(alderDatakatalog::hentAndelFåttJobbenSenior, "Antall fått jobben over 50")
-        getLayout()
+        lagBarAndelAlder(alderDatakatalog::hentAndelFåttJobbenUng, "Andel fått jobben under 30")
+        lagBarAndelAlder(alderDatakatalog::hentAndelFåttJobbenSenior, "Andel fått jobben over 50")
+        getLayout("Andel %")
     }
 
 }
 
 
-private fun Plot.getLayout() {
+private fun Plot.getLayout(yTekst: String) {
     layout {
         bargap = 0.1
         title {
@@ -217,7 +217,7 @@ private fun Plot.getLayout() {
         }
         yaxis {
             title {
-                text = "Antall"
+                text = yTekst
                 font {
                     size = 16
                 }
