@@ -3,7 +3,6 @@ package no.nav.rekrutteringsbistand.statistikk.datakatalog
 import kscience.plotly.Plot
 import kscience.plotly.layout
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.alder.AlderStatistikk
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.DatakatalogData
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullStatistikk
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import java.time.LocalDate

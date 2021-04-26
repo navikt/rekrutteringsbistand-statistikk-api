@@ -4,10 +4,7 @@ import kscience.plotly.Plot
 import kscience.plotly.Plotly
 import kscience.plotly.bar
 import kscience.plotly.toJsonString
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.Spec
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.View
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.dagerMellom
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.getLayout
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate

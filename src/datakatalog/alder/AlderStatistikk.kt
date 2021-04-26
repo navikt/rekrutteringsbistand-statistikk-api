@@ -5,13 +5,12 @@ import kscience.plotly.Plotly
 import kscience.plotly.bar
 import kscience.plotly.toJsonString
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.DatakatalogData
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class AlderStatistikk(private val repository: Repository, private val dagensDato: () -> LocalDate): DatakatalogData {
+class AlderStatistikk(private val repository: Repository, private val dagensDato: () -> LocalDate) : DatakatalogData {
 
     companion object {
         private val filnavnAlderPresentert: String = "alderPresentert.json"
@@ -56,16 +55,21 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
         )
     )
 
-    override fun plotlyFiler() = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato())).let { alderDatakatalog ->
-        listOf(
-            filnavnAlderPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
-            filnavnAlderFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),
-            filnavnAlderAndelPresentert to lagPlotAlderAndelPresentert(alderDatakatalog).toJsonString(),
-            filnavnAlderAndelFåttJobben to lagPlotAlderAndelFåttJobben(alderDatakatalog).toJsonString()
-        )
-    }
+    override fun plotlyFiler() =
+        repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato())).let { alderDatakatalog ->
+            listOf(
+                filnavnAlderPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
+                filnavnAlderFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),
+                filnavnAlderAndelPresentert to lagPlotAlderAndelPresentert(alderDatakatalog).toJsonString(),
+                filnavnAlderAndelFåttJobben to lagPlotAlderAndelFåttJobben(alderDatakatalog).toJsonString()
+            )
+        }
 
-    private fun Plot.lagBarAlder(hentVerdi: (Aldersgruppe, LocalDate) -> Int, aldersgruppe: Aldersgruppe, description: String) =
+    private fun Plot.lagBarAlder(
+        hentVerdi: (Aldersgruppe, LocalDate) -> Int,
+        aldersgruppe: Aldersgruppe,
+        description: String
+    ) =
         bar {
             val datoer = dagerMellom(fraDatoAlder, dagensDato())
             x.strings = datoer.map { it.toString() }
@@ -85,7 +89,11 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
 
         lagBarAlder(alderDatagrunnlag::hentAntallPresentert, Aldersgruppe.under30, "Antall presentert under 30")
         lagBarAlder(alderDatagrunnlag::hentAntallPresentert, Aldersgruppe.over50, "Antall presentert over 50")
-        lagBarAlder(alderDatagrunnlag::hentAntallPresentert, Aldersgruppe.mellom30og50,"Antall presentert mellom 30 og 50")
+        lagBarAlder(
+            alderDatagrunnlag::hentAntallPresentert,
+            Aldersgruppe.mellom30og50,
+            "Antall presentert mellom 30 og 50"
+        )
         getLayout("Antall")
     }
 
@@ -102,7 +110,11 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
 
         lagBarAlder(alderDatagrunnlag::hentAntallFåttJobben, Aldersgruppe.under30, "Antall fått jobben under 30")
         lagBarAlder(alderDatagrunnlag::hentAntallFåttJobben, Aldersgruppe.over50, "Antall fått jobben over 50")
-        lagBarAlder(alderDatagrunnlag::hentAntallFåttJobben, Aldersgruppe.mellom30og50,"Antall fått jobben mellom 30 og 50")
+        lagBarAlder(
+            alderDatagrunnlag::hentAntallFåttJobben,
+            Aldersgruppe.mellom30og50,
+            "Antall fått jobben mellom 30 og 50"
+        )
         getLayout("Antall")
     }
 
