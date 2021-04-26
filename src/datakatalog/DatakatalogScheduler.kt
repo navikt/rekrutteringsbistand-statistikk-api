@@ -24,16 +24,10 @@ class DatakatalogScheduler(dataSource: DataSource, private val runnable: Runnabl
 
     fun kjørPeriodisk() {
         fixedRateTimer(
-            name = "Send hull i cv til Datakatalog periodisk",
+            name = "Send statistikk til Datakatalog periodisk",
             period = Duration.ofSeconds(60).toMillis(),
             action = runnableMedLås,
             initialDelay = Duration.ofSeconds(60).toMillis()
         )
-    }
-
-    fun kjørEnGangAsync(delay: Long = 0L) {
-        val timerTask = timerTask(runnableMedLås)
-        val timer = Timer("Send hull i cv til Datakatalog  én gang")
-        timer.schedule(timerTask, delay)
     }
 }
