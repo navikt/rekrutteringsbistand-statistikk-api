@@ -137,7 +137,6 @@ fun Plot.getLayout(yTekst: String) {
             text = "Basic Histogram"
             font {
                 size = 20
-                color("black")
             }
         }
         xaxis {
