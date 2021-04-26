@@ -14,25 +14,26 @@ class DatakatalogStatistikk(
     private val repository: Repository, private val datakatalogKlient: DatakatalogKlient,
     private val dagensDato: () -> LocalDate
 ) : Runnable {
-
     override fun run() {
-
-        val (views, plotlydata) = listOf(
-            HullStatistikk(repository, dagensDato),
-            AlderStatistikk(repository, dagensDato)
-        ).run {
-            flatMap(DatakatalogData::views) to flatMap(DatakatalogData::plotlyFiler)
+        plotlydataOgDataPakke().also { (plotly, datapakke) ->
+            datakatalogKlient.sendPlotlyFilTilDatavarehus(plotly)
+            datakatalogKlient.sendDatapakke(datapakke)
         }
+    }
 
-        val datapakke = Datapakke(
+    private fun datapakke(views: List<View>) =
+        Datapakke(
             title = "Rekrutteringsbistand statistikk",
             description = "Vise rekrutteringsbistand statistikk",
             resources = emptyList(),
             views = views
         )
 
-        datakatalogKlient.sendPlotlyFilTilDatavarehus(plotlydata)
-        datakatalogKlient.sendDatapakke(datapakke)
+    private fun plotlydataOgDataPakke() = listOf(
+        HullStatistikk(repository, dagensDato),
+        AlderStatistikk(repository, dagensDato)
+    ).let {
+        it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
     }
 }
 
