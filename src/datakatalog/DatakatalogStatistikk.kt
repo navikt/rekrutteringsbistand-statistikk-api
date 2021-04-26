@@ -14,8 +14,10 @@ class DatakatalogStatistikk(
 ) : Runnable {
 
     companion object {
-        private val filnavnAntallHull: String = "antallhull.json"
-        private val filnavnAndelHull: String = "andelhull.json"
+        private val filnavnHullPresentert: String = "hullPresentert.json"
+        private val filnavnHullFåttJobben: String = "hullFåttJobben.json"
+        private val filnavnHullAndelPresentert: String = "hullAndelPresentert.json"
+        private val filnavnHullAndelFåttJobben: String = "hullAndelFåttJobben.json"
         private val fraDatoHull = LocalDate.of(2021, 4, 8)
 
         private val filnavnAlderPresentert: String = "alderPresentert.json"
@@ -27,8 +29,10 @@ class DatakatalogStatistikk(
 
     override fun run() {
         datakatalogKlient.sendPlotlyFilTilDatavarehus(
-            filnavnAntallHull to lagPlotAntallHull().toJsonString(),
-            filnavnAndelHull to lagPlotAndelHull().toJsonString(),
+            filnavnHullPresentert to lagPlotHullPresentert().toJsonString(),
+            filnavnHullFåttJobben to lagPlotHullFåttJobben().toJsonString(),
+            filnavnHullAndelPresentert to lagPlotHullAndelPresentert().toJsonString(),
+            filnavnHullAndelFåttJobben to lagPlotHullAndelFåttJobben().toJsonString(),
             filnavnAlderPresentert to lagPlotAlderPresentert().toJsonString(),
             filnavnAlderFåttJobben to lagPlotAlderFåttJobben().toJsonString(),
             filnavnAlderAndelPresentert to lagPlotAlderAndelPresentert().toJsonString(),
@@ -43,19 +47,35 @@ class DatakatalogStatistikk(
         resources = emptyList(),
         views = listOf(
             View(
-                title = "Antall hull i cv",
-                description = "Vise antall hull i cv",
+                title = "Antall hull presentert",
+                description = "Vise antall hull presentert",
                 specType = "plotly",
                 spec = Spec(
-                    url = filnavnAntallHull
+                    url = filnavnHullPresentert
                 )
             ),
             View(
-                title = "Andel hull i cv",
-                description = "Vise andel hull i cv",
+                title = "Antall hull fått jobben",
+                description = "Vise antall fått jobben",
                 specType = "plotly",
                 spec = Spec(
-                    url = filnavnAndelHull
+                    url = filnavnHullFåttJobben
+                )
+            ),
+            View(
+                title = "Andel hull presentert",
+                description = "Vise andel hull presentert",
+                specType = "plotly",
+                spec = Spec(
+                    url = filnavnHullAndelPresentert
+                )
+            ),
+            View(
+                title = "Andel hull fått jobben",
+                description = "Vise andel hull fått jobben",
+                specType = "plotly",
+                spec = Spec(
+                    url = filnavnHullAndelFåttJobben
                 )
             ),
             View(
@@ -93,45 +113,54 @@ class DatakatalogStatistikk(
         )
     )
 
+    private fun Plot.lagBarAntallHull(hentVerdi: (Boolean?, LocalDate) -> Int, harHull: Boolean?, description: String) =
+        bar {
+            val datoer = dagerMellom(fraDatoHull, dagensDato())
+            x.strings = datoer.map { it.toString() }
+            y.numbers = datoer.map { hentVerdi(harHull, it) }
+            name = description
+        }
 
-    private fun lagPlotAntallHull() = Plotly.plot {
-        fun Plot.lagBarAntallHull(hentVerdi: (Boolean?, LocalDate) -> Int, harHull: Boolean?, description: String) =
-            bar {
-                val datoer = dagerMellom(fraDatoHull, dagensDato())
-                x.strings = datoer.map { it.toString() }
-                y.numbers = datoer.map { hentVerdi(harHull, it) }
-                name = description
-            }
-
+    private fun lagPlotHullPresentert() = Plotly.plot {
         val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato()))
-        log.info("Henter data for hull for datakatalog")
-
         lagBarAntallHull(hullDatakatalog::hentAntallPresentert, true, "Antall presentert med hull")
         lagBarAntallHull(hullDatakatalog::hentAntallPresentert, false, "Antall presentert uten hull")
         lagBarAntallHull(hullDatakatalog::hentAntallPresentert, null, "Antall presentert ukjent om de har hull")
+        getLayout("Antall")
+    }
+
+    private fun lagPlotHullFåttJobben() = Plotly.plot {
+        val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato()))
         lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, true, "Antall fått jobben med hull")
         lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, false, "Antall fått jobben uten hull")
         lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, null, "Antall fått jobben ukjent om de har hull")
         getLayout("Antall")
     }
 
-    private fun lagPlotAndelHull() = Plotly.plot {
-        fun Plot.lagBarAndelHull(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-            val datoer = dagerMellom(fraDatoHull, dagensDato())
-            x.strings = datoer.map { it.toString() }
-            y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
-            name = description
-        }
+    private fun Plot.lagBarAndelHull(hentVerdi: (LocalDate) -> Double, description: String) = bar {
+        val datoer = dagerMellom(fraDatoHull, dagensDato())
+        x.strings = datoer.map { it.toString() }
+        y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
+        name = description
+    }
 
+    private fun lagPlotHullAndelPresentert() = Plotly.plot {
         val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato()))
         log.info("Henter data for hull for datakatalog")
 
         lagBarAndelHull(hullDatakatalog::hentAndelPresentert, "Andel presentert med hull")
+        getLayout("Andel %")
+    }
+
+    private fun lagPlotHullAndelFåttJobben() = Plotly.plot {
+        val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato()))
+        log.info("Henter data for hull for datakatalog")
+
         lagBarAndelHull(hullDatakatalog::hentAndelFåttJobben, "Andel fått jobben med hull")
         getLayout("Andel %")
     }
 
-    fun Plot.lagBarAlder(hentVerdi: (Aldersgruppe, LocalDate) -> Int, aldersgruppe: Aldersgruppe, description: String) =
+    private fun Plot.lagBarAlder(hentVerdi: (Aldersgruppe, LocalDate) -> Int, aldersgruppe: Aldersgruppe, description: String) =
         bar {
             val datoer = dagerMellom(fraDatoAlder, dagensDato())
             x.strings = datoer.map { it.toString() }
@@ -154,7 +183,7 @@ class DatakatalogStatistikk(
         getLayout("Antall")
     }
 
-    fun Plot.lagBarAndelAlder(hentVerdi: (LocalDate) -> Double, description: String) = bar {
+    private fun Plot.lagBarAndelAlder(hentVerdi: (LocalDate) -> Double, description: String) = bar {
         val datoer = dagerMellom(fraDatoAlder, dagensDato())
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }

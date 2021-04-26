@@ -49,7 +49,7 @@ class DatakatalogStatistikkTest {
         var kalt = false
         val client = lagVerifiableHttpClient(datapakkeAsserts = { body ->
             val expected =
-                """{"title":"Rekrutteringsbistand statistikk","description":"Vise rekrutteringsbistand statistikk","views":[{"title":"Antall hull i cv","description":"Vise antall hull i cv","specType":"plotly","spec":{"url":"antallhull.json"}},{"title":"Andel hull i cv","description":"Vise andel hull i cv","specType":"plotly","spec":{"url":"andelhull.json"}},{"title":"Antall alder presentert","description":"Vise antal alder presentert","specType":"plotly","spec":{"url":"alderPresentert.json"}},{"title":"Andel alder presentert","description":"Vise andel alder presentert","specType":"plotly","spec":{"url":"alderAndelPresentert.json"}},{"title":"Antall alder fått jobben","description":"Vise antal alder fått jobben","specType":"plotly","spec":{"url":"aalderFåttJobben.json"}},{"title":"Andel alder fått jobben","description":"Vise andel alder fått jobben","specType":"plotly","spec":{"url":"alderAndelFåttJobben.json"}}],"resources":[]}"""
+                """{"title":"Rekrutteringsbistand statistikk","description":"Vise rekrutteringsbistand statistikk","views":[{"title":"Antall hull presentert","description":"Vise antall hull presentert","specType":"plotly","spec":{"url":"hullPresentert.json"}},{"title":"Antall hull fått jobben","description":"Vise antall fått jobben","specType":"plotly","spec":{"url":"hullFåttJobben.json"}},{"title":"Andel hull presentert","description":"Vise andel hull presentert","specType":"plotly","spec":{"url":"hullAndelPresentert.json"}},{"title":"Andel hull fått jobben","description":"Vise andel hull fått jobben","specType":"plotly","spec":{"url":"hullAndelFåttJobben.json"}},{"title":"Antall alder presentert","description":"Vise antal alder presentert","specType":"plotly","spec":{"url":"alderPresentert.json"}},{"title":"Andel alder presentert","description":"Vise andel alder presentert","specType":"plotly","spec":{"url":"alderAndelPresentert.json"}},{"title":"Antall alder fått jobben","description":"Vise antal alder fått jobben","specType":"plotly","spec":{"url":"aalderFåttJobben.json"}},{"title":"Andel alder fått jobben","description":"Vise andel alder fått jobben","specType":"plotly","spec":{"url":"alderAndelFåttJobben.json"}}],"resources":[]}"""
             assertEquals(expected, body)
             kalt = true
         })
@@ -58,18 +58,30 @@ class DatakatalogStatistikkTest {
     }
 
     @Test
-    fun `Hull i cv med antall hull skal sendes`() {
+    fun `Antall Hull i cv presentert skal sendes`() {
         verifiserPlotSendt(
-            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert uten hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert ukjent om de har hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben uten hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben ukjent om de har hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
-
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert uten hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall presentert ukjent om de har hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
         )
     }
 
     @Test
-    fun `Hull i cv med andel hull skal sendes`() {
+    fun `Antall Hull i cv fått jobben skal sendes`() {
         verifiserPlotSendt(
-            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Andel %","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel presentert med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel fått jobben med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Antall","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben uten hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Antall fått jobben ukjent om de har hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
+        )
+    }
 
+    @Test
+    fun `Andel Hull i cv presentert skal sendes`() {
+        verifiserPlotSendt(
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Andel %","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel presentert med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
+        )
+    }
+
+    @Test
+    fun `Andel Hull i cv fått jobben skal sendes`() {
+        verifiserPlotSendt(
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Andel %","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel fått jobben med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
         )
     }
 
@@ -84,7 +96,7 @@ class DatakatalogStatistikkTest {
     @Test
     fun `Andel alder presentert skal sendes`() {
         verifiserPlotSendt(
-            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Andel %","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel presentert med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel fått jobben med hull","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
+            """{"layout":{"xaxis":{"title":{"text":"Dato","font":{"size":16}}},"bargap":0.1,"title":{"text":"Basic Histogram","font":{"size":20,"color":"black"}},"yaxis":{"title":{"text":"Andel %","font":{"size":16}}}},"data":[{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel presentert under 30","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"},{"x":["2021-04-08","2021-04-09","2021-04-10","2021-04-11","2021-04-12","2021-04-13","2021-04-14","2021-04-15","2021-04-16","2021-04-17","2021-04-18","2021-04-19","2021-04-20"],"name":"Andel presentert over 50","y":[0,0,0,0,0,0,0,0,0,0,0,0,0],"type":"bar"}]}"""
         )
     }
 
