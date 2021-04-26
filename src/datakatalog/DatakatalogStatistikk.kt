@@ -21,22 +21,24 @@ class DatakatalogStatistikk(
         private val fraDatoHull = LocalDate.of(2021, 4, 8)
 
         private val filnavnAlderPresentert: String = "alderPresentert.json"
-        private val filnavnAlderFåttJobben: String = "aalderFåttJobben.json"
+        private val filnavnAlderFåttJobben: String = "alderFåttJobben.json"
         private val filnavnAlderAndelPresentert: String = "alderAndelPresentert.json"
         private val filnavnAlderAndelFåttJobben: String = "alderAndelFåttJobben.json"
         private val fraDatoAlder = LocalDate.of(2021, 4, 8)
     }
 
     override fun run() {
+        val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato()))
+        val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
         datakatalogKlient.sendPlotlyFilTilDatavarehus(
-            filnavnHullPresentert to lagPlotHullPresentert().toJsonString(),
-            filnavnHullFåttJobben to lagPlotHullFåttJobben().toJsonString(),
-            filnavnHullAndelPresentert to lagPlotHullAndelPresentert().toJsonString(),
-            filnavnHullAndelFåttJobben to lagPlotHullAndelFåttJobben().toJsonString(),
-            filnavnAlderPresentert to lagPlotAlderPresentert().toJsonString(),
-            filnavnAlderFåttJobben to lagPlotAlderFåttJobben().toJsonString(),
-            filnavnAlderAndelPresentert to lagPlotAlderAndelPresentert().toJsonString(),
-            filnavnAlderAndelFåttJobben to lagPlotAlderAndelFåttJobben().toJsonString(),
+            filnavnHullPresentert to lagPlotAntallHullPresentert(hullDatakatalog).toJsonString(),
+            filnavnHullFåttJobben to lagPlotAntallHullFåttJobben(hullDatakatalog).toJsonString(),
+            filnavnHullAndelPresentert to lagPlotHullAndelPresentert(hullDatakatalog).toJsonString(),
+            filnavnHullAndelFåttJobben to lagPlotHullAndelFåttJobben(hullDatakatalog).toJsonString(),
+            filnavnAlderPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
+            filnavnAlderFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),
+            filnavnAlderAndelPresentert to lagPlotAlderAndelPresentert(alderDatakatalog).toJsonString(),
+            filnavnAlderAndelFåttJobben to lagPlotAlderAndelFåttJobben(alderDatakatalog).toJsonString(),
         )
         datakatalogKlient.sendDatapakke(lagDatapakke())
     }
@@ -80,7 +82,7 @@ class DatakatalogStatistikk(
             ),
             View(
                 title = "Antall alder presentert",
-                description = "Vise antal alder presentert",
+                description = "Vise antall alder presentert",
                 specType = "plotly",
                 spec = Spec(
                     url = filnavnAlderPresentert
@@ -96,7 +98,7 @@ class DatakatalogStatistikk(
             ),
             View(
                 title = "Antall alder fått jobben",
-                description = "Vise antal alder fått jobben",
+                description = "Vise antall alder fått jobben",
                 specType = "plotly",
                 spec = Spec(
                     url = filnavnAlderFåttJobben
@@ -121,19 +123,17 @@ class DatakatalogStatistikk(
             name = description
         }
 
-    private fun lagPlotHullPresentert() = Plotly.plot {
-        val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato()))
-        lagBarAntallHull(hullDatakatalog::hentAntallPresentert, true, "Antall presentert med hull")
-        lagBarAntallHull(hullDatakatalog::hentAntallPresentert, false, "Antall presentert uten hull")
-        lagBarAntallHull(hullDatakatalog::hentAntallPresentert, null, "Antall presentert ukjent om de har hull")
+    private fun lagPlotAntallHullPresentert(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
+        lagBarAntallHull(hullDatagrunnlag::hentAntallPresentert, true, "Antall presentert med hull")
+        lagBarAntallHull(hullDatagrunnlag::hentAntallPresentert, false, "Antall presentert uten hull")
+        lagBarAntallHull(hullDatagrunnlag::hentAntallPresentert, null, "Antall presentert ukjent om de har hull")
         getLayout("Antall")
     }
 
-    private fun lagPlotHullFåttJobben() = Plotly.plot {
-        val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato()))
-        lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, true, "Antall fått jobben med hull")
-        lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, false, "Antall fått jobben uten hull")
-        lagBarAntallHull(hullDatakatalog::hentAntallFåttJobben, null, "Antall fått jobben ukjent om de har hull")
+    private fun lagPlotAntallHullFåttJobben(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
+        lagBarAntallHull(hullDatagrunnlag::hentAntallFåttJobben, true, "Antall fått jobben med hull")
+        lagBarAntallHull(hullDatagrunnlag::hentAntallFåttJobben, false, "Antall fått jobben uten hull")
+        lagBarAntallHull(hullDatagrunnlag::hentAntallFåttJobben, null, "Antall fått jobben ukjent om de har hull")
         getLayout("Antall")
     }
 
@@ -144,19 +144,17 @@ class DatakatalogStatistikk(
         name = description
     }
 
-    private fun lagPlotHullAndelPresentert() = Plotly.plot {
-        val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato()))
+    private fun lagPlotHullAndelPresentert(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
         log.info("Henter data for hull for datakatalog")
 
-        lagBarAndelHull(hullDatakatalog::hentAndelPresentert, "Andel presentert med hull")
+        lagBarAndelHull(hullDatagrunnlag::hentAndelPresentert, "Andel presentert med hull")
         getLayout("Andel %")
     }
 
-    private fun lagPlotHullAndelFåttJobben() = Plotly.plot {
-        val hullDatakatalog = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato()))
+    private fun lagPlotHullAndelFåttJobben(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
         log.info("Henter data for hull for datakatalog")
 
-        lagBarAndelHull(hullDatakatalog::hentAndelFåttJobben, "Andel fått jobben med hull")
+        lagBarAndelHull(hullDatagrunnlag::hentAndelFåttJobben, "Andel fått jobben med hull")
         getLayout("Andel %")
     }
 
@@ -168,18 +166,12 @@ class DatakatalogStatistikk(
             name = description
         }
 
-    private fun lagPlotAlderPresentert() = Plotly.plot {
-
-        val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
+    private fun lagPlotAlderPresentert(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
         log.info("Henter data for alder for datakatalog")
 
-        lagBarAlder(alderDatakatalog::hentAntallPresentert, Aldersgruppe.under30, "Antall presentert under 30")
-        lagBarAlder(alderDatakatalog::hentAntallPresentert, Aldersgruppe.over50, "Antall presentert over 50")
-        lagBarAlder(
-            alderDatakatalog::hentAntallPresentert,
-            Aldersgruppe.mellom30og50,
-            "Antall presentert mellom 30 og 50"
-        )
+        lagBarAlder(alderDatagrunnlag::hentAntallPresentert, Aldersgruppe.under30, "Antall presentert under 30")
+        lagBarAlder(alderDatagrunnlag::hentAntallPresentert, Aldersgruppe.over50, "Antall presentert over 50")
+        lagBarAlder(alderDatagrunnlag::hentAntallPresentert, Aldersgruppe.mellom30og50,"Antall presentert mellom 30 og 50")
         getLayout("Antall")
     }
 
@@ -190,36 +182,28 @@ class DatakatalogStatistikk(
         name = description
     }
 
-    private fun lagPlotAlderAndelPresentert() = Plotly.plot {
-        val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
+    private fun lagPlotAlderAndelPresentert(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
         log.info("Henter data for alder for datakatalog")
 
-        lagBarAndelAlder(alderDatakatalog::hentAndelPresentertUng, "Andel presentert under 30")
-        lagBarAndelAlder(alderDatakatalog::hentAndelPresentertSenior, "Andel presentert over 50")
+        lagBarAndelAlder(alderDatagrunnlag::hentAndelPresentertUng, "Andel presentert under 30")
+        lagBarAndelAlder(alderDatagrunnlag::hentAndelPresentertSenior, "Andel presentert over 50")
         getLayout("Andel %")
     }
 
-    private fun lagPlotAlderFåttJobben() = Plotly.plot {
-
-        val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
+    private fun lagPlotAlderFåttJobben(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
         log.info("Henter data for alder for datakatalog")
 
-        lagBarAlder(alderDatakatalog::hentAntallFåttJobben, Aldersgruppe.under30, "Antall fått jobben under 30")
-        lagBarAlder(alderDatakatalog::hentAntallFåttJobben, Aldersgruppe.over50, "Antall fått jobben over 50")
-        lagBarAlder(
-            alderDatakatalog::hentAntallFåttJobben,
-            Aldersgruppe.mellom30og50,
-            "Antall fått jobben mellom 30 og 50"
-        )
+        lagBarAlder(alderDatagrunnlag::hentAntallFåttJobben, Aldersgruppe.under30, "Antall fått jobben under 30")
+        lagBarAlder(alderDatagrunnlag::hentAntallFåttJobben, Aldersgruppe.over50, "Antall fått jobben over 50")
+        lagBarAlder(alderDatagrunnlag::hentAntallFåttJobben,Aldersgruppe.mellom30og50,"Antall fått jobben mellom 30 og 50")
         getLayout("Antall")
     }
 
-    private fun lagPlotAlderAndelFåttJobben() = Plotly.plot {
-        val alderDatakatalog = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato()))
+    private fun lagPlotAlderAndelFåttJobben(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
         log.info("Henter data for alder for datakatalog")
 
-        lagBarAndelAlder(alderDatakatalog::hentAndelFåttJobbenUng, "Andel fått jobben under 30")
-        lagBarAndelAlder(alderDatakatalog::hentAndelFåttJobbenSenior, "Andel fått jobben over 50")
+        lagBarAndelAlder(alderDatagrunnlag::hentAndelFåttJobbenUng, "Andel fått jobben under 30")
+        lagBarAndelAlder(alderDatagrunnlag::hentAndelFåttJobbenSenior, "Andel fått jobben over 50")
         getLayout("Andel %")
     }
 
