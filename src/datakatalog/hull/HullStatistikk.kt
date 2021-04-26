@@ -13,7 +13,7 @@ import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class HullStatistikk (private val repository: Repository, private val dagensDato: () -> LocalDate) {
+class HullStatistikk (private val repository: Repository, private val dagensDato: () -> LocalDate) : DatakatalogData {
     companion object {
         private val filnavnHullPresentert: String = "hullPresentert.json"
         private val filnavnHullFåttJobben: String = "hullFåttJobben.json"
@@ -22,7 +22,8 @@ class HullStatistikk (private val repository: Repository, private val dagensDato
         private val fraDatoHull = LocalDate.of(2021, 4, 8)
     }
 
-    fun views() = listOf(
+
+    override fun views() = listOf(
         View(
             title = "Antall hull presentert",
             description = "Vise antall hull presentert",
@@ -58,7 +59,7 @@ class HullStatistikk (private val repository: Repository, private val dagensDato
 
     )
 
-    fun plotlyFiler() = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato())).let {hullDatakatalog ->
+    override fun plotlyFiler() = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato())).let {hullDatakatalog ->
         listOf(
             filnavnHullPresentert to lagPlotAntallHullPresentert(hullDatakatalog).toJsonString(),
             filnavnHullFåttJobben to lagPlotAntallHullFåttJobben(hullDatakatalog).toJsonString(),

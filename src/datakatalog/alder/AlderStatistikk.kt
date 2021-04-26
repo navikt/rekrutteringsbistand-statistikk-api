@@ -5,12 +5,13 @@ import kscience.plotly.Plotly
 import kscience.plotly.bar
 import kscience.plotly.toJsonString
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.DatakatalogData
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class AlderStatistikk(private val repository: Repository, private val dagensDato: () -> LocalDate) {
+class AlderStatistikk(private val repository: Repository, private val dagensDato: () -> LocalDate): DatakatalogData {
 
     companion object {
         private val filnavnAlderPresentert: String = "alderPresentert.json"
@@ -19,7 +20,8 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
         private val filnavnAlderAndelFåttJobben: String = "alderAndelFåttJobben.json"
         private val fraDatoAlder = LocalDate.of(2021, 4, 8)
     }
-    fun views() = listOf(
+
+    override fun views() = listOf(
         View(
             title = "Antall alder presentert",
             description = "Vise antall alder presentert",
@@ -54,7 +56,7 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
         )
     )
 
-    fun plotlyFiler() = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato())).let { alderDatakatalog ->
+    override fun plotlyFiler() = repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato())).let { alderDatakatalog ->
         listOf(
             filnavnAlderPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
             filnavnAlderFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),

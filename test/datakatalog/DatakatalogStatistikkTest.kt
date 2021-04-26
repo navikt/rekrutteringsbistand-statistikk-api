@@ -37,13 +37,13 @@ class DatakatalogStatistikkTest {
         } as ArrayList<*>
 
         return partListe.map { part ->
-            val header = part.javaClass.getDeclaredField("headers").let {
-                it.trySetAccessible()
-                it.get(part)
+            val header = part.javaClass.getDeclaredField("headers").run {
+                trySetAccessible()
+                get(part)
             } as ByteArray
-            val body = part.javaClass.getDeclaredField("provider").let {
-                it.trySetAccessible()
-                it.get(part)
+            val body = part.javaClass.getDeclaredField("provider").run {
+                trySetAccessible()
+                get(part)
             } as () -> ByteReadPacket
             MultipartPart(String(header), body().readText())
         }

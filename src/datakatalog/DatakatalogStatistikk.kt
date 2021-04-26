@@ -1,14 +1,13 @@
 package no.nav.rekrutteringsbistand.statistikk.datakatalog
 
-import kscience.plotly.*
+import kscience.plotly.Plot
+import kscience.plotly.layout
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.alder.AlderStatistikk
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullDatagrunnlag
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.DatakatalogData
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullStatistikk
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
-import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate
 import java.time.Period
-import kotlin.math.roundToInt
 
 
 class DatakatalogStatistikk(
@@ -17,24 +16,24 @@ class DatakatalogStatistikk(
 ) : Runnable {
 
     override fun run() {
-        datakatalogKlient.sendPlotlyFilTilDatavarehus(
-            listOf(
-                HullStatistikk(repository, dagensDato).plotlyFiler(),
-                AlderStatistikk(repository, dagensDato).plotlyFiler()
-            ).flatten()
-        )
-        datakatalogKlient.sendDatapakke(lagDatapakke())
-    }
 
-    private fun lagDatapakke() = Datapakke(
-        title = "Rekrutteringsbistand statistikk",
-        description = "Vise rekrutteringsbistand statistikk",
-        resources = emptyList(),
-        views = listOf(
-            HullStatistikk(repository, dagensDato).views(),
-            AlderStatistikk(repository, dagensDato).views()
-        ).flatten()
-    )
+        val (views, plotlydata) = listOf(
+            HullStatistikk(repository, dagensDato),
+            AlderStatistikk(repository, dagensDato)
+        ).run {
+            flatMap(DatakatalogData::views) to flatMap(DatakatalogData::plotlyFiler)
+        }
+
+        val datapakke = Datapakke(
+            title = "Rekrutteringsbistand statistikk",
+            description = "Vise rekrutteringsbistand statistikk",
+            resources = emptyList(),
+            views = views
+        )
+
+        datakatalogKlient.sendPlotlyFilTilDatavarehus(plotlydata)
+        datakatalogKlient.sendDatapakke(datapakke)
+    }
 }
 
 fun Plot.getLayout(yTekst: String) {
