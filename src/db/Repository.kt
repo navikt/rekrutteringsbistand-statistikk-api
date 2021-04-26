@@ -3,7 +3,7 @@ package no.nav.rekrutteringsbistand.statistikk.db
 import no.nav.rekrutteringsbistand.statistikk.HentStatistikk
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.AlderDatagrunnlag
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.Aldersgruppe
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.HullDatagrunnlag
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullDatagrunnlag
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
 import no.nav.rekrutteringsbistand.statistikk.db.Utfall.FATT_JOBBEN
 import no.nav.rekrutteringsbistand.statistikk.db.Utfall.PRESENTERT

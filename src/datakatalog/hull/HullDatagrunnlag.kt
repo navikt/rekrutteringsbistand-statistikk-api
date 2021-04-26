@@ -1,4 +1,4 @@
-package no.nav.rekrutteringsbistand.statistikk.datakatalog
+package no.nav.rekrutteringsbistand.statistikk.datakatalog.hull
 
 import java.time.LocalDate
 
