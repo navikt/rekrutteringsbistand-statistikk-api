@@ -1,7 +1,9 @@
 package no.nav.rekrutteringsbistand.statistikk.db
 
 import no.nav.rekrutteringsbistand.statistikk.HentStatistikk
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.HullDatagrunnlag
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.AlderDatagrunnlag
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.Aldersgruppe
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullDatagrunnlag
 import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
 import no.nav.rekrutteringsbistand.statistikk.db.Utfall.FATT_JOBBEN
 import no.nav.rekrutteringsbistand.statistikk.db.Utfall.PRESENTERT
@@ -197,6 +199,64 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentAntallPresentert(aldersgruppe: Aldersgruppe, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
+                
+                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
+                     WHERE k2.$tidspunkt BETWEEN ? AND ?
+                     GROUP BY $aktørId, $kandidatlisteid) as k2
+                     
+                WHERE  k1.$dbId = k2.maksId
+                  AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+                  AND (k1.$alder BETWEEN ? AND ?)
+            """.trimIndent()
+            ).apply {
+                setDate(1, Date.valueOf(fraOgMed))
+                setDate(2, Date.valueOf(tilOgMed))
+                setInt(3, aldersgruppe.min)
+                setInt(4, aldersgruppe.max)
+            }.executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall presenterte kandidater for aldersgruppe $aldersgruppe fra databasen")
+            }
+        }
+    }
+
+    fun hentAntallFåttJobben(aldersgruppe: Aldersgruppe, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
+                
+                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
+                    WHERE k2.$tidspunkt BETWEEN ? AND ?
+                     GROUP BY $aktørId, $kandidatlisteid) as k2
+                     
+                WHERE  k1.$dbId = k2.maksId
+                  AND k1.$utfall = '${FATT_JOBBEN.name}'
+                  AND (k1.$alder BETWEEN ? AND ?)
+            """.trimIndent()
+            ).apply {
+                setDate(1, Date.valueOf(fraOgMed))
+                setDate(2, Date.valueOf(tilOgMed))
+                setInt(3, aldersgruppe.min)
+                setInt(4, aldersgruppe.max)
+            }.executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall kandidater med aldersgruppe $aldersgruppe som har fått jobben fra databasen")
+            }
+        }
+    }
+
     fun hentHullDatagrunnlag(datoer: List<LocalDate>): HullDatagrunnlag {
         return HullDatagrunnlag(
             datoer.flatMap { dag ->
@@ -207,6 +267,21 @@ class Repository(private val dataSource: DataSource) {
             datoer.flatMap { dag ->
                 listOf(true, false, null).map { harHull ->
                     (dag to harHull) to hentAntallFåttJobben(harHull, dag, dag.plusDays(1))
+                }
+            }.toMap()
+        )
+    }
+
+    fun hentAlderDatagrunnlag(datoer: List<LocalDate>): AlderDatagrunnlag {
+        return AlderDatagrunnlag(
+            datoer.flatMap { dag ->
+                Aldersgruppe.values().map { aldersgruppe ->
+                    (dag to aldersgruppe) to hentAntallPresentert(aldersgruppe, dag, dag.plusDays(1))
+                }
+            }.toMap(),
+            datoer.flatMap { dag ->
+                Aldersgruppe.values().map { aldersgruppe ->
+                    (dag to aldersgruppe) to hentAntallFåttJobben(aldersgruppe, dag, dag.plusDays(1))
                 }
             }.toMap()
         )

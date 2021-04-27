@@ -1,7 +1,7 @@
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.3"
-val ktorVersion = "1.5.1"
-val kotlinVersion = "1.4.30"
+val ktorVersion = "1.5.3"
+val kotlinVersion = "1.4.32"
 val h2Version = "1.4.200"
 val flywayVersion = "7.5.3"
 val hikariVersion = "4.0.2"
@@ -116,4 +116,5 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
     testImplementation ("io.ktor:ktor-client-mock:$ktorVersion")
+    testImplementation ("org.skyscreamer:jsonassert:1.5.0")
 }

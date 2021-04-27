@@ -23,7 +23,7 @@ private fun datapakkeHttpClient() = HttpClient(Apache) {
 
 class DatakatalogKlient(private val httpClient: HttpClient = datapakkeHttpClient(),
                         private val url: DatakatalogUrl) {
-    fun sendPlotlyFilTilDatavarehus(vararg plotlyJsons: Pair<String, String>) {
+    fun sendPlotlyFilTilDatavarehus(plotlyJsons: List<Pair<String, String>>) {
         runBlocking {
             val response: HttpResponse = httpClient
                 .put(url.ressursfil()) {
