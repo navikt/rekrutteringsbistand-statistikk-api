@@ -10,11 +10,11 @@ import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class HullStatistikk (private val repository: Repository, private val dagensDato: () -> LocalDate) : DatakatalogData {
+class HullStatistikk(private val repository: Repository, private val dagensDato: () -> LocalDate) : DatakatalogData {
     companion object {
-        private val filnavnHullPresentert: String = "hullPresentert.json"
-        private val filnavnHullFåttJobben: String = "hullFåttJobben.json"
+        private val filnavnHullAntallPresentert: String = "hullAntallPresentert.json"
         private val filnavnHullAndelPresentert: String = "hullAndelPresentert.json"
+        private val filnavnHullAntallFåttJobben: String = "hullAntallFåttJobben.json"
         private val filnavnHullAndelFåttJobben: String = "hullAndelFåttJobben.json"
         private val fraDatoHull = LocalDate.of(2021, 4, 8)
     }
@@ -26,15 +26,7 @@ class HullStatistikk (private val repository: Repository, private val dagensDato
             description = "Vise antall hull presentert",
             specType = "plotly",
             spec = Spec(
-                url = filnavnHullPresentert
-            )
-        ),
-        View(
-            title = "Antall hull fått jobben",
-            description = "Vise antall fått jobben",
-            specType = "plotly",
-            spec = Spec(
-                url = filnavnHullFåttJobben
+                url = filnavnHullAntallPresentert
             )
         ),
         View(
@@ -43,6 +35,15 @@ class HullStatistikk (private val repository: Repository, private val dagensDato
             specType = "plotly",
             spec = Spec(
                 url = filnavnHullAndelPresentert
+            )
+        ),
+
+        View(
+            title = "Antall hull fått jobben",
+            description = "Vise antall fått jobben",
+            specType = "plotly",
+            spec = Spec(
+                url = filnavnHullAntallFåttJobben
             )
         ),
         View(
@@ -56,14 +57,15 @@ class HullStatistikk (private val repository: Repository, private val dagensDato
 
     )
 
-    override fun plotlyFiler() = repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato())).let {hullDatakatalog ->
-        listOf(
-            filnavnHullPresentert to lagPlotAntallHullPresentert(hullDatakatalog).toJsonString(),
-            filnavnHullFåttJobben to lagPlotAntallHullFåttJobben(hullDatakatalog).toJsonString(),
-            filnavnHullAndelPresentert to lagPlotHullAndelPresentert(hullDatakatalog).toJsonString(),
-            filnavnHullAndelFåttJobben to lagPlotHullAndelFåttJobben(hullDatakatalog).toJsonString()
-        )
-    }
+    override fun plotlyFiler() =
+        repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato())).let { hullDatakatalog ->
+            listOf(
+                filnavnHullAntallPresentert to lagPlotAntallHullPresentert(hullDatakatalog).toJsonString(),
+                filnavnHullAntallFåttJobben to lagPlotAntallHullFåttJobben(hullDatakatalog).toJsonString(),
+                filnavnHullAndelPresentert to lagPlotHullAndelPresentert(hullDatakatalog).toJsonString(),
+                filnavnHullAndelFåttJobben to lagPlotHullAndelFåttJobben(hullDatakatalog).toJsonString()
+            )
+        }
 
     private fun Plot.lagBarAntallHull(hentVerdi: (Boolean?, LocalDate) -> Int, harHull: Boolean?, description: String) =
         bar {

@@ -13,9 +13,9 @@ import kotlin.math.roundToInt
 class AlderStatistikk(private val repository: Repository, private val dagensDato: () -> LocalDate) : DatakatalogData {
 
     companion object {
-        private val filnavnAlderPresentert: String = "alderPresentert.json"
-        private val filnavnAlderFåttJobben: String = "alderFåttJobben.json"
+        private val filnavnAlderAntallPresentert: String = "alderAntallPresentert.json"
         private val filnavnAlderAndelPresentert: String = "alderAndelPresentert.json"
+        private val filnavnAlderAntallFåttJobben: String = "alderAntallFåttJobben.json"
         private val filnavnAlderAndelFåttJobben: String = "alderAndelFåttJobben.json"
         private val fraDatoAlder = LocalDate.of(2021, 4, 8)
     }
@@ -26,7 +26,7 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
             description = "Vise antall alder presentert",
             specType = "plotly",
             spec = Spec(
-                url = filnavnAlderPresentert
+                url = filnavnAlderAntallPresentert
             )
         ),
         View(
@@ -42,7 +42,7 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
             description = "Vise antall alder fått jobben",
             specType = "plotly",
             spec = Spec(
-                url = filnavnAlderFåttJobben
+                url = filnavnAlderAntallFåttJobben
             )
         ),
         View(
@@ -58,8 +58,8 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
     override fun plotlyFiler() =
         repository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato())).let { alderDatakatalog ->
             listOf(
-                filnavnAlderPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
-                filnavnAlderFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),
+                filnavnAlderAntallPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
+                filnavnAlderAntallFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),
                 filnavnAlderAndelPresentert to lagPlotAlderAndelPresentert(alderDatakatalog).toJsonString(),
                 filnavnAlderAndelFåttJobben to lagPlotAlderAndelFåttJobben(alderDatakatalog).toJsonString()
             )

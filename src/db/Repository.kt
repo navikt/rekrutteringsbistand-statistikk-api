@@ -272,7 +272,7 @@ class Repository(private val dataSource: DataSource) {
         )
     }
 
-    fun hentAlderDatagrunnlag(datoer: List<LocalDate>) : AlderDatagrunnlag {
+    fun hentAlderDatagrunnlag(datoer: List<LocalDate>): AlderDatagrunnlag {
         return AlderDatagrunnlag(
             datoer.flatMap { dag ->
                 Aldersgruppe.values().map { aldersgruppe ->
@@ -283,9 +283,8 @@ class Repository(private val dataSource: DataSource) {
                 Aldersgruppe.values().map { aldersgruppe ->
                     (dag to aldersgruppe) to hentAntallFåttJobben(aldersgruppe, dag, dag.plusDays(1))
                 }
-            }.toMap(),
-
-            )
+            }.toMap()
+        )
     }
 
     companion object {
