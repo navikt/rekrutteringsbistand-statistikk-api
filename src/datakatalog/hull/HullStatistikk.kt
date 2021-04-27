@@ -97,15 +97,11 @@ class HullStatistikk(private val repository: Repository, private val dagensDato:
     }
 
     private fun lagPlotHullAndelPresentert(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
-        log.info("Henter data for hull for datakatalog")
-
         lagBarAndelHull(hullDatagrunnlag::hentAndelPresentert, "Andel presentert med hull")
         getLayout("Andel %")
     }
 
     private fun lagPlotHullAndelFåttJobben(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
-        log.info("Henter data for hull for datakatalog")
-
         lagBarAndelHull(hullDatagrunnlag::hentAndelFåttJobben, "Andel fått jobben med hull")
         getLayout("Andel %")
     }

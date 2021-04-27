@@ -7,6 +7,7 @@ import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullStatistikk
 import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import java.time.LocalDate
 import java.time.Period
+import no.nav.rekrutteringsbistand.statistikk.log
 
 
 class DatakatalogStatistikk(
@@ -14,10 +15,12 @@ class DatakatalogStatistikk(
     private val dagensDato: () -> LocalDate
 ) : Runnable {
     override fun run() {
+        log.info("Starter jobb som sender statistikk til datakatalogen")
         plotlydataOgDataPakke().also { (plotly, datapakke) ->
             datakatalogKlient.sendPlotlyFilTilDatavarehus(plotly)
             datakatalogKlient.sendDatapakke(datapakke)
         }
+        log.info("Har gjennomført jobb som sender statistikk til datakatalogen")
     }
 
     private fun datapakke(views: List<View>) =
@@ -40,7 +43,7 @@ fun Plot.getLayout(yTekst: String) {
     layout {
         bargap = 0.1
         title {
-            text = "Basic Histogram"
+            text = ""
             font {
                 size = 20
             }

@@ -85,8 +85,6 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
     }
 
     private fun lagPlotAlderPresentert(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
-        log.info("Henter data for alder for datakatalog")
-
         lagBarAlder(alderDatagrunnlag::hentAntallPresentert, Aldersgruppe.under30, "Antall presentert under 30")
         lagBarAlder(alderDatagrunnlag::hentAntallPresentert, Aldersgruppe.over50, "Antall presentert over 50")
         lagBarAlder(
@@ -98,16 +96,12 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
     }
 
     private fun lagPlotAlderAndelPresentert(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
-        log.info("Henter data for alder for datakatalog")
-
         lagBarAndelAlder(alderDatagrunnlag::hentAndelPresentertUng, "Andel presentert under 30")
         lagBarAndelAlder(alderDatagrunnlag::hentAndelPresentertSenior, "Andel presentert over 50")
         getLayout("Andel %")
     }
 
     private fun lagPlotAlderFåttJobben(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
-        log.info("Henter data for alder for datakatalog")
-
         lagBarAlder(alderDatagrunnlag::hentAntallFåttJobben, Aldersgruppe.under30, "Antall fått jobben under 30")
         lagBarAlder(alderDatagrunnlag::hentAntallFåttJobben, Aldersgruppe.over50, "Antall fått jobben over 50")
         lagBarAlder(
@@ -119,8 +113,6 @@ class AlderStatistikk(private val repository: Repository, private val dagensDato
     }
 
     private fun lagPlotAlderAndelFåttJobben(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
-        log.info("Henter data for alder for datakatalog")
-
         lagBarAndelAlder(alderDatagrunnlag::hentAndelFåttJobbenUng, "Andel fått jobben under 30")
         lagBarAndelAlder(alderDatagrunnlag::hentAndelFåttJobbenSenior, "Andel fått jobben over 50")
         getLayout("Andel %")
