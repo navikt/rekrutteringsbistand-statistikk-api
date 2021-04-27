@@ -2,8 +2,6 @@ package datakatalog.plot
 
 data class PlotBase (val layout : Layout, val data : List<Data>)
 
-
-
 fun testPlot(yaxisText:String, data: List<Data>) = PlotBase(
     layout = Layout(
         xaxis = Axis(
@@ -14,7 +12,7 @@ fun testPlot(yaxisText:String, data: List<Data>) = PlotBase(
         ),
         bargap = 0.1,
         title = Title(
-            text = "Basic Histogram",
+            text = "",
             font = Font(20)
         ),
         yaxis = Axis(
