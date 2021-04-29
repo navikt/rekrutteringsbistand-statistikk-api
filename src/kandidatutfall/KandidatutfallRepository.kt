@@ -8,9 +8,11 @@ import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.SendtStatus.IKKE_SE
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.PRESENTERT
 import java.sql.Date
+import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 import javax.sql.DataSource
 
 class KandidatutfallRepository(private val dataSource: DataSource) {
@@ -31,7 +33,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, kandidatutfall.aktørId)
-                setString(2, kandidatutfall.utfall)
+                setString(2, kandidatutfall.utfall.name)
                 setString(3, kandidatutfall.navIdent)
                 setString(4, kandidatutfall.navKontor)
                 setString(5, kandidatutfall.kandidatlisteId)
@@ -143,18 +145,29 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
     fun hentAntallFåttJobben(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+        // liste med alle utfallene for de aktørid/kandidatliste-kombinasjonene, og hent ut tidligst per.
+        // -- liste unike kombinasjoner aktørid,kandidatliste ved gitt tidspunkt, med utfall fått jobben
+
+        // tell
+        // -- tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
+        // -- -- senesteUtfallITidsromOgFåttJobben
+        // -- -- -- senesteUtfallITidsrom
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
-                
-                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
-                    WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktørId, $kandidatlisteid) as k2
-                     
-                WHERE  k1.$dbId = k2.maksId
-                  AND k1.$utfall = '${FATT_JOBBEN.name}'
-                  AND k1.$hullICv
+                SELECT COUNT(telleliste.*) FROM $kandidatutfallTabell telleliste,
+                  (SELECT MIN($dbId) as minId FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
+                    (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
+                        (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
+                        WHERE senesteUtfallITidsrom.$tidspunkt BETWEEN ? AND ?
+                        GROUP BY senesteUtfallITidsrom.$aktørId, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
+                    WHERE senesteUtfallITidsromOgFåttJobben.${dbId} = senesteUtfallITidsrom.maksId
+                    AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben                  
+                  WHERE tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId = senesteUtfallITidsromOgFåttJobben.$aktørId
+                  AND tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid = senesteUtfallITidsromOgFåttJobben.$kandidatlisteid
+                  GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
+                WHERE  telleliste.$dbId = tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.minId
+                AND telleliste.$hullICv
             """.trimIndent() + if (harHull != null) " = ?" else " IS NULL"
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
@@ -301,5 +314,22 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
         const val alder = "alder"
+
+        fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
+            Kandidatutfall(
+                dbId = resultSet.getLong(KandidatutfallRepository.dbId),
+                aktorId = resultSet.getString(KandidatutfallRepository.aktørId),
+                utfall = Utfall.valueOf(resultSet.getString(KandidatutfallRepository.utfall)),
+                navIdent = resultSet.getString(KandidatutfallRepository.navident),
+                navKontor = resultSet.getString(KandidatutfallRepository.navkontor),
+                kandidatlisteId = UUID.fromString(resultSet.getString(KandidatutfallRepository.kandidatlisteid)),
+                stillingsId = UUID.fromString(resultSet.getString(KandidatutfallRepository.stillingsid)),
+                hullICv = if(resultSet.getObject(KandidatutfallRepository.hullICv) == null)  null  else resultSet.getBoolean(KandidatutfallRepository.hullICv),
+                tidspunkt = resultSet.getTimestamp(KandidatutfallRepository.tidspunkt).toLocalDateTime(),
+                antallSendtForsøk = resultSet.getInt(KandidatutfallRepository.antallSendtForsøk),
+                sendtStatus = SendtStatus.valueOf(resultSet.getString(KandidatutfallRepository.sendtStatus)),
+                sisteSendtForsøk = resultSet.getTimestamp(KandidatutfallRepository.sisteSendtForsøk)?.toLocalDateTime(),
+                alder = if(resultSet.getObject(KandidatutfallRepository.alder) == null) null else resultSet.getInt(KandidatutfallRepository.alder)
+            )
     }
 }

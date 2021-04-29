@@ -45,7 +45,7 @@ class DatavarehusKafkaTest {
         assertThat(actuals.count()).isEqualTo(2)
         actuals.forEachIndexed { index, actual ->
             assertThat(actual.getAktørId()).isEqualTo(expected[index].aktørId)
-            assertThat(actual.getUtfall()).isEqualTo(expected[index].utfall)
+            assertThat(actual.getUtfall()).isEqualTo(expected[index].utfall.name)
             assertThat(actual.getNavIdent()).isEqualTo(expected[index].navIdent)
             assertThat(actual.getNavKontor()).isEqualTo(expected[index].navKontor)
             assertThat(actual.getKandidatlisteId()).isEqualTo(expected[index].kandidatlisteId)

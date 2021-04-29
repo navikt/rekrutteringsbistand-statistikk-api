@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 
 data class OpprettKandidatutfall(
     val aktørId: String,
-    val utfall: String,
+    val utfall: Utfall,
     val navIdent: String,
     val navKontor: String,
     val kandidatlisteId: String,
@@ -31,7 +31,7 @@ fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sen
 
             kandidatutfall.forEach {
                 kandidatutfallRepository.lagreUtfall(it, LocalDateTime.now())
-                Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
+                Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall.name).increment()
             }
 
             sendStatistikk.kjørEnGangAsync()
@@ -40,14 +40,3 @@ fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sen
     }
 }
 
-/*
-Mottar melding
-Hvis FÅTT_JOBBEN:
-    Hent utfall fra PRESENTERT - bruk relevante opplysninger
-
-Hvis PRESENTER-rad:
-    Hent fra finn-kandidat-api per tidspunkt for PRESENTER-dato
-Hvis ikke PRESENTER-rad:
-    Bruk tilretteleggingsbehov fra melding
-    Hvis ikke finnes hent fra finn-kandidat-api
- */

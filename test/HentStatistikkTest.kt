@@ -38,7 +38,7 @@ class HentStatistikkTest {
     @Test
     fun `Siste registrerte presentering på en kandidat og kandidatliste skal telles`() = runBlocking {
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = PRESENTERT.name),
+            etKandidatutfall.copy(utfall = PRESENTERT),
             LocalDate.of(2020, 10, 15).atStartOfDay()
         )
 
@@ -62,7 +62,7 @@ class HentStatistikkTest {
     fun `Siste registrerte fått jobben på en kandidat og kandidatliste skal telles som presentert og fått jobben`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
@@ -85,7 +85,7 @@ class HentStatistikkTest {
     @Test
     fun `Ikke presentert skal ikke telles`() = runBlocking {
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = IKKE_PRESENTERT.name),
+            etKandidatutfall.copy(utfall = IKKE_PRESENTERT),
             LocalDate.of(2020, 10, 15).atStartOfDay()
         )
 
@@ -184,11 +184,11 @@ class HentStatistikkTest {
     fun `Presentert og fått jobben på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name),
+                etKandidatutfall.copy(utfall = PRESENTERT),
                 LocalDate.of(2020, 1, 1).atStartOfDay()
             )
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN),
                 LocalDate.of(2020, 1, 1).atStartOfDay()
             )
 
@@ -211,11 +211,11 @@ class HentStatistikkTest {
     fun `Fått jobben to ganger på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN),
                 LocalDate.of(2020, 1, 1).atStartOfDay()
             )
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN),
                 LocalDate.of(2020, 1, 2).atStartOfDay()
             )
 
@@ -236,8 +236,8 @@ class HentStatistikkTest {
 
     @Test
     fun `Presentert to ganger på samme kandidat og samme kandidatliste skal kun telles som presentert`() = runBlocking {
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT.name), LocalDate.of(2020, 1, 1).atStartOfDay())
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT.name), LocalDate.of(2020, 1, 2).atStartOfDay())
+        repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT), LocalDate.of(2020, 1, 1).atStartOfDay())
+        repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT), LocalDate.of(2020, 1, 2).atStartOfDay())
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             leggTilQueryParametere(
@@ -257,10 +257,10 @@ class HentStatistikkTest {
     @Test
     fun `Fått jobben skal ikke telles hvis det ikke er nyeste registrering`() = runBlocking {
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = FATT_JOBBEN.name),
+            etKandidatutfall.copy(utfall = FATT_JOBBEN),
             LocalDate.of(2020, 1, 1).atStartOfDay()
         )
-        repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT.name), LocalDate.of(2020, 1, 2).atStartOfDay())
+        repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT), LocalDate.of(2020, 1, 2).atStartOfDay())
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
             leggTilQueryParametere(
@@ -291,12 +291,12 @@ class HentStatistikkTest {
     fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
+                etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor2),
+                etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor2),
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
@@ -318,12 +318,12 @@ class HentStatistikkTest {
     fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
+                etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor2),
+                etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor2),
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
@@ -345,12 +345,12 @@ class HentStatistikkTest {
     fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor1),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2),
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
@@ -372,12 +372,12 @@ class HentStatistikkTest {
     fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor1),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2),
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
@@ -400,12 +400,12 @@ class HentStatistikkTest {
     fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 1 være`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
+                etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2),
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
@@ -428,12 +428,12 @@ class HentStatistikkTest {
     fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 2 være 1`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
+                etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2),
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
@@ -455,12 +455,12 @@ class HentStatistikkTest {
     fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 1 være 0`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
+                etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2),
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
@@ -482,12 +482,12 @@ class HentStatistikkTest {
     fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 2 være 1`() =
         runBlocking {
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
+                etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
             repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN.name, navKontor = etKontor2),
+                etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2),
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
@@ -509,7 +509,7 @@ class HentStatistikkTest {
     @Test
     fun `Gitt en presentering en gitt dag så skal vi få presentering hvis tilOgMed er samme dag`() = runBlocking {
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
+            etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
             LocalDate.of(2020, 1, 1).atTime(13, 55)
         )
 
@@ -531,7 +531,7 @@ class HentStatistikkTest {
     @Test
     fun `Gitt en presentering en gitt dag så skal vi få presentering hvis fraOgMed er samme dag`() = runBlocking {
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = PRESENTERT.name, navKontor = etKontor1),
+            etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
             LocalDate.of(2020, 1, 1).atTime(19, 54)
         )
 
