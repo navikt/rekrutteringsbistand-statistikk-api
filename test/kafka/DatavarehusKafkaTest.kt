@@ -15,8 +15,8 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import no.nav.common.KafkaEnvironment
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
-import no.nav.rekrutteringsbistand.statistikk.db.Kandidatutfall
-import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.SENDT
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Kandidatutfall
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.SendtStatus.SENDT
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducerImpl
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.junit.After

@@ -14,7 +14,7 @@ import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import no.nav.rekrutteringsbistand.statistikk.Cluster
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
-import no.nav.rekrutteringsbistand.statistikk.db.Repository
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import org.junit.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import java.time.LocalDate
@@ -24,7 +24,7 @@ import kotlin.text.String
 class DatakatalogStatistikkTest {
     companion object {
         private val database = TestDatabase()
-        private val repository = Repository(database.dataSource)
+        private val repository = KandidatutfallRepository(database.dataSource)
     }
 
 

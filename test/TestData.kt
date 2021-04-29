@@ -1,4 +1,4 @@
-import no.nav.rekrutteringsbistand.statistikk.db.Utfall
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
 
 const val enNavIdent = "X123456"

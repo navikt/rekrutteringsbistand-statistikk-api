@@ -7,7 +7,6 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.micrometer.core.instrument.Metrics
-import no.nav.rekrutteringsbistand.statistikk.db.Repository
 import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDateTime
@@ -23,7 +22,7 @@ data class OpprettKandidatutfall(
     val alder: Int?
 )
 
-fun Route.kandidatutfall(repository: Repository, sendStatistikk: KafkaTilDataverehusScheduler) {
+fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sendStatistikk: KafkaTilDataverehusScheduler) {
 
     authenticate {
         post("/kandidatutfall") {
@@ -31,7 +30,7 @@ fun Route.kandidatutfall(repository: Repository, sendStatistikk: KafkaTilDataver
             log.info("Mottok ${kandidatutfall.size} kandidatutfall")
 
             kandidatutfall.forEach {
-                repository.lagreUtfall(it, LocalDateTime.now())
+                kandidatutfallRepository.lagreUtfall(it, LocalDateTime.now())
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall).increment()
             }
 

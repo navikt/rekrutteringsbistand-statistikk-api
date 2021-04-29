@@ -5,12 +5,11 @@ import kscience.plotly.Plotly
 import kscience.plotly.bar
 import kscience.plotly.toJsonString
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
-import no.nav.rekrutteringsbistand.statistikk.db.Repository
-import no.nav.rekrutteringsbistand.statistikk.log
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class HullStatistikk(private val repository: Repository, private val dagensDato: () -> LocalDate) : DatakatalogData {
+class HullStatistikk(private val kandidatutfallRepository: KandidatutfallRepository, private val dagensDato: () -> LocalDate) : DatakatalogData {
     companion object {
         private val filnavnHullAntallPresentert: String = "hullAntallPresentert.json"
         private val filnavnHullAndelPresentert: String = "hullAndelPresentert.json"
@@ -58,7 +57,7 @@ class HullStatistikk(private val repository: Repository, private val dagensDato:
     )
 
     override fun plotlyFiler() =
-        repository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato())).let { hullDatakatalog ->
+        kandidatutfallRepository.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato())).let { hullDatakatalog ->
             listOf(
                 filnavnHullAntallPresentert to lagPlotAntallHullPresentert(hullDatakatalog).toJsonString(),
                 filnavnHullAntallFåttJobben to lagPlotAntallHullFåttJobben(hullDatakatalog).toJsonString(),

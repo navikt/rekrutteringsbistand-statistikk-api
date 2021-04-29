@@ -1,20 +1,19 @@
-package no.nav.rekrutteringsbistand.statistikk.db
+package no.nav.rekrutteringsbistand.statistikk.kandidatutfall
 
 import no.nav.rekrutteringsbistand.statistikk.HentStatistikk
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.AlderDatagrunnlag
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.Aldersgruppe
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullDatagrunnlag
-import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
-import no.nav.rekrutteringsbistand.statistikk.db.Utfall.FATT_JOBBEN
-import no.nav.rekrutteringsbistand.statistikk.db.Utfall.PRESENTERT
-import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.SendtStatus.IKKE_SENDT
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.FATT_JOBBEN
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.PRESENTERT
 import java.sql.Date
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.sql.DataSource
 
-class Repository(private val dataSource: DataSource) {
+class KandidatutfallRepository(private val dataSource: DataSource) {
 
     fun lagreUtfall(kandidatutfall: OpprettKandidatutfall, registrertTidspunkt: LocalDateTime) {
         dataSource.connection.use {

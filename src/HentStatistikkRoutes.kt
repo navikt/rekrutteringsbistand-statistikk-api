@@ -5,7 +5,7 @@ import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import no.nav.rekrutteringsbistand.statistikk.db.Repository
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
 
 data class HentStatistikk(
@@ -27,7 +27,7 @@ data class StatistikkOutboundDto(
     val antallFåttJobben: Int
 )
 
-fun Route.hentStatistikk(repository: Repository) {
+fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
 
     authenticate {
         get("/statistikk") {
@@ -47,9 +47,9 @@ fun Route.hentStatistikk(repository: Repository) {
                 )
 
                 val antallPresentert =
-                    repository.hentAntallPresentert(hentStatistikk)
+                    kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
                 val antallFåttJobben =
-                    repository.hentAntallFåttJobben(hentStatistikk)
+                    kandidatutfallRepository.hentAntallFåttJobben(hentStatistikk)
 
                 call.respond(StatistikkOutboundDto(antallPresentert, antallFåttJobben))
             }

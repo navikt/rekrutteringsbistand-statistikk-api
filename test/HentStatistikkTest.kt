@@ -12,8 +12,8 @@ import kotlinx.coroutines.runBlocking
 import no.nav.rekrutteringsbistand.statistikk.HentStatistikk
 import no.nav.rekrutteringsbistand.statistikk.StatistikkOutboundDto
 import no.nav.rekrutteringsbistand.statistikk.StatistikkParametere
-import no.nav.rekrutteringsbistand.statistikk.db.Repository
-import no.nav.rekrutteringsbistand.statistikk.db.Utfall.*
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.*
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
@@ -26,7 +26,7 @@ class HentStatistikkTest {
 
     companion object {
         private val database = TestDatabase()
-        private val repository = Repository(database.dataSource)
+        private val repository = KandidatutfallRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
         private val port = randomPort()
 
