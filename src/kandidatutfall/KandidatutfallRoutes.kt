@@ -39,3 +39,15 @@ fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sen
         }
     }
 }
+
+/*
+Mottar melding
+Hvis FÅTT_JOBBEN:
+    Hent utfall fra PRESENTERT - bruk relevante opplysninger
+
+Hvis PRESENTER-rad:
+    Hent fra finn-kandidat-api per tidspunkt for PRESENTER-dato
+Hvis ikke PRESENTER-rad:
+    Bruk tilretteleggingsbehov fra melding
+    Hvis ikke finnes hent fra finn-kandidat-api
+ */
