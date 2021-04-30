@@ -35,6 +35,8 @@ class AlderDatagrunnlag(
 }
 
 enum class Aldersgruppe(val min: Int, val max: Int) {
-    over50(50, 1000), under30(0, 29), mellom30og50(30, 49)
+    over50(50, 1000), under30(0, 29), mellom30og50(30, 49);
+
+    fun Inneholder(alder: Int): Boolean = alder in min..max
 }
 

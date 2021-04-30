@@ -144,11 +144,16 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallFåttJobben(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
+    fun hentAntallFåttJobben(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate) =
+        hentAntallFåttJobben(fraOgMed,tilOgMed).count { it.harHull == harHull }
+
+    private class UtfallElement(val harHull: Boolean?, val alder: Int?)
+
+    private fun hentAntallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): MutableList<UtfallElement> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT COUNT(telleliste.*) FROM $kandidatutfallTabell telleliste,
+                SELECT telleliste.$hullICv, telleliste.$alder FROM $kandidatutfallTabell telleliste,
                   (SELECT MIN($dbId) as minId FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
                     (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
                         (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
@@ -160,19 +165,17 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                   AND tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid = senesteUtfallITidsromOgFåttJobben.$kandidatlisteid
                   GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
                 WHERE  telleliste.$dbId = tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.minId
-                AND telleliste.$hullICv
-            """.trimIndent() + if (harHull != null) " = ?" else " IS NULL"
+            """
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
                 setDate(2, Date.valueOf(tilOgMed))
-                if (harHull != null) setBoolean(3, harHull)
             }.executeQuery()
+            val utfallElementer = mutableListOf<UtfallElement>()
 
-            if (resultSet.next()) {
-                return resultSet.getInt(1)
-            } else {
-                throw RuntimeException("Prøvde å hente antall kandidater med harHull=$harHull som har fått jobben fra databasen")
+            while (resultSet.next()){
+                utfallElementer+=UtfallElement(resultSet.getBoolean(1), resultSet.getInt(2))
             }
+            return utfallElementer
         }
     }
 
@@ -233,34 +236,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallFåttJobben(aldersgruppe: Aldersgruppe, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
-                
-                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
-                    WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktørId, $kandidatlisteid) as k2
-                     
-                WHERE  k1.$dbId = k2.maksId
-                  AND k1.$utfall = '${FATT_JOBBEN.name}'
-                  AND (k1.$alder BETWEEN ? AND ?)
-            """.trimIndent()
-            ).apply {
-                setDate(1, Date.valueOf(fraOgMed))
-                setDate(2, Date.valueOf(tilOgMed))
-                setInt(3, aldersgruppe.min)
-                setInt(4, aldersgruppe.max)
-            }.executeQuery()
-
-            if (resultSet.next()) {
-                return resultSet.getInt(1)
-            } else {
-                throw RuntimeException("Prøvde å hente antall kandidater med aldersgruppe $aldersgruppe som har fått jobben fra databasen")
-            }
-        }
-    }
+    fun hentAntallFåttJobben(aldersgruppe: Aldersgruppe, fraOgMed: LocalDate, tilOgMed: LocalDate) =
+        hentAntallFåttJobben(fraOgMed, tilOgMed).mapNotNull(UtfallElement::alder).count(aldersgruppe::Inneholder)
 
     fun hentHullDatagrunnlag(datoer: List<LocalDate>): HullDatagrunnlag {
         return HullDatagrunnlag(
