@@ -1,7 +1,7 @@
 package no.nav.rekrutteringsbistand.statistikk.kafka
 
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
-import no.nav.rekrutteringsbistand.statistikk.db.Kandidatutfall
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Kandidatutfall
 import no.nav.rekrutteringsbistand.statistikk.log
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord

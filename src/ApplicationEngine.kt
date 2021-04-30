@@ -19,7 +19,7 @@ import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogKlient
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogUrl
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogScheduler
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogStatistikk
-import no.nav.rekrutteringsbistand.statistikk.db.Repository
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
 import no.nav.rekrutteringsbistand.statistikk.kafka.hentUsendteUtfallOgSendPåKafka
@@ -53,7 +53,7 @@ fun lagApplicationEngine(
         }
         Metrics.addRegistry(prometheusMeterRegistry)
 
-        val repository = Repository(dataSource)
+        val repository = KandidatutfallRepository(dataSource)
         val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer, unleash)
         val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 

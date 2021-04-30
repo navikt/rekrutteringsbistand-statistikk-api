@@ -1,4 +1,4 @@
-package no.nav.rekrutteringsbistand.statistikk.db
+package no.nav.rekrutteringsbistand.statistikk.kandidatutfall
 
 import java.time.LocalDateTime
 import java.util.*

@@ -1,16 +1,16 @@
+
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import assertk.assertions.isNull
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.apache.Apache
-import io.ktor.client.request.post
-import io.ktor.client.statement.HttpResponse
-import io.ktor.util.KtorExperimentalAPI
-import kotlinx.coroutines.runBlocking
 import db.TestDatabase
 import db.TestRepository
+import io.ktor.client.*
+import io.ktor.client.engine.apache.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.util.*
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
@@ -44,7 +44,7 @@ class LagreStatistikkTest {
         repository.hentUtfall().forEachIndexed { index, utfall ->
             assertThat(utfall.dbId).isNotNull()
             assertThat(utfall.aktorId).isEqualTo(kandidatutfallTilLagring[index].aktørId)
-            assertThat(utfall.utfall.name).isEqualTo(kandidatutfallTilLagring[index].utfall)
+            assertThat(utfall.utfall.name).isEqualTo(kandidatutfallTilLagring[index].utfall.name)
             assertThat(utfall.navIdent).isEqualTo(kandidatutfallTilLagring[index].navIdent)
             assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
             assertThat(utfall.kandidatlisteId.toString()).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)

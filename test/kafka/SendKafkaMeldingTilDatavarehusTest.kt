@@ -8,10 +8,10 @@ import db.TestDatabase
 import db.TestRepository
 import etKandidatutfall
 import no.finn.unleash.FakeUnleash
-import no.nav.rekrutteringsbistand.statistikk.db.Kandidatutfall
-import no.nav.rekrutteringsbistand.statistikk.db.Repository
-import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.IKKE_SENDT
-import no.nav.rekrutteringsbistand.statistikk.db.SendtStatus.SENDT
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Kandidatutfall
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.SendtStatus.IKKE_SENDT
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.SendtStatus.SENDT
 import no.nav.rekrutteringsbistand.statistikk.kafka.DatavarehusKafkaProducer
 import no.nav.rekrutteringsbistand.statistikk.kafka.hentUsendteUtfallOgSendPåKafka
 import org.junit.After
@@ -22,7 +22,7 @@ class SendKafkaMeldingTilDatavarehusTest {
 
     companion object {
         private val database = TestDatabase()
-        private val repository = Repository(database.dataSource)
+        private val repository = KandidatutfallRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
         private val unleash = FakeUnleash().apply {
             enableAll()

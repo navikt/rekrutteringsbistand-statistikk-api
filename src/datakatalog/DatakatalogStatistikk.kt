@@ -4,14 +4,14 @@ import kscience.plotly.Plot
 import kscience.plotly.layout
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.alder.AlderStatistikk
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullStatistikk
-import no.nav.rekrutteringsbistand.statistikk.db.Repository
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
 import java.time.Period
 import no.nav.rekrutteringsbistand.statistikk.log
 
 
 class DatakatalogStatistikk(
-    private val repository: Repository, private val datakatalogKlient: DatakatalogKlient,
+    private val kandidatutfallRepository: KandidatutfallRepository, private val datakatalogKlient: DatakatalogKlient,
     private val dagensDato: () -> LocalDate
 ) : Runnable {
     override fun run() {
@@ -32,8 +32,8 @@ class DatakatalogStatistikk(
         )
 
     private fun plotlydataOgDataPakke() = listOf(
-        HullStatistikk(repository, dagensDato),
-        AlderStatistikk(repository, dagensDato)
+        HullStatistikk(kandidatutfallRepository, dagensDato),
+        AlderStatistikk(kandidatutfallRepository, dagensDato)
     ).let {
         it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
     }
