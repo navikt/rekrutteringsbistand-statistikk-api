@@ -145,13 +145,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
     fun hentAntallFåttJobben(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
-        // liste med alle utfallene for de aktørid/kandidatliste-kombinasjonene, og hent ut tidligst per.
-        // -- liste unike kombinasjoner aktørid,kandidatliste ved gitt tidspunkt, med utfall fått jobben
-
-        // tell
-        // -- tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
-        // -- -- senesteUtfallITidsromOgFåttJobben
-        // -- -- -- senesteUtfallITidsrom
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
