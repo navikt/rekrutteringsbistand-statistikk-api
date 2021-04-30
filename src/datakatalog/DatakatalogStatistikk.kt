@@ -14,6 +14,9 @@ class DatakatalogStatistikk(
     private val kandidatutfallRepository: KandidatutfallRepository, private val datakatalogKlient: DatakatalogKlient,
     private val dagensDato: () -> LocalDate
 ) : Runnable {
+
+    private val målingerStartet = LocalDate.of(2021, 4, 8)
+
     override fun run() {
         log.info("Starter jobb som sender statistikk til datakatalogen")
         plotlydataOgDataPakke().also { (plotly, datapakke) ->
@@ -31,9 +34,14 @@ class DatakatalogStatistikk(
             views = views
         )
 
+    private val datagrunnlag = DataGrunnlag(
+        kandidatutfallRepository.hentUtfallPresentert(målingerStartet, LocalDate.now()),
+        kandidatutfallRepository.hentUtfallFåttJobben(målingerStartet, LocalDate.now())
+    )
+
     private fun plotlydataOgDataPakke() = listOf(
-        HullStatistikk(kandidatutfallRepository, dagensDato),
-        AlderStatistikk(kandidatutfallRepository, dagensDato)
+        HullStatistikk(datagrunnlag, dagensDato),
+        AlderStatistikk(datagrunnlag, dagensDato)
     ).let {
         it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
     }

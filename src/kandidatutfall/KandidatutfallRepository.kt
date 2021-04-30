@@ -1,9 +1,7 @@
 package no.nav.rekrutteringsbistand.statistikk.kandidatutfall
 
 import no.nav.rekrutteringsbistand.statistikk.HentStatistikk
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.AlderDatagrunnlag
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.Aldersgruppe
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullDatagrunnlag
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.DataGrunnlag
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.PRESENTERT
@@ -144,18 +142,44 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallFåttJobben(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate) =
-        hentAntallFåttJobben(fraOgMed,tilOgMed).count { it.harHull == harHull }
+    class UtfallElement(val harHull: Boolean?, val alder: Int?, val tidspunkt: LocalDateTime)
 
-    private class UtfallElement(val harHull: Boolean?, val alder: Int?)
+    fun hentUtfallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate): MutableList<UtfallElement> {
+        dataSource.connection.use {
+            // TODO: Skal vi ikke telle presentert for de som senere fikk jobb?
+            val resultSet = it.prepareStatement(
+                """
+                SELECT k1.$hullICv, k1.$alder, k1.$tidspunkt FROM $kandidatutfallTabell k1,
+                
+                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
+                     WHERE k2.$tidspunkt BETWEEN ? AND ?
+                     GROUP BY $aktørId, $kandidatlisteid) as k2
+                     
+                WHERE  k1.$dbId = k2.maksId
+                  AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+                  AND k1.$hullICv
+                """
+            ).apply {
+                setDate(1, Date.valueOf(fraOgMed))
+                setDate(2, Date.valueOf(tilOgMed))
+            }.executeQuery()
+            val utfallElementer = mutableListOf<UtfallElement>()
 
-    private fun hentAntallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): MutableList<UtfallElement> {
+            while (resultSet.next()){
+                // TODO: Sjekk at "null" i db ikke blir "false" når vi leser slik:
+                utfallElementer+=UtfallElement(resultSet.getBoolean(1), resultSet.getInt(2), resultSet.getTimestamp(3).toLocalDateTime())
+            }
+            return utfallElementer
+        }
+    }
+
+    fun hentUtfallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): MutableList<UtfallElement> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT telleliste.$hullICv, telleliste.$alder FROM $kandidatutfallTabell telleliste,
-                  (SELECT MIN($dbId) as minId FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
-                    (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
+                SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt  FROM $kandidatutfallTabell telleliste,
+                  (SELECT MIN($dbId) as minId, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
+                    (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
                         (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
                         WHERE senesteUtfallITidsrom.$tidspunkt BETWEEN ? AND ?
                         GROUP BY senesteUtfallITidsrom.$aktørId, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
@@ -173,100 +197,11 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val utfallElementer = mutableListOf<UtfallElement>()
 
             while (resultSet.next()){
-                utfallElementer+=UtfallElement(resultSet.getBoolean(1), resultSet.getInt(2))
+                // TODO: Sjekk at "null" i db ikke blir "false" når vi leser slik:
+                utfallElementer+=UtfallElement(resultSet.getBoolean(1), resultSet.getInt(2), resultSet.getTimestamp(3).toLocalDateTime())
             }
             return utfallElementer
         }
-    }
-
-    fun hentAntallPresentert(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
-                
-                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
-                     WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktørId, $kandidatlisteid) as k2
-                     
-                WHERE  k1.$dbId = k2.maksId
-                  AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                  AND k1.$hullICv
-            """.trimIndent() + if (harHull != null) " = ?" else " IS NULL"
-            ).apply {
-                setDate(1, Date.valueOf(fraOgMed))
-                setDate(2, Date.valueOf(tilOgMed))
-                if (harHull != null) setBoolean(3, harHull)
-            }.executeQuery()
-
-            if (resultSet.next()) {
-                return resultSet.getInt(1)
-            } else {
-                throw RuntimeException("Prøvde å hente antall presenterte kandidater fra databasen")
-            }
-        }
-    }
-
-    fun hentAntallPresentert(aldersgruppe: Aldersgruppe, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
-                
-                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
-                     WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktørId, $kandidatlisteid) as k2
-                     
-                WHERE  k1.$dbId = k2.maksId
-                  AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                  AND (k1.$alder BETWEEN ? AND ?)
-            """.trimIndent()
-            ).apply {
-                setDate(1, Date.valueOf(fraOgMed))
-                setDate(2, Date.valueOf(tilOgMed))
-                setInt(3, aldersgruppe.min)
-                setInt(4, aldersgruppe.max)
-            }.executeQuery()
-
-            if (resultSet.next()) {
-                return resultSet.getInt(1)
-            } else {
-                throw RuntimeException("Prøvde å hente antall presenterte kandidater for aldersgruppe $aldersgruppe fra databasen")
-            }
-        }
-    }
-
-    fun hentAntallFåttJobben(aldersgruppe: Aldersgruppe, fraOgMed: LocalDate, tilOgMed: LocalDate) =
-        hentAntallFåttJobben(fraOgMed, tilOgMed).mapNotNull(UtfallElement::alder).count(aldersgruppe::Inneholder)
-
-    fun hentHullDatagrunnlag(datoer: List<LocalDate>): HullDatagrunnlag {
-        return HullDatagrunnlag(
-            datoer.flatMap { dag ->
-                listOf(true, false, null).map { harHull ->
-                    (dag to harHull) to hentAntallPresentert(harHull, dag, dag.plusDays(1))
-                }
-            }.toMap(),
-            datoer.flatMap { dag ->
-                listOf(true, false, null).map { harHull ->
-                    (dag to harHull) to hentAntallFåttJobben(harHull, dag, dag.plusDays(1))
-                }
-            }.toMap()
-        )
-    }
-
-    fun hentAlderDatagrunnlag(datoer: List<LocalDate>): AlderDatagrunnlag {
-        return AlderDatagrunnlag(
-            datoer.flatMap { dag ->
-                Aldersgruppe.values().map { aldersgruppe ->
-                    (dag to aldersgruppe) to hentAntallPresentert(aldersgruppe, dag, dag.plusDays(1))
-                }
-            }.toMap(),
-            datoer.flatMap { dag ->
-                Aldersgruppe.values().map { aldersgruppe ->
-                    (dag to aldersgruppe) to hentAntallFåttJobben(aldersgruppe, dag, dag.plusDays(1))
-                }
-            }.toMap()
-        )
     }
 
     companion object {

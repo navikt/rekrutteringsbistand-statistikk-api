@@ -30,15 +30,15 @@ class KandidatutfallRepositoryTest {
             LocalDate.of(2020, 3, 4).atTime(20, 59)
         )
 
-        val antallForHullstatus = listOf(null, true, false)
-            .associateWith { repository.hentAntallFåttJobben( harHull = it,
-                fraOgMed = LocalDate.of(2020, 3, 1),
-                tilOgMed = LocalDate.of(2020, 3, 5)
-            ) }
+        val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 5))
 
-        assertThat(antallForHullstatus[null]).isEqualTo(0)
-        assertThat(antallForHullstatus[true]).isEqualTo(1)
-        assertThat(antallForHullstatus[false]).isEqualTo(0)
+        val antallUtfallMedHull = utfallFåttJobben.count { it.harHull != null && it.harHull!! }
+        val antallUtfallUtenHull = utfallFåttJobben.count { it.harHull != null && !it.harHull!! }
+        val antallUtfallMedUkjentHull = utfallFåttJobben.count { it.harHull == null }
+
+        assertThat(antallUtfallMedHull).isEqualTo(1)
+        assertThat(antallUtfallUtenHull).isEqualTo(0)
+        assertThat(antallUtfallMedUkjentHull).isEqualTo(0)
     }
 
     @After
