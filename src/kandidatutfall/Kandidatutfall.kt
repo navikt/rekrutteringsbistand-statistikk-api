@@ -11,12 +11,14 @@ data class Kandidatutfall(
     val navKontor: String,
     val kandidatlisteId: UUID,
     val stillingsId: UUID,
+    val synligKandidat: Boolean,
     val hullICv: Boolean?,
     val tidspunkt: LocalDateTime,
     val sendtStatus: SendtStatus,
     val antallSendtForsøk: Int,
     val sisteSendtForsøk: LocalDateTime?,
-    val alder: Int?
+    val alder: Int?,
+    val tilretteleggingsbehov: List<String> // TODO: Gjør til liste av enums
 )
 
 enum class SendtStatus {

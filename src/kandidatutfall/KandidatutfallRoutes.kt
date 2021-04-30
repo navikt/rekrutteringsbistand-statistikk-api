@@ -1,5 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk.kandidatutfall
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
@@ -11,6 +12,7 @@ import no.nav.rekrutteringsbistand.statistikk.kafka.KafkaTilDataverehusScheduler
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDateTime
 
+@JsonIgnoreProperties(ignoreUnknown = true) // TODO: Fjerne når kandidat-api og statistikk-api er i synk
 data class OpprettKandidatutfall(
     val aktørId: String,
     val utfall: Utfall,
@@ -18,8 +20,10 @@ data class OpprettKandidatutfall(
     val navKontor: String,
     val kandidatlisteId: String,
     val stillingsId: String,
+    val synligKandidat: Boolean,
     val harHullICv: Boolean?,
-    val alder: Int?
+    val alder: Int?,
+    val tilretteleggingsbehov: List<String> = emptyList() // TODO: Gjøre om til liste av enums
 )
 
 fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sendStatistikk: KafkaTilDataverehusScheduler) {

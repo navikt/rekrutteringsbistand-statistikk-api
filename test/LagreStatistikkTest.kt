@@ -11,6 +11,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
@@ -33,8 +34,8 @@ class LagreStatistikkTest {
     }
 
     @Test
-    fun `POST til kandidatutfall skal lagre til databasen`() = runBlocking {
-        val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
+    fun `POST til kandidatutfall med ekstra felt skal ikke feile`() = runBlocking {
+        val kandidatutfallTilLagring = listOf(etKandidatutfallMedEkstraFelt)
 
         val response: HttpResponse = client.post("$basePath/kandidatutfall") {
             body = kandidatutfallTilLagring
@@ -51,6 +52,33 @@ class LagreStatistikkTest {
             assertThat(utfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
             assertThat(utfall.hullICv).isEqualTo(kandidatutfallTilLagring[index].harHullICv)
             assertThat(utfall.alder).isEqualTo(kandidatutfallTilLagring[index].alder)
+            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
+                LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+            )
+        }
+    }
+
+    @Test
+    fun `POST til kandidatutfall skal lagre til databasen`() = runBlocking {
+        val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
+
+        val response: HttpResponse = client.post("$basePath/kandidatutfall") {
+            body = kandidatutfallTilLagring
+        }
+
+        assertThat(response.status).isEqualTo(HttpStatusCode.Created)
+        repository.hentUtfall().forEachIndexed { index, utfall ->
+            assertThat(utfall.dbId).isNotNull()
+            assertThat(utfall.aktorId).isEqualTo(kandidatutfallTilLagring[index].aktørId)
+            assertThat(utfall.utfall.name).isEqualTo(kandidatutfallTilLagring[index].utfall.name)
+            assertThat(utfall.navIdent).isEqualTo(kandidatutfallTilLagring[index].navIdent)
+            assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
+            assertThat(utfall.kandidatlisteId.toString()).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
+            assertThat(utfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
+            assertThat(utfall.synligKandidat).isEqualTo(kandidatutfallTilLagring[index].synligKandidat)
+            assertThat(utfall.hullICv).isEqualTo(kandidatutfallTilLagring[index].harHullICv)
+            assertThat(utfall.alder).isEqualTo(kandidatutfallTilLagring[index].alder)
+            assertThat(utfall.tilretteleggingsbehov).isEqualTo(kandidatutfallTilLagring[index].tilretteleggingsbehov)
             assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
                 LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
             )
