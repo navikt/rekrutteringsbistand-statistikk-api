@@ -8,6 +8,7 @@ import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.SendtStatus.IKKE_SE
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.PRESENTERT
 import java.sql.Date
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDate
@@ -144,37 +145,48 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallFåttJobben(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
+    fun hentAntallFåttJobben(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate) =
+        dataSource.spørBasertPåTidligsteUtfall(NullableFelt(harHull==null), hullICv, fraOgMed, tilOgMed)
+            { if (harHull != null) this.setBoolean(3, harHull) } ?:
+                throw RuntimeException("Prøvde å hente antall kandidater med harHull=$harHull som har fått jobben fra databasen")
+
+    private interface Spørringsparameter {
+        fun feltSpørring(): String
+    }
+
+    object BetweenSpørring: Spørringsparameter {
+        override fun feltSpørring() = " BETWEEN ? AND ?"
+    }
+
+    class NullableFelt(private val erNull: Boolean): Spørringsparameter {
+        override fun feltSpørring() = if (erNull) " IS NULL" else " = ?"
+    }
+
+    private fun DataSource.spørBasertPåTidligsteUtfall(spørringsparameter: Spørringsparameter, filterFelt: String, fraOgMed: LocalDate, tilOgMed: LocalDate,
+                                                       populerStatementFunksjon: PreparedStatement.() -> Unit)=
+        connection.use {
+            it.prepareStatement(
                 """
-                SELECT COUNT(telleliste.*) FROM $kandidatutfallTabell telleliste,
-                  (SELECT MIN($dbId) as minId FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
-                    (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
-                        (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
-                        WHERE senesteUtfallITidsrom.$tidspunkt BETWEEN ? AND ?
-                        GROUP BY senesteUtfallITidsrom.$aktørId, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
-                    WHERE senesteUtfallITidsromOgFåttJobben.${dbId} = senesteUtfallITidsrom.maksId
-                    AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben                  
-                  WHERE tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId = senesteUtfallITidsromOgFåttJobben.$aktørId
-                  AND tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid = senesteUtfallITidsromOgFåttJobben.$kandidatlisteid
-                  GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
-                WHERE  telleliste.$dbId = tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.minId
-                AND telleliste.$hullICv
-            """.trimIndent() + if (harHull != null) " = ?" else " IS NULL"
+                        SELECT COUNT(telleliste.*) FROM $kandidatutfallTabell telleliste,
+                          (SELECT MIN($dbId) as minId FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
+                            (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
+                                (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
+                                WHERE senesteUtfallITidsrom.$tidspunkt BETWEEN ? AND ?
+                                GROUP BY senesteUtfallITidsrom.$aktørId, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
+                            WHERE senesteUtfallITidsromOgFåttJobben.${dbId} = senesteUtfallITidsrom.maksId
+                            AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben                  
+                          WHERE tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId = senesteUtfallITidsromOgFåttJobben.$aktørId
+                          AND tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid = senesteUtfallITidsromOgFåttJobben.$kandidatlisteid
+                          GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
+                        WHERE  telleliste.$dbId = tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.minId
+                        AND telleliste.$filterFelt
+                    """.trimIndent() + spørringsparameter.feltSpørring()
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
                 setDate(2, Date.valueOf(tilOgMed))
-                if (harHull != null) setBoolean(3, harHull)
-            }.executeQuery()
-
-            if (resultSet.next()) {
-                return resultSet.getInt(1)
-            } else {
-                throw RuntimeException("Prøvde å hente antall kandidater med harHull=$harHull som har fått jobben fra databasen")
-            }
+                populerStatementFunksjon()
+            }.executeQuery().let { if (it.next()) it.getInt(1) else null }
         }
-    }
 
     fun hentAntallPresentert(harHull: Boolean?, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
         dataSource.connection.use {
@@ -233,34 +245,11 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallFåttJobben(aldersgruppe: Aldersgruppe, fraOgMed: LocalDate, tilOgMed: LocalDate): Int {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
-                
-                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
-                    WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktørId, $kandidatlisteid) as k2
-                     
-                WHERE  k1.$dbId = k2.maksId
-                  AND k1.$utfall = '${FATT_JOBBEN.name}'
-                  AND (k1.$alder BETWEEN ? AND ?)
-            """.trimIndent()
-            ).apply {
-                setDate(1, Date.valueOf(fraOgMed))
-                setDate(2, Date.valueOf(tilOgMed))
-                setInt(3, aldersgruppe.min)
-                setInt(4, aldersgruppe.max)
-            }.executeQuery()
-
-            if (resultSet.next()) {
-                return resultSet.getInt(1)
-            } else {
-                throw RuntimeException("Prøvde å hente antall kandidater med aldersgruppe $aldersgruppe som har fått jobben fra databasen")
-            }
-        }
-    }
+    fun hentAntallFåttJobben(aldersgruppe: Aldersgruppe, fraOgMed: LocalDate, tilOgMed: LocalDate) =
+        dataSource.spørBasertPåTidligsteUtfall(BetweenSpørring, alder,fraOgMed, tilOgMed) {
+            setInt(3, aldersgruppe.min)
+            setInt(4, aldersgruppe.max)
+        } ?: throw RuntimeException("Prøvde å hente antall kandidater med aldersgruppe $aldersgruppe som har fått jobben fra databasen")
 
     fun hentHullDatagrunnlag(datoer: List<LocalDate>): HullDatagrunnlag {
         return HullDatagrunnlag(
