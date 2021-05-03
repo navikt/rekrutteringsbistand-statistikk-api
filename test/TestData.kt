@@ -32,7 +32,7 @@ val etKandidatutfallMedEkstraFelt = OpprettKandidatutfallMedEkstraFelt(
     synligKandidat = true,
     harHullICv = true,
     alder = 54,
-    tilretteleggingsbehov = listOf("permittert"),
+    tilretteleggingsbehov = listOf("permittert", "arbeidstid"),
     ekstraFeltListe = listOf("tull"),
     ekstraFeltTekst = "sds"
 )
@@ -47,7 +47,7 @@ val etKandidatutfall = OpprettKandidatutfall(
     synligKandidat = true,
     harHullICv = true,
     alder = 54,
-    tilretteleggingsbehov = listOf("permittert")
+    tilretteleggingsbehov = listOf("permittert", "arbeidstid")
 )
 
 val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(

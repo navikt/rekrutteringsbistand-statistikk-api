@@ -44,7 +44,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setTimestamp(8, Timestamp.valueOf(registrertTidspunkt))
                 if (kandidatutfall.harHullICv != null) setBoolean(9, kandidatutfall.harHullICv) else setNull(9, 0)
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
-                setString(11, kandidatutfall.tilretteleggingsbehov.joinToString(separator = ","))
+                setString(11, kandidatutfall.tilretteleggingsbehov.joinToString(separator = ";"))
                 executeUpdate()
             }
         }
@@ -330,7 +330,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
                 alder = if(resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
-                tilretteleggingsbehov = if (resultSet.getString(tilretteleggingsbehov).isBlank()) emptyList() else resultSet.getString(tilretteleggingsbehov).split(",")
+                tilretteleggingsbehov = if (resultSet.getString(tilretteleggingsbehov).isBlank()) emptyList() else resultSet.getString(tilretteleggingsbehov).split(";")
             )
     }
 }
