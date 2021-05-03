@@ -11,7 +11,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
-import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
@@ -30,33 +29,6 @@ class LagreStatistikkTest {
 
         init {
             start(database, port)
-        }
-    }
-
-    @Test
-    fun `POST til kandidatutfall med manglende tilretteleggingsbehov-felt skal ikke feile`() = runBlocking {
-        val kandidatutfallTilLagring = listOf(etKandidatutfallMedManglendeSynlighetOgTilretteleggingsutfall)
-
-        val response: HttpResponse = client.post("$basePath/kandidatutfall") {
-            body = kandidatutfallTilLagring
-        }
-
-        assertThat(response.status).isEqualTo(HttpStatusCode.Created)
-        repository.hentUtfall().forEachIndexed { index, utfall ->
-            assertThat(utfall.dbId).isNotNull()
-            assertThat(utfall.aktorId).isEqualTo(kandidatutfallTilLagring[index].aktørId)
-            assertThat(utfall.utfall.name).isEqualTo(kandidatutfallTilLagring[index].utfall.name)
-            assertThat(utfall.navIdent).isEqualTo(kandidatutfallTilLagring[index].navIdent)
-            assertThat(utfall.navKontor).isEqualTo(kandidatutfallTilLagring[index].navKontor)
-            assertThat(utfall.kandidatlisteId.toString()).isEqualTo(kandidatutfallTilLagring[index].kandidatlisteId)
-            assertThat(utfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
-            assertThat(utfall.hullICv).isEqualTo(kandidatutfallTilLagring[index].harHullICv)
-            assertThat(utfall.alder).isEqualTo(kandidatutfallTilLagring[index].alder)
-            assertThat(utfall.synligKandidat).isEqualTo(null)
-            assertThat(utfall.tilretteleggingsbehov).isEqualTo(emptyList())
-            assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
-                LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
-            )
         }
     }
 

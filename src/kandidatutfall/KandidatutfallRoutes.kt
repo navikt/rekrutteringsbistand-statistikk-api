@@ -1,6 +1,5 @@
 package no.nav.rekrutteringsbistand.statistikk.kandidatutfall
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
@@ -19,10 +18,10 @@ data class OpprettKandidatutfall(
     val navKontor: String,
     val kandidatlisteId: String,
     val stillingsId: String,
-    val synligKandidat: Boolean?,
+    val synligKandidat: Boolean,
     val harHullICv: Boolean?,
     val alder: Int?,
-    val tilretteleggingsbehov: List<String> = emptyList()
+    val tilretteleggingsbehov: List<String>
 )
 
 fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sendStatistikk: KafkaTilDataverehusScheduler) {

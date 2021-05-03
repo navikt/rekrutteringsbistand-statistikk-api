@@ -40,7 +40,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setString(4, kandidatutfall.navKontor)
                 setString(5, kandidatutfall.kandidatlisteId)
                 setString(6, kandidatutfall.stillingsId)
-                if (kandidatutfall.synligKandidat != null) setBoolean(7, kandidatutfall.synligKandidat) else setNull(7, 0)
+                setBoolean(7, kandidatutfall.synligKandidat)
                 setTimestamp(8, Timestamp.valueOf(registrertTidspunkt))
                 if (kandidatutfall.harHullICv != null) setBoolean(9, kandidatutfall.harHullICv) else setNull(9, 0)
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
