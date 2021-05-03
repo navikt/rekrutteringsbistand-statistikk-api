@@ -34,8 +34,8 @@ class LagreStatistikkTest {
     }
 
     @Test
-    fun `POST til kandidatutfall med ekstra felt skal ikke feile`() = runBlocking {
-        val kandidatutfallTilLagring = listOf(etKandidatutfallMedEkstraFelt)
+    fun `POST til kandidatutfall med manglende tilretteleggingsbehov-felt skal ikke feile`() = runBlocking {
+        val kandidatutfallTilLagring = listOf(etKandidatutfallMedManglendeSynlighetOgTilretteleggingsutfall)
 
         val response: HttpResponse = client.post("$basePath/kandidatutfall") {
             body = kandidatutfallTilLagring
@@ -52,6 +52,8 @@ class LagreStatistikkTest {
             assertThat(utfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring[index].stillingsId)
             assertThat(utfall.hullICv).isEqualTo(kandidatutfallTilLagring[index].harHullICv)
             assertThat(utfall.alder).isEqualTo(kandidatutfallTilLagring[index].alder)
+            assertThat(utfall.synligKandidat).isEqualTo(null)
+            assertThat(utfall.tilretteleggingsbehov).isEqualTo(emptyList())
             assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
                 LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
             )

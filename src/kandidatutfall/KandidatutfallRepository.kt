@@ -40,7 +40,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setString(4, kandidatutfall.navKontor)
                 setString(5, kandidatutfall.kandidatlisteId)
                 setString(6, kandidatutfall.stillingsId)
-                setBoolean(7, kandidatutfall.synligKandidat)
+                if (kandidatutfall.synligKandidat != null) setBoolean(7, kandidatutfall.synligKandidat) else setNull(7, 0)
                 setTimestamp(8, Timestamp.valueOf(registrertTidspunkt))
                 if (kandidatutfall.harHullICv != null) setBoolean(9, kandidatutfall.harHullICv) else setNull(9, 0)
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
@@ -323,7 +323,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 navKontor = resultSet.getString(navkontor),
                 kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteid)),
                 stillingsId = UUID.fromString(resultSet.getString(stillingsid)),
-                synligKandidat = resultSet.getBoolean(synligKandidat),
+                synligKandidat = if (resultSet.getObject(synligKandidat) == null) null else resultSet.getBoolean(synligKandidat),
                 hullICv = if(resultSet.getObject(hullICv) == null)  null  else resultSet.getBoolean(KandidatutfallRepository.hullICv),
                 tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime(),
                 antallSendtForsøk = resultSet.getInt(antallSendtForsøk),
