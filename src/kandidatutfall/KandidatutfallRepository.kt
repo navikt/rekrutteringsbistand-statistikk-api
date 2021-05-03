@@ -27,10 +27,12 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                                $navkontor,
                                $kandidatlisteid,
                                $stillingsid,
+                               $synligKandidat,
                                $tidspunkt,
                                $hullICv,
-                               $alder
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                               $alder,
+                               $tilretteleggingsbehov
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, kandidatutfall.aktørId)
                 setString(2, kandidatutfall.utfall.name)
@@ -38,9 +40,11 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setString(4, kandidatutfall.navKontor)
                 setString(5, kandidatutfall.kandidatlisteId)
                 setString(6, kandidatutfall.stillingsId)
-                setTimestamp(7, Timestamp.valueOf(registrertTidspunkt))
-                if (kandidatutfall.harHullICv != null) setBoolean(8, kandidatutfall.harHullICv) else setNull(8, 0)
-                if (kandidatutfall.alder != null) setInt(9, kandidatutfall.alder) else setNull(9, 0)
+                if (kandidatutfall.synligKandidat != null) setBoolean(7, kandidatutfall.synligKandidat) else setNull(7, 0)
+                setTimestamp(8, Timestamp.valueOf(registrertTidspunkt))
+                if (kandidatutfall.harHullICv != null) setBoolean(9, kandidatutfall.harHullICv) else setNull(9, 0)
+                if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
+                setString(11, kandidatutfall.tilretteleggingsbehov.joinToString(separator = ";"))
                 executeUpdate()
             }
         }
@@ -301,28 +305,32 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val navkontor = "navkontor"
         const val kandidatlisteid = "kandidatlisteid"
         const val stillingsid = "stillingsid"
+        const val synligKandidat = "synlig_kandidat"
         const val tidspunkt = "tidspunkt"
         const val hullICv = "hull_i_cv"
         const val sendtStatus = "sendt_status"
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
         const val alder = "alder"
+        const val tilretteleggingsbehov = "tilretteleggingsbehov"
 
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
             Kandidatutfall(
-                dbId = resultSet.getLong(KandidatutfallRepository.dbId),
-                aktorId = resultSet.getString(KandidatutfallRepository.aktørId),
-                utfall = Utfall.valueOf(resultSet.getString(KandidatutfallRepository.utfall)),
-                navIdent = resultSet.getString(KandidatutfallRepository.navident),
-                navKontor = resultSet.getString(KandidatutfallRepository.navkontor),
-                kandidatlisteId = UUID.fromString(resultSet.getString(KandidatutfallRepository.kandidatlisteid)),
-                stillingsId = UUID.fromString(resultSet.getString(KandidatutfallRepository.stillingsid)),
-                hullICv = if(resultSet.getObject(KandidatutfallRepository.hullICv) == null)  null  else resultSet.getBoolean(KandidatutfallRepository.hullICv),
-                tidspunkt = resultSet.getTimestamp(KandidatutfallRepository.tidspunkt).toLocalDateTime(),
-                antallSendtForsøk = resultSet.getInt(KandidatutfallRepository.antallSendtForsøk),
-                sendtStatus = SendtStatus.valueOf(resultSet.getString(KandidatutfallRepository.sendtStatus)),
-                sisteSendtForsøk = resultSet.getTimestamp(KandidatutfallRepository.sisteSendtForsøk)?.toLocalDateTime(),
-                alder = if(resultSet.getObject(KandidatutfallRepository.alder) == null) null else resultSet.getInt(KandidatutfallRepository.alder)
+                dbId = resultSet.getLong(dbId),
+                aktorId = resultSet.getString(aktørId),
+                utfall = Utfall.valueOf(resultSet.getString(utfall)),
+                navIdent = resultSet.getString(navident),
+                navKontor = resultSet.getString(navkontor),
+                kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteid)),
+                stillingsId = UUID.fromString(resultSet.getString(stillingsid)),
+                synligKandidat = if (resultSet.getObject(synligKandidat) == null) null else resultSet.getBoolean(synligKandidat),
+                hullICv = if(resultSet.getObject(hullICv) == null)  null  else resultSet.getBoolean(KandidatutfallRepository.hullICv),
+                tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime(),
+                antallSendtForsøk = resultSet.getInt(antallSendtForsøk),
+                sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
+                sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
+                alder = if(resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
+                tilretteleggingsbehov = if (resultSet.getString(tilretteleggingsbehov).isBlank()) emptyList() else resultSet.getString(tilretteleggingsbehov).split(";")
             )
     }
 }
