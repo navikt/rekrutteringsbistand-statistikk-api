@@ -1,7 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk.kandidatutfall
 
 import no.nav.rekrutteringsbistand.statistikk.HentStatistikk
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.DataGrunnlag
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.PRESENTERT
@@ -144,7 +143,12 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
 
     class UtfallElement(val harHull: Boolean?, val alder: Int?, val tidspunkt: LocalDateTime)
 
-    fun hentUtfallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate): MutableList<UtfallElement> {
+    private fun ResultSet.toUtfallElement() = UtfallElement(
+        harHull = if(getObject(1) == null) null else getBoolean(1),
+        alder = if(getObject(2) == null) null else getInt(2),
+        tidspunkt = getTimestamp(3).toLocalDateTime())
+
+    fun hentUtfallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate): List<UtfallElement> {
         dataSource.connection.use {
             // TODO: Skal vi ikke telle presentert for de som senere fikk jobb?
             val resultSet = it.prepareStatement(
@@ -157,7 +161,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                      
                 WHERE  k1.$dbId = k2.maksId
                   AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                  AND k1.$hullICv
                 """
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
@@ -166,14 +169,13 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val utfallElementer = mutableListOf<UtfallElement>()
 
             while (resultSet.next()){
-                // TODO: Sjekk at "null" i db ikke blir "false" når vi leser slik:
-                utfallElementer+=UtfallElement(resultSet.getBoolean(1), resultSet.getInt(2), resultSet.getTimestamp(3).toLocalDateTime())
+                utfallElementer+=resultSet.toUtfallElement()
             }
             return utfallElementer
         }
     }
 
-    fun hentUtfallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): MutableList<UtfallElement> {
+    fun hentUtfallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): List<UtfallElement> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -196,9 +198,11 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             }.executeQuery()
             val utfallElementer = mutableListOf<UtfallElement>()
 
-            while (resultSet.next()){
-                // TODO: Sjekk at "null" i db ikke blir "false" når vi leser slik:
-                utfallElementer+=UtfallElement(resultSet.getBoolean(1), resultSet.getInt(2), resultSet.getTimestamp(3).toLocalDateTime())
+            while (resultSet.next()) {
+                utfallElementer += UtfallElement(
+                    harHull = if(resultSet.getObject(1) == null) null else resultSet.getBoolean(1),
+                    alder = if(resultSet.getObject(2) == null) null else resultSet.getInt(2),
+                    tidspunkt = resultSet.getTimestamp(3).toLocalDateTime())
             }
             return utfallElementer
         }

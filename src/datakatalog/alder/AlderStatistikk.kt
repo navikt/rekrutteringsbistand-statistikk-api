@@ -54,7 +54,7 @@ class AlderStatistikk(private val dataGrunnlag: DataGrunnlag, private val dagens
     )
 
     override fun plotlyFiler() =
-        dataGrunnlag.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato())).let { alderDatakatalog ->
+        dataGrunnlag.hentAlderDatagrunnlag(fraDatoAlder til dagensDato()).let { alderDatakatalog ->
             listOf(
                 filnavnAlderAntallPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
                 filnavnAlderAntallFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),
@@ -69,14 +69,14 @@ class AlderStatistikk(private val dataGrunnlag: DataGrunnlag, private val dagens
         description: String
     ) =
         bar {
-            val datoer = dagerMellom(fraDatoAlder, dagensDato())
+            val datoer = fraDatoAlder til dagensDato()
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { hentVerdi(aldersgruppe, it) }
             name = description
         }
 
     private fun Plot.lagBarAndelAlder(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = dagerMellom(fraDatoAlder, dagensDato())
+        val datoer = fraDatoAlder til dagensDato()
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
         name = description

@@ -38,13 +38,5 @@ enum class Aldersgruppe(val min: Int, val max: Int) {
     over50(50, 1000), under30(0, 29), mellom30og50(30, 49);
 
     fun inneholder(alder: Int): Boolean = alder in min..max
-
-    companion object {
-        fun finnAldersgruppe(alder: Int) = when (alder) {
-            in under30.min..under30.max -> under30
-            in mellom30og50.min..mellom30og50.max -> mellom30og50
-            else -> over50
-        }
-    }
 }
 

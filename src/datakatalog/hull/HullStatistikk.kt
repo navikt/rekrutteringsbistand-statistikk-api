@@ -56,7 +56,7 @@ class HullStatistikk(private val datagrunnlag: DataGrunnlag, private val dagensD
     )
 
     override fun plotlyFiler() =
-        datagrunnlag.hentHullDatagrunnlag(dagerMellom(fraDatoHull, dagensDato())).let { hullDatakatalog ->
+        datagrunnlag.hentHullDatagrunnlag(fraDatoHull til dagensDato()).let { hullDatakatalog ->
             listOf(
                 filnavnHullAntallPresentert to lagPlotAntallHullPresentert(hullDatakatalog).toJsonString(),
                 filnavnHullAntallFåttJobben to lagPlotAntallHullFåttJobben(hullDatakatalog).toJsonString(),
@@ -67,7 +67,7 @@ class HullStatistikk(private val datagrunnlag: DataGrunnlag, private val dagensD
 
     private fun Plot.lagBarAntallHull(hentVerdi: (Boolean?, LocalDate) -> Int, harHull: Boolean?, description: String) =
         bar {
-            val datoer = dagerMellom(fraDatoHull, dagensDato())
+            val datoer = fraDatoHull til dagensDato()
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { hentVerdi(harHull, it) }
             name = description
@@ -88,7 +88,7 @@ class HullStatistikk(private val datagrunnlag: DataGrunnlag, private val dagensD
     }
 
     private fun Plot.lagBarAndelHull(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = dagerMellom(fraDatoHull, dagensDato())
+        val datoer = fraDatoHull til dagensDato()
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
         name = description

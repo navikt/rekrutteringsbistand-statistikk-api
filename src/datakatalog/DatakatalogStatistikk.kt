@@ -5,9 +5,9 @@ import kscience.plotly.layout
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.alder.AlderStatistikk
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullStatistikk
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
+import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate
 import java.time.Period
-import no.nav.rekrutteringsbistand.statistikk.log
 
 
 class DatakatalogStatistikk(
@@ -34,16 +34,18 @@ class DatakatalogStatistikk(
             views = views
         )
 
-    private val datagrunnlag = DataGrunnlag(
-        kandidatutfallRepository.hentUtfallPresentert(målingerStartet, LocalDate.now()),
-        kandidatutfallRepository.hentUtfallFåttJobben(målingerStartet, LocalDate.now())
+    private fun datagrunnlag() = DataGrunnlag(
+        kandidatutfallRepository.hentUtfallPresentert(målingerStartet, dagensDato()),
+        kandidatutfallRepository.hentUtfallFåttJobben(målingerStartet, dagensDato())
     )
 
-    private fun plotlydataOgDataPakke() = listOf(
-        HullStatistikk(datagrunnlag, dagensDato),
-        AlderStatistikk(datagrunnlag, dagensDato)
-    ).let {
-        it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
+    private fun plotlydataOgDataPakke() = datagrunnlag().let { datagrunnlag ->
+        listOf(
+            HullStatistikk(datagrunnlag, dagensDato),
+            AlderStatistikk(datagrunnlag, dagensDato)
+        ).let {
+            it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
+        }
     }
 }
 
@@ -75,7 +77,7 @@ fun Plot.getLayout(yTekst: String) {
     }
 }
 
-fun dagerMellom(fraDato: LocalDate, tilDato: LocalDate) = Period.between(fraDato, tilDato).days
+infix fun LocalDate.til(tilDato: LocalDate) = Period.between(this, tilDato).days
     .let { antallDager ->
-        (0..antallDager).map { fraDato + Period.ofDays(it) }
+        (0..antallDager).map { this + Period.ofDays(it) }
     }

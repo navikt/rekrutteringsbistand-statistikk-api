@@ -19,7 +19,9 @@ class DataGrunnlag(private val utfallElementPresentert: List<KandidatutfallRepos
     private fun finnAntallForAlder(utfallselementer: List<KandidatutfallRepository.UtfallElement>, datoer: List<LocalDate>) =
         datoer.flatMap { dag ->
             Aldersgruppe.values().map { aldersgruppe ->
-                (dag to aldersgruppe) to utfallselementer.filter { it.alder != null }.filter { Aldersgruppe.finnAldersgruppe(it.alder!!) == aldersgruppe && dag == it.tidspunkt.toLocalDate()}.count()
+                (dag to aldersgruppe) to utfallselementer.filter { dag == it.tidspunkt.toLocalDate() }
+                    .mapNotNull { it.alder }.filter { aldersgruppe.inneholder(it) }
+                    .count()
             }
         }.toMap()
 
