@@ -153,14 +153,14 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         alder = if(getObject(2) == null) null else getInt(2),
         tidspunkt = getTimestamp(3).toLocalDateTime())
 
-    fun hentUtfallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate): List<UtfallElement> {
+    fun hentUtfallPresentert(fraOgMed: LocalDate): List<UtfallElement> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
                     with KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST as (
                         SELECT $hullICv, $alder, $tidspunkt FROM $kandidatutfallTabell k1,
                             (SELECT MIN($dbId) as $dbId from $kandidatutfallTabell k2
-                            WHERE k2.$tidspunkt BETWEEN ? AND ?
+                            WHERE k2.$tidspunkt >= ?
                             GROUP BY $aktørId, $kandidatlisteid) as k2
 
                         WHERE k1.$dbId = k2.$dbId
@@ -174,7 +174,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                                 WHERE k2.$utfall = '${PRESENTERT}'
                                 GROUP BY $aktørId, $kandidatlisteid
                             ) k2
-                        WHERE $tidspunkt BETWEEN ? AND ?
+                        WHERE $tidspunkt >= ?
                         AND $dbId = k2.maksId
                         GROUP BY $aktørId, $kandidatlisteid
                     )
@@ -184,9 +184,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 """.trimIndent()
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
-                setDate(2, Date.valueOf(tilOgMed))
-                setDate(3, Date.valueOf(fraOgMed))
-                setDate(4, Date.valueOf(tilOgMed))
+                setDate(2, Date.valueOf(fraOgMed))
             }.executeQuery()
             val utfallElementer = mutableListOf<UtfallElement>()
 
@@ -197,7 +195,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentUtfallFåttJobben(fraOgMed: LocalDate, tilOgMed: LocalDate): List<UtfallElement> {
+    fun hentUtfallFåttJobben(fraOgMed: LocalDate): List<UtfallElement> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -205,7 +203,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                   (SELECT MIN($dbId) as minId, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
                     (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
                         (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
-                        WHERE senesteUtfallITidsrom.$tidspunkt BETWEEN ? AND ?
+                        WHERE senesteUtfallITidsrom.$tidspunkt >= ?
                         GROUP BY senesteUtfallITidsrom.$aktørId, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
                     WHERE senesteUtfallITidsromOgFåttJobben.${dbId} = senesteUtfallITidsrom.maksId
                     AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben                  
@@ -216,7 +214,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             """
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
-                setDate(2, Date.valueOf(tilOgMed))
             }.executeQuery()
             val utfallElementer = mutableListOf<UtfallElement>()
 

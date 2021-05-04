@@ -35,8 +35,8 @@ class DatakatalogStatistikk(
         )
 
     private fun datagrunnlag() = DataGrunnlag(
-        kandidatutfallRepository.hentUtfallPresentert(målingerStartet, dagensDato()),
-        kandidatutfallRepository.hentUtfallFåttJobben(målingerStartet, dagensDato())
+        kandidatutfallRepository.hentUtfallPresentert(målingerStartet),
+        kandidatutfallRepository.hentUtfallFåttJobben(målingerStartet)
     )
 
     private fun plotlydataOgDataPakke() = datagrunnlag().let { datagrunnlag ->

@@ -34,7 +34,7 @@ class KandidatutfallRepositoryTest {
             LocalDate.of(2020, 3, 4).atTime(20, 59)
         )
 
-        val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 5))
+        val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1))
 
         val antallUtfallMedHull = utfallFåttJobben.count { it.harHull == true }
         val antallUtfallUtenHull = utfallFåttJobben.count { it.harHull == false }
@@ -53,7 +53,7 @@ class KandidatutfallRepositoryTest {
         )
 
         val antallUtfallMedUkjentHull =
-            repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 5))
+            repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1))
                 .count { it.harHull == null }
 
         assertThat(antallUtfallMedUkjentHull).isEqualTo(1)
@@ -67,7 +67,7 @@ class KandidatutfallRepositoryTest {
         )
 
         val antallUtfallMedUkjentHull =
-            repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 5))
+            repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1))
                 .count { it.harHull == null }
 
         assertThat(antallUtfallMedUkjentHull).isEqualTo(1)
@@ -84,7 +84,7 @@ class KandidatutfallRepositoryTest {
             LocalDate.of(2020, 3, 4).atTime(20, 30)
         )
 
-        val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 5))
+        val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1))
             .mapNotNull { it.alder }
 
         val antallUtfallUnder30 = utfallFåttJobben.count { Aldersgruppe.under30.inneholder(it) }
@@ -103,7 +103,7 @@ class KandidatutfallRepositoryTest {
         repository.lagreUtfall(fåttJobbenUtfall, LocalDate.of(2020,3,1).atStartOfDay())
         repository.lagreUtfall(presentertUtfall, LocalDate.of(2020, 3, 2).atStartOfDay())
 
-        val antallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+        val antallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1)).size
 
         assertThat(antallFåttJobben).isEqualTo(0)
     }
@@ -115,7 +115,7 @@ class KandidatutfallRepositoryTest {
             LocalDate.of(2020, 3, 3).atTime(20, 59)
         )
 
-        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1)).size
 
         assertThat(antallPresentert).isEqualTo(1)
     }
@@ -129,7 +129,7 @@ class KandidatutfallRepositoryTest {
         repository.lagreUtfall(presentertUtfall, presentertTidspunkt)
         repository.lagreUtfall(fåttJobbenUtfall, fåttJobbenTidspunkt)
 
-        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1)).size
 
         assertThat(antallPresentert).isEqualTo(1)
     }
@@ -140,7 +140,7 @@ class KandidatutfallRepositoryTest {
         val fåttJobbenTidspunkt = LocalDate.of(2020, 3, 8).atTime(20, 59)
         repository.lagreUtfall(fåttJobbenUtfall, fåttJobbenTidspunkt)
 
-        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1)).size
 
         assertThat(antallPresentert).isEqualTo(1)
     }
@@ -155,7 +155,7 @@ class KandidatutfallRepositoryTest {
         repository.lagreUtfall(presentertUtfallKandidat1, presentertTidspunktKandidat1)
         repository.lagreUtfall(fåttJobbenUtfallKandidat2, fåttJobbenTidspunktKandidat2)
 
-        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1)).size
 
         assertThat(antallPresentert).isEqualTo(2)
     }
@@ -172,7 +172,7 @@ class KandidatutfallRepositoryTest {
         repository.lagreUtfall(fåttJobbenUtfallKandidat1, fåttJobbenTidspunktKandidat1)
         repository.lagreUtfall(fåttJobbenUtfallKandidat2, fåttJobbenTidspunktKandidat2)
 
-        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1)).size
 
         assertThat(antallPresentert).isEqualTo(2)
     }
@@ -185,7 +185,7 @@ class KandidatutfallRepositoryTest {
         repository.lagreUtfall(presentertUtfall, tidspunkt1)
         repository.lagreUtfall(presentertUtfall, tidspunkt2)
 
-        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1)).size
 
         assertThat(antallPresentert).isEqualTo(1)
     }

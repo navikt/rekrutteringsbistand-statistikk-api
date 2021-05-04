@@ -12,7 +12,7 @@ import java.time.LocalDate
 internal class DataGrunnlagTest {
 
     @Test
-    fun `e`() {
+    fun `integrasjonstest for målinger på presentert og fått jobben`() {
         val presentertUtfall = listOf(
             KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 3).atTime(20, 59)),
             KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 3).atTime(20, 59)),
