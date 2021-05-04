@@ -14,12 +14,12 @@ internal class DataGrunnlagTest {
     @Test
     fun `integrasjonstest for målinger på presentert og fått jobben`() {
         val presentertUtfall = listOf(
-            KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 3).atTime(20, 59)),
-            KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 3).atTime(20, 59)),
+            KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 3).atTime(20, 59), emptyList()),
+            KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 3).atTime(20, 59), emptyList()),
         )
         val fåttJobbenUtfall = listOf(
-            KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 8).atTime(20, 59)),
-            KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 8).atTime(20, 59))
+            KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 8).atTime(20, 59), emptyList()),
+            KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 8).atTime(20, 59), emptyList())
         )
 
         val datagrunnlag = DataGrunnlag(presentertUtfall, fåttJobbenUtfall)
