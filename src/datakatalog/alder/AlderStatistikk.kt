@@ -5,11 +5,10 @@ import kscience.plotly.Plotly
 import kscience.plotly.bar
 import kscience.plotly.toJsonString
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
-import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class AlderStatistikk(private val kandidatutfallRepository: KandidatutfallRepository, private val dagensDato: () -> LocalDate) : DatakatalogData {
+class AlderStatistikk(private val dataGrunnlag: DataGrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
 
     companion object {
         private val filnavnAlderAntallPresentert: String = "alderAntallPresentert.json"
@@ -55,7 +54,7 @@ class AlderStatistikk(private val kandidatutfallRepository: KandidatutfallReposi
     )
 
     override fun plotlyFiler() =
-        kandidatutfallRepository.hentAlderDatagrunnlag(dagerMellom(fraDatoAlder, dagensDato())).let { alderDatakatalog ->
+        dataGrunnlag.hentAlderDatagrunnlag(fraDatoAlder til dagensDato()).let { alderDatakatalog ->
             listOf(
                 filnavnAlderAntallPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
                 filnavnAlderAntallFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),
@@ -70,14 +69,14 @@ class AlderStatistikk(private val kandidatutfallRepository: KandidatutfallReposi
         description: String
     ) =
         bar {
-            val datoer = dagerMellom(fraDatoAlder, dagensDato())
+            val datoer = fraDatoAlder til dagensDato()
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { hentVerdi(aldersgruppe, it) }
             name = description
         }
 
     private fun Plot.lagBarAndelAlder(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = dagerMellom(fraDatoAlder, dagensDato())
+        val datoer = fraDatoAlder til dagensDato()
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
         name = description
