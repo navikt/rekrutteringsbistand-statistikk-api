@@ -216,11 +216,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             }.executeQuery()
             val utfallElementer = mutableListOf<UtfallElement>()
 
-            while (resultSet.next()) {
-                utfallElementer += UtfallElement(
-                    harHull = if(resultSet.getObject(1) == null) null else resultSet.getBoolean(1),
-                    alder = if(resultSet.getObject(2) == null) null else resultSet.getInt(2),
-                    tidspunkt = resultSet.getTimestamp(3).toLocalDateTime())
+            while (resultSet.next()){
+                utfallElementer+=resultSet.toUtfallElement()
             }
             return utfallElementer
         }
