@@ -12,6 +12,7 @@ import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class KandidatutfallRepositoryTest {
 
@@ -73,6 +74,111 @@ class KandidatutfallRepositoryTest {
     }
 
     @Test
+    fun `gitt en fått-jobben med aldersgruppe 30-49 men presentert med aldersgruppe under 30 hentAntallFåttJobben som om aldersgruppe er under 30`() {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = Utfall.PRESENTERT, navKontor = etKontor1, harHullICv = true, alder = 29),
+            LocalDate.of(2020, 1, 1).atTime(19, 29)
+        )
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = Utfall.FATT_JOBBEN, navKontor = etKontor1, harHullICv = null, alder = 30),
+            LocalDate.of(2020, 3, 4).atTime(20, 30)
+        )
+
+        val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 5))
+            .mapNotNull { it.alder }
+
+        val antallUtfallUnder30 = utfallFåttJobben.count { Aldersgruppe.under30.inneholder(it) }
+        val antallUtfallOver50 = utfallFåttJobben.count { Aldersgruppe.over50.inneholder(it) }
+        val antallUtfallMellom30Og50 = utfallFåttJobben.count { Aldersgruppe.mellom30og50.inneholder(it) }
+
+        assertThat(antallUtfallUnder30).isEqualTo(1)
+        assertThat(antallUtfallOver50).isEqualTo(0)
+        assertThat(antallUtfallMellom30Og50).isEqualTo(0)
+    }
+
+    @Test
+    fun `kan telle en kandidat som presentert`() {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = Utfall.PRESENTERT, navKontor = etKontor1, harHullICv = true),
+            LocalDate.of(2020, 3, 3).atTime(20, 59)
+        )
+
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+
+        assertThat(antallPresentert).isEqualTo(1)
+    }
+
+    @Test
+    fun `kan telle en kandidat som presentert selv om kandidaten senere fikk jobben`() {
+        val presentertUtfall = etKandidatutfall.copy(utfall = Utfall.PRESENTERT)
+        val presentertTidspunkt = LocalDate.of(2020, 3, 3).atTime(20, 59)
+        val fåttJobbenUtfall = etKandidatutfall.copy(utfall = Utfall.FATT_JOBBEN)
+        val fåttJobbenTidspunkt = LocalDate.of(2020, 3, 8).atTime(20, 59)
+        repository.lagreUtfall(presentertUtfall, presentertTidspunkt)
+        repository.lagreUtfall(fåttJobbenUtfall, fåttJobbenTidspunkt)
+
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+
+        assertThat(antallPresentert).isEqualTo(1)
+    }
+
+    @Test
+    fun `en kandidat som ble satt rett til fått jobben skal også telle som presentert`() {
+        val fåttJobbenUtfall = etKandidatutfall.copy(utfall = Utfall.FATT_JOBBEN)
+        val fåttJobbenTidspunkt = LocalDate.of(2020, 3, 8).atTime(20, 59)
+        repository.lagreUtfall(fåttJobbenUtfall, fåttJobbenTidspunkt)
+
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+
+        assertThat(antallPresentert).isEqualTo(1)
+    }
+
+
+    @Test
+    fun `skal kunne telle en kandidat som ble presentert og en annen kandidat som ble satt rett til fått jobben`() {
+        val presentertUtfallKandidat1 = etKandidatutfall.copy(aktørId = "kandidat1", utfall = Utfall.PRESENTERT)
+        val presentertTidspunktKandidat1 = LocalDate.of(2020, 3, 3).atTime(20, 59)
+        val fåttJobbenUtfallKandidat2 = etKandidatutfall.copy(aktørId = "kandidat2", utfall = Utfall.FATT_JOBBEN)
+        val fåttJobbenTidspunktKandidat2 = LocalDate.of(2020, 3, 9).atTime(20, 59)
+        repository.lagreUtfall(presentertUtfallKandidat1, presentertTidspunktKandidat1)
+        repository.lagreUtfall(fåttJobbenUtfallKandidat2, fåttJobbenTidspunktKandidat2)
+
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+
+        assertThat(antallPresentert).isEqualTo(2)
+    }
+
+    @Test
+    fun `skal kunne telle en kandidat som ble presentert og senere fikk jobben og en annen kandidat som ble satt rett til fått jobben`() {
+        val presentertUtfallKandidat1 = etKandidatutfall.copy(aktørId = "kandidat1", utfall = Utfall.PRESENTERT)
+        val presentertTidspunktKandidat1 = LocalDate.of(2020, 3, 3).atTime(20, 59)
+        val fåttJobbenUtfallKandidat1 = etKandidatutfall.copy(aktørId = "kandidat1", utfall = Utfall.FATT_JOBBEN)
+        val fåttJobbenTidspunktKandidat1 = LocalDate.of(2020, 3, 8).atTime(20, 59)
+        val fåttJobbenUtfallKandidat2 = etKandidatutfall.copy(aktørId = "kandidat2", utfall = Utfall.FATT_JOBBEN)
+        val fåttJobbenTidspunktKandidat2 = LocalDate.of(2020, 3, 9).atTime(20, 59)
+        repository.lagreUtfall(presentertUtfallKandidat1, presentertTidspunktKandidat1)
+        repository.lagreUtfall(fåttJobbenUtfallKandidat1, fåttJobbenTidspunktKandidat1)
+        repository.lagreUtfall(fåttJobbenUtfallKandidat2, fåttJobbenTidspunktKandidat2)
+
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+
+        assertThat(antallPresentert).isEqualTo(2)
+    }
+
+    @Test
+    fun `to presentert-utfall på samme kandidat og samme kandidatliste skal kun telles en gang`() {
+        val presentertUtfall = etKandidatutfall.copy(utfall = Utfall.PRESENTERT)
+        val tidspunkt1 = LocalDate.of(2020, 3, 2).atTime(20, 49)
+        val tidspunkt2 = LocalDate.of(2020, 3, 2).atTime(20, 59)
+        repository.lagreUtfall(presentertUtfall, tidspunkt1)
+        repository.lagreUtfall(presentertUtfall, tidspunkt2)
+
+        val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 10)).size
+
+        assertThat(antallPresentert).isEqualTo(1)
+    }
+
+        @Test
     fun `e`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(utfall = Utfall.PRESENTERT, navKontor = etKontor1, harHullICv = true),
@@ -106,30 +212,6 @@ class KandidatutfallRepositoryTest {
         assertThat(datagrunnlag.hentAntallPresentert(null,tredjeMars)).isEqualTo(0)
         assertThat(datagrunnlag.hentAntallPresentert(true,åttendeMars)).isEqualTo(1)
         assertThat(datagrunnlag.hentAntallPresentert(null,åttendeMars)).isEqualTo(0)
-    }
-
-
-    @Test
-    fun `gitt en fått-jobben med aldersgruppe 30-49 men presentert med aldersgruppe under 30 hentAntallFåttJobben som om aldersgruppe er under 30`() {
-        repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = Utfall.PRESENTERT, navKontor = etKontor1, harHullICv = true, alder = 29),
-            LocalDate.of(2020, 1, 1).atTime(19, 29)
-        )
-        repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = Utfall.FATT_JOBBEN, navKontor = etKontor1, harHullICv = null, alder = 30),
-            LocalDate.of(2020, 3, 4).atTime(20, 30)
-        )
-
-        val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1), tilOgMed = LocalDate.of(2020, 3, 5))
-            .mapNotNull { it.alder }
-
-        val antallUtfallUnder30 = utfallFåttJobben.count { Aldersgruppe.under30.inneholder(it) }
-        val antallUtfallOver50 = utfallFåttJobben.count { Aldersgruppe.over50.inneholder(it) }
-        val antallUtfallMellom30Og50 = utfallFåttJobben.count { Aldersgruppe.mellom30og50.inneholder(it) }
-
-        assertThat(antallUtfallUnder30).isEqualTo(1)
-        assertThat(antallUtfallOver50).isEqualTo(0)
-        assertThat(antallUtfallMellom30Og50).isEqualTo(0)
     }
 
     @After

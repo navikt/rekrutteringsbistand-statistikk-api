@@ -150,21 +150,33 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
 
     fun hentUtfallPresentert(fraOgMed: LocalDate, tilOgMed: LocalDate): List<UtfallElement> {
         dataSource.connection.use {
-            // TODO: Skal vi ikke telle presentert for de som senere fikk jobb?
             val resultSet = it.prepareStatement(
                 """
-                SELECT k1.$hullICv, k1.$alder, k1.$tidspunkt FROM $kandidatutfallTabell k1,
-                
-                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
-                     WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktørId, $kandidatlisteid) as k2
-                     
-                WHERE  k1.$dbId = k2.maksId
-                  AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                """
+                    with KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST as (
+                        SELECT $hullICv, $alder, $tidspunkt FROM $kandidatutfallTabell k1,
+                            (SELECT MIN($dbId) as $dbId from $kandidatutfallTabell k2
+                            WHERE k2.$tidspunkt BETWEEN ? AND ?
+                            GROUP BY $aktørId, $kandidatlisteid) as k2
+
+                        WHERE k1.$dbId = k2.$dbId
+                        AND k1.$utfall = '${FATT_JOBBEN.name}'
+                        GROUP BY $aktørId, $kandidatlisteid
+                    ),
+                    PRESENTERTE_KANDIDATER as (
+                        SELECT $hullICv, $alder, $tidspunkt from $kandidatutfallTabell
+                        WHERE $tidspunkt BETWEEN ? AND ?
+                        AND $utfall = '${PRESENTERT.name}'
+                        GROUP BY $aktørId, $kandidatlisteid
+                    )
+                    SELECT $hullICv, $alder, $tidspunkt from KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST
+                    UNION ALL
+                    SELECT $hullICv, $alder, $tidspunkt from PRESENTERTE_KANDIDATER;
+                """.trimIndent()
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
                 setDate(2, Date.valueOf(tilOgMed))
+                setDate(3, Date.valueOf(fraOgMed))
+                setDate(4, Date.valueOf(tilOgMed))
             }.executeQuery()
             val utfallElementer = mutableListOf<UtfallElement>()
 
