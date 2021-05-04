@@ -165,7 +165,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
 
                         WHERE k1.$dbId = k2.$dbId
                         AND k1.$utfall = '${FATT_JOBBEN.name}'
-                        GROUP BY $aktørId, $kandidatlisteid
                     ),
                     PRESENTERTE_KANDIDATER as (
                         SELECT $hullICv, $alder, $tidspunkt from $kandidatutfallTabell k1,
@@ -176,7 +175,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                             ) k2
                         WHERE $tidspunkt >= ?
                         AND $dbId = k2.maksId
-                        GROUP BY $aktørId, $kandidatlisteid
                     )
                     SELECT $hullICv, $alder, $tidspunkt from KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST
                     UNION ALL
