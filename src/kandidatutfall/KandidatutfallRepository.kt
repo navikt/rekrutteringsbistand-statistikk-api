@@ -1,5 +1,6 @@
 package no.nav.rekrutteringsbistand.statistikk.kandidatutfall
 
+import io.ktor.util.*
 import no.nav.rekrutteringsbistand.statistikk.HentStatistikk
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall.FATT_JOBBEN
@@ -163,9 +164,14 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                         GROUP BY $aktørId, $kandidatlisteid
                     ),
                     PRESENTERTE_KANDIDATER as (
-                        SELECT $hullICv, $alder, $tidspunkt from $kandidatutfallTabell
+                        SELECT $hullICv, $alder, $tidspunkt from $kandidatutfallTabell k1,
+                            (
+                                SELECT MAX($dbId) as maksId from $kandidatutfallTabell k2
+                                WHERE k2.$utfall = '${PRESENTERT}'
+                                GROUP BY $aktørId, $kandidatlisteid
+                            ) k2
                         WHERE $tidspunkt BETWEEN ? AND ?
-                        AND $utfall = '${PRESENTERT.name}'
+                        AND $dbId = k2.maksId
                         GROUP BY $aktørId, $kandidatlisteid
                     )
                     SELECT $hullICv, $alder, $tidspunkt from KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST
