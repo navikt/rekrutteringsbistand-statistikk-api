@@ -4,6 +4,7 @@ import kscience.plotly.Plot
 import kscience.plotly.layout
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.alder.AlderStatistikk
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullStatistikk
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovStatistikk
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import no.nav.rekrutteringsbistand.statistikk.log
 import java.time.LocalDate
@@ -42,7 +43,7 @@ class DatakatalogStatistikk(
     private fun plotlydataOgDataPakke() = datagrunnlag().let { datagrunnlag ->
         listOf(
             HullStatistikk(datagrunnlag, dagensDato),
-            AlderStatistikk(datagrunnlag, dagensDato)
+            AlderStatistikk(datagrunnlag, dagensDato),
         ).let {
             it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
         }

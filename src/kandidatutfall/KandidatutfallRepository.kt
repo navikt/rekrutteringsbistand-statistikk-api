@@ -42,7 +42,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setTimestamp(8, Timestamp.valueOf(registrertTidspunkt))
                 if (kandidatutfall.harHullICv != null) setBoolean(9, kandidatutfall.harHullICv) else setNull(9, 0)
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
-                setString(11, kandidatutfall.tilretteleggingsbehov.joinToString(separator = ";"))
+                setString(11, kandidatutfall.tilretteleggingsbehov.joinToString(separator = tilretteleggingsbehovdelimiter))
                 executeUpdate()
             }
         }
@@ -146,13 +146,28 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    class UtfallElement(val harHull: Boolean?, val alder: Int?, val tidspunkt: LocalDateTime)
+    class UtfallElement(val harHull: Boolean?, val alder: Int?, val tidspunkt: LocalDateTime, val tilretteleggingsbehov: List<Tilretteleggingsbehov>)
+
+    interface Tilretteleggingsbehov {
+        fun navn(): String
+    }
+
+    data class SpesifiktTilretteleggingsbehov(private val navn: String): Tilretteleggingsbehov {
+        override fun navn() = navn
+    }
+
+    object IngenTilretteleggingsbehov: Tilretteleggingsbehov {
+        override fun navn() = "Ingen tilretteleggingsbehov"
+    }
 
     private fun ResultSet.toUtfallElement() = UtfallElement(
         harHull = if(getObject(1) == null) null else getBoolean(1),
         alder = if(getObject(2) == null) null else getInt(2),
-        tidspunkt = getTimestamp(3).toLocalDateTime())
+        tidspunkt = getTimestamp(3).toLocalDateTime(),
+        tilretteleggingsbehov = if (getString(4).isBlank()) listOf(IngenTilretteleggingsbehov) else getString(4).split(tilretteleggingsbehovdelimiter).map { SpesifiktTilretteleggingsbehov(it) }
+    )
 
+    // TODO: Hent kun ut synlige kandidater
     fun hentUtfallPresentert(fraOgMed: LocalDate): List<UtfallElement> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
@@ -193,6 +208,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
+    // TODO: Hent kun ut synlige kandidater
     fun hentUtfallFåttJobben(fraOgMed: LocalDate): List<UtfallElement> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
@@ -239,6 +255,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val sisteSendtForsøk = "siste_sendt_forsok"
         const val alder = "alder"
         const val tilretteleggingsbehov = "tilretteleggingsbehov"
+        const val tilretteleggingsbehovdelimiter = ";"
 
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
             Kandidatutfall(
@@ -256,7 +273,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
                 alder = if(resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
-                tilretteleggingsbehov = if (resultSet.getString(tilretteleggingsbehov).isBlank()) emptyList() else resultSet.getString(tilretteleggingsbehov).split(";")
+                tilretteleggingsbehov = if (resultSet.getString(tilretteleggingsbehov).isBlank()) emptyList() else resultSet.getString(tilretteleggingsbehov).split(tilretteleggingsbehovdelimiter)
             )
     }
 }

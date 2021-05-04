@@ -12,6 +12,8 @@ class DataGrunnlag(private val utfallElementPresentert: List<KandidatutfallRepos
     fun hentAlderDatagrunnlag(datoer: List<LocalDate>) =
         AlderDatagrunnlag(finnAntallPresentertPerDagPerAlder(datoer), finnAntallFåttJobbenPerDagPerAlder(datoer))
 
+
+
     private fun finnAntallPresentertPerDagPerAlder(datoer: List<LocalDate>) = finnAntallForAlder(utfallElementPresentert, datoer)
 
     private fun finnAntallFåttJobbenPerDagPerAlder(datoer: List<LocalDate>) = finnAntallForAlder(utfallElementFåttJobben, datoer)
