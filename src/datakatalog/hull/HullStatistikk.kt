@@ -4,17 +4,19 @@ import kscience.plotly.Plot
 import kscience.plotly.Plotly
 import kscience.plotly.bar
 import kscience.plotly.toJsonString
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogData
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.Spec
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.View
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.getLayout
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class HullStatistikk(private val datagrunnlag: Datagrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
+class HullStatistikk(private val hullDatagrunnlag: HullDatagrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
     companion object {
         private val filnavnHullAntallPresentert: String = "hullAntallPresentert.json"
         private val filnavnHullAndelPresentert: String = "hullAndelPresentert.json"
         private val filnavnHullAntallFåttJobben: String = "hullAntallFåttJobben.json"
         private val filnavnHullAndelFåttJobben: String = "hullAndelFåttJobben.json"
-        private val fraDatoHull = LocalDate.of(2021, 4, 8)
     }
 
 
@@ -56,7 +58,7 @@ class HullStatistikk(private val datagrunnlag: Datagrunnlag, private val dagensD
     )
 
     override fun plotlyFiler() =
-        datagrunnlag.hentHullDatagrunnlag(fraDatoHull til dagensDato()).let { hullDatakatalog ->
+        hullDatagrunnlag.let { hullDatakatalog ->
             listOf(
                 filnavnHullAntallPresentert to lagPlotAntallHullPresentert(hullDatakatalog).toJsonString(),
                 filnavnHullAntallFåttJobben to lagPlotAntallHullFåttJobben(hullDatakatalog).toJsonString(),
@@ -67,7 +69,7 @@ class HullStatistikk(private val datagrunnlag: Datagrunnlag, private val dagensD
 
     private fun Plot.lagBarAntallHull(hentVerdi: (Boolean?, LocalDate) -> Int, harHull: Boolean?, description: String) =
         bar {
-            val datoer = fraDatoHull til dagensDato()
+            val datoer = hullDatagrunnlag.gjeldendeDatoer(dagensDato)
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { hentVerdi(harHull, it) }
             name = description
@@ -88,7 +90,7 @@ class HullStatistikk(private val datagrunnlag: Datagrunnlag, private val dagensD
     }
 
     private fun Plot.lagBarAndelHull(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = fraDatoHull til dagensDato()
+        val datoer = hullDatagrunnlag.gjeldendeDatoer(dagensDato)
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
         name = description

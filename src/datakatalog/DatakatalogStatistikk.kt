@@ -3,6 +3,7 @@ package no.nav.rekrutteringsbistand.statistikk.datakatalog
 import kscience.plotly.Plot
 import kscience.plotly.layout
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.alder.AlderStatistikk
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullDatagrunnlag
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullStatistikk
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovStatistikk
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
@@ -42,7 +43,7 @@ class DatakatalogStatistikk(
 
     private fun plotlydataOgDataPakke() = datagrunnlag().let { datagrunnlag ->
         listOf(
-            HullStatistikk(datagrunnlag, dagensDato),
+            HullStatistikk(HullDatagrunnlag(datagrunnlag.utfallElementPresentert,datagrunnlag.utfallElementFåttJobben,dagensDato), dagensDato),
             AlderStatistikk(datagrunnlag, dagensDato),
             TilretteleggingsbehovStatistikk(datagrunnlag, dagensDato)
         ).let {
