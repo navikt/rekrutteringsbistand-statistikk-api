@@ -14,7 +14,7 @@ class TilretteleggingsbehovStatistikk(private val datagrunnlag: DataGrunnlag, pr
         private val filnavnTilretteleggingsbehovAndelPresentert: String = "tilretteleggingsbehovAndelPresentert.json"
         private val filnavnTilretteleggingsbehovAntallFåttJobben: String = "tilretteleggingsbehovAntallFåttJobben.json"
         private val filnavnTilretteleggingsbehovAndelFåttJobben: String = "tilretteleggingsbehovAndelFåttJobben.json"
-        private val fraDatoHull = LocalDate.of(2021, 4, 8)
+        private val fraDatoTilrettelegingsbehov = LocalDate.of(2021, 5, 4)
     }
 
 
