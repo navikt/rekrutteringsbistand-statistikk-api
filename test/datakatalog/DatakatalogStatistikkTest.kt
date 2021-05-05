@@ -14,6 +14,7 @@ import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import no.nav.rekrutteringsbistand.statistikk.Cluster
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovStatistikk
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import org.junit.Test
 import org.skyscreamer.jsonassert.JSONAssert
@@ -25,6 +26,7 @@ class DatakatalogStatistikkTest {
     companion object {
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
+        private val dagensDato = { LocalDate.of(2021, 5, 5) }
     }
 
 
@@ -109,12 +111,40 @@ class DatakatalogStatistikkTest {
             )
         )
 
+        fun tilretteleggingsbehovViews() = listOf(
+            View(
+                title = "Antall med forskjellige tilretteleggingsbehov presentert",
+                description = "Vise antall med forskjellige tilretteleggingsbehov presentert",
+                specType = "plotly",
+                spec = Spec(url = "tilretteleggingsbehovAntallPresentert.json")
+            ),
+            View(
+                title = "Andel med minst et tilretteleggingsbehov presentert",
+                description = "Vise andel med minst et tilretteleggingsbehov presentert",
+                specType = "plotly",
+                spec = Spec(url = "tilretteleggingsbehovAndelPresentert.json")
+            ),
+
+            View(
+                title = "Antall med forskjellige tilretteleggingsbehov som har fått jobben",
+                description = "Vise antall med forskjellige tilretteleggingsbehov som har fått jobben",
+                specType = "plotly",
+                spec = Spec(url = "tilretteleggingsbehovAntallFåttJobben.json")
+            ),
+            View(
+                title = "Andel med minst et tilretteleggingsbehov som har fått jobben",
+                description = "Vise andel med minst et tilretteleggingsbehov som har fått jobben",
+                specType = "plotly",
+                spec = Spec(url = "tilretteleggingsbehovAndelFåttJobben.json")
+            )
+        )
+
         var kalt = false
         val client = lagVerifiableHttpClient(datapakkeAsserts = { body ->
             val datapakke = Datapakke(
                 title = "Rekrutteringsbistand statistikk",
                 description = "Vise rekrutteringsbistand statistikk",
-                views = listOf(hullViews(), alderViews()).flatten(),
+                views = listOf(hullViews(), alderViews(), tilretteleggingsbehovViews()).flatten(),
                 resources = emptyList()
             )
 
@@ -133,6 +163,7 @@ class DatakatalogStatistikkTest {
             testPlot(
                 yaxisText = "Antall",
                 data = testData(
+                    LocalDate.of(2021, 4, 8) til dagensDato(),
                     listOf(
                         "Antall presentert med hull",
                         "Antall presentert uten hull",
@@ -150,6 +181,7 @@ class DatakatalogStatistikkTest {
             testPlot(
                 yaxisText = "Andel %",
                 data = testData(
+                    LocalDate.of(2021, 4, 8) til dagensDato(),
                     listOf(
                         "Andel presentert med hull"
                     )
@@ -165,6 +197,7 @@ class DatakatalogStatistikkTest {
             testPlot(
                 yaxisText = "Antall",
                 data = testData(
+                    LocalDate.of(2021, 4, 8) til dagensDato(),
                     listOf(
                         "Antall fått jobben med hull",
                         "Antall fått jobben uten hull",
@@ -182,6 +215,7 @@ class DatakatalogStatistikkTest {
             testPlot(
                 yaxisText = "Andel %",
                 data = testData(
+                    LocalDate.of(2021, 4, 8) til dagensDato(),
                     listOf(
                         "Andel fått jobben med hull"
                     )
@@ -198,6 +232,7 @@ class DatakatalogStatistikkTest {
             testPlot(
                 yaxisText = "Antall",
                 data = testData(
+                    LocalDate.of(2021, 4, 8) til dagensDato(),
                     listOf(
                         "Antall presentert under 30",
                         "Antall presentert over 50",
@@ -215,6 +250,7 @@ class DatakatalogStatistikkTest {
             testPlot(
                 yaxisText = "Andel %",
                 data = testData(
+                    LocalDate.of(2021, 4, 8) til dagensDato(),
                     listOf(
                         "Andel presentert under 30",
                         "Andel presentert over 50",
@@ -231,6 +267,7 @@ class DatakatalogStatistikkTest {
             testPlot(
                 yaxisText = "Antall",
                 data = testData(
+                    LocalDate.of(2021, 4, 8) til dagensDato(),
                     listOf(
                         "Antall fått jobben under 30",
                         "Antall fått jobben over 50",
@@ -248,6 +285,7 @@ class DatakatalogStatistikkTest {
             testPlot(
                 yaxisText = "Andel %",
                 data = testData(
+                    LocalDate.of(2021, 4, 8) til dagensDato(),
                     listOf(
                         "Andel fått jobben under 30",
                         "Andel fått jobben over 50",
@@ -256,6 +294,62 @@ class DatakatalogStatistikkTest {
             )
         )
         verifiserPlotSendt("alderAndelFåttJobben.json", expected)
+    }
+
+    @Test
+    fun `Antall tilretteleggingsbehov presentert skal sendes`() {
+        val expected = jacksonObjectMapper().writeValueAsString(
+            testPlot(
+                yaxisText = "Antall",
+                data = testData(
+                    LocalDate.of(2021, 5, 4) til dagensDato(),
+                    listOf() // TODO: Må kunne spesifisere noen tilretteleggingsbehov å teste mot
+                )
+            )
+        )
+        verifiserPlotSendt("tilretteleggingsbehovAntallPresentert.json", expected)
+    }
+
+    @Test
+    fun `Andel tilretteleggingsbehov presentert skal sendes`() {
+        val expected = jacksonObjectMapper().writeValueAsString(
+            testPlot(
+                yaxisText = "Andel %",
+                data = testData(
+                    LocalDate.of(2021, 5, 4) til dagensDato(),
+                    listOf("Andel presentert med minst et tilretteleggingsbehov")
+                )
+            )
+        )
+        verifiserPlotSendt("tilretteleggingsbehovAndelPresentert.json", expected)
+    }
+
+    @Test
+    fun `Antall tilretteleggingsbehov fått jobben skal sendes`() {
+        val expected = jacksonObjectMapper().writeValueAsString(
+            testPlot(
+                yaxisText = "Antall",
+                data = testData(
+                    LocalDate.of(2021, 5, 4) til dagensDato(),
+                    listOf() // TODO: Må kunne spesifisere noen tilretteleggingsbehov å teste mot
+                )
+            )
+        )
+        verifiserPlotSendt("tilretteleggingsbehovAntallFåttJobben.json", expected)
+    }
+
+    @Test
+    fun `Andel tilretteleggingsbehov fått jobben skal sendes`() {
+        val expected = jacksonObjectMapper().writeValueAsString(
+            testPlot(
+                yaxisText = "Andel %",
+                data = testData(
+                    LocalDate.of(2021, 5, 4) til dagensDato(),
+                    listOf("Andel fått jobben med minst et tilretteleggingsbehov")
+                )
+            )
+        )
+        verifiserPlotSendt("tilretteleggingsbehovAndelFåttJobben.json", expected)
     }
 
     fun verifiserPlotSendt(filnavn: String, expectedJson: String) {
@@ -273,7 +367,7 @@ class DatakatalogStatistikkTest {
     private fun lagDatakatalogStatistikk(client: HttpClient) = DatakatalogStatistikk(
         repository,
         DatakatalogKlient(client, DatakatalogUrl(Cluster.LOKAL)),
-        dagensDato = { LocalDate.of(2021, 4, 20) })
+        dagensDato)
 
     private fun lagVerifiableHttpClient(
         attachementAsserts: (List<MultipartPart>) -> Unit = {},

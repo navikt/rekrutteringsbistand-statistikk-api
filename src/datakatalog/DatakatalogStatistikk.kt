@@ -44,6 +44,7 @@ class DatakatalogStatistikk(
         listOf(
             HullStatistikk(datagrunnlag, dagensDato),
             AlderStatistikk(datagrunnlag, dagensDato),
+            TilretteleggingsbehovStatistikk(datagrunnlag, dagensDato)
         ).let {
             it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
         }

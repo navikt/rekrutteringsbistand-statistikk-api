@@ -14,12 +14,12 @@ class TilretteleggingsbehovDatagrunnlag(
         antallFåttJobbPerDagTilretteleggingsbehov[dato]!!(finnSpesifikt(tilretteleggingsbehov))
 
     fun hentAndelPresentert(dato: LocalDate) =
-        antallPresentertPerDagTilretteleggingsbehov[dato]!!(minstEtTilretteleggingsbehov()).toDouble() /
-                antallPresentertPerDagTilretteleggingsbehov[dato]!!(totalAntall())
+        (antallPresentertPerDagTilretteleggingsbehov[dato]!!(minstEtTilretteleggingsbehov()).toDouble() /
+                antallPresentertPerDagTilretteleggingsbehov[dato]!!(totalAntall())).let { if (it.isNaN()) 0.0 else it }
 
     fun hentAndelFåttJobben(dato: LocalDate) =
-        antallFåttJobbPerDagTilretteleggingsbehov[dato]!!(minstEtTilretteleggingsbehov()).toDouble() /
-                antallFåttJobbPerDagTilretteleggingsbehov[dato]!!(totalAntall())
+        (antallFåttJobbPerDagTilretteleggingsbehov[dato]!!(minstEtTilretteleggingsbehov()).toDouble() /
+                antallFåttJobbPerDagTilretteleggingsbehov[dato]!!(totalAntall())).let { if (it.isNaN()) 0.0 else it }
 
     fun listeAvBehov() = listeAvBehov
 }
