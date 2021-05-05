@@ -154,7 +154,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         tilretteleggingsbehov = if(getObject(4) == null) emptyList() else getString(4).split(tilretteleggingsbehovdelimiter)
     )
 
-    // TODO: Hent kun ut synlige kandidater
     fun hentUtfallPresentert(fraOgMed: LocalDate): List<UtfallElement> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
@@ -195,7 +194,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    // TODO: Hent kun ut synlige kandidater
     fun hentUtfallFåttJobben(fraOgMed: LocalDate): List<UtfallElement> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(

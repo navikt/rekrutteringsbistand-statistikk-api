@@ -353,7 +353,7 @@ class DatakatalogStatistikkTest {
                 yaxisText = "Antall",
                 data = testData(
                     LocalDate.of(2021, 5, 4) til dagensDato(),
-                    listOf() // TODO: Må kunne spesifisere noen tilretteleggingsbehov å teste mot
+                    listOf()
                 )
             )
         )
@@ -381,7 +381,7 @@ class DatakatalogStatistikkTest {
                 yaxisText = "Antall",
                 data = testData(
                     LocalDate.of(2021, 5, 4) til dagensDato(),
-                    listOf() // TODO: Må kunne spesifisere noen tilretteleggingsbehov å teste mot
+                    listOf()
                 )
             )
         )
