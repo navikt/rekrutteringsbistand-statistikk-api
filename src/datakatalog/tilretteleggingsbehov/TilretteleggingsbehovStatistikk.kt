@@ -56,7 +56,7 @@ class TilretteleggingsbehovStatistikk(private val datagrunnlag: DataGrunnlag, pr
     )
 
     override fun plotlyFiler() =
-        datagrunnlag.hentTilretteleggingsbehovDatagrunnlag(fraDatoHull til dagensDato()).let { tilretteleggingsbehovDatakatalog ->
+        datagrunnlag.hentTilretteleggingsbehovDatagrunnlag(fraDatoTilrettelegingsbehov til dagensDato()).let { tilretteleggingsbehovDatakatalog ->
             listOf(
                 filnavnTilretteleggingsbehovAntallPresentert to lagPlotAntallTilretteleggingsbehovPresentert(tilretteleggingsbehovDatakatalog).toJsonString(),
                 filnavnTilretteleggingsbehovAntallFåttJobben to lagPlotAntallTilretteleggingsbehovFåttJobben(tilretteleggingsbehovDatakatalog).toJsonString(),
@@ -67,7 +67,7 @@ class TilretteleggingsbehovStatistikk(private val datagrunnlag: DataGrunnlag, pr
 
     private fun Plot.lagBarAntallTilretteleggingsbehov(hentVerdi: (String, LocalDate) -> Int, tilretteleggingsbehov: String, description: String) =
         bar {
-            val datoer = fraDatoHull til dagensDato()
+            val datoer = fraDatoTilrettelegingsbehov til dagensDato()
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { hentVerdi(tilretteleggingsbehov, it) }
             name = description
@@ -89,7 +89,7 @@ class TilretteleggingsbehovStatistikk(private val datagrunnlag: DataGrunnlag, pr
     }
 
     private fun Plot.lagBarAndelHull(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = fraDatoHull til dagensDato()
+        val datoer = fraDatoTilrettelegingsbehov til dagensDato()
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
         name = description
