@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import datakatalog.plot.testData
 import datakatalog.plot.testPlot
 import db.TestDatabase
+import db.TestRepository
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.features.json.*
@@ -14,11 +15,14 @@ import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import no.nav.rekrutteringsbistand.statistikk.Cluster
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovStatistikk
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.OpprettKandidatutfall
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall
 import org.junit.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import java.time.LocalDate
+import java.time.LocalDateTime
+import kotlin.test.AfterTest
 import kotlin.test.assertTrue
 import kotlin.text.String
 
@@ -27,6 +31,7 @@ class DatakatalogStatistikkTest {
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
         private val dagensDato = { LocalDate.of(2021, 5, 5) }
+        private val testRepository = TestRepository(database.dataSource)
     }
 
 
@@ -159,6 +164,27 @@ class DatakatalogStatistikkTest {
 
     @Test
     fun `Antall Hull i cv presentert skal sendes`() {
+        repository.lagreUtfall(lagKandidat(harHull=true),datotid(11))
+        repository.lagreUtfall(lagKandidat(harHull=true),datotid(12))
+        repository.lagreUtfall(lagKandidat(harHull=null),datotid(12))
+        repository.lagreUtfall(lagKandidat(harHull=false),datotid(13))
+        repository.lagreUtfall(lagKandidat(harHull=true,utfall = Utfall.FATT_JOBBEN),datotid(13))
+        nyUnikPersonKandidatListeKombo().let { unikKombo ->
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = true), datotid(14))
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = null), datotid(14, time = 6))
+        }
+        nyUnikPersonKandidatListeKombo().let { unikKombo ->
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = true), datotid(15))
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = false), datotid(16, time = 7))
+        }
+        nyUnikPersonKandidatListeKombo().let { unikKombo ->
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull=true),datotid(17))
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull=null, utfall = Utfall.FATT_JOBBEN),datotid(18,time = 8))
+        }
+        repeat(3) { repository.lagreUtfall(lagKandidat(harHull = true), datotid(20)) }
+        repeat(4) { repository.lagreUtfall(lagKandidat(harHull = null), datotid(20)) }
+        repeat(5) { repository.lagreUtfall(lagKandidat(harHull = false), datotid(20)) }
+
         val expected = jacksonObjectMapper().writeValueAsString(
             testPlot(
                 yaxisText = "Antall",
@@ -168,11 +194,35 @@ class DatakatalogStatistikkTest {
                         "Antall presentert med hull",
                         "Antall presentert uten hull",
                         "Antall presentert ukjent om de har hull"
+                    ),
+                    listOf(
+                        mapOf(dato(11) to 1, dato(12) to 1, dato(13) to 1, dato(14) to 1, dato(15) to 1, dato(17) to 1, dato(20) to 3),
+                        mapOf(dato(13) to 1, dato(20) to 5),
+                        mapOf(dato(12) to 1, dato(20) to 4)
                     )
                 )
             )
         )
         verifiserPlotSendt("hullPresentert.json", expected)
+    }
+
+    private fun datotid(dag:Int, måned:Int=4, år:Int=2021, time:Int=0, minutt:Int=0, sekund:Int=0) =
+        LocalDateTime.of(år, måned, dag, time, minutt, sekund)
+    private fun dato(dag:Int, måned:Int=4, år:Int=2021) =
+        LocalDate.of(år, måned, dag)
+
+    private fun lagKandidat(aktørIdKandidatliste: Pair<String,String> = nyUnikPersonKandidatListeKombo(), utfall: Utfall= Utfall.PRESENTERT, navIdent:String="A123456", navKontor:String="etkontor",
+                            stillingsId:String="11235", synligKandidat:Boolean=true, harHull:Boolean?=null, alder:Int?=35, tilretteleggingsbehov:List<String> =emptyList()) =
+        OpprettKandidatutfall(aktørIdKandidatliste.first,utfall,navIdent,navKontor,aktørIdKandidatliste.second,stillingsId,synligKandidat,harHull,alder,tilretteleggingsbehov)
+
+    private var aktørIdTeller=0
+    private var kandidatlisteIdTeller=0
+    private fun nyUnikPersonKandidatListeKombo() = aktørIdTeller.toString() to kandidatlisteIdTeller.toString()
+        .also { oppdaterTeller() }
+
+    private fun oppdaterTeller() {
+        if(aktørIdTeller>kandidatlisteIdTeller) kandidatlisteIdTeller++
+        else aktørIdTeller++
     }
 
     @Test
@@ -350,6 +400,11 @@ class DatakatalogStatistikkTest {
             )
         )
         verifiserPlotSendt("tilretteleggingsbehovAndelFåttJobben.json", expected)
+    }
+
+    @AfterTest
+    fun resetDatabase() {
+        testRepository.slettAlleUtfall()
     }
 
     fun verifiserPlotSendt(filnavn: String, expectedJson: String) {
