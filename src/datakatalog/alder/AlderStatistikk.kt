@@ -8,14 +8,13 @@ import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class AlderStatistikk(private val datagrunnlag: Datagrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
+class AlderStatistikk(private val alderDatagrunnlag: AlderDatagrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
 
     companion object {
         private val filnavnAlderAntallPresentert: String = "alderAntallPresentert.json"
         private val filnavnAlderAndelPresentert: String = "alderAndelPresentert.json"
         private val filnavnAlderAntallFåttJobben: String = "alderAntallFåttJobben.json"
         private val filnavnAlderAndelFåttJobben: String = "alderAndelFåttJobben.json"
-        private val fraDatoAlder = LocalDate.of(2021, 4, 8)
     }
 
     override fun views() = listOf(
@@ -54,7 +53,7 @@ class AlderStatistikk(private val datagrunnlag: Datagrunnlag, private val dagens
     )
 
     override fun plotlyFiler() =
-        datagrunnlag.hentAlderDatagrunnlag(fraDatoAlder til dagensDato()).let { alderDatakatalog ->
+        alderDatagrunnlag.let { alderDatakatalog ->
             listOf(
                 filnavnAlderAntallPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
                 filnavnAlderAntallFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),
@@ -69,14 +68,14 @@ class AlderStatistikk(private val datagrunnlag: Datagrunnlag, private val dagens
         description: String
     ) =
         bar {
-            val datoer = fraDatoAlder til dagensDato()
+            val datoer = alderDatagrunnlag.gjeldendeDatoer(dagensDato)
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { hentVerdi(aldersgruppe, it) }
             name = description
         }
 
     private fun Plot.lagBarAndelAlder(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = fraDatoAlder til dagensDato()
+        val datoer = alderDatagrunnlag.gjeldendeDatoer(dagensDato)
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
         name = description

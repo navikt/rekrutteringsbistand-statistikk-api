@@ -8,24 +8,10 @@ class Datagrunnlag(val utfallElementPresentert: List<KandidatutfallRepository.Ut
 
 
 
-    fun hentAlderDatagrunnlag(datoer: List<LocalDate>) =
-        AlderDatagrunnlag(finnAntallPresentertPerDagPerAlder(datoer), finnAntallFåttJobbenPerDagPerAlder(datoer))
-
     fun hentTilretteleggingsbehovDatagrunnlag(datoer: List<LocalDate>) =
         TilretteleggingsbehovDatagrunnlag(finnAntallPresentertPerDagMedTilretteleggingsbehov(datoer), finnAntallFåttJobbenPerDagMedTilretteleggingsbehov(datoer), unikListeAvSamtligeTilretteleggingsbehov())
 
-    private fun finnAntallPresentertPerDagPerAlder(datoer: List<LocalDate>) = finnAntallForAlder(utfallElementPresentert, datoer)
 
-    private fun finnAntallFåttJobbenPerDagPerAlder(datoer: List<LocalDate>) = finnAntallForAlder(utfallElementFåttJobben, datoer)
-
-    private fun finnAntallForAlder(utfallselementer: List<KandidatutfallRepository.UtfallElement>, datoer: List<LocalDate>) =
-        datoer.flatMap { dag ->
-            Aldersgruppe.values().map { aldersgruppe ->
-                (dag to aldersgruppe) to utfallselementer.filter { dag == it.tidspunkt.toLocalDate() }
-                    .mapNotNull { it.alder }.filter { aldersgruppe.inneholder(it) }
-                    .count()
-            }
-        }.toMap()
 
     private fun finnAntallPresentertPerDagMedTilretteleggingsbehov(datoer: List<LocalDate>) = finnAntallForTilretteleggingsbehov(utfallElementPresentert, datoer)
 
