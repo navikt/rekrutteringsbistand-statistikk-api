@@ -10,8 +10,9 @@ class TilretteleggingsbehovDatagrunnlag(
     dagensDato: () -> LocalDate
 ) {
     private val fraDatoTilrettelegingsbehov = LocalDate.of(2021, 5, 4)
-    private val antallPresentertPerDagTilretteleggingsbehov: Map<LocalDate, ((List<String>) -> Boolean) -> Int> = finnAntallForTilretteleggingsbehov(utfallElementPresentert, gjeldendeDatoer(dagensDato))
-    private val antallFåttJobbPerDagTilretteleggingsbehov: Map<LocalDate, ((List<String>) -> Boolean) -> Int> = finnAntallForTilretteleggingsbehov(utfallElementFåttJobben, gjeldendeDatoer(dagensDato))
+    private val gjeldendeDatoer = fraDatoTilrettelegingsbehov til dagensDato()
+    private val antallPresentertPerDagTilretteleggingsbehov: Map<LocalDate, ((List<String>) -> Boolean) -> Int> = finnAntallForTilretteleggingsbehov(utfallElementPresentert, gjeldendeDatoer())
+    private val antallFåttJobbPerDagTilretteleggingsbehov: Map<LocalDate, ((List<String>) -> Boolean) -> Int> = finnAntallForTilretteleggingsbehov(utfallElementFåttJobben, gjeldendeDatoer())
     private val listeAvBehov = listOf(utfallElementPresentert,utfallElementFåttJobben).flatten().flatMap { it.tilretteleggingsbehov }.distinct()
 
     private fun finnAntallForTilretteleggingsbehov(utfallselementer: List<KandidatutfallRepository.UtfallElement>, datoer: List<LocalDate>) :Map<LocalDate, ((List<String>) -> Boolean) -> Int> =
@@ -39,7 +40,7 @@ class TilretteleggingsbehovDatagrunnlag(
 
     fun listeAvBehov() = listeAvBehov
 
-    fun gjeldendeDatoer(dagensDato: () -> LocalDate) = fraDatoTilrettelegingsbehov til dagensDato()
+    fun gjeldendeDatoer() = gjeldendeDatoer
 }
 
 private fun finnSpesifikt(tilretteleggingsbehov: String): (List<String>) -> Boolean = { tilretteleggingsbehov in it }

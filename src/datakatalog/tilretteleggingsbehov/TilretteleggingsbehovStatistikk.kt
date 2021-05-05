@@ -11,7 +11,7 @@ import no.nav.rekrutteringsbistand.statistikk.datakatalog.getLayout
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class TilretteleggingsbehovStatistikk(private val tilretteleggingsbehovDatagrunnlag: TilretteleggingsbehovDatagrunnlag, private val dagensDato: () -> LocalDate): DatakatalogData {
+class TilretteleggingsbehovStatistikk(private val tilretteleggingsbehovDatagrunnlag: TilretteleggingsbehovDatagrunnlag): DatakatalogData {
     companion object {
         private val filnavnTilretteleggingsbehovAntallPresentert: String = "tilretteleggingsbehovAntallPresentert.json"
         private val filnavnTilretteleggingsbehovAndelPresentert: String = "tilretteleggingsbehovAndelPresentert.json"
@@ -68,7 +68,7 @@ class TilretteleggingsbehovStatistikk(private val tilretteleggingsbehovDatagrunn
 
     private fun Plot.lagBarAntallTilretteleggingsbehov(hentVerdi: (String, LocalDate) -> Int, tilretteleggingsbehov: String, description: String) =
         bar {
-            val datoer = tilretteleggingsbehovDatagrunnlag.gjeldendeDatoer(dagensDato)
+            val datoer = tilretteleggingsbehovDatagrunnlag.gjeldendeDatoer()
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { hentVerdi(tilretteleggingsbehov, it) }
             name = description
@@ -90,7 +90,7 @@ class TilretteleggingsbehovStatistikk(private val tilretteleggingsbehovDatagrunn
     }
 
     private fun Plot.lagBarAndelHull(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = tilretteleggingsbehovDatagrunnlag.gjeldendeDatoer(dagensDato)
+        val datoer = tilretteleggingsbehovDatagrunnlag.gjeldendeDatoer()
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
         name = description
