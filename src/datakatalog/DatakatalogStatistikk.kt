@@ -37,20 +37,18 @@ class DatakatalogStatistikk(
             views = views
         )
 
-    private fun datagrunnlag() = Datagrunnlag(
-        kandidatutfallRepository.hentUtfallPresentert(målingerStartet),
-        kandidatutfallRepository.hentUtfallFåttJobben(målingerStartet)
-    )
-
-    private fun plotlydataOgDataPakke() = datagrunnlag().let { datagrunnlag ->
-        listOf(
-            HullStatistikk(HullDatagrunnlag(datagrunnlag.utfallElementPresentert,datagrunnlag.utfallElementFåttJobben,dagensDato), dagensDato),
-            AlderStatistikk(AlderDatagrunnlag(datagrunnlag.utfallElementPresentert,datagrunnlag.utfallElementFåttJobben,dagensDato), dagensDato),
-            TilretteleggingsbehovStatistikk(TilretteleggingsbehovDatagrunnlag(datagrunnlag.utfallElementPresentert,datagrunnlag.utfallElementFåttJobben,dagensDato), dagensDato)
-        ).let {
-            it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
+    private fun plotlydataOgDataPakke() = (
+            kandidatutfallRepository.hentUtfallPresentert(målingerStartet) to
+                    kandidatutfallRepository.hentUtfallFåttJobben(målingerStartet))
+        .let { (utfallElementPresentert, utfallElementFåttJobben) ->
+            listOf(
+                HullStatistikk(HullDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato), dagensDato),
+                AlderStatistikk(AlderDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato), dagensDato),
+                TilretteleggingsbehovStatistikk(TilretteleggingsbehovDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato), dagensDato)
+            ).let {
+                it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
+            }
         }
-    }
 }
 
 fun Plot.getLayout(yTekst: String) {

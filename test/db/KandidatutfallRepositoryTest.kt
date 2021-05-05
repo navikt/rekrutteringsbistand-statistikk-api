@@ -5,14 +5,11 @@ import assertk.assertions.isEqualTo
 import etKandidatutfall
 import etKontor1
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.Aldersgruppe
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.Datagrunnlag
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.til
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.Utfall
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 class KandidatutfallRepositoryTest {
 
