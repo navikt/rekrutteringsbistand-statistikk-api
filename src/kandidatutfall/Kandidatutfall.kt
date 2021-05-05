@@ -18,7 +18,7 @@ data class Kandidatutfall(
     val antallSendtForsøk: Int,
     val sisteSendtForsøk: LocalDateTime?,
     val alder: Int?,
-    val tilretteleggingsbehov: List<String> // TODO: Gjør til liste av enums
+    val tilretteleggingsbehov: List<String>
 )
 
 enum class SendtStatus {

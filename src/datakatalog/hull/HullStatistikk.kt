@@ -8,7 +8,7 @@ import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class HullStatistikk(private val datagrunnlag: DataGrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
+class HullStatistikk(private val datagrunnlag: Datagrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
     companion object {
         private val filnavnHullAntallPresentert: String = "hullAntallPresentert.json"
         private val filnavnHullAndelPresentert: String = "hullAndelPresentert.json"
