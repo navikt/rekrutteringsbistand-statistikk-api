@@ -42,7 +42,7 @@ class DatakatalogStatistikk(
                     kandidatutfallRepository.hentUtfallFåttJobben(målingerStartet))
         .let { (utfallElementPresentert, utfallElementFåttJobben) ->
             listOf(
-                HullStatistikk(HullDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato), dagensDato),
+                HullStatistikk(HullDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato)),
                 AlderStatistikk(AlderDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato)),
                 TilretteleggingsbehovStatistikk(TilretteleggingsbehovDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato), dagensDato)
             ).let {

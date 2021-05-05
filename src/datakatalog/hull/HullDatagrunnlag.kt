@@ -9,10 +9,10 @@ class HullDatagrunnlag(
     utfallElementFåttJobben: List<KandidatutfallRepository.UtfallElement>,
     dagensDato: () -> LocalDate
 ) {
-
     private val fraDatoHull = LocalDate.of(2021, 4, 8)
-    private val antallPresentertPerDagHarHull: Map<Pair<LocalDate, Boolean?>, Int> = finnAntallForHull(utfallElementPresentert, gjeldendeDatoer(dagensDato))
-    private val antallFåttJobbPerDagHarHull: Map<Pair<LocalDate, Boolean?>, Int> = finnAntallForHull(utfallElementFåttJobben, gjeldendeDatoer(dagensDato))
+    private val gjeldendeDatoer = fraDatoHull til dagensDato()
+    private val antallPresentertPerDagHarHull: Map<Pair<LocalDate, Boolean?>, Int> = finnAntallForHull(utfallElementPresentert, gjeldendeDatoer())
+    private val antallFåttJobbPerDagHarHull: Map<Pair<LocalDate, Boolean?>, Int> = finnAntallForHull(utfallElementFåttJobben, gjeldendeDatoer())
 
     private fun finnAntallForHull(utfallselementer: List<KandidatutfallRepository.UtfallElement>, datoer: List<LocalDate>) =
         datoer.flatMap { dag ->
@@ -35,5 +35,5 @@ class HullDatagrunnlag(
         antallMedHull.toDouble() / (antallMedHull + hentAntallFåttJobben(false, dato))
     }.let { if (it.isNaN()) 0.0 else it }
 
-    fun gjeldendeDatoer(dagensDato: () -> LocalDate) = fraDatoHull til dagensDato()
+    fun gjeldendeDatoer() = gjeldendeDatoer
 }

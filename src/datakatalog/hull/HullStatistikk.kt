@@ -11,7 +11,7 @@ import no.nav.rekrutteringsbistand.statistikk.datakatalog.getLayout
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class HullStatistikk(private val hullDatagrunnlag: HullDatagrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
+class HullStatistikk(private val hullDatagrunnlag: HullDatagrunnlag) : DatakatalogData {
     companion object {
         private val filnavnHullAntallPresentert: String = "hullAntallPresentert.json"
         private val filnavnHullAndelPresentert: String = "hullAndelPresentert.json"
@@ -69,7 +69,7 @@ class HullStatistikk(private val hullDatagrunnlag: HullDatagrunnlag, private val
 
     private fun Plot.lagBarAntallHull(hentVerdi: (Boolean?, LocalDate) -> Int, harHull: Boolean?, description: String) =
         bar {
-            val datoer = hullDatagrunnlag.gjeldendeDatoer(dagensDato)
+            val datoer = hullDatagrunnlag.gjeldendeDatoer()
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { hentVerdi(harHull, it) }
             name = description
@@ -90,7 +90,7 @@ class HullStatistikk(private val hullDatagrunnlag: HullDatagrunnlag, private val
     }
 
     private fun Plot.lagBarAndelHull(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = hullDatagrunnlag.gjeldendeDatoer(dagensDato)
+        val datoer = hullDatagrunnlag.gjeldendeDatoer()
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
         name = description
