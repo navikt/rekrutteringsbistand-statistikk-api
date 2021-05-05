@@ -8,7 +8,7 @@ import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class AlderStatistikk(private val dataGrunnlag: DataGrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
+class AlderStatistikk(private val datagrunnlag: Datagrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
 
     companion object {
         private val filnavnAlderAntallPresentert: String = "alderAntallPresentert.json"
@@ -54,7 +54,7 @@ class AlderStatistikk(private val dataGrunnlag: DataGrunnlag, private val dagens
     )
 
     override fun plotlyFiler() =
-        dataGrunnlag.hentAlderDatagrunnlag(fraDatoAlder til dagensDato()).let { alderDatakatalog ->
+        datagrunnlag.hentAlderDatagrunnlag(fraDatoAlder til dagensDato()).let { alderDatakatalog ->
             listOf(
                 filnavnAlderAntallPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
                 filnavnAlderAntallFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),

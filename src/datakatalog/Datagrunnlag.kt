@@ -5,7 +5,7 @@ import no.nav.rekrutteringsbistand.statistikk.datakatalog.tilretteleggingsbehov.
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
 
-class DataGrunnlag(private val utfallElementPresentert: List<KandidatutfallRepository.UtfallElement>, private val utfallElementFåttJobben: List<KandidatutfallRepository.UtfallElement>) {
+class Datagrunnlag(private val utfallElementPresentert: List<KandidatutfallRepository.UtfallElement>, private val utfallElementFåttJobben: List<KandidatutfallRepository.UtfallElement>) {
 
     fun hentHullDatagrunnlag(datoer: List<LocalDate>) =
         HullDatagrunnlag(finnAntallPresentertPerDagPerHull(datoer), finnAntallFåttJobbPerDagHarHull(datoer))

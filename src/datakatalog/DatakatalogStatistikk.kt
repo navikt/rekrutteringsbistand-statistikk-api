@@ -35,7 +35,7 @@ class DatakatalogStatistikk(
             views = views
         )
 
-    private fun datagrunnlag() = DataGrunnlag(
+    private fun datagrunnlag() = Datagrunnlag(
         kandidatutfallRepository.hentUtfallPresentert(målingerStartet),
         kandidatutfallRepository.hentUtfallFåttJobben(målingerStartet)
     )

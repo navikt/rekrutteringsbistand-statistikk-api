@@ -2,14 +2,14 @@ package datakatalog
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.DataGrunnlag
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.Datagrunnlag
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.til
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import org.junit.Test
 import java.time.LocalDate
 
 
-internal class DataGrunnlagTest {
+internal class DatagrunnlagTest {
 
     @Test
     fun `integrasjonstest for målinger på presentert og fått jobben`() {
@@ -22,7 +22,7 @@ internal class DataGrunnlagTest {
             KandidatutfallRepository.UtfallElement(true, 29, LocalDate.of(2021, 3, 8).atTime(20, 59), emptyList())
         )
 
-        val datagrunnlag = DataGrunnlag(presentertUtfall, fåttJobbenUtfall)
+        val datagrunnlag = Datagrunnlag(presentertUtfall, fåttJobbenUtfall)
         val hullDatagrunnlag = datagrunnlag.hentHullDatagrunnlag(LocalDate.of(2021, 3, 1) til LocalDate.of(2021, 3, 10))
 
         val tredjeMars = LocalDate.of(2021,3,3)
