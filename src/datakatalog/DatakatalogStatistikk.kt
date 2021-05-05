@@ -43,7 +43,7 @@ class DatakatalogStatistikk(
         .let { (utfallElementPresentert, utfallElementFåttJobben) ->
             listOf(
                 HullStatistikk(HullDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato), dagensDato),
-                AlderStatistikk(AlderDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato), dagensDato),
+                AlderStatistikk(AlderDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato)),
                 TilretteleggingsbehovStatistikk(TilretteleggingsbehovDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato), dagensDato)
             ).let {
                 it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)

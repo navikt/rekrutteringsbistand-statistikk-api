@@ -9,8 +9,9 @@ class AlderDatagrunnlag(
     dagensDato: () -> LocalDate
 ) {
     private val fraDatoAlder = LocalDate.of(2021, 4, 8)
-    private val antallPresentertPerDag: Map<Pair<LocalDate, Aldersgruppe>, Int> = finnAntallForAlder(utfallElementPresentert, gjeldendeDatoer(dagensDato))
-    private val antallFåttJobbPerDag: Map<Pair<LocalDate, Aldersgruppe>, Int> = finnAntallForAlder(utfallElementFåttJobben, gjeldendeDatoer(dagensDato))
+    private val gjeldendeDatoer = fraDatoAlder til dagensDato()
+    private val antallPresentertPerDag: Map<Pair<LocalDate, Aldersgruppe>, Int> = finnAntallForAlder(utfallElementPresentert, gjeldendeDatoer)
+    private val antallFåttJobbPerDag: Map<Pair<LocalDate, Aldersgruppe>, Int> = finnAntallForAlder(utfallElementFåttJobben, gjeldendeDatoer)
 
     private fun finnAntallForAlder(utfallselementer: List<KandidatutfallRepository.UtfallElement>, datoer: List<LocalDate>) =
         datoer.flatMap { dag ->
@@ -48,7 +49,7 @@ class AlderDatagrunnlag(
         (hentAntallFåttJobben(Aldersgruppe.under30, dato).toDouble() / hentAntallFåttJobbenTotalt(dato))
             .let { if (it.isNaN()) 0.0 else it }
 
-    fun gjeldendeDatoer(dagensDato: () -> LocalDate) = fraDatoAlder til dagensDato()
+    fun gjeldendeDatoer() = gjeldendeDatoer
 }
 
 enum class Aldersgruppe(val min: Int, val max: Int) {

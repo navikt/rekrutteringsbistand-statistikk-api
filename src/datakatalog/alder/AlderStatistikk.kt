@@ -8,7 +8,7 @@ import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class AlderStatistikk(private val alderDatagrunnlag: AlderDatagrunnlag, private val dagensDato: () -> LocalDate) : DatakatalogData {
+class AlderStatistikk(private val alderDatagrunnlag: AlderDatagrunnlag) : DatakatalogData {
 
     companion object {
         private val filnavnAlderAntallPresentert: String = "alderAntallPresentert.json"
@@ -68,14 +68,14 @@ class AlderStatistikk(private val alderDatagrunnlag: AlderDatagrunnlag, private 
         description: String
     ) =
         bar {
-            val datoer = alderDatagrunnlag.gjeldendeDatoer(dagensDato)
+            val datoer = alderDatagrunnlag.gjeldendeDatoer()
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { hentVerdi(aldersgruppe, it) }
             name = description
         }
 
     private fun Plot.lagBarAndelAlder(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = alderDatagrunnlag.gjeldendeDatoer(dagensDato)
+        val datoer = alderDatagrunnlag.gjeldendeDatoer()
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
         name = description
