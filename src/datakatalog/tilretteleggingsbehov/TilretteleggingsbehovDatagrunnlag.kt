@@ -1,12 +1,28 @@
 package no.nav.rekrutteringsbistand.statistikk.datakatalog.tilretteleggingsbehov
 
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.til
+import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
 
 class TilretteleggingsbehovDatagrunnlag(
-    private val antallPresentertPerDagTilretteleggingsbehov: Map<LocalDate, ((List<String>) -> Boolean) -> Int>,
-    private val antallFåttJobbPerDagTilretteleggingsbehov: Map<LocalDate, ((List<String>) -> Boolean) -> Int>,
-    private val listeAvBehov: List<String>
+    utfallElementPresentert: List<KandidatutfallRepository.UtfallElement>,
+    utfallElementFåttJobben: List<KandidatutfallRepository.UtfallElement>,
+    dagensDato: () -> LocalDate
 ) {
+    private val fraDatoTilrettelegingsbehov = LocalDate.of(2021, 5, 4)
+    private val antallPresentertPerDagTilretteleggingsbehov: Map<LocalDate, ((List<String>) -> Boolean) -> Int> = finnAntallForTilretteleggingsbehov(utfallElementPresentert, gjeldendeDatoer(dagensDato))
+    private val antallFåttJobbPerDagTilretteleggingsbehov: Map<LocalDate, ((List<String>) -> Boolean) -> Int> = finnAntallForTilretteleggingsbehov(utfallElementFåttJobben, gjeldendeDatoer(dagensDato))
+    private val listeAvBehov = listOf(utfallElementPresentert,utfallElementFåttJobben).flatten().flatMap { it.tilretteleggingsbehov }.distinct()
+
+    private fun finnAntallForTilretteleggingsbehov(utfallselementer: List<KandidatutfallRepository.UtfallElement>, datoer: List<LocalDate>) :Map<LocalDate, ((List<String>) -> Boolean) -> Int> =
+        datoer.associateWith { dag ->
+            { tilretteleggingsbehovFilter ->
+                utfallselementer.filter { dag == it.tidspunkt.toLocalDate() }
+                    .map { it.tilretteleggingsbehov }
+                    .filter { tilretteleggingsbehovFilter(it) }.count()
+            }
+        }
+
     fun hentAntallPresentert(tilretteleggingsbehov: String, dato: LocalDate) =
         antallPresentertPerDagTilretteleggingsbehov[dato]!!(finnSpesifikt(tilretteleggingsbehov))
 
@@ -22,6 +38,8 @@ class TilretteleggingsbehovDatagrunnlag(
                 antallFåttJobbPerDagTilretteleggingsbehov[dato]!!(totalAntall())).let { if (it.isNaN()) 0.0 else it }
 
     fun listeAvBehov() = listeAvBehov
+
+    fun gjeldendeDatoer(dagensDato: () -> LocalDate) = fraDatoTilrettelegingsbehov til dagensDato()
 }
 
 private fun finnSpesifikt(tilretteleggingsbehov: String): (List<String>) -> Boolean = { tilretteleggingsbehov in it }

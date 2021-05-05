@@ -5,6 +5,7 @@ import kscience.plotly.layout
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.alder.AlderStatistikk
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullDatagrunnlag
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.hull.HullStatistikk
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovDatagrunnlag
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovStatistikk
 import no.nav.rekrutteringsbistand.statistikk.kandidatutfall.KandidatutfallRepository
 import no.nav.rekrutteringsbistand.statistikk.log
@@ -45,7 +46,7 @@ class DatakatalogStatistikk(
         listOf(
             HullStatistikk(HullDatagrunnlag(datagrunnlag.utfallElementPresentert,datagrunnlag.utfallElementFåttJobben,dagensDato), dagensDato),
             AlderStatistikk(AlderDatagrunnlag(datagrunnlag.utfallElementPresentert,datagrunnlag.utfallElementFåttJobben,dagensDato), dagensDato),
-            TilretteleggingsbehovStatistikk(datagrunnlag, dagensDato)
+            TilretteleggingsbehovStatistikk(TilretteleggingsbehovDatagrunnlag(datagrunnlag.utfallElementPresentert,datagrunnlag.utfallElementFåttJobben,dagensDato), dagensDato)
         ).let {
             it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
         }

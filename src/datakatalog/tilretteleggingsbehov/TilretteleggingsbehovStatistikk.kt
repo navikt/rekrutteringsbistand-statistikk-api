@@ -4,19 +4,20 @@ import kscience.plotly.Plot
 import kscience.plotly.Plotly
 import kscience.plotly.bar
 import kscience.plotly.toJsonString
-import no.nav.rekrutteringsbistand.statistikk.datakatalog.*
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.DatakatalogData
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.Spec
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.View
+import no.nav.rekrutteringsbistand.statistikk.datakatalog.getLayout
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
-class TilretteleggingsbehovStatistikk(private val datagrunnlag: Datagrunnlag, private val dagensDato: () -> LocalDate): DatakatalogData {
+class TilretteleggingsbehovStatistikk(private val tilretteleggingsbehovDatagrunnlag: TilretteleggingsbehovDatagrunnlag, private val dagensDato: () -> LocalDate): DatakatalogData {
     companion object {
         private val filnavnTilretteleggingsbehovAntallPresentert: String = "tilretteleggingsbehovAntallPresentert.json"
         private val filnavnTilretteleggingsbehovAndelPresentert: String = "tilretteleggingsbehovAndelPresentert.json"
         private val filnavnTilretteleggingsbehovAntallFåttJobben: String = "tilretteleggingsbehovAntallFåttJobben.json"
         private val filnavnTilretteleggingsbehovAndelFåttJobben: String = "tilretteleggingsbehovAndelFåttJobben.json"
-        private val fraDatoTilrettelegingsbehov = LocalDate.of(2021, 5, 4)
     }
-
 
     override fun views() = listOf(
         View(
@@ -56,7 +57,7 @@ class TilretteleggingsbehovStatistikk(private val datagrunnlag: Datagrunnlag, pr
     )
 
     override fun plotlyFiler() =
-        datagrunnlag.hentTilretteleggingsbehovDatagrunnlag(fraDatoTilrettelegingsbehov til dagensDato()).let { tilretteleggingsbehovDatakatalog ->
+        tilretteleggingsbehovDatagrunnlag.let { tilretteleggingsbehovDatakatalog ->
             listOf(
                 filnavnTilretteleggingsbehovAntallPresentert to lagPlotAntallTilretteleggingsbehovPresentert(tilretteleggingsbehovDatakatalog).toJsonString(),
                 filnavnTilretteleggingsbehovAntallFåttJobben to lagPlotAntallTilretteleggingsbehovFåttJobben(tilretteleggingsbehovDatakatalog).toJsonString(),
@@ -67,7 +68,7 @@ class TilretteleggingsbehovStatistikk(private val datagrunnlag: Datagrunnlag, pr
 
     private fun Plot.lagBarAntallTilretteleggingsbehov(hentVerdi: (String, LocalDate) -> Int, tilretteleggingsbehov: String, description: String) =
         bar {
-            val datoer = fraDatoTilrettelegingsbehov til dagensDato()
+            val datoer = tilretteleggingsbehovDatagrunnlag.gjeldendeDatoer(dagensDato)
             x.strings = datoer.map { it.toString() }
             y.numbers = datoer.map { hentVerdi(tilretteleggingsbehov, it) }
             name = description
@@ -89,7 +90,7 @@ class TilretteleggingsbehovStatistikk(private val datagrunnlag: Datagrunnlag, pr
     }
 
     private fun Plot.lagBarAndelHull(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = fraDatoTilrettelegingsbehov til dagensDato()
+        val datoer = tilretteleggingsbehovDatagrunnlag.gjeldendeDatoer(dagensDato)
         x.strings = datoer.map { it.toString() }
         y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
         name = description
