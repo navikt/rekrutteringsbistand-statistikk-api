@@ -97,12 +97,12 @@ class TilretteleggingsbehovStatistikk(private val tilretteleggingsbehovDatagrunn
     }
 
     private fun lagPlotTilretteleggingsbehovAndelPresentert(tilretteleggingsbehovDatagrunnlag: TilretteleggingsbehovDatagrunnlag) = Plotly.plot {
-        lagBarAndelHull(tilretteleggingsbehovDatagrunnlag::hentAndelPresentert, "Andel presentert med minst et tilretteleggingsbehov")
+        lagBarAndelHull(tilretteleggingsbehovDatagrunnlag::hentAndelPresentertMedMinstEttTilretteleggingsbehov, "Andel presentert med minst et tilretteleggingsbehov")
         getLayout("Andel %")
     }
 
     private fun lagPlotTilretteleggingsbehovAndelFåttJobben(tilretteleggingsbehovDatagrunnlag: TilretteleggingsbehovDatagrunnlag) = Plotly.plot {
-        lagBarAndelHull(tilretteleggingsbehovDatagrunnlag::hentAndelFåttJobben, "Andel fått jobben med minst et tilretteleggingsbehov")
+        lagBarAndelHull(tilretteleggingsbehovDatagrunnlag::hentAndelFåttJobbenmedMinstEttTilretteleggingsbehov, "Andel fått jobben med minst et tilretteleggingsbehov")
         getLayout("Andel %")
     }
 }

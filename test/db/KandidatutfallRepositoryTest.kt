@@ -2,6 +2,8 @@ package db
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isTrue
+import assertk.assertions.size
 import etKandidatutfall
 import etKontor1
 import no.nav.rekrutteringsbistand.statistikk.datakatalog.Aldersgruppe
@@ -40,6 +42,25 @@ class KandidatutfallRepositoryTest {
         assertThat(antallUtfallMedHull).isEqualTo(1)
         assertThat(antallUtfallUtenHull).isEqualTo(0)
         assertThat(antallUtfallMedUkjentHull).isEqualTo(0)
+    }
+
+    @Test
+    fun `gitt en fått-jobben som usynlig kandidat og ingen tilretteleggingsbehov men presentert som synlig og med tilretteleggingsbehov skal informasjon fra presentering gjelde for fått jobben-utfall`() {
+        val presenterteTilretteleggingsbehov = listOf("arbeidstid", "permittert")
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = Utfall.PRESENTERT, synligKandidat = true, tilretteleggingsbehov = presenterteTilretteleggingsbehov),
+            LocalDate.of(2020, 1, 1).atStartOfDay()
+        )
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = Utfall.FATT_JOBBEN, synligKandidat = false, tilretteleggingsbehov = listOf()),
+            LocalDate.of(2020, 3, 4).atTime(20, 59)
+        )
+
+        val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1))
+
+        assertThat(utfallFåttJobben.size).isEqualTo(1)
+        assertThat(utfallFåttJobben[0].synligKandidat).isTrue()
+        assertThat(utfallFåttJobben[0].tilretteleggingsbehov).isEqualTo(presenterteTilretteleggingsbehov)
     }
 
     @Test

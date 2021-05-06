@@ -145,13 +145,14 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    class UtfallElement(val harHull: Boolean?, val alder: Int?, val tidspunkt: LocalDateTime, val tilretteleggingsbehov: List<String>)
+    class UtfallElement(val harHull: Boolean?, val alder: Int?, val tidspunkt: LocalDateTime, val tilretteleggingsbehov: List<String>, val synligKandidat: Boolean)
 
     private fun ResultSet.toUtfallElement() = UtfallElement(
         harHull = if(getObject(1) == null) null else getBoolean(1),
         alder = if(getObject(2) == null) null else getInt(2),
         tidspunkt = getTimestamp(3).toLocalDateTime(),
-        tilretteleggingsbehov = if(getObject(4) == null) emptyList() else getString(4).split(tilretteleggingsbehovdelimiter)
+        tilretteleggingsbehov = if(getObject(4) == null) emptyList() else getString(4).split(tilretteleggingsbehovdelimiter),
+        synligKandidat = if (getObject(5) == null) false else getBoolean(5)
     )
 
     fun hentUtfallPresentert(fraOgMed: LocalDate): List<UtfallElement> {
@@ -159,7 +160,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                     with KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST as (
-                        SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov FROM $kandidatutfallTabell k1,
+                        SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov, $synligKandidat FROM $kandidatutfallTabell k1,
                             (SELECT MIN($dbId) as $dbId from $kandidatutfallTabell k2
                             WHERE k2.$tidspunkt >= ?
                             GROUP BY $aktørId, $kandidatlisteid) as k2
@@ -168,7 +169,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                         AND k1.$utfall = '${FATT_JOBBEN.name}'
                     ),
                     PRESENTERTE_KANDIDATER as (
-                        SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov from $kandidatutfallTabell k1,
+                        SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov, $synligKandidat from $kandidatutfallTabell k1,
                             (
                                 SELECT MAX($dbId) as maksId from $kandidatutfallTabell k2
                                 WHERE k2.$utfall = '${PRESENTERT}'
@@ -177,9 +178,9 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                         WHERE $tidspunkt >= ?
                         AND $dbId = k2.maksId
                     )
-                    SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov from KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST
+                    SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov, $synligKandidat from KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST
                     UNION ALL
-                    SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov from PRESENTERTE_KANDIDATER;
+                    SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov, $synligKandidat from PRESENTERTE_KANDIDATER;
                 """.trimIndent()
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
@@ -198,7 +199,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt, telleliste.$tilretteleggingsbehov FROM $kandidatutfallTabell telleliste,
+                SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt, telleliste.$tilretteleggingsbehov, telleliste.$synligKandidat FROM $kandidatutfallTabell telleliste,
                   (SELECT MIN($dbId) as minId, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
                     (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
                         (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom

@@ -18,7 +18,9 @@ class TilretteleggingsbehovDatagrunnlag(
     private fun finnAntallForTilretteleggingsbehov(utfallselementer: List<KandidatutfallRepository.UtfallElement>, datoer: List<LocalDate>) :Map<LocalDate, ((List<String>) -> Boolean) -> Int> =
         datoer.associateWith { dag ->
             { tilretteleggingsbehovFilter ->
-                utfallselementer.filter { dag == it.tidspunkt.toLocalDate() }
+                utfallselementer
+                    .filter { dag == it.tidspunkt.toLocalDate() }
+                    .filter { it.synligKandidat }
                     .map { it.tilretteleggingsbehov }
                     .filter { tilretteleggingsbehovFilter(it) }.count()
             }
@@ -30,11 +32,11 @@ class TilretteleggingsbehovDatagrunnlag(
     fun hentAntallFåttJobben(tilretteleggingsbehov: String, dato: LocalDate) =
         antallFåttJobbPerDagTilretteleggingsbehov[dato]!!(finnSpesifikt(tilretteleggingsbehov))
 
-    fun hentAndelPresentert(dato: LocalDate) =
+    fun hentAndelPresentertMedMinstEttTilretteleggingsbehov(dato: LocalDate) =
         (antallPresentertPerDagTilretteleggingsbehov[dato]!!(minstEtTilretteleggingsbehov()).toDouble() /
                 antallPresentertPerDagTilretteleggingsbehov[dato]!!(totalAntall())).let { if (it.isNaN()) 0.0 else it }
 
-    fun hentAndelFåttJobben(dato: LocalDate) =
+    fun hentAndelFåttJobbenmedMinstEttTilretteleggingsbehov(dato: LocalDate) =
         (antallFåttJobbPerDagTilretteleggingsbehov[dato]!!(minstEtTilretteleggingsbehov()).toDouble() /
                 antallFåttJobbPerDagTilretteleggingsbehov[dato]!!(totalAntall())).let { if (it.isNaN()) 0.0 else it }
 
