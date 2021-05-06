@@ -18,6 +18,7 @@ val kafkaEmbeddedEnvironmentVersion = "2.5.0"
 val kafkaAvroSerializerVersion = "5.5.3" // Kan ikke oppgradere til 6.1.0 siden no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion baserer seg på 5.4
 val shedlockVersion = "4.20.0"
 val unleashClientJavaVersion = "4.0.1"
+val pitestVersion = "1.5.2"
 
 
 
@@ -28,13 +29,21 @@ plugins {
     id("com.github.johnrengelman.shadow") version "6.0.0"
     id("com.github.ben-manes.versions") version "0.28.0"
     id("com.commercehub.gradle.plugin.avro") version "0.21.0"
+    id("info.solidsoft.pitest") version "1.5.2"
 
     idea
 }
 
+apply(plugin = "info.solidsoft.pitest")
 apply(plugin = "kotlin")
 apply(plugin = "application")
 apply(plugin = "com.github.johnrengelman.shadow")
+
+pitest {
+    targetClasses.set(setOf("statistikkapi.*"))
+    targetTests.set(setOf("statistikkapi.*"))
+    useClasspathFile.set(true)
+}
 
 tasks {
     compileKotlin {
@@ -48,7 +57,7 @@ tasks {
 
 
 application {
-    mainClassName = "no.nav.rekrutteringsbistand.statistikk.ApplicationKt"
+    mainClassName = "statistikkapi.ApplicationKt"
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
@@ -117,4 +126,5 @@ dependencies {
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
     testImplementation ("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation ("org.skyscreamer:jsonassert:1.5.0")
+    testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
 }
