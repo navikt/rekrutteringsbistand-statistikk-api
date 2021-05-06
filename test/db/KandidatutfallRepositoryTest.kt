@@ -1,6 +1,7 @@
 package db
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import assertk.assertions.size
@@ -206,6 +207,16 @@ class KandidatutfallRepositoryTest {
         val antallPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1)).size
 
         assertThat(antallPresentert).isEqualTo(1)
+    }
+
+    @Test
+    fun `test lagring og uthenting av kandidat uten tilretteleggingsbehov`() {
+        repository.lagreUtfall(etKandidatutfall.copy(utfall = Utfall.PRESENTERT, tilretteleggingsbehov = listOf()), LocalDate.of(2020, 3, 2).atTime(20, 49))
+
+        val utfallElementPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1))
+
+        assertThat(utfallElementPresentert.size).isEqualTo(1)
+        assertThat(utfallElementPresentert[0].tilretteleggingsbehov).isEmpty()
     }
 
     @After

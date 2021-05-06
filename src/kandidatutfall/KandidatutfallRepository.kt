@@ -151,7 +151,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         harHull = if(getObject(1) == null) null else getBoolean(1),
         alder = if(getObject(2) == null) null else getInt(2),
         tidspunkt = getTimestamp(3).toLocalDateTime(),
-        tilretteleggingsbehov = if(getObject(4) == null) emptyList() else getString(4).split(tilretteleggingsbehovdelimiter),
+        tilretteleggingsbehov = if(getObject(4) == null || getString(4).isBlank()) emptyList() else getString(4).split(tilretteleggingsbehovdelimiter),
         synligKandidat = if (getObject(5) == null) false else getBoolean(5)
     )
 
