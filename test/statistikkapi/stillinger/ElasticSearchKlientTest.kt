@@ -9,16 +9,19 @@ import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class ElasticSearchKlientTest {
 
     // TODO: Kan stilling være uten publisertdato?
+    // TODO: Ta en sjekk på datoformathåndtering
 
     @Test
     fun `skal kunne parse JSON fra stillingssøk-proxy til Stilling-objekt`() {
         val uuid = UUID.randomUUID().toString()
-        val publiseringsdato = "2019-01-17T17:08:11.3"
+        val publiseringsdato = "2019-01-17T17:08:11"
         val inkluderingstags = InkluderingTag.values().toList()
         val prioriterteMålgrupperTags = PrioriterteMålgrupperTag.values().toList()
         val tiltakVirkemiddelTags = TiltakVirkemiddelTag.values().toList()
@@ -28,24 +31,26 @@ class ElasticSearchKlientTest {
 
         assertThat(stilling).isNotNull()
         assertThat(stilling!!.uuid).isEqualTo(uuid)
-        assertThat(stilling.publisert.toString()).isEqualTo(publiseringsdato.substring(0, 10))
+        assertThat(stilling.publisert.toString()).isEqualTo(publiseringsdato)
         assertThat(stilling.inkluderingsmuligheter).isEqualTo(inkluderingstags) // TODO: Navngiving på stilling?
-        assertThat(stilling.prioriterteMålgrupperTags).isEqualTo(prioriterteMålgrupperTags)
-        assertThat(stilling.tiltakVirkemidlerTags).isEqualTo(tiltakVirkemiddelTags)
+        assertThat(stilling.prioriterteMålgrupper).isEqualTo(prioriterteMålgrupperTags)
+        assertThat(stilling.tiltakEllerVirkemidler).isEqualTo(tiltakVirkemiddelTags)
     }
 
     @Test
     fun `manglende tags på søketreff skal gi Stilling-objekt`() {
         val uuid = UUID.randomUUID().toString()
-        val klient = ElasticSearchKlient(httpClientSøketreffUtenTags(uuid))
+        val publiseringsdato = LocalDate.of(2019, 11, 20).atTime(10, 31, 32, 0)
+        val klient = ElasticSearchKlient(httpClientSøketreffUtenTags(uuid, publiseringsdato))
 
         val stilling = klient.hentStilling(uuid)
 
         assertThat(stilling).isNotNull()
         assertThat(stilling!!.uuid).isEqualTo(uuid)
-        assertThat(stilling.tiltakVirkemidlerTags).isEmpty()
-        assertThat(stilling.prioriterteMålgrupperTags).isEmpty()
-        assertThat(stilling.tiltakVirkemidlerTags).isEmpty()
+        assertThat(stilling.publisert).isEqualTo(publiseringsdato)
+        assertThat(stilling.tiltakEllerVirkemidler).isEmpty()
+        assertThat(stilling.prioriterteMålgrupper).isEmpty()
+        assertThat(stilling.tiltakEllerVirkemidler).isEmpty()
     }
 
     @Test
@@ -69,7 +74,7 @@ class ElasticSearchKlientTest {
             }
         }
 
-    private fun httpClientSøketreffUtenTags(uuid: String) =
+    private fun httpClientSøketreffUtenTags(uuid: String, publiseringsdato: LocalDateTime) =
         HttpClient(MockEngine) {
             engine {
                 addHandler {
@@ -98,7 +103,7 @@ class ElasticSearchKlientTest {
                                     "_source": {
                                         "stilling": {
                                             "uuid": "$uuid",
-                                            "published":"2019-01-03T01:00:00",
+                                            "published":"$publiseringsdato",
                                             "properties": {}
                                         }
                                     }

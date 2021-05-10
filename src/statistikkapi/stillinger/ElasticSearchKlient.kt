@@ -1,17 +1,18 @@
 package statistikkapi.stillinger
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import statistikkapi.Cluster
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
 class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache)) {
+
+    // TODO: Metode for å hente alle stillinger med tilrettelegging/inkludering i gitt tidsrom
 
     val stillingssokProxyDokumentUrl = when (Cluster.current) {
         Cluster.PROD_FSS -> "https://rekrutteringsbistand-stillingssok-proxy.intern.nav.no/stilling/_doc"
@@ -19,9 +20,9 @@ class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache
         Cluster.LOKAL -> "https://rekrutteringsbistand-stillingssok-proxy.dev.intern.nav.no/stilling/_doc"
     }
 
-    fun hentStilling(stillingUuid: String): Stilling? = getRequest("$stillingssokProxyDokumentUrl/$stillingUuid")
+    fun hentStilling(stillingUuid: String): ElasticSearchStilling? = getRequest("$stillingssokProxyDokumentUrl/$stillingUuid")
 
-    private fun mapElasticSearchJsonSvarTilStilling(fulltElasticSearchSvarJson: String): Stilling? {
+    private fun mapElasticSearchJsonSvarTilStilling(fulltElasticSearchSvarJson: String): ElasticSearchStilling? {
 
         val jsonStilling = jacksonObjectMapper().readTree(fulltElasticSearchSvarJson)
             .at("/hits/hits")[0]
@@ -29,9 +30,9 @@ class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache
 
         val tags = hentTags(jsonStilling.at("/properties/tags").toList().map { it.asText() })
 
-        return Stilling(
+        return ElasticSearchStilling(
             jsonStilling.at("/uuid").asText(),
-            LocalDate.parse(jsonStilling.at("/published").asText().substring(0, 10), DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+            LocalDateTime.parse(jsonStilling.at("/published").asText().substring(0, 19), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")),
             tags.first,
             tags.second,
             tags.third
@@ -45,7 +46,7 @@ class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache
             ukategoriserteTags.filter { it.startsWith("TILTAK_ELLER_VIRKEMIDDEL__")}.map { TiltakVirkemiddelTag.valueOf(it.removePrefix("TILTAK_ELLER_VIRKEMIDDEL__"))}
         )
 
-    private fun getRequest(url: String): Stilling? {
+    private fun getRequest(url: String): ElasticSearchStilling? {
         return runBlocking {
             val client = httpKlient
             val esSvar: String = client.get(url)

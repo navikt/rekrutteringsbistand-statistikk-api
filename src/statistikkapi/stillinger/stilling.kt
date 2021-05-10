@@ -1,13 +1,23 @@
 package statistikkapi.stillinger
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class Stilling(
+    val id: Long,
     val uuid: String,
-    val publisert: LocalDate,
+    val publisert: LocalDateTime,
     val inkluderingsmuligheter: List<InkluderingTag>,
-    val prioriterteMålgrupperTags: List<PrioriterteMålgrupperTag>,
-    val tiltakVirkemidlerTags: List<TiltakVirkemiddelTag>
+    val prioriterteMålgrupper: List<PrioriterteMålgrupperTag>,
+    val tiltakEllerVirkemidler: List<TiltakVirkemiddelTag>,
+    val tidspunkt: LocalDateTime
+)
+
+data class ElasticSearchStilling(
+    val uuid: String,
+    val publisert: LocalDateTime,
+    val inkluderingsmuligheter: List<InkluderingTag>,
+    val prioriterteMålgrupper: List<PrioriterteMålgrupperTag>,
+    val tiltakEllerVirkemidler: List<TiltakVirkemiddelTag>
 )
 
 enum class InkluderingTag {
