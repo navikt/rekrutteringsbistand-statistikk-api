@@ -19,6 +19,7 @@ val kafkaAvroSerializerVersion = "5.5.3" // Kan ikke oppgradere til 6.1.0 siden 
 val shedlockVersion = "4.20.0"
 val unleashClientJavaVersion = "4.0.1"
 val pitestVersion = "1.5.2"
+val elasticSearchClientVersion = "7.10.1"
 
 
 
