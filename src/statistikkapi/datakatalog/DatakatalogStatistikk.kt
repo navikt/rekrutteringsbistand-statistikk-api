@@ -23,6 +23,7 @@ class DatakatalogStatistikk(
 
     override fun run() {
         log.info("Starter jobb som sender statistikk til datakatalogen")
+        log.info("Skal sende statistikk for målinger til og med ${dagensDato}")
         plotlydataOgDataPakke().also { (plotly, datapakke) ->
             datakatalogKlient.sendPlotlyFilTilDatavarehus(plotly)
             datakatalogKlient.sendDatapakke(datapakke)
