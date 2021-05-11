@@ -39,11 +39,12 @@ class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache
         )
     }
 
-    private fun hentTags(ukategoriserteTags: List<String>): Triple<List<InkluderingTag>, List<PrioriterteMålgrupperTag>, List<TiltakVirkemiddelTag>> =
+    // TODO: Bruke associateBy
+    private fun hentTags(ukategoriserteTags: List<String>): Triple<List<InkluderingTag>, List<PrioriterteMålgrupperTag>, List<TiltakEllerVirkemiddelTag>> =
         Triple(
             ukategoriserteTags.filter { it.startsWith("INKLUDERING__") }.map { InkluderingTag.valueOf(it.removePrefix("INKLUDERING__")) },
             ukategoriserteTags.filter { it.startsWith("PRIORITERT_MÅLGRUPPE__")}.map { PrioriterteMålgrupperTag.valueOf(it.removePrefix("PRIORITERT_MÅLGRUPPE__"))},
-            ukategoriserteTags.filter { it.startsWith("TILTAK_ELLER_VIRKEMIDDEL__")}.map { TiltakVirkemiddelTag.valueOf(it.removePrefix("TILTAK_ELLER_VIRKEMIDDEL__"))}
+            ukategoriserteTags.filter { it.startsWith("TILTAK_ELLER_VIRKEMIDDEL__")}.map { TiltakEllerVirkemiddelTag.valueOf(it.removePrefix("TILTAK_ELLER_VIRKEMIDDEL__"))}
         )
 
     private fun getRequest(url: String): ElasticSearchStilling? {

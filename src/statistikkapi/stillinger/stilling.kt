@@ -8,7 +8,7 @@ data class Stilling(
     val publisert: LocalDateTime,
     val inkluderingsmuligheter: List<InkluderingTag>,
     val prioriterteMålgrupper: List<PrioriterteMålgrupperTag>,
-    val tiltakEllerVirkemidler: List<TiltakVirkemiddelTag>,
+    val tiltakEllerEllerVirkemidler: List<TiltakEllerVirkemiddelTag>,
     val tidspunkt: LocalDateTime
 )
 
@@ -17,7 +17,7 @@ data class ElasticSearchStilling(
     val publisert: LocalDateTime,
     val inkluderingsmuligheter: List<InkluderingTag>,
     val prioriterteMålgrupper: List<PrioriterteMålgrupperTag>,
-    val tiltakEllerVirkemidler: List<TiltakVirkemiddelTag>
+    val tiltakEllerEllerVirkemidler: List<TiltakEllerVirkemiddelTag>
 )
 
 enum class InkluderingTag {
@@ -36,7 +36,7 @@ enum class PrioriterteMålgrupperTag {
     LITE_ELLER_INGEN_ARBEIDSERFARING
 }
 
-enum class TiltakVirkemiddelTag {
+enum class TiltakEllerVirkemiddelTag {
     LØNNSTILSKUDD,
     MENTORTILSKUDD,
     LÆRLINGPLASS

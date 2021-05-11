@@ -24,7 +24,7 @@ class ElasticSearchKlientTest {
         val publiseringsdato = "2019-01-17T17:08:11"
         val inkluderingstags = InkluderingTag.values().toList()
         val prioriterteMålgrupperTags = PrioriterteMålgrupperTag.values().toList()
-        val tiltakVirkemiddelTags = TiltakVirkemiddelTag.values().toList()
+        val tiltakVirkemiddelTags = TiltakEllerVirkemiddelTag.values().toList()
         val klient = ElasticSearchKlient(httpClientSøketreff(uuid, publiseringsdato, inkluderingstags, prioriterteMålgrupperTags, tiltakVirkemiddelTags))
 
         val stilling = klient.hentStilling(uuid)
@@ -34,7 +34,7 @@ class ElasticSearchKlientTest {
         assertThat(stilling.publisert.toString()).isEqualTo(publiseringsdato)
         assertThat(stilling.inkluderingsmuligheter).isEqualTo(inkluderingstags) // TODO: Navngiving på stilling?
         assertThat(stilling.prioriterteMålgrupper).isEqualTo(prioriterteMålgrupperTags)
-        assertThat(stilling.tiltakEllerVirkemidler).isEqualTo(tiltakVirkemiddelTags)
+        assertThat(stilling.tiltakEllerEllerVirkemidler).isEqualTo(tiltakVirkemiddelTags)
     }
 
     @Test
@@ -48,9 +48,9 @@ class ElasticSearchKlientTest {
         assertThat(stilling).isNotNull()
         assertThat(stilling!!.uuid).isEqualTo(uuid)
         assertThat(stilling.publisert).isEqualTo(publiseringsdato)
-        assertThat(stilling.tiltakEllerVirkemidler).isEmpty()
+        assertThat(stilling.tiltakEllerEllerVirkemidler).isEmpty()
         assertThat(stilling.prioriterteMålgrupper).isEmpty()
-        assertThat(stilling.tiltakEllerVirkemidler).isEmpty()
+        assertThat(stilling.tiltakEllerEllerVirkemidler).isEmpty()
     }
 
     @Test
@@ -120,7 +120,7 @@ class ElasticSearchKlientTest {
                                     publiseringsdato: String,
                                     inkluderingsTags: List<InkluderingTag>,
                                     prioriterteMålgrupperTags: List<PrioriterteMålgrupperTag>,
-                                    tiltakVirkemiddelTags: List<TiltakVirkemiddelTag>) =
+                                    tiltakEllerVirkemiddelTags: List<TiltakEllerVirkemiddelTag>) =
         HttpClient(MockEngine) {
             engine {
                 addHandler { request ->
@@ -202,7 +202,7 @@ class ElasticSearchKlientTest {
                                                                 ${listOf(
                                                                     lagStringlisteInkluderingsTags(inkluderingsTags),
                                                                     lagStringlistePrioriterteMålgrupperTags(prioriterteMålgrupperTags),
-                                                                    lagStringlisteTiltakEllerVirkemiddelTags(tiltakVirkemiddelTags)
+                                                                    lagStringlisteTiltakEllerVirkemiddelTags(tiltakEllerVirkemiddelTags)
                                                                 ).flatten()},
                                                             "searchtags": [
                                                                 {
@@ -255,5 +255,5 @@ class ElasticSearchKlientTest {
 
     private fun lagStringlisteInkluderingsTags(tags: List<InkluderingTag>) = tags.map {""" "INKLUDERING__${it.name}" """}
     private fun lagStringlistePrioriterteMålgrupperTags(tags: List<PrioriterteMålgrupperTag>) = tags.map {""" "PRIORITERT_MÅLGRUPPE__${it.name}" """}
-    private fun lagStringlisteTiltakEllerVirkemiddelTags(tags: List<TiltakVirkemiddelTag>) = tags.map {""" "TILTAK_ELLER_VIRKEMIDDEL__${it.name}" """}
+    private fun lagStringlisteTiltakEllerVirkemiddelTags(tagEllers: List<TiltakEllerVirkemiddelTag>) = tagEllers.map {""" "TILTAK_ELLER_VIRKEMIDDEL__${it.name}" """}
 }
