@@ -45,6 +45,28 @@ class KandidatutfallRepositoryTest {
     }
 
     @Test
+    fun `gitt en presentert med kjent hull men senere med ukjent hull tell hentAntallPresentert som om cv har ukjent hull`() {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = Utfall.PRESENTERT, navKontor = etKontor1, harHullICv = true),
+            LocalDate.of(2020, 1, 1).atStartOfDay()
+        )
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = Utfall.PRESENTERT, navKontor = etKontor1, harHullICv = null),
+            LocalDate.of(2020, 3, 4).atTime(20, 59)
+        )
+
+        val utfallFåttJobben = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1))
+
+        val antallUtfallMedHull = utfallFåttJobben.count { it.harHull == true }
+        val antallUtfallUtenHull = utfallFåttJobben.count { it.harHull == false }
+        val antallUtfallMedUkjentHull = utfallFåttJobben.count { it.harHull == null }
+
+        assertThat(antallUtfallMedHull).isEqualTo(0)
+        assertThat(antallUtfallUtenHull).isEqualTo(0)
+        assertThat(antallUtfallMedUkjentHull).isEqualTo(1)
+    }
+
+    @Test
     fun `gitt en fått-jobben som usynlig kandidat og ingen tilretteleggingsbehov men presentert som synlig og med tilretteleggingsbehov skal informasjon fra presentering gjelde for fått jobben-utfall`() {
         val presenterteTilretteleggingsbehov = listOf("arbeidstid", "permittert")
         repository.lagreUtfall(

@@ -162,6 +162,25 @@ class DatakatalogStatistikkTest {
     }
 
     @Test
+    fun `Kalkuler rett antall dager, og ikke trunker på måneder eller år`() {
+        val datoer = (0L..1000L).map { LocalDate.of(2021, 4, 8).plusDays(it) }
+        val expected = jacksonObjectMapper().writeValueAsString(
+            testPlot(
+                yaxisText = "Antall",
+                data = testData(
+                    datoer,
+                    listOf(
+                        "Antall presentert med hull",
+                        "Antall presentert uten hull",
+                        "Antall presentert ukjent om de har hull"
+                    )
+                )
+            )
+        )
+        verifiserPlotSendt("hullAntallPresentert.json", expected) { LocalDate.of(2024, 1, 3) }
+    }
+
+    @Test
     fun `Antall Hull i cv presentert skal sendes`() {
         repository.lagreUtfall(lagKandidat(harHull=true),datotid(11))
         repository.lagreUtfall(lagKandidat(harHull=true),datotid(12))
@@ -195,14 +214,14 @@ class DatakatalogStatistikkTest {
                         "Antall presentert ukjent om de har hull"
                     ),
                     listOf(
-                        mapOf(dato(11) to 1, dato(12) to 1, dato(13) to 1, dato(14) to 1, dato(15) to 1, dato(17) to 1, dato(20) to 3),
-                        mapOf(dato(13) to 1, dato(20) to 5),
-                        mapOf(dato(12) to 1, dato(20) to 4)
+                        mapOf(dato(11) to 1, dato(12) to 1, dato(13) to 1, dato(17) to 1, dato(20) to 3),
+                        mapOf(dato(13) to 1, dato(16) to 1, dato(20) to 5),
+                        mapOf(dato(12) to 1, dato(14) to 1, dato(20) to 4)
                     )
                 )
             )
         )
-        verifiserPlotSendt("hullPresentert.json", expected)
+        verifiserPlotSendt("hullAntallPresentert.json", expected)
     }
 
     private fun datotid(dag:Int, måned:Int=4, år:Int=2021, time:Int=0, minutt:Int=0, sekund:Int=0) =
@@ -255,7 +274,7 @@ class DatakatalogStatistikkTest {
                 )
             )
         )
-        verifiserPlotSendt("hullFåttJobben.json", expected)
+        verifiserPlotSendt("hullAntallFåttJobben.json", expected)
     }
 
     @Test
@@ -290,7 +309,7 @@ class DatakatalogStatistikkTest {
                 )
             )
         )
-        verifiserPlotSendt("alderPresentert.json", expected)
+        verifiserPlotSendt("alderAntallPresentert.json", expected)
     }
 
     @Test
@@ -325,7 +344,7 @@ class DatakatalogStatistikkTest {
                 )
             )
         )
-        verifiserPlotSendt("alderFåttJobben.json", expected)
+        verifiserPlotSendt("alderAntallFåttJobben.json", expected)
     }
 
     @Test
@@ -406,22 +425,23 @@ class DatakatalogStatistikkTest {
         testRepository.slettAlleUtfall()
     }
 
-    fun verifiserPlotSendt(filnavn: String, expectedJson: String) {
+    fun verifiserPlotSendt(filnavn: String, expectedJson: String, dagensDatoInternal: () -> LocalDate = dagensDato) {
         var kalt = false
         val client = lagVerifiableHttpClient(attachementAsserts = { partListe ->
             partListe.filter { it.harFilnavn(filnavn) }
+                .apply { if(isEmpty()) throw IllegalStateException("$filnavn ikke funnet i plot som er sendt.") }
                 .forEach { JSONAssert.assertEquals(expectedJson, it.body, true) }
             kalt = true
         })
 
-        lagDatakatalogStatistikk(client).run()
+        lagDatakatalogStatistikk(client, dagensDatoInternal).run()
         assertTrue(kalt)
     }
 
-    private fun lagDatakatalogStatistikk(client: HttpClient) = DatakatalogStatistikk(
+    private fun lagDatakatalogStatistikk(client: HttpClient, dagensDatoInternal: () -> LocalDate = dagensDato) = DatakatalogStatistikk(
         repository,
         DatakatalogKlient(client, DatakatalogUrl(Cluster.LOKAL)),
-        dagensDato)
+        dagensDatoInternal)
 
     private fun lagVerifiableHttpClient(
         attachementAsserts: (List<MultipartPart>) -> Unit = {},

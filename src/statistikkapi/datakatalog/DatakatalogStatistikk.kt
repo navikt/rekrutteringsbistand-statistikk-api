@@ -12,6 +12,7 @@ import statistikkapi.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovStat
 import statistikkapi.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
 import java.time.Period
+import java.time.temporal.ChronoUnit
 
 
 class DatakatalogStatistikk(
@@ -81,7 +82,7 @@ fun Plot.getLayout(yTekst: String) {
     }
 }
 
-infix fun LocalDate.til(tilDato: LocalDate) = Period.between(this, tilDato).days
+infix fun LocalDate.til(tilDato: LocalDate) = ChronoUnit.DAYS.between(this, tilDato)
     .let { antallDager ->
-        (0..antallDager).map { this + Period.ofDays(it) }
+        (0..antallDager).map { this.plusDays(it) }
     }
