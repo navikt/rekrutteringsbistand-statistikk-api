@@ -28,7 +28,7 @@ plugins {
 
     id("com.github.johnrengelman.shadow") version "6.0.0"
     id("com.github.ben-manes.versions") version "0.28.0"
-    id("com.commercehub.gradle.plugin.avro") version "0.21.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.2.0"
     id("info.solidsoft.pitest") version "1.5.2"
 
     idea
@@ -127,4 +127,10 @@ dependencies {
     testImplementation ("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation ("org.skyscreamer:jsonassert:1.5.0")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
+}
+
+configurations.all {
+  resolutionStrategy {
+    force("io.github.microutils:kotlin-logging:2.0.6")
+  }
 }
