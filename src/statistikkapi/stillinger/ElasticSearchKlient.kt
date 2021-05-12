@@ -29,10 +29,13 @@ class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache
             ?.at("/_source/stilling") ?: return null
 
         val tags = hentTags(jsonStilling.at("/properties/tags").toList().map { it.asText() })
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
+        // TODO: Sjekk datohåndtering
         return ElasticSearchStilling(
             jsonStilling.at("/uuid").asText(),
-            LocalDateTime.parse(jsonStilling.at("/published").asText().substring(0, 19), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")),
+            LocalDateTime.parse(jsonStilling.at("/created").asText().substring(0, 19), dateTimeFormatter),
+            LocalDateTime.parse(jsonStilling.at("/published").asText().substring(0, 19), dateTimeFormatter),
             tags.first,
             tags.second,
             tags.third

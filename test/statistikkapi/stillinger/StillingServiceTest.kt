@@ -85,6 +85,7 @@ class StillingServiceTest {
     private fun likStillingFraElasticSearchOgDatabase(): Pair<ElasticSearchStilling, Stilling> {
         val elasticSearchStilling = ElasticSearchStilling(
             uuid = UUID.randomUUID().toString(),
+            opprettet = LocalDate.of(2021, 5, 2).atStartOfDay(),
             publisert = LocalDate.of(2021, 5, 2).atStartOfDay(),
             inkluderingsmuligheter = listOf(InkluderingTag.FYSISK),
             prioriterteMålgrupper = listOf(PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS, PrioriterteMålgrupperTag.HULL_I_CV),
@@ -93,6 +94,7 @@ class StillingServiceTest {
         val stillingFraDatabase = Stilling(
             id = 1,
             uuid = elasticSearchStilling.uuid,
+            opprettet = elasticSearchStilling.opprettet,
             publisert = elasticSearchStilling.publisert,
             inkluderingsmuligheter = elasticSearchStilling.inkluderingsmuligheter,
             prioriterteMålgrupper = elasticSearchStilling.prioriterteMålgrupper,

@@ -28,6 +28,7 @@ class StillingRepositoryTest {
     fun `skal lagre en stilling og returnere ID`() {
         val stilling = ElasticSearchStilling(
             uuid = UUID.randomUUID().toString(),
+            opprettet = LocalDate.of(2021, 3, 2).atStartOfDay(),
             publisert = LocalDate.of(2021, 3, 3).atStartOfDay(),
             inkluderingsmuligheter = listOf(InkluderingTag.ARBEIDSTID, InkluderingTag.FYSISK),
             prioriterteMålgrupper = listOf(PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS),
@@ -42,6 +43,7 @@ class StillingRepositoryTest {
     fun `skal kunne hente en stilling basert på UUID`() {
         val stilling = ElasticSearchStilling(
             uuid = UUID.randomUUID().toString(),
+            opprettet = LocalDate.of(2021, 3, 2).atStartOfDay(),
             publisert = LocalDate.of(2021, 3, 3).atStartOfDay(),
             inkluderingsmuligheter = listOf(InkluderingTag.ARBEIDSTID, InkluderingTag.FYSISK),
             prioriterteMålgrupper = listOf(PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS),

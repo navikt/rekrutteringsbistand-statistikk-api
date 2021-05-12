@@ -14,19 +14,21 @@ class StillingRepository(private val dataSource: DataSource) {
             it.prepareStatement(
                 """INSERT into $stillingtabell (
                                $uuid,
-                               $publiseringsdato,
+                               $opprettet,
+                               $publisert,
                                $inkluderingsmuligheter,
                                $prioriterteMålgrupper,
                                $tiltakEllerVirkemidler,
                                $tidspunkt    
-                ) VALUES (?, ?, ?, ?, ?, ?)"""
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)"""
             , Statement.RETURN_GENERATED_KEYS).run {
                 setString(1, stilling.uuid)
-                setTimestamp(2, Timestamp.valueOf(stilling.publisert))
-                setString(3, stilling.inkluderingsmuligheter.joinToString(listeseparator))
-                setString(4, stilling.prioriterteMålgrupper.joinToString(listeseparator))
-                setString(5, stilling.tiltakEllerEllerVirkemidler.joinToString(listeseparator))
-                setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()))
+                setTimestamp(2, Timestamp.valueOf(stilling.opprettet))
+                setTimestamp(3, Timestamp.valueOf(stilling.publisert))
+                setString(4, stilling.inkluderingsmuligheter.joinToString(listeseparator))
+                setString(5, stilling.prioriterteMålgrupper.joinToString(listeseparator))
+                setString(6, stilling.tiltakEllerEllerVirkemidler.joinToString(listeseparator))
+                setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
                 executeUpdate()
 
                 generatedKeys.next()
@@ -53,7 +55,8 @@ class StillingRepository(private val dataSource: DataSource) {
     fun ResultSet.konverterTilStilling() = Stilling(
         id = getLong(dbId),
         uuid = getString(uuid),
-        publisert = getTimestamp(publiseringsdato).toLocalDateTime(),
+        opprettet = getTimestamp(opprettet).toLocalDateTime(),
+        publisert = getTimestamp(publisert).toLocalDateTime(),
         inkluderingsmuligheter = if (getString(inkluderingsmuligheter).isBlank()) emptyList() else getString(inkluderingsmuligheter).split(
             listeseparator).map { InkluderingTag.valueOf(it) },
         prioriterteMålgrupper = if (getString(prioriterteMålgrupper).isBlank()) emptyList() else getString(prioriterteMålgrupper).split(listeseparator).map { PrioriterteMålgrupperTag.valueOf(it) },
@@ -67,7 +70,8 @@ class StillingRepository(private val dataSource: DataSource) {
         const val stillingtabell = "stilling"
         const val dbId = "id"
         const val uuid = "uuid"
-        const val publiseringsdato = "publiseringsdato"
+        const val opprettet = "opprettet"
+        const val publisert = "publisert"
         const val inkluderingsmuligheter = "inkluderingsmuligheter"
         const val prioriterteMålgrupper = "prioritertemålgrupper"
         const val tiltakEllerVirkemidler = "tiltakellervirkemidler"

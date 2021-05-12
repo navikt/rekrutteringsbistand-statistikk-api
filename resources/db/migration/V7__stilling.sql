@@ -1,7 +1,8 @@
 CREATE TABLE stilling (
     id SERIAL PRIMARY KEY,
     uuid TEXT,
-    publiseringsdato timestamp,
+    opprettet timestamp,
+    publisert timestamp,
     inkluderingsmuligheter TEXT,
     prioritertemålgrupper TEXT,
     tiltakellervirkemidler TEXT,

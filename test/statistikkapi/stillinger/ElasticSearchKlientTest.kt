@@ -103,6 +103,7 @@ class ElasticSearchKlientTest {
                                     "_source": {
                                         "stilling": {
                                             "uuid": "$uuid",
+                                            "created": "2019-01-03T12:02:26.262",
                                             "published":"$publiseringsdato",
                                             "properties": {}
                                         }

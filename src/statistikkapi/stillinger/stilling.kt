@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 data class Stilling(
     val id: Long,
     val uuid: String,
+    val opprettet: LocalDateTime,
     val publisert: LocalDateTime,
     val inkluderingsmuligheter: List<InkluderingTag>,
     val prioriterteMålgrupper: List<PrioriterteMålgrupperTag>,
@@ -12,9 +13,9 @@ data class Stilling(
     val tidspunkt: LocalDateTime
 )
 
-// TODO: Ta med lagret dato?
 data class ElasticSearchStilling(
     val uuid: String,
+    val opprettet: LocalDateTime,
     val publisert: LocalDateTime,
     val inkluderingsmuligheter: List<InkluderingTag>,
     val prioriterteMålgrupper: List<PrioriterteMålgrupperTag>,
