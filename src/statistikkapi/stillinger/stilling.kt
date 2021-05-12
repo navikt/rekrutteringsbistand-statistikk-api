@@ -12,6 +12,7 @@ data class Stilling(
     val tidspunkt: LocalDateTime
 )
 
+// TODO: Ta med lagret dato?
 data class ElasticSearchStilling(
     val uuid: String,
     val publisert: LocalDateTime,

@@ -39,7 +39,6 @@ class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache
         )
     }
 
-    // TODO: Bruke associateBy
     private fun hentTags(ukategoriserteTags: List<String>): Triple<List<InkluderingTag>, List<PrioriterteMålgrupperTag>, List<TiltakEllerVirkemiddelTag>> =
         Triple(
             ukategoriserteTags.filter { it.startsWith("INKLUDERING__") }.map { InkluderingTag.valueOf(it.removePrefix("INKLUDERING__")) },

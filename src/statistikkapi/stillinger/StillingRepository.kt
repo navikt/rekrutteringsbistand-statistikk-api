@@ -6,9 +6,6 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import javax.sql.DataSource
 
-// TODO: Skal én stilling lagres flere ganger?
-// Hva skal logikken være? Skal vi oppdatere hvis den finnes fra før av?
-
 class StillingRepository(private val dataSource: DataSource) {
 
 
