@@ -199,18 +199,21 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt, telleliste.$tilretteleggingsbehov, telleliste.$synligKandidat FROM $kandidatutfallTabell telleliste,
-                  (SELECT MIN($dbId) as minId, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
-                    (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
-                        (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
-                        WHERE senesteUtfallITidsrom.$tidspunkt >= ?
-                        GROUP BY senesteUtfallITidsrom.$aktørId, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
-                    WHERE senesteUtfallITidsromOgFåttJobben.${dbId} = senesteUtfallITidsrom.maksId
-                    AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben                  
-                  WHERE tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId = senesteUtfallITidsromOgFåttJobben.$aktørId
-                  AND tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid = senesteUtfallITidsromOgFåttJobben.$kandidatlisteid
-                  GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
-                WHERE  telleliste.$dbId = tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.minId
+                SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$tidspunkt, telleliste.$tilretteleggingsbehov, telleliste.$synligKandidat FROM $kandidatutfallTabell telleliste,
+                  (SELECT MIN($dbId) as minId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon,
+                    (SELECT MAX($dbId) as maksId, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
+                      (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
+                          (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
+                          WHERE senesteUtfallITidsrom.$tidspunkt >= ?
+                          GROUP BY senesteUtfallITidsrom.$aktørId, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
+                      WHERE senesteUtfallITidsromOgFåttJobben.$dbId = senesteUtfallITidsrom.maksId
+                      AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben                  
+                    WHERE tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId = senesteUtfallITidsromOgFåttJobben.$aktørId
+                    AND tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid = senesteUtfallITidsromOgFåttJobben.$kandidatlisteid
+                    GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$utfall, senesteUtfallITidsromOgFåttJobben.$tidspunkt) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
+                  WHERE tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$dbId = tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.maksId
+                  GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$aktørId, tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$kandidatlisteid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt) as tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon
+                WHERE  telleliste.$dbId = tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.minId
             """
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))

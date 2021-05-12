@@ -8,6 +8,7 @@ import statistikkapi.datakatalog.DatakatalogData
 import statistikkapi.datakatalog.Spec
 import statistikkapi.datakatalog.View
 import statistikkapi.datakatalog.getLayout
+import statistikkapi.log
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
@@ -76,6 +77,7 @@ class HullStatistikk(private val hullDatagrunnlag: HullDatagrunnlag) : Datakatal
         }
 
     private fun lagPlotAntallHullPresentert(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
+        log.info("Skal lage diagram for antall hull presentert i perioden ${hullDatagrunnlag.gjeldendeDatoer().first()} - ${hullDatagrunnlag.gjeldendeDatoer().last()}")
         lagBarAntallHull(hullDatagrunnlag::hentAntallPresentert, true, "Antall presentert med hull")
         lagBarAntallHull(hullDatagrunnlag::hentAntallPresentert, false, "Antall presentert uten hull")
         lagBarAntallHull(hullDatagrunnlag::hentAntallPresentert, null, "Antall presentert ukjent om de har hull")

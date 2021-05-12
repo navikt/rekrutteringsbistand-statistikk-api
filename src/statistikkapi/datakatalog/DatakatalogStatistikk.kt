@@ -11,7 +11,7 @@ import statistikkapi.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovData
 import statistikkapi.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovStatistikk
 import statistikkapi.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
-import java.time.Period
+import java.time.temporal.ChronoUnit
 
 
 class DatakatalogStatistikk(
@@ -23,6 +23,7 @@ class DatakatalogStatistikk(
 
     override fun run() {
         log.info("Starter jobb som sender statistikk til datakatalogen")
+        log.info("Skal sende statistikk for målinger til og med ${dagensDato}")
         plotlydataOgDataPakke().also { (plotly, datapakke) ->
             datakatalogKlient.sendPlotlyFilTilDatavarehus(plotly)
             datakatalogKlient.sendDatapakke(datapakke)
@@ -80,7 +81,7 @@ fun Plot.getLayout(yTekst: String) {
     }
 }
 
-infix fun LocalDate.til(tilDato: LocalDate) = Period.between(this, tilDato).days
+infix fun LocalDate.til(tilDato: LocalDate) = ChronoUnit.DAYS.between(this, tilDato)
     .let { antallDager ->
-        (0..antallDager).map { this + Period.ofDays(it) }
+        (0..antallDager).map { this.plusDays(it) }
     }
