@@ -26,6 +26,7 @@ class StillingService(
 
     private fun erLike(stillingFraDatabase: Stilling, stillingFraElasticSearch: ElasticSearchStilling) =
         stillingFraDatabase.uuid == stillingFraElasticSearch.uuid &&
+                stillingFraDatabase.opprettet == stillingFraElasticSearch.opprettet &&
                 stillingFraDatabase.publisert == stillingFraElasticSearch.publisert &&
                 stillingFraDatabase.inkluderingsmuligheter == stillingFraElasticSearch.inkluderingsmuligheter &&
                 stillingFraDatabase.prioriterteMålgrupper == stillingFraElasticSearch.prioriterteMålgrupper &&
