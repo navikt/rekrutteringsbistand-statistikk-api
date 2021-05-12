@@ -1,5 +1,6 @@
 package statistikkapi.stillinger
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
@@ -35,8 +36,8 @@ class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache
 
         return ElasticSearchStilling(
                 uuid = jsonStilling.at("/uuid").asText(),
-                opprettet = LocalDateTime.parse(jsonStilling.at("/created").asText()),
-                publisert = LocalDateTime.parse(jsonStilling.at("/published").asText()),
+                opprettet = jsonStilling.at("/created").asLocalDateTime(),
+                publisert = jsonStilling.at("/published").asLocalDateTime(),
                 inkluderingsmuligheter = inkluderingsmuligheter,
                 prioriterteMålgrupper = prioriterteMålgrupper,
                 tiltakEllerEllerVirkemidler = tiltakEllerVirkemidler
@@ -54,3 +55,5 @@ class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache
         )
 
 }
+
+private fun JsonNode.asLocalDateTime() = LocalDateTime.parse(this.asText())
