@@ -11,7 +11,6 @@ import statistikkapi.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovData
 import statistikkapi.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovStatistikk
 import statistikkapi.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
-import java.time.Period
 import java.time.temporal.ChronoUnit
 
 

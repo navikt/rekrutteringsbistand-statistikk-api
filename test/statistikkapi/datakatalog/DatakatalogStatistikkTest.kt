@@ -182,26 +182,7 @@ class DatakatalogStatistikkTest {
 
     @Test
     fun `Antall Hull i cv presentert skal sendes`() {
-        repository.lagreUtfall(lagKandidat(harHull=true),datotid(11))
-        repository.lagreUtfall(lagKandidat(harHull=true),datotid(12))
-        repository.lagreUtfall(lagKandidat(harHull=null),datotid(12))
-        repository.lagreUtfall(lagKandidat(harHull=false),datotid(13))
-        repository.lagreUtfall(lagKandidat(harHull=true,utfall = Utfall.FATT_JOBBEN),datotid(13))
-        nyUnikPersonKandidatListeKombo().let { unikKombo ->
-            repository.lagreUtfall(lagKandidat(unikKombo, harHull = true), datotid(14))
-            repository.lagreUtfall(lagKandidat(unikKombo, harHull = null), datotid(14, time = 6))
-        }
-        nyUnikPersonKandidatListeKombo().let { unikKombo ->
-            repository.lagreUtfall(lagKandidat(unikKombo, harHull = true), datotid(15))
-            repository.lagreUtfall(lagKandidat(unikKombo, harHull = false), datotid(16, time = 7))
-        }
-        nyUnikPersonKandidatListeKombo().let { unikKombo ->
-            repository.lagreUtfall(lagKandidat(unikKombo, harHull=true),datotid(17))
-            repository.lagreUtfall(lagKandidat(unikKombo, harHull=null, utfall = Utfall.FATT_JOBBEN),datotid(18,time = 8))
-        }
-        repeat(3) { repository.lagreUtfall(lagKandidat(harHull = true), datotid(20)) }
-        repeat(4) { repository.lagreUtfall(lagKandidat(harHull = null), datotid(20)) }
-        repeat(5) { repository.lagreUtfall(lagKandidat(harHull = false), datotid(20)) }
+        lagTestcaseIRepository()
 
         val expected = jacksonObjectMapper().writeValueAsString(
             testPlot(
@@ -215,7 +196,7 @@ class DatakatalogStatistikkTest {
                     ),
                     listOf(
                         mapOf(dato(11) to 1, dato(12) to 1, dato(13) to 1, dato(17) to 1, dato(20) to 3),
-                        mapOf(dato(13) to 1, dato(16) to 1, dato(20) to 5),
+                        mapOf(dato(13) to 1, dato(16) to 1, dato(20) to 5, dato(22) to 1),
                         mapOf(dato(12) to 1, dato(14) to 1, dato(20) to 4)
                     )
                 )
@@ -259,8 +240,40 @@ class DatakatalogStatistikkTest {
         verifiserPlotSendt("hullAndelPresentert.json", expected)
     }
 
+    private fun lagTestcaseIRepository() {
+        repository.lagreUtfall(lagKandidat(harHull = true), datotid(11))
+        repository.lagreUtfall(lagKandidat(harHull = true), datotid(12))
+        repository.lagreUtfall(lagKandidat(harHull = null), datotid(12))
+        repository.lagreUtfall(lagKandidat(harHull = false), datotid(13))
+        repository.lagreUtfall(lagKandidat(harHull = true, utfall = Utfall.FATT_JOBBEN), datotid(13))
+        nyUnikPersonKandidatListeKombo().let { unikKombo ->
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = true), datotid(14))
+            repository.lagreUtfall(lagKandidat(unikKombo, utfall = Utfall.IKKE_PRESENTERT, harHull = true), datotid(14, time = 5))
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = null), datotid(14, time = 6))
+        }
+        nyUnikPersonKandidatListeKombo().let { unikKombo ->
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = true), datotid(15))
+            repository.lagreUtfall(lagKandidat(unikKombo, utfall = Utfall.IKKE_PRESENTERT, harHull = false),datotid(16, time = 6))
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = false), datotid(16, time = 7))
+        }
+        nyUnikPersonKandidatListeKombo().let { unikKombo ->
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = true), datotid(17))
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = null, utfall = Utfall.FATT_JOBBEN),datotid(18, time = 8))
+        }
+        repeat(3) { repository.lagreUtfall(lagKandidat(harHull = true, utfall = Utfall.FATT_JOBBEN), datotid(20)) }
+        repeat(4) { repository.lagreUtfall(lagKandidat(harHull = null, utfall = Utfall.FATT_JOBBEN), datotid(20)) }
+        repeat(5) { repository.lagreUtfall(lagKandidat(harHull = false, utfall = Utfall.FATT_JOBBEN), datotid(20)) }
+        nyUnikPersonKandidatListeKombo().let { unikKombo ->
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = true), datotid(21))
+            repository.lagreUtfall(lagKandidat(unikKombo, utfall = Utfall.IKKE_PRESENTERT, harHull = false), datotid(22))
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = false), datotid(22))
+            repository.lagreUtfall(lagKandidat(unikKombo, harHull = null, utfall = Utfall.FATT_JOBBEN), datotid(23, time = 8))
+        }
+    }
+
     @Test
     fun `Antall Hull i cv fått jobben skal sendes`() {
+        lagTestcaseIRepository()
         val expected = jacksonObjectMapper().writeValueAsString(
             testPlot(
                 yaxisText = "Antall",
@@ -270,6 +283,11 @@ class DatakatalogStatistikkTest {
                         "Antall fått jobben med hull",
                         "Antall fått jobben uten hull",
                         "Antall fått jobben ukjent om de har hull"
+                    ),
+                    listOf(
+                        mapOf(dato(13) to 1, dato(18) to 1, dato(20) to 3),
+                        mapOf(dato(23) to 1, dato(20) to 5),
+                        mapOf(dato(20) to 4)
                     )
                 )
             )
