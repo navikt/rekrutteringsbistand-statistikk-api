@@ -1,14 +1,10 @@
 CREATE TABLE stilling (
-    id SERIAL PRIMARY KEY,
-    uuid TEXT,
+    uuid VARCHAR(36),
     opprettet timestamp,
     publisert timestamp,
     inkluderingsmuligheter TEXT,
     prioritertemålgrupper TEXT,
     tiltakellervirkemidler TEXT,
-    tidspunkt timestamp
+    tidspunkt timestamp,
+    PRIMARY KEY (uuid, tidspunkt)
 );
-
-/*
- TODO: Dumt at "stillingid" i kandidatutfalltabellen går mot UUID og ikke denne ID-en
- */

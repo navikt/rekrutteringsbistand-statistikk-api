@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
 import org.junit.After
 import org.junit.Test
 import statistikkapi.db.TestDatabase
@@ -25,7 +26,7 @@ class StillingRepositoryTest {
     }
 
     @Test
-    fun `skal lagre en stilling og returnere ID`() {
+    fun `skal lagre en stilling`() {
         val stilling = ElasticSearchStilling(
             uuid = UUID.randomUUID().toString(),
             opprettet = LocalDate.of(2021, 3, 2).atStartOfDay(),
@@ -34,9 +35,10 @@ class StillingRepositoryTest {
             prioriterteMålgrupper = listOf(PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS),
             tiltakEllerEllerVirkemidler = listOf(TiltakEllerVirkemiddelTag.LÆRLINGPLASS))
 
-        val databaseId = repository.lagreStilling(stilling)
+        repository.lagreStilling(stilling)
+        val databaseStilling = repository.hentNyesteStilling(stilling.uuid) ?: throw IllegalStateException("Ingen stilling funnet i databasen med den UUID´en")
 
-        assertThat(databaseId).isNotNull()
+        assertThat( databaseStilling `er lik` stilling).isTrue()
     }
 
     @Test
@@ -50,14 +52,14 @@ class StillingRepositoryTest {
             tiltakEllerEllerVirkemidler = listOf(TiltakEllerVirkemiddelTag.LÆRLINGPLASS))
         repository.lagreStilling(stilling)
 
-        val lagretStilling = repository.hentStilling(stilling.uuid)
+        val lagretStilling = repository.hentNyesteStilling(stilling.uuid)
 
         assertThat(lagretStilling).isNotNull()
         assertThat(lagretStilling!!.uuid).isEqualTo(stilling.uuid)
         assertThat(lagretStilling.publisert).isEqualTo(stilling.publisert)
         assertThat(lagretStilling.inkluderingsmuligheter).isEqualTo(stilling.inkluderingsmuligheter)
         assertThat(lagretStilling.prioriterteMålgrupper).isEqualTo(stilling.prioriterteMålgrupper)
-        assertThat(lagretStilling.tiltakEllerEllerVirkemidler).isEqualTo(stilling.tiltakEllerEllerVirkemidler)
+        assertThat(lagretStilling.tiltakEllerVirkemidler).isEqualTo(stilling.tiltakEllerEllerVirkemidler)
         assertThat(lagretStilling.tidspunkt).isBetween(LocalDateTime.now().minusSeconds(2), LocalDateTime.now().plusSeconds(2))
     }
 

@@ -3,15 +3,22 @@ package statistikkapi.stillinger
 import java.time.LocalDateTime
 
 data class Stilling(
-    val id: Long,
     val uuid: String,
     val opprettet: LocalDateTime,
     val publisert: LocalDateTime,
     val inkluderingsmuligheter: List<InkluderingTag>,
     val prioriterteMålgrupper: List<PrioriterteMålgrupperTag>,
-    val tiltakEllerEllerVirkemidler: List<TiltakEllerVirkemiddelTag>,
+    val tiltakEllerVirkemidler: List<TiltakEllerVirkemiddelTag>,
     val tidspunkt: LocalDateTime
-)
+) {
+    infix fun `er lik`(stillingFraElasticSearch: ElasticSearchStilling) =
+        uuid == stillingFraElasticSearch.uuid &&
+                opprettet == stillingFraElasticSearch.opprettet &&
+                publisert == stillingFraElasticSearch.publisert &&
+                inkluderingsmuligheter == stillingFraElasticSearch.inkluderingsmuligheter &&
+                prioriterteMålgrupper == stillingFraElasticSearch.prioriterteMålgrupper &&
+                tiltakEllerVirkemidler == stillingFraElasticSearch.tiltakEllerEllerVirkemidler
+}
 
 data class ElasticSearchStilling(
     val uuid: String,

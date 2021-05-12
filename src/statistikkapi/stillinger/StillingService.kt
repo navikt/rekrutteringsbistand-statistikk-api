@@ -5,8 +5,8 @@ class StillingService(
     private val stillingRepository: StillingRepository
 ) {
 
-    fun registrerStilling(stillingUuid: String): Long {
-        val stillingFraDatabase: Stilling? = stillingRepository.hentStilling(stillingUuid)
+    fun registrerStilling(stillingUuid: String) {
+        val stillingFraDatabase: Stilling? = stillingRepository.hentNyesteStilling(stillingUuid)
         val stillingFraElasticSearch: ElasticSearchStilling? = elasticSearchKlient.hentStilling(stillingUuid)
 
         if (stillingFraElasticSearch == null && stillingFraDatabase == null) {
@@ -15,20 +15,10 @@ class StillingService(
 
         val måLagreStillingFraElasticSearch =
             stillingFraDatabase == null ||
-                    stillingFraElasticSearch != null && !erLike(stillingFraDatabase, stillingFraElasticSearch)
+                    stillingFraElasticSearch != null && !(stillingFraDatabase `er lik` stillingFraElasticSearch)
 
-        return if (måLagreStillingFraElasticSearch) {
+        if (måLagreStillingFraElasticSearch) {
             stillingRepository.lagreStilling(stillingFraElasticSearch!!)
-        } else {
-            stillingFraDatabase!!.id
         }
     }
-
-    private fun erLike(stillingFraDatabase: Stilling, stillingFraElasticSearch: ElasticSearchStilling) =
-        stillingFraDatabase.uuid == stillingFraElasticSearch.uuid &&
-                stillingFraDatabase.opprettet == stillingFraElasticSearch.opprettet &&
-                stillingFraDatabase.publisert == stillingFraElasticSearch.publisert &&
-                stillingFraDatabase.inkluderingsmuligheter == stillingFraElasticSearch.inkluderingsmuligheter &&
-                stillingFraDatabase.prioriterteMålgrupper == stillingFraElasticSearch.prioriterteMålgrupper &&
-                stillingFraDatabase.tiltakEllerEllerVirkemidler == stillingFraElasticSearch.tiltakEllerEllerVirkemidler
 }

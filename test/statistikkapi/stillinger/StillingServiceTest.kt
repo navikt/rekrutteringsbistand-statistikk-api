@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Test
@@ -23,11 +24,10 @@ class StillingServiceTest {
         val stillingFraElasticSearch = stillingFraElasticSearchOgFraDatabase.first
         val stillingFraDatabase = stillingFraElasticSearchOgFraDatabase.second
         every { elasticSearchKlient.hentStilling(any()) } returns stillingFraElasticSearch
-        every { stillingRepository.hentStilling(any()) } returns stillingFraDatabase
+        every { stillingRepository.hentNyesteStilling(any()) } returns stillingFraDatabase
 
-        val stillingDatabaseId = stillingService.registrerStilling(UUID.randomUUID().toString())
+        stillingService.registrerStilling(UUID.randomUUID().toString())
 
-        assertThat(stillingDatabaseId).isEqualTo(stillingFraDatabase.id)
         verify(exactly = 0) { stillingRepository.lagreStilling(any()) }
     }
 
@@ -38,14 +38,11 @@ class StillingServiceTest {
             likeStillingerFraELasticSearchOgFraDatabase.first.copy(inkluderingsmuligheter = listOf(InkluderingTag.ARBEIDSTID, InkluderingTag.FYSISK))
         val stillingFraDatabase = likeStillingerFraELasticSearchOgFraDatabase.second
         every { elasticSearchKlient.hentStilling(any()) } returns endretStillingFraElasticSearch
-        every { stillingRepository.hentStilling(any()) } returns stillingFraDatabase
-        val databaseIdForNyLagretStilling = 10L
-        every { stillingRepository.lagreStilling(endretStillingFraElasticSearch) } returns databaseIdForNyLagretStilling
+        every { stillingRepository.hentNyesteStilling(any()) } returns stillingFraDatabase
+        justRun { stillingRepository.lagreStilling(endretStillingFraElasticSearch) }
 
-        val stillingDatabaseId = stillingService.registrerStilling(UUID.randomUUID().toString())
+        stillingService.registrerStilling(UUID.randomUUID().toString())
 
-        assertThat(stillingDatabaseId).isNotEqualTo(stillingFraDatabase)
-        assertThat(stillingDatabaseId).isEqualTo(databaseIdForNyLagretStilling)
         verify(exactly = 1) { stillingRepository.lagreStilling(endretStillingFraElasticSearch) }
     }
 
@@ -53,31 +50,18 @@ class StillingServiceTest {
     fun `Skal lagre stilling fra ElasticSearch hvis stillingen ikke finnes i databasen`() {
         val stillingFraElasticSearch = likStillingFraElasticSearchOgDatabase().first
         every { elasticSearchKlient.hentStilling(any()) } returns stillingFraElasticSearch
-        every { stillingRepository.hentStilling(any()) } returns null
-        every { stillingRepository.lagreStilling(stillingFraElasticSearch) } returns 1L
+        every { stillingRepository.hentNyesteStilling(any()) } returns null
+        justRun { stillingRepository.lagreStilling(stillingFraElasticSearch) }
 
-        val stillingDatabaseId = stillingService.registrerStilling(UUID.randomUUID().toString())
+        stillingService.registrerStilling(UUID.randomUUID().toString())
 
-        assertThat(stillingDatabaseId).isNotNull()
         verify(exactly = 1) { stillingRepository.lagreStilling(stillingFraElasticSearch) }
-    }
-
-    @Test
-    fun `Skal returnere ID på stilling i databasen dersom stilling ikke finnes i ElasticSearch`() {
-        val stillingFraDatabasen = likStillingFraElasticSearchOgDatabase().second
-        every { elasticSearchKlient.hentStilling(any()) } returns null
-        every { stillingRepository.hentStilling(any()) } returns stillingFraDatabasen
-
-        val stillingDatabaseId = stillingService.registrerStilling(UUID.randomUUID().toString())
-
-        assertThat(stillingDatabaseId).isEqualTo(stillingFraDatabasen.id)
-        verify(exactly = 0) { stillingRepository.lagreStilling(any()) }
     }
 
     @Test(expected = RuntimeException::class)
     fun `Dersom man ikke får treff på stillingUuid i hverken database eller ElasticSearch skal feil kastes`() {
         every { elasticSearchKlient.hentStilling(any()) } returns null
-        every { stillingRepository.hentStilling(any()) } returns null
+        every { stillingRepository.hentNyesteStilling(any()) } returns null
 
         stillingService.registrerStilling(UUID.randomUUID().toString())
     }
@@ -92,13 +76,12 @@ class StillingServiceTest {
             tiltakEllerEllerVirkemidler = emptyList()
         )
         val stillingFraDatabase = Stilling(
-            id = 1,
             uuid = elasticSearchStilling.uuid,
             opprettet = elasticSearchStilling.opprettet,
             publisert = elasticSearchStilling.publisert,
             inkluderingsmuligheter = elasticSearchStilling.inkluderingsmuligheter,
             prioriterteMålgrupper = elasticSearchStilling.prioriterteMålgrupper,
-            tiltakEllerEllerVirkemidler = emptyList(),
+            tiltakEllerVirkemidler = emptyList(),
             tidspunkt = LocalDate.of(2021, 5, 4).atStartOfDay()
         )
         return Pair(elasticSearchStilling, stillingFraDatabase)

@@ -1,16 +1,19 @@
 package statistikkapi.stillinger
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
+import net.minidev.json.JSONArray
 import java.sql.ResultSet
-import java.sql.Statement
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import javax.sql.DataSource
+import kotlin.reflect.KClass
 
 class StillingRepository(private val dataSource: DataSource) {
 
 
-    fun lagreStilling(stilling: ElasticSearchStilling): Long {
-         return dataSource.connection.use {
+    fun lagreStilling(stilling: ElasticSearchStilling) {
+         dataSource.connection.use {
             it.prepareStatement(
                 """INSERT into $stillingtabell (
                                $uuid,
@@ -20,29 +23,29 @@ class StillingRepository(private val dataSource: DataSource) {
                                $prioriterteMålgrupper,
                                $tiltakEllerVirkemidler,
                                $tidspunkt    
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)"""
-            , Statement.RETURN_GENERATED_KEYS).run {
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)""").run {
                 setString(1, stilling.uuid)
                 setTimestamp(2, Timestamp.valueOf(stilling.opprettet))
                 setTimestamp(3, Timestamp.valueOf(stilling.publisert))
-                setString(4, stilling.inkluderingsmuligheter.joinToString(listeseparator))
-                setString(5, stilling.prioriterteMålgrupper.joinToString(listeseparator))
-                setString(6, stilling.tiltakEllerEllerVirkemidler.joinToString(listeseparator))
+                setString(4, stilling.inkluderingsmuligheter.somJSONArray())
+                setString(5, stilling.prioriterteMålgrupper.somJSONArray())
+                setString(6, stilling.tiltakEllerEllerVirkemidler.somJSONArray())
                 setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
                 executeUpdate()
-
-                generatedKeys.next()
-                generatedKeys.getLong(1)
             }
         }
     }
 
-    fun hentStilling(stillingUuid: String): Stilling? =
+    fun hentNyesteStilling(stillingUuid: String): Stilling? =
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                    SELECT * from $stillingtabell
-                    WHERE $uuid = ?
+                    SELECT tabell.* from $stillingtabell tabell,
+                        (SELECT max($tidspunkt) as maksTidsPunkt, $uuid from $stillingtabell
+                        WHERE $uuid = ?
+                        GROUP BY $uuid) as stillingMaksTabell
+                    WHERE tabell.$tidspunkt = stillingMaksTabell.maksTidsPunkt
+                    AND tabell.$uuid = stillingMaksTabell.$uuid
                 """.trimIndent()
             ).apply {
                 setString(1, stillingUuid)
@@ -53,22 +56,17 @@ class StillingRepository(private val dataSource: DataSource) {
 
 
     fun ResultSet.konverterTilStilling() = Stilling(
-        id = getLong(dbId),
         uuid = getString(uuid),
         opprettet = getTimestamp(opprettet).toLocalDateTime(),
         publisert = getTimestamp(publisert).toLocalDateTime(),
-        inkluderingsmuligheter = if (getString(inkluderingsmuligheter).isBlank()) emptyList() else getString(inkluderingsmuligheter).split(
-            listeseparator).map { InkluderingTag.valueOf(it) },
-        prioriterteMålgrupper = if (getString(prioriterteMålgrupper).isBlank()) emptyList() else getString(prioriterteMålgrupper).split(listeseparator).map { PrioriterteMålgrupperTag.valueOf(it) },
-        tiltakEllerEllerVirkemidler = if (getString(tiltakEllerVirkemidler).isBlank()) emptyList() else getString(tiltakEllerVirkemidler).split(
-            listeseparator).map { TiltakEllerVirkemiddelTag.valueOf(it) },
+        inkluderingsmuligheter = listFromJSONArray(inkluderingsmuligheter, object: TypeReference<List<InkluderingTag>>(){}),
+        prioriterteMålgrupper = listFromJSONArray(prioriterteMålgrupper, object: TypeReference<List<PrioriterteMålgrupperTag>>(){}),
+        tiltakEllerVirkemidler = listFromJSONArray(tiltakEllerVirkemidler, object: TypeReference<List<TiltakEllerVirkemiddelTag>>() {}),
         tidspunkt = getTimestamp(tidspunkt).toLocalDateTime()
-
     )
 
     companion object {
         const val stillingtabell = "stilling"
-        const val dbId = "id"
         const val uuid = "uuid"
         const val opprettet = "opprettet"
         const val publisert = "publisert"
@@ -79,3 +77,8 @@ class StillingRepository(private val dataSource: DataSource) {
         const val listeseparator = ";"
     }
 }
+
+private fun <E> List<E>.somJSONArray() = JSONArray.toJSONString(this)
+
+private fun <T> ResultSet.listFromJSONArray(columnKey: String, typeReference: TypeReference<List<T>>) =
+    ObjectMapper().readValue(this.getString(columnKey), typeReference)
