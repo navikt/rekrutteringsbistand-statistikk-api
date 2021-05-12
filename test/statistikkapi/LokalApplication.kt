@@ -10,6 +10,8 @@ import statistikkapi.datakatalog.DatakatalogUrl
 import statistikkapi.db.TestDatabase
 import statistikkapi.kafka.DatavarehusKafkaProducer
 import statistikkapi.kafka.DatavarehusKafkaProducerStub
+import statistikkapi.stillinger.ElasticSearchKlient
+import statistikkapi.stillinger.ElasticSearchStilling
 
 @KtorExperimentalAPI
 fun main() {
@@ -48,7 +50,10 @@ fun start(
         tokenValidationConfig,
         datavarehusKafkaProducer,
         unleash,
-        DatakatalogUrl(Cluster.LOKAL)
+        DatakatalogUrl(Cluster.LOKAL),
+        object: ElasticSearchKlient {
+            override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
+        }
     )
     applicationEngine.start()
 

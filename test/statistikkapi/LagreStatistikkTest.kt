@@ -24,7 +24,8 @@ class LagreStatistikkTest {
 
     companion object {
         private val database = TestDatabase()
-        private val repository = TestRepository(database.dataSource)
+        private val testRepository = TestRepository(database.dataSource)
+
         private val port = randomPort()
 
         init {
@@ -33,7 +34,7 @@ class LagreStatistikkTest {
     }
 
     @Test
-    fun `POST til kandidatutfall skal lagre til databasen`() = runBlocking {
+    fun `POST til kandidatutfall skal lagre til utfallstabellen`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
 
         val response: HttpResponse = client.post("$basePath/kandidatutfall") {
@@ -41,7 +42,7 @@ class LagreStatistikkTest {
         }
 
         assertThat(response.status).isEqualTo(HttpStatusCode.Created)
-        repository.hentUtfall().forEachIndexed { index, utfall ->
+        testRepository.hentUtfall().forEachIndexed { index, utfall ->
             assertThat(utfall.dbId).isNotNull()
             assertThat(utfall.aktorId).isEqualTo(kandidatutfallTilLagring[index].aktørId)
             assertThat(utfall.utfall.name).isEqualTo(kandidatutfallTilLagring[index].utfall.name)
@@ -60,6 +61,18 @@ class LagreStatistikkTest {
     }
 
     @Test
+    fun `POST til kandidatutfall skal lagre til stillingstabellen`() = runBlocking {
+        val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
+
+        val response: HttpResponse = client.post("$basePath/kandidatutfall") {
+            body = kandidatutfallTilLagring
+        }
+
+        assertThat(response.status).isEqualTo(HttpStatusCode.Created)
+        assertThat(testRepository.hentAntallStillinger()).isEqualTo(1)
+    }
+
+    @Test
     fun `POST til kandidatutfall skal gi unauthorized hvis man ikke er logget inn`() = runBlocking {
         val uinnloggaClient = HttpClient(Apache) {
             expectSuccess = false
@@ -70,6 +83,7 @@ class LagreStatistikkTest {
 
     @After
     fun cleanUp() {
-        repository.slettAlleUtfall()
+        testRepository.slettAlleUtfall()
+        testRepository.slettAlleStillinger()
     }
 }

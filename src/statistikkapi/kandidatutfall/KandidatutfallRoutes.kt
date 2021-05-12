@@ -9,6 +9,7 @@ import io.ktor.routing.*
 import io.micrometer.core.instrument.Metrics
 import statistikkapi.log
 import statistikkapi.kafka.KafkaTilDataverehusScheduler
+import statistikkapi.stillinger.StillingService
 import java.time.LocalDateTime
 
 data class OpprettKandidatutfall(
@@ -24,12 +25,16 @@ data class OpprettKandidatutfall(
     val tilretteleggingsbehov: List<String>
 )
 
-fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sendStatistikk: KafkaTilDataverehusScheduler) {
+fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sendStatistikk: KafkaTilDataverehusScheduler, stillingService: StillingService) {
 
     authenticate {
         post("/kandidatutfall") {
             val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
             log.info("Mottok ${kandidatutfall.size} kandidatutfall")
+
+            kandidatutfall.map { it.stillingsId }.distinct().forEach {
+                stillingService.registrerStilling(it)
+            }
 
             kandidatutfall.forEach {
                 kandidatutfallRepository.lagreUtfall(it, LocalDateTime.now())

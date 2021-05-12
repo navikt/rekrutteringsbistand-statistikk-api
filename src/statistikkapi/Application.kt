@@ -9,6 +9,7 @@ import statistikkapi.datakatalog.DatakatalogUrl
 import statistikkapi.db.Database
 import statistikkapi.kafka.DatavarehusKafkaProducerImpl
 import statistikkapi.kafka.KafkaConfig
+import statistikkapi.stillinger.ElasticSearchKlientImpl
 import statistikkapi.unleash.UnleashConfig
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
@@ -26,12 +27,15 @@ fun main() {
 
     val datakatalogUrl = DatakatalogUrl(Cluster.current)
 
+    val elasticSearchKlient = ElasticSearchKlientImpl()
+
     val applicationEngine = lagApplicationEngine(
         dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer,
         unleash = UnleashConfig.unleash,
-        url = datakatalogUrl
+        url = datakatalogUrl,
+        elasticSearchKlient = elasticSearchKlient
     )
     applicationEngine.start()
     log.info("Applikasjon startet i miljø: ${Cluster.current}")

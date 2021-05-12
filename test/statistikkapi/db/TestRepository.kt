@@ -3,6 +3,7 @@ package statistikkapi.db
 import statistikkapi.kandidatutfall.Kandidatutfall
 import statistikkapi.kandidatutfall.KandidatutfallRepository
 import statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
+import statistikkapi.stillinger.StillingRepository
 import javax.sql.DataSource
 
 class TestRepository(private val dataSource: DataSource) {
@@ -20,6 +21,19 @@ class TestRepository(private val dataSource: DataSource) {
                 if (resultSet.next()) konverterTilKandidatutfall(resultSet)
                 else null
             }.toList()
+        }
+    }
+
+    fun hentAntallStillinger() = dataSource.connection.use {
+            it.prepareStatement("SELECT count(*) FROM ${StillingRepository.stillingtabell}").executeQuery().run {
+                next()
+                getInt(1)
+            }
+        }
+
+    fun slettAlleStillinger() {
+        dataSource.connection.use {
+            it.prepareStatement("DELETE FROM ${StillingRepository.stillingtabell}").execute()
         }
     }
 }

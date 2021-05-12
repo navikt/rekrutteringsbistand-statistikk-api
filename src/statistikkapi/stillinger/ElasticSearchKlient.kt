@@ -10,8 +10,11 @@ import statistikkapi.Cluster
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+interface ElasticSearchKlient {
+    fun hentStilling(stillingUuid: String): ElasticSearchStilling?
+}
 
-class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache)) {
+class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Apache)): ElasticSearchKlient {
 
     // TODO: Metode for å hente alle stillinger med tilrettelegging/inkludering i gitt tidsrom
 
@@ -21,7 +24,7 @@ class ElasticSearchKlient(private val httpKlient: HttpClient = HttpClient(Apache
         Cluster.LOKAL -> "https://rekrutteringsbistand-stillingssok-proxy.dev.intern.nav.no/stilling/_doc"
     }
 
-    fun hentStilling(stillingUuid: String): ElasticSearchStilling? = runBlocking {
+    override fun hentStilling(stillingUuid: String): ElasticSearchStilling? = runBlocking {
         val esSvar: String = httpKlient.get("$stillingssokProxyDokumentUrl/$stillingUuid")
         mapElasticSearchJsonSvarTilStilling(esSvar)
     }
