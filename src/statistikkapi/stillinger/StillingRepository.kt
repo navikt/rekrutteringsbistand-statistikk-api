@@ -78,7 +78,7 @@ class StillingRepository(private val dataSource: DataSource) {
     }
 }
 
-private fun <E> List<E>.somJSONArray() = JSONArray.toJSONString(this)
+private fun List<*>.somJSONArray() = JSONArray.toJSONString(this)
 
 private fun <T> ResultSet.listFromJSONArray(columnKey: String, typeReference: TypeReference<List<T>>) =
     ObjectMapper().readValue(this.getString(columnKey), typeReference)

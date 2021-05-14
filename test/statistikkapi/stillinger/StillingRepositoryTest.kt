@@ -1,10 +1,7 @@
 package statistikkapi.stillinger
 
 import assertk.assertThat
-import assertk.assertions.isBetween
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
-import assertk.assertions.isTrue
+import assertk.assertions.*
 import org.junit.After
 import org.junit.Test
 import statistikkapi.db.TestDatabase
@@ -38,7 +35,7 @@ class StillingRepositoryTest {
         repository.lagreStilling(stilling)
         val databaseStilling = repository.hentNyesteStilling(stilling.uuid) ?: throw IllegalStateException("Ingen stilling funnet i databasen med den UUID´en")
 
-        assertThat( databaseStilling `er lik` stilling).isTrue()
+        assertThat( databaseStilling `er ulik` stilling).isFalse()
     }
 
     @Test

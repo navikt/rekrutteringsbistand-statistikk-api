@@ -49,12 +49,9 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
 
     private fun hentTags(ukategoriserteTags: List<String>): Triple<List<InkluderingTag>, List<PrioriterteMålgrupperTag>, List<TiltakEllerVirkemiddelTag>> =
         Triple(
-            ukategoriserteTags.filter { it.startsWith("INKLUDERING__") }
-                .map { InkluderingTag.valueOf(it.removePrefix("INKLUDERING__")) },
-            ukategoriserteTags.filter { it.startsWith("PRIORITERT_MÅLGRUPPE__") }
-                .map { PrioriterteMålgrupperTag.valueOf(it.removePrefix("PRIORITERT_MÅLGRUPPE__")) },
-            ukategoriserteTags.filter { it.startsWith("TILTAK_ELLER_VIRKEMIDDEL__") }
-                .map { TiltakEllerVirkemiddelTag.valueOf(it.removePrefix("TILTAK_ELLER_VIRKEMIDDEL__")) }
+            ukategoriserteTags.filter { InkluderingTag.erGyldig(it) }.map { InkluderingTag.fraNavn(it) },
+            ukategoriserteTags.filter { PrioriterteMålgrupperTag.erGyldig(it) }.map { PrioriterteMålgrupperTag.fraNavn(it) },
+            ukategoriserteTags.filter { TiltakEllerVirkemiddelTag.erGyldig(it) }.map { TiltakEllerVirkemiddelTag.fraNavn(it) }
         )
 
 }

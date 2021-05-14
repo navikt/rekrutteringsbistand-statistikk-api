@@ -15,7 +15,7 @@ class StillingService(
 
         val måLagreStillingFraElasticSearch =
             stillingFraDatabase == null ||
-                    stillingFraElasticSearch != null && !(stillingFraDatabase `er lik` stillingFraElasticSearch)
+                    stillingFraElasticSearch != null && (stillingFraDatabase `er ulik` stillingFraElasticSearch)
 
         if (måLagreStillingFraElasticSearch) {
             stillingRepository.lagreStilling(stillingFraElasticSearch!!)

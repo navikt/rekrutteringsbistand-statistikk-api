@@ -11,7 +11,8 @@ data class Stilling(
     val tiltakEllerVirkemidler: List<TiltakEllerVirkemiddelTag>,
     val tidspunkt: LocalDateTime
 ) {
-    infix fun `er lik`(stillingFraElasticSearch: ElasticSearchStilling) =
+    infix fun `er ulik`(stillingFraElasticSearch: ElasticSearchStilling) = !(this `er lik` stillingFraElasticSearch)
+    private infix fun `er lik`(stillingFraElasticSearch: ElasticSearchStilling) =
         uuid == stillingFraElasticSearch.uuid &&
                 opprettet == stillingFraElasticSearch.opprettet &&
                 publisert == stillingFraElasticSearch.publisert &&
@@ -33,7 +34,12 @@ enum class InkluderingTag {
     ARBEIDSTID,
     ARBEIDSMILJØ,
     FYSISK,
-    GRUNNLEGGENDE
+    GRUNNLEGGENDE;
+    companion object {
+        private val prefix = "INKLUDERING__"
+        fun erGyldig(tagNavn: String) = tagNavn.startsWith(prefix)
+        fun fraNavn(tagNavn: String) = valueOf(tagNavn.removePrefix(prefix))
+    }
 }
 
 enum class PrioriterteMålgrupperTag {
@@ -42,11 +48,21 @@ enum class PrioriterteMålgrupperTag {
     KOMMER_FRA_LAND_UTENFOR_EØS,
     HULL_I_CV,
     LITE_ELLER_INGEN_UTDANNING,
-    LITE_ELLER_INGEN_ARBEIDSERFARING
+    LITE_ELLER_INGEN_ARBEIDSERFARING;
+    companion object {
+        private val prefix = "PRIORITERT_MÅLGRUPPE__"
+        fun erGyldig(tagNavn: String) = tagNavn.startsWith(prefix)
+        fun fraNavn(tagNavn: String) = valueOf(tagNavn.removePrefix(prefix))
+    }
 }
 
 enum class TiltakEllerVirkemiddelTag {
     LØNNSTILSKUDD,
     MENTORTILSKUDD,
-    LÆRLINGPLASS
+    LÆRLINGPLASS;
+    companion object {
+        private val prefix = "TILTAK_ELLER_VIRKEMIDDEL__"
+        fun erGyldig(tagNavn: String) = tagNavn.startsWith(prefix)
+        fun fraNavn(tagNavn: String) = valueOf(tagNavn.removePrefix(prefix))
+    }
 }

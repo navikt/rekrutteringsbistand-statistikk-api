@@ -1,18 +1,11 @@
 package statistikkapi.datakatalog.hull
 
-import kscience.plotly.Plot
 import kscience.plotly.Plotly
-import kscience.plotly.bar
 import kscience.plotly.toJsonString
-import statistikkapi.datakatalog.DatakatalogData
-import statistikkapi.datakatalog.Spec
-import statistikkapi.datakatalog.View
-import statistikkapi.datakatalog.getLayout
+import statistikkapi.datakatalog.*
 import statistikkapi.log
-import java.time.LocalDate
-import kotlin.math.roundToInt
 
-class HullStatistikk(private val hullDatagrunnlag: HullDatagrunnlag) : DatakatalogData {
+class HullStatistikk(private val datagrunnlag: HullDatagrunnlag) : DatakatalogData {
     companion object {
         private val filnavnHullAntallPresentert: String = "hullAntallPresentert.json"
         private val filnavnHullAndelPresentert: String = "hullAndelPresentert.json"
@@ -59,52 +52,37 @@ class HullStatistikk(private val hullDatagrunnlag: HullDatagrunnlag) : Datakatal
     )
 
     override fun plotlyFiler() =
-        hullDatagrunnlag.let { hullDatakatalog ->
+        datagrunnlag.let { datagrunnlag ->
             listOf(
-                filnavnHullAntallPresentert to lagPlotAntallHullPresentert(hullDatakatalog).toJsonString(),
-                filnavnHullAntallFåttJobben to lagPlotAntallHullFåttJobben(hullDatakatalog).toJsonString(),
-                filnavnHullAndelPresentert to lagPlotHullAndelPresentert(hullDatakatalog).toJsonString(),
-                filnavnHullAndelFåttJobben to lagPlotHullAndelFåttJobben(hullDatakatalog).toJsonString()
+                filnavnHullAntallPresentert to lagPlotAntallHullPresentert(datagrunnlag).toJsonString(),
+                filnavnHullAntallFåttJobben to lagPlotAntallHullFåttJobben(datagrunnlag).toJsonString(),
+                filnavnHullAndelPresentert to lagPlotHullAndelPresentert(datagrunnlag).toJsonString(),
+                filnavnHullAndelFåttJobben to lagPlotHullAndelFåttJobben(datagrunnlag).toJsonString()
             )
         }
 
-    private fun Plot.lagBarAntallHull(hentVerdi: (Boolean?, LocalDate) -> Int, harHull: Boolean?, description: String) =
-        bar {
-            val datoer = hullDatagrunnlag.gjeldendeDatoer()
-            x.strings = datoer.map { it.toString() }
-            y.numbers = datoer.map { hentVerdi(harHull, it) }
-            name = description
-        }
-
-    private fun lagPlotAntallHullPresentert(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
-        log.info("Skal lage diagram for antall hull presentert i perioden ${hullDatagrunnlag.gjeldendeDatoer().first()} - ${hullDatagrunnlag.gjeldendeDatoer().last()}")
-        lagBarAntallHull(hullDatagrunnlag::hentAntallPresentert, true, "Antall presentert med hull")
-        lagBarAntallHull(hullDatagrunnlag::hentAntallPresentert, false, "Antall presentert uten hull")
-        lagBarAntallHull(hullDatagrunnlag::hentAntallPresentert, null, "Antall presentert ukjent om de har hull")
+    private fun lagPlotAntallHullPresentert(datagrunnlag: HullDatagrunnlag) = Plotly.plot {
+        log.info("Skal lage diagram for antall hull presentert i perioden ${datagrunnlag.gjeldendeDatoer().first()} - ${datagrunnlag.gjeldendeDatoer().last()}")
+        lagBar("Antall presentert med hull", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallPresentert(true, it) }
+        lagBar("Antall presentert uten hull", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallPresentert(false, it) }
+        lagBar("Antall presentert ukjent om de har hull", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallPresentert(null, it) }
         getLayout("Antall")
     }
 
-    private fun lagPlotAntallHullFåttJobben(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
-        lagBarAntallHull(hullDatagrunnlag::hentAntallFåttJobben, true, "Antall fått jobben med hull")
-        lagBarAntallHull(hullDatagrunnlag::hentAntallFåttJobben, false, "Antall fått jobben uten hull")
-        lagBarAntallHull(hullDatagrunnlag::hentAntallFåttJobben, null, "Antall fått jobben ukjent om de har hull")
+    private fun lagPlotAntallHullFåttJobben(datagrunnlag: HullDatagrunnlag) = Plotly.plot {
+        lagBar("Antall fått jobben med hull", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallFåttJobben(true, it) }
+        lagBar("Antall fått jobben uten hull", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallFåttJobben(false, it) }
+        lagBar("Antall fått jobben ukjent om de har hull", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallFåttJobben(null, it) }
         getLayout("Antall")
     }
 
-    private fun Plot.lagBarAndelHull(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = hullDatagrunnlag.gjeldendeDatoer()
-        x.strings = datoer.map { it.toString() }
-        y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
-        name = description
-    }
-
-    private fun lagPlotHullAndelPresentert(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
-        lagBarAndelHull(hullDatagrunnlag::hentAndelPresentert, "Andel presentert med hull")
+    private fun lagPlotHullAndelPresentert(datagrunnlag: HullDatagrunnlag) = Plotly.plot {
+        lagBar("Andel presentert med hull", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAndelPresentert(it).somProsent() }
         getLayout("Andel %")
     }
 
-    private fun lagPlotHullAndelFåttJobben(hullDatagrunnlag: HullDatagrunnlag) = Plotly.plot {
-        lagBarAndelHull(hullDatagrunnlag::hentAndelFåttJobben, "Andel fått jobben med hull")
+    private fun lagPlotHullAndelFåttJobben(datagrunnlag: HullDatagrunnlag) = Plotly.plot {
+        lagBar("Andel fått jobben med hull", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAndelPresentert(it).somProsent() }
         getLayout("Andel %")
     }
 }
