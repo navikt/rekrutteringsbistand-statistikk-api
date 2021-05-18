@@ -10,6 +10,7 @@ import statistikkapi.db.Database
 import statistikkapi.kafka.DatavarehusKafkaProducerImpl
 import statistikkapi.kafka.KafkaConfig
 import statistikkapi.stillinger.ElasticSearchKlientImpl
+import statistikkapi.stillinger.autentisering.StillingssokProxyAccessTokenKlient
 import statistikkapi.unleash.UnleashConfig
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
@@ -24,10 +25,15 @@ fun main() {
     }
 
     val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
-
     val datakatalogUrl = DatakatalogUrl(Cluster.current)
 
-    val elasticSearchKlient = ElasticSearchKlientImpl()
+    val stillingssokProxyAccessTokenClient = StillingssokProxyAccessTokenKlient(
+        config = StillingssokProxyAccessTokenKlient.AuthenticationConfig(
+            azureClientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
+            azureClientId = System.getenv("AZURE_APP_CLIENT_ID"),
+            azureTenantId = System.getenv("AZURE_APP_TENANT_ID")
+        ))
+    val elasticSearchKlient = ElasticSearchKlientImpl { stillingssokProxyAccessTokenClient.getBearerToken() }
 
     val applicationEngine = lagApplicationEngine(
         dataSource = database.dataSource,

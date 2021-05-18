@@ -10,6 +10,7 @@ import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import org.junit.Test
 import statistikkapi.etElasticSearchSvarForEnStilling
+import statistikkapi.stillinger.autentisering.BearerToken
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -23,8 +24,7 @@ class ElasticSearchKlientImplTest {
         val inkluderingstags = InkluderingTag.values().toList()
         val prioriterteMålgrupperTags = PrioriterteMålgrupperTag.values().toList()
         val tiltakVirkemiddelTags = TiltakEllerVirkemiddelTag.values().toList()
-        val klient = ElasticSearchKlientImpl(httpClientSøketreff(uuid, publiseringsdato, inkluderingstags, prioriterteMålgrupperTags, tiltakVirkemiddelTags))
-
+        val klient = ElasticSearchKlientImpl(httpClientSøketreff(uuid, publiseringsdato, inkluderingstags, prioriterteMålgrupperTags, tiltakVirkemiddelTags), ::tokenProvider)
         val stilling = klient.hentStilling(uuid)
 
         assertThat(stilling).isNotNull()
@@ -39,7 +39,7 @@ class ElasticSearchKlientImplTest {
     fun `manglende tags på søketreff skal gi Stilling-objekt`() {
         val uuid = UUID.randomUUID().toString()
         val publiseringsdato = LocalDate.of(2019, 11, 20).atTime(10, 31, 32, 0)
-        val klient = ElasticSearchKlientImpl(httpClientSøketreffUtenTags(uuid, publiseringsdato))
+        val klient = ElasticSearchKlientImpl(httpClientSøketreffUtenTags(uuid, publiseringsdato), ::tokenProvider)
 
         val stilling = klient.hentStilling(uuid)
 
@@ -54,7 +54,7 @@ class ElasticSearchKlientImplTest {
     @Test
     fun `Ingen treff på dokumentuuid skal gi null`() {
         val uuid = UUID.randomUUID().toString()
-        val klient = ElasticSearchKlientImpl(httpClientIngenTreff())
+        val klient = ElasticSearchKlientImpl(httpClientIngenTreff(), ::tokenProvider)
 
         val stilling = klient.hentStilling(uuid)
 
@@ -114,6 +114,8 @@ class ElasticSearchKlientImplTest {
                 }
             }
         }
+
+    private fun tokenProvider() = BearerToken("a", LocalDateTime.now().plusSeconds(10))
 
     private fun httpClientSøketreff(uuid: String,
                                     publiseringsdato: String,
