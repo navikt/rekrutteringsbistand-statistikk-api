@@ -23,3 +23,6 @@ spec:
       - kvPath: /serviceuser/data/dev/srv-rekbis-stat
         mountPath: /secret/serviceuser
   webproxy: true
+  azure:
+    application:
+      enabled: true

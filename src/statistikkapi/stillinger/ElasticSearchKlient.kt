@@ -5,16 +5,22 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
+import statistikkapi.stillinger.autentisering.StillingssokProxyAccessTokenClient
 import statistikkapi.Cluster
+import statistikkapi.stillinger.autentisering.BearerToken
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 interface ElasticSearchKlient {
     fun hentStilling(stillingUuid: String): ElasticSearchStilling?
 }
 
-class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Apache)): ElasticSearchKlient {
+class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Apache),
+                              private val stillingssokProxyAccessTokenClient: StillingssokProxyAccessTokenClient): ElasticSearchKlient {
+
+    private val token: BearerToken
+        get() = stillingssokProxyAccessTokenClient.getBearerToken()
 
     // TODO: Metode for å hente alle stillinger med tilrettelegging/inkludering i gitt tidsrom
 
@@ -25,7 +31,9 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
     }
 
     override fun hentStilling(stillingUuid: String): ElasticSearchStilling? = runBlocking {
-        val esSvar: String = httpKlient.get("$stillingssokProxyDokumentUrl/$stillingUuid")
+        val esSvar: String = httpKlient.get("$stillingssokProxyDokumentUrl/$stillingUuid") {
+            headers(token.appendBearerToken())
+        }
         mapElasticSearchJsonSvarTilStilling(esSvar)
     }
 
