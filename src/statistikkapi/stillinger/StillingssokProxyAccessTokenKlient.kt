@@ -1,10 +1,12 @@
 package statistikkapi.stillinger.autentisering
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import statistikkapi.Cluster
@@ -25,7 +27,7 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
     private fun nyttBearerToken() = runBlocking {
         val stillingsSokProxyCluster = if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"
 
-        val accessToken = httpKlient.submitForm<AccessToken>(
+        val response = httpKlient.submitForm<HttpResponse>(
             url = "https://login.microsoftonline.com/${config.azureTenantId}/oauth2/v2.0/token",
             formParameters = Parameters.build {
                 append("grant_type", "client_credentials")
@@ -34,7 +36,9 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
                 append("scope", "api://${stillingsSokProxyCluster}.arbeidsgiver.rekrutteringsbistand-stillingssok-proxy/.default")
             }
         )
-        log.info("Har hentet access token for stillingssok-proxy")
+        log.info("Har hentet access token for stillingssok-proxy, statuskode: ${response.status.value}")
+
+        val accessToken = jacksonObjectMapper().readValue(response.readText(), AccessToken::class.java)
         BearerToken(accessToken.access_token, LocalDateTime.now().plusSeconds(accessToken.expires_in.toLong()))
     }
 
