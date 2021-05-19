@@ -65,6 +65,7 @@ class StillingssokProxyAccessTokenKlientTest {
     private fun config() = StillingssokProxyAccessTokenKlient.AuthenticationConfig(
         "secret",
         "clientId",
-        "tenantId"
+        "tenantId",
+        "tokenEndpoint"
     )
 }

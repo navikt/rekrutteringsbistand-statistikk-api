@@ -31,7 +31,8 @@ fun main() {
         config = StillingssokProxyAccessTokenKlient.AuthenticationConfig(
             azureClientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
             azureClientId = System.getenv("AZURE_APP_CLIENT_ID"),
-            azureTenantId = System.getenv("AZURE_APP_TENANT_ID")
+            azureTenantId = System.getenv("AZURE_APP_TENANT_ID"),
+            tokenEndpoint = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT")
         ))
     val elasticSearchKlient = ElasticSearchKlientImpl { stillingssokProxyAccessTokenClient.getBearerToken() }
 

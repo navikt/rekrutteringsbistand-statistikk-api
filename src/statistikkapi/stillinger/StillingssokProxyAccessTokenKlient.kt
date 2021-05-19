@@ -28,7 +28,7 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
         val stillingsSokProxyCluster = if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"
 
         val response = httpKlient.submitForm<HttpResponse>(
-            url = "https://login.microsoftonline.com/${config.azureTenantId}/oauth2/v2.0/token",
+            url = config.tokenEndpoint,
             formParameters = Parameters.build {
                 append("grant_type", "client_credentials")
                 append("client_secret", config.azureClientSecret)
@@ -46,6 +46,7 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
         val azureClientSecret: String,
         val azureClientId: String,
         val azureTenantId: String,
+        val tokenEndpoint: String
     )
 
     private data class AccessToken(
