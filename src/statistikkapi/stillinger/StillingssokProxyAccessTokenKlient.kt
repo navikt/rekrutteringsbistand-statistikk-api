@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.features.json.*
+import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -29,15 +30,16 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
 
         log.info("Skal hente token fra: ${config.tokenEndpoint}")
 
-        val response = httpKlient.submitForm<HttpResponse>(
-            url = config.tokenEndpoint,
-            formParameters = Parameters.build {
-                append("grant_type", "client_credentials")
-                append("client_secret", config.azureClientSecret)
-                append("client_id", config.azureClientId)
-                append("scope", "api://${stillingsSokProxyCluster}.arbeidsgiver.rekrutteringsbistand-stillingssok-proxy/.default")
-            }
-        )
+        val response = httpKlient.post<HttpResponse>(config.tokenEndpoint) {
+            body = (
+                    formData {
+                        append("grant_type", "client_credentials")
+                        append("client_secret", config.azureClientSecret)
+                        append("client_id", config.azureClientId)
+                        append("scope", "api://${stillingsSokProxyCluster}.arbeidsgiver.rekrutteringsbistand-stillingssok-proxy/.default")
+                    }
+            )
+        }
         log.info("Har hentet access token for stillingssok-proxy, statuskode: ${response.status.value}")
 
         val accessToken = jacksonObjectMapper().readValue(response.readText(), AccessToken::class.java)
