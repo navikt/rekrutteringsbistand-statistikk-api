@@ -3,6 +3,8 @@ package statistikkapi.stillinger.autentisering
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
+import io.ktor.client.engine.*
+import io.ktor.client.engine.ProxyBuilder.http
 import io.ktor.client.engine.apache.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
@@ -66,6 +68,9 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
             install(JsonFeature) {
                 serializer = JacksonSerializer {
                     registerModule(JavaTimeModule())
+                }
+                engine {
+                    proxy = ProxyBuilder.http("http://webproxy.nais:8088")
                 }
             }
         }
