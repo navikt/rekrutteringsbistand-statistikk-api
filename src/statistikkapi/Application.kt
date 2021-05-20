@@ -17,33 +17,38 @@ val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistik
 
 @KtorExperimentalAPI
 fun main() {
-    val database = Database(Cluster.current)
+    try {
+        val database = Database(Cluster.current)
 
-    val tokenSupportConfig = tokenSupportConfig(Cluster.current)
-    val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
-        tokenValidationSupport(config = tokenSupportConfig)
+        val tokenSupportConfig = tokenSupportConfig(Cluster.current)
+        val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
+            tokenValidationSupport(config = tokenSupportConfig)
+        }
+
+        val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
+        val datakatalogUrl = DatakatalogUrl(Cluster.current)
+
+        val stillingssokProxyAccessTokenClient = StillingssokProxyAccessTokenKlient(
+            config = StillingssokProxyAccessTokenKlient.AuthenticationConfig(
+                azureClientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
+                azureClientId = System.getenv("AZURE_APP_CLIENT_ID"),
+                azureTenantId = System.getenv("AZURE_APP_TENANT_ID"),
+                tokenEndpoint = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT")
+            ))
+        val elasticSearchKlient = ElasticSearchKlientImpl { stillingssokProxyAccessTokenClient.getBearerToken() }
+
+        val applicationEngine = lagApplicationEngine(
+            dataSource = database.dataSource,
+            tokenValidationConfig = tokenValidationConfig,
+            datavarehusKafkaProducer = datavarehusKafkaProducer,
+            unleash = UnleashConfig.unleash,
+            url = datakatalogUrl,
+            elasticSearchKlient = elasticSearchKlient
+        )
+        applicationEngine.start()
+        log.info("Applikasjon startet i miljø: ${Cluster.current}")
+    } catch (e: Exception) {
+        log.error("Feil i applikasjon", e)
+        throw e
     }
-
-    val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
-    val datakatalogUrl = DatakatalogUrl(Cluster.current)
-
-    val stillingssokProxyAccessTokenClient = StillingssokProxyAccessTokenKlient(
-        config = StillingssokProxyAccessTokenKlient.AuthenticationConfig(
-            azureClientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
-            azureClientId = System.getenv("AZURE_APP_CLIENT_ID"),
-            azureTenantId = System.getenv("AZURE_APP_TENANT_ID"),
-            tokenEndpoint = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT")
-        ))
-    val elasticSearchKlient = ElasticSearchKlientImpl { stillingssokProxyAccessTokenClient.getBearerToken() }
-
-    val applicationEngine = lagApplicationEngine(
-        dataSource = database.dataSource,
-        tokenValidationConfig = tokenValidationConfig,
-        datavarehusKafkaProducer = datavarehusKafkaProducer,
-        unleash = UnleashConfig.unleash,
-        url = datakatalogUrl,
-        elasticSearchKlient = elasticSearchKlient
-    )
-    applicationEngine.start()
-    log.info("Applikasjon startet i miljø: ${Cluster.current}")
 }
