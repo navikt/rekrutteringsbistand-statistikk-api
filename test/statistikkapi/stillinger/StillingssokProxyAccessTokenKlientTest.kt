@@ -12,7 +12,7 @@ import org.junit.Test
 import statistikkapi.stillinger.autentisering.StillingssokProxyAccessTokenKlient
 
 class StillingssokProxyAccessTokenKlientTest {
-/*
+
     @Test
     fun verifiserAtNyTokenHentesVedOpprettelseAvKlient() {
         var antallGangerNyTokenHentet = 0
@@ -41,7 +41,6 @@ class StillingssokProxyAccessTokenKlientTest {
             install(JsonFeature) {
                 serializer = JacksonSerializer {
                     registerModule(JavaTimeModule())
-                    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 }
             }
             engine {
@@ -68,6 +67,4 @@ class StillingssokProxyAccessTokenKlientTest {
         "tenantId",
         "tokenEndpoint"
     )
-
- */
 }

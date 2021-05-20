@@ -39,6 +39,7 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
                         append("scope", "api://${stillingsSokProxyCluster}.arbeidsgiver.rekrutteringsbistand-stillingssok-proxy/.default")
                     }
             )
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
         }
         log.info("Har hentet access token for stillingssok-proxy, statuskode: ${response.status.value}")
 
