@@ -28,7 +28,7 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
     private fun nyttBearerToken() = runBlocking {
         val stillingsSokProxyCluster = if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"
 
-        log.info("Skal hente token fra: ${config.tokenEndpoint}")
+    log.info("Skal hente token fra: ${config.tokenEndpoint}")
 
         val response = httpKlient.post<HttpResponse>(config.tokenEndpoint) {
             body = (

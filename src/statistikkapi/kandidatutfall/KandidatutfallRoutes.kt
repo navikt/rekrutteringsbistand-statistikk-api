@@ -7,6 +7,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.micrometer.core.instrument.Metrics
+import kotlinx.coroutines.launch
 import statistikkapi.log
 import statistikkapi.kafka.KafkaTilDataverehusScheduler
 import statistikkapi.stillinger.StillingService
@@ -32,8 +33,14 @@ fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sen
             val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
             log.info("Mottok ${kandidatutfall.size} kandidatutfall")
 
-            kandidatutfall.map { it.stillingsId }.distinct().forEach {
-                stillingService.registrerStilling(it)
+            launch {
+                try {
+                    kandidatutfall.map { it.stillingsId }.distinct().forEach {
+                        stillingService.registrerStilling(it)
+                    }
+                } catch (e: Exception) {
+                    log.error("Kunne ikke registrere stilling", e)
+                }
             }
 
             kandidatutfall.forEach {
