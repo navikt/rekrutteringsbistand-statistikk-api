@@ -44,7 +44,7 @@ class AccessTokenProviderTest {
                                 "token_type": "enType",
                                 "expires_in": $utgårOmSekunder,
                                 "ext_expires_in": 123,
-                                "access_token": "enToken"
+                                "access_token": "enToken.enToken"
                             }
                         """.trimIndent(),
                         headers = headersOf("Content-Type", "application/json")
