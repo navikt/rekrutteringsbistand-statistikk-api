@@ -66,7 +66,7 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
     )
 
     companion object {
-        private fun lagHttpKlient() = HttpClient(Apache) {
+        private fun lagHttpKlient() = HttpClient() {
             install(JsonFeature) {
                 serializer = JacksonSerializer {
                     registerModule(JavaTimeModule())
