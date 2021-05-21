@@ -77,6 +77,7 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
             }
             engine {
                 System.getenv("HTTP_PROXY")?.let {
+                    log.info("Setter proxy")
                     this.proxy = ProxyBuilder.http(it)
                 }
             }
