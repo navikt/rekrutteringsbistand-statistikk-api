@@ -11,6 +11,7 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import java.time.LocalDateTime
 
 class AccessTokenProvider(private val config: Config, private val httpKlient: HttpClient = lagHttpKlient()) {
@@ -25,18 +26,17 @@ class AccessTokenProvider(private val config: Config, private val httpKlient: Ht
 
     private fun nyttBearerToken(scope: String) = runBlocking {
         log.info("Skal hente token fra: ${config.tokenEndpoint}")
-        val response = httpKlient.post<HttpResponse>(config.tokenEndpoint) {
-            body = (
-                    formData {
-                        append("grant_type", "client_credentials")
-                        append("client_secret", config.azureClientSecret)
-                        append("client_id", config.azureClientId)
-                        append("scope", scope)
-                    }
-            )
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
-        }
-        log.info("Har hentet access token for stillingssok-proxy, statuskode: ${response.status.value}")
+
+        val response: HttpResponse = httpKlient.submitForm(
+            url = config.tokenEndpoint,
+            formParameters = Parameters.build {
+                append("grant_type", "client_credentials")
+                append("client_secret", config.azureClientSecret)
+                append("client_id", config.azureClientId)
+                append("scope", scope)
+
+            }
+        )
         val accessToken = jacksonObjectMapper().readValue(response.readText(), AccessToken::class.java)
         BearerToken(accessToken.access_token, LocalDateTime.now().plusSeconds(accessToken.expires_in.toLong()))
     }
