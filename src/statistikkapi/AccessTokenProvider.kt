@@ -1,70 +1,57 @@
-package statistikkapi.stillinger.autentisering
+package statistikkapi
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.*
-import io.ktor.client.engine.ProxyBuilder.http
-import io.ktor.client.engine.apache.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
-import org.apache.http.impl.conn.SystemDefaultRoutePlanner
-import statistikkapi.Cluster
-import statistikkapi.log
-import java.net.ProxySelector
 import java.time.LocalDateTime
 
-class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfig,
-                                         private val httpKlient: HttpClient = lagHttpKlient()) {
-    private var bearerToken = nyttBearerToken()
+class AccessTokenProvider(private val config: Config, private val httpKlient: HttpClient = lagHttpKlient()) {
+    private lateinit var bearerToken : BearerToken
 
-    fun getBearerToken(): BearerToken {
-        if (bearerToken.erUtgått()) {
-            bearerToken = nyttBearerToken()
+    fun getBearerToken(scope: String): BearerToken {
+        if (!this::bearerToken.isInitialized || bearerToken.erUtgått()) {
+            bearerToken = nyttBearerToken(scope)
         }
         return bearerToken
     }
 
-    private fun nyttBearerToken() = runBlocking {
-        val stillingsSokProxyCluster = if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"
-
-    log.info("Skal hente token fra: ${config.tokenEndpoint}")
-
+    private fun nyttBearerToken(scope: String) = runBlocking {
+        log.info("Skal hente token fra: ${config.tokenEndpoint}")
         val response = httpKlient.post<HttpResponse>(config.tokenEndpoint) {
             body = (
                     formData {
                         append("grant_type", "client_credentials")
                         append("client_secret", config.azureClientSecret)
                         append("client_id", config.azureClientId)
-                        append("scope", "api://${stillingsSokProxyCluster}.arbeidsgiver.rekrutteringsbistand-stillingssok-proxy/.default")
+                        append("scope", scope)
                     }
             )
             header(HttpHeaders.ContentType, ContentType.Application.Json)
         }
         log.info("Har hentet access token for stillingssok-proxy, statuskode: ${response.status.value}")
-
         val accessToken = jacksonObjectMapper().readValue(response.readText(), AccessToken::class.java)
         BearerToken(accessToken.access_token, LocalDateTime.now().plusSeconds(accessToken.expires_in.toLong()))
     }
-
-    data class AuthenticationConfig(
-        val azureClientSecret: String,
-        val azureClientId: String,
-        val azureTenantId: String,
-        val tokenEndpoint: String
-    )
 
     private data class AccessToken(
         val token_type: String,
         val expires_in: Int,
         val ext_expires_in: Int,
         val access_token: String
+    )
+
+    data class Config(
+        val azureClientSecret: String,
+        val azureClientId: String,
+        val tokenEndpoint: String
     )
 
     companion object {

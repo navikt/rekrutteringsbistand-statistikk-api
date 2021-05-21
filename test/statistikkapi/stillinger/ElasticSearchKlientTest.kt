@@ -10,7 +10,7 @@ import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import org.junit.Test
 import statistikkapi.etElasticSearchSvarForEnStilling
-import statistikkapi.stillinger.autentisering.BearerToken
+import statistikkapi.BearerToken
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -115,7 +115,7 @@ class ElasticSearchKlientImplTest {
             }
         }
 
-    private fun tokenProvider() = BearerToken("a", LocalDateTime.now().plusSeconds(10))
+    private fun tokenProvider(scope: String) = BearerToken("a", LocalDateTime.now().plusSeconds(10))
 
     private fun httpClientSøketreff(uuid: String,
                                     publiseringsdato: String,

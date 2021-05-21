@@ -7,7 +7,7 @@ import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import statistikkapi.Cluster
-import statistikkapi.stillinger.autentisering.BearerToken
+import statistikkapi.BearerToken
 import java.time.LocalDateTime
 
 interface ElasticSearchKlient {
@@ -15,10 +15,12 @@ interface ElasticSearchKlient {
 }
 
 class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Apache),
-                              private val tokenProvider: () -> BearerToken): ElasticSearchKlient {
+                              private val tokenProvider: (scope: String) -> BearerToken
+): ElasticSearchKlient {
 
+    private val stillingssokProxyCluster = if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"
     private val token: BearerToken
-        get() = tokenProvider()
+        get() = tokenProvider("api://${stillingssokProxyCluster}.arbeidsgiver.rekrutteringsbistand-stillingssok-proxy/.default")
 
     private val stillingssokProxyDokumentUrl = when (Cluster.current) {
         Cluster.PROD_FSS -> "https://rekrutteringsbistand-stillingssok-proxy.intern.nav.no/stilling/_doc"
@@ -57,7 +59,6 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
             ukategoriserteTags.filter { PrioriterteMålgrupperTag.erGyldig(it) }.map { PrioriterteMålgrupperTag.fraNavn(it) },
             ukategoriserteTags.filter { TiltakEllerVirkemiddelTag.erGyldig(it) }.map { TiltakEllerVirkemiddelTag.fraNavn(it) }
         )
-
 }
 
 private fun JsonNode.asLocalDateTime() = LocalDateTime.parse(this.asText())
