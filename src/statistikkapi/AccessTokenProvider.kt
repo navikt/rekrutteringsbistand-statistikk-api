@@ -6,12 +6,10 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.features.json.*
-import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
 import java.time.LocalDateTime
 
 class AccessTokenProvider(private val config: Config, private val httpKlient: HttpClient = lagHttpKlient()) {
