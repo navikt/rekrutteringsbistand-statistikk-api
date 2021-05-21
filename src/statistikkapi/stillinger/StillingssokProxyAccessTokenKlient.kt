@@ -72,10 +72,8 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
                     registerModule(JavaTimeModule())
                 }
                 engine {
-                    customizeClient {
-                        System.getenv("HTTP_PROXY")?.let {
-                            proxy = ProxyBuilder.http(it)
-                        }
+                    System.getenv("HTTP_PROXY")?.let {
+                        proxy = ProxyBuilder.http(it)
                     }
                 }
             }
