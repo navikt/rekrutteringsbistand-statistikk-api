@@ -1,5 +1,7 @@
 package statistikkapi.stillinger.autentisering
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
@@ -66,15 +68,16 @@ class StillingssokProxyAccessTokenKlient(private val config: AuthenticationConfi
     )
 
     companion object {
-        private fun lagHttpKlient() = HttpClient() {
+        fun lagHttpKlient() = HttpClient() {
             install(JsonFeature) {
                 serializer = JacksonSerializer {
-                    registerModule(JavaTimeModule())
+                    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 }
-                engine {
-                    System.getenv("HTTP_PROXY")?.let {
-                        proxy = ProxyBuilder.http(it)
-                    }
+            }
+            engine {
+                System.getenv("HTTP_PROXY")?.let {
+                    this.proxy = ProxyBuilder.http(it)
                 }
             }
         }
