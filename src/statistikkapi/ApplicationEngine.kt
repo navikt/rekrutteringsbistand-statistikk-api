@@ -24,6 +24,9 @@ import statistikkapi.kafka.hentUsendteUtfallOgSendPåKafka
 import statistikkapi.kandidatutfall.KandidatutfallRepository
 import statistikkapi.kandidatutfall.kandidatutfall
 import statistikkapi.nais.naisEndepunkt
+import statistikkapi.stillinger.ElasticSearchKlient
+import statistikkapi.stillinger.StillingRepository
+import statistikkapi.stillinger.StillingService
 import java.time.LocalDate
 import javax.sql.DataSource
 
@@ -33,7 +36,8 @@ fun lagApplicationEngine(
     dataSource: DataSource,
     tokenValidationConfig: Authentication.Configuration.() -> Unit,
     datavarehusKafkaProducer: DatavarehusKafkaProducer,
-    url: DatakatalogUrl
+    url: DatakatalogUrl,
+    elasticSearchKlient: ElasticSearchKlient
 ): ApplicationEngine {
     return embeddedServer(Netty, port) {
         install(CallLogging)
@@ -51,18 +55,22 @@ fun lagApplicationEngine(
         }
         Metrics.addRegistry(prometheusMeterRegistry)
 
-        val repository = KandidatutfallRepository(dataSource)
-        val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer)
+        val kandidatutfallRepository = KandidatutfallRepository(dataSource)
+        val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer)
+
         val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
-        val sendHullICvTilDatakatalog = DatakatalogStatistikk(repository, DatakatalogKlient(url = url), dagensDato = { LocalDate.now() })
+        val sendHullICvTilDatakatalog = DatakatalogStatistikk(kandidatutfallRepository, DatakatalogKlient(url = url), dagensDato = { LocalDate.now() })
         val hullICvTilDatakatalogScheduler = DatakatalogScheduler(dataSource, sendHullICvTilDatakatalog)
+
+        val stillingRepository = StillingRepository(dataSource)
+        val stillingService = StillingService(elasticSearchKlient, stillingRepository)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 naisEndepunkt(prometheusMeterRegistry)
-                kandidatutfall(repository, datavarehusScheduler)
-                hentStatistikk(repository)
+                kandidatutfall(kandidatutfallRepository, datavarehusScheduler, stillingService)
+                hentStatistikk(kandidatutfallRepository)
             }
         }
 

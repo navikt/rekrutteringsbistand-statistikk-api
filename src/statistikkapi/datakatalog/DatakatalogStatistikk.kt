@@ -1,6 +1,7 @@
 package statistikkapi.datakatalog
 
 import kscience.plotly.Plot
+import kscience.plotly.bar
 import kscience.plotly.layout
 import statistikkapi.log
 import statistikkapi.datakatalog.alder.AlderDatagrunnlag
@@ -12,6 +13,7 @@ import statistikkapi.datakatalog.tilretteleggingsbehov.TilretteleggingsbehovStat
 import statistikkapi.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import kotlin.math.roundToInt
 
 
 class DatakatalogStatistikk(
@@ -80,6 +82,15 @@ fun Plot.getLayout(yTekst: String) {
         }
     }
 }
+
+fun Plot.lagBar(description: String, datoer: List<LocalDate>, hentVerdi: (LocalDate) -> Int) = bar {
+    x.strings = datoer.map { it.toString() }
+    y.numbers = datoer.map { hentVerdi(it) }
+    name = description
+}
+
+fun Double.somProsent() = (this * 100).roundToInt()
+
 
 infix fun LocalDate.til(tilDato: LocalDate) = ChronoUnit.DAYS.between(this, tilDato)
     .let { antallDager ->

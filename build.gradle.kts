@@ -18,6 +18,7 @@ val kafkaEmbeddedEnvironmentVersion = "2.5.0"
 val kafkaAvroSerializerVersion = "5.5.3" // Kan ikke oppgradere til 6.1.0 siden no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion baserer seg på 5.4
 val shedlockVersion = "4.20.0"
 val pitestVersion = "1.5.2"
+val elasticSearchClientVersion = "7.10.1"
 
 
 

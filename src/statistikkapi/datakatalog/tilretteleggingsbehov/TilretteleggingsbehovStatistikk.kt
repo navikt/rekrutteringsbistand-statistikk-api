@@ -1,15 +1,8 @@
 package statistikkapi.datakatalog.tilretteleggingsbehov
 
-import kscience.plotly.Plot
 import kscience.plotly.Plotly
-import kscience.plotly.bar
 import kscience.plotly.toJsonString
-import statistikkapi.datakatalog.DatakatalogData
-import statistikkapi.datakatalog.Spec
-import statistikkapi.datakatalog.View
-import statistikkapi.datakatalog.getLayout
-import java.time.LocalDate
-import kotlin.math.roundToInt
+import statistikkapi.datakatalog.*
 
 class TilretteleggingsbehovStatistikk(private val tilretteleggingsbehovDatagrunnlag: TilretteleggingsbehovDatagrunnlag): DatakatalogData {
     companion object {
@@ -57,52 +50,36 @@ class TilretteleggingsbehovStatistikk(private val tilretteleggingsbehovDatagrunn
     )
 
     override fun plotlyFiler() =
-        tilretteleggingsbehovDatagrunnlag.let { tilretteleggingsbehovDatakatalog ->
+        tilretteleggingsbehovDatagrunnlag.let { datagrunnlag ->
             listOf(
-                filnavnTilretteleggingsbehovAntallPresentert to lagPlotAntallTilretteleggingsbehovPresentert(tilretteleggingsbehovDatakatalog).toJsonString(),
-                filnavnTilretteleggingsbehovAntallFåttJobben to lagPlotAntallTilretteleggingsbehovFåttJobben(tilretteleggingsbehovDatakatalog).toJsonString(),
-                filnavnTilretteleggingsbehovAndelPresentert to lagPlotTilretteleggingsbehovAndelPresentert(tilretteleggingsbehovDatakatalog).toJsonString(),
-                filnavnTilretteleggingsbehovAndelFåttJobben to lagPlotTilretteleggingsbehovAndelFåttJobben(tilretteleggingsbehovDatakatalog).toJsonString()
+                filnavnTilretteleggingsbehovAntallPresentert to lagPlotAntallTilretteleggingsbehovPresentert(datagrunnlag).toJsonString(),
+                filnavnTilretteleggingsbehovAntallFåttJobben to lagPlotAntallTilretteleggingsbehovFåttJobben(datagrunnlag).toJsonString(),
+                filnavnTilretteleggingsbehovAndelPresentert to lagPlotTilretteleggingsbehovAndelPresentert(datagrunnlag).toJsonString(),
+                filnavnTilretteleggingsbehovAndelFåttJobben to lagPlotTilretteleggingsbehovAndelFåttJobben(datagrunnlag).toJsonString()
             )
         }
 
-    private fun Plot.lagBarAntallTilretteleggingsbehov(hentVerdi: (String, LocalDate) -> Int, tilretteleggingsbehov: String, description: String) =
-        bar {
-            val datoer = tilretteleggingsbehovDatagrunnlag.gjeldendeDatoer()
-            x.strings = datoer.map { it.toString() }
-            y.numbers = datoer.map { hentVerdi(tilretteleggingsbehov, it) }
-            name = description
-        }
-
-    private fun lagPlotAntallTilretteleggingsbehovPresentert(tilretteleggingsbehovDatagrunnlag: TilretteleggingsbehovDatagrunnlag) = Plotly.plot {
-        tilretteleggingsbehovDatagrunnlag.listeAvBehov().forEach {
-            lagBarAntallTilretteleggingsbehov(tilretteleggingsbehovDatagrunnlag::hentAntallPresentert, it, "Antall presentert med tilretteleggingsbehov $it")
+    private fun lagPlotAntallTilretteleggingsbehovPresentert(datagrunnlag: TilretteleggingsbehovDatagrunnlag) = Plotly.plot {
+        datagrunnlag.listeAvBehov().forEach { behov ->
+            lagBar("Antall presentert med tilretteleggingsbehov $behov", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallPresentert(behov, it) }
         }
         getLayout("Antall")
     }
 
-
-    private fun lagPlotAntallTilretteleggingsbehovFåttJobben(tilretteleggingsbehovDatagrunnlag: TilretteleggingsbehovDatagrunnlag) = Plotly.plot {
-        tilretteleggingsbehovDatagrunnlag.listeAvBehov().forEach {
-            lagBarAntallTilretteleggingsbehov(tilretteleggingsbehovDatagrunnlag::hentAntallFåttJobben, it, "Antall fått jobben med tilretteleggingsbehov $it")
+    private fun lagPlotAntallTilretteleggingsbehovFåttJobben(datagrunnlag: TilretteleggingsbehovDatagrunnlag) = Plotly.plot {
+        datagrunnlag.listeAvBehov().forEach { behov: String ->
+            lagBar("Antall fått jobben med tilretteleggingsbehov $behov", datagrunnlag.gjeldendeDatoer()) {datagrunnlag.hentAntallFåttJobben(behov, it)}
         }
         getLayout("Antall")
     }
 
-    private fun Plot.lagBarAndelHull(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = tilretteleggingsbehovDatagrunnlag.gjeldendeDatoer()
-        x.strings = datoer.map { it.toString() }
-        y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
-        name = description
-    }
-
-    private fun lagPlotTilretteleggingsbehovAndelPresentert(tilretteleggingsbehovDatagrunnlag: TilretteleggingsbehovDatagrunnlag) = Plotly.plot {
-        lagBarAndelHull(tilretteleggingsbehovDatagrunnlag::hentAndelPresentertMedMinstEttTilretteleggingsbehov, "Andel presentert med minst et tilretteleggingsbehov")
+    private fun lagPlotTilretteleggingsbehovAndelPresentert(datagrunnlag: TilretteleggingsbehovDatagrunnlag) = Plotly.plot {
+        lagBar("Andel presentert med minst et tilretteleggingsbehov", datagrunnlag.gjeldendeDatoer()) {datagrunnlag.hentAndelPresentertMedMinstEttTilretteleggingsbehov(it).somProsent()}
         getLayout("Andel %")
     }
 
-    private fun lagPlotTilretteleggingsbehovAndelFåttJobben(tilretteleggingsbehovDatagrunnlag: TilretteleggingsbehovDatagrunnlag) = Plotly.plot {
-        lagBarAndelHull(tilretteleggingsbehovDatagrunnlag::hentAndelFåttJobbenmedMinstEttTilretteleggingsbehov, "Andel fått jobben med minst et tilretteleggingsbehov")
+    private fun lagPlotTilretteleggingsbehovAndelFåttJobben(datagrunnlag: TilretteleggingsbehovDatagrunnlag) = Plotly.plot {
+        lagBar("Andel fått jobben med minst et tilretteleggingsbehov", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAndelFåttJobbenmedMinstEttTilretteleggingsbehov(it).somProsent() }
         getLayout("Andel %")
     }
 }

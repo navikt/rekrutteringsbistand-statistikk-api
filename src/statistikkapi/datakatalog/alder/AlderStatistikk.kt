@@ -1,15 +1,8 @@
 package statistikkapi.datakatalog.alder
 
-import kscience.plotly.Plot
 import kscience.plotly.Plotly
-import kscience.plotly.bar
 import kscience.plotly.toJsonString
-import statistikkapi.datakatalog.DatakatalogData
-import statistikkapi.datakatalog.Spec
-import statistikkapi.datakatalog.View
-import statistikkapi.datakatalog.getLayout
-import java.time.LocalDate
-import kotlin.math.roundToInt
+import statistikkapi.datakatalog.*
 
 class AlderStatistikk(private val alderDatagrunnlag: AlderDatagrunnlag) : DatakatalogData {
 
@@ -56,65 +49,38 @@ class AlderStatistikk(private val alderDatagrunnlag: AlderDatagrunnlag) : Dataka
     )
 
     override fun plotlyFiler() =
-        alderDatagrunnlag.let { alderDatakatalog ->
+        alderDatagrunnlag.let { datagrunnlag ->
             listOf(
-                filnavnAlderAntallPresentert to lagPlotAlderPresentert(alderDatakatalog).toJsonString(),
-                filnavnAlderAntallFåttJobben to lagPlotAlderFåttJobben(alderDatakatalog).toJsonString(),
-                filnavnAlderAndelPresentert to lagPlotAlderAndelPresentert(alderDatakatalog).toJsonString(),
-                filnavnAlderAndelFåttJobben to lagPlotAlderAndelFåttJobben(alderDatakatalog).toJsonString()
+                filnavnAlderAntallPresentert to lagPlotAlderPresentert(datagrunnlag).toJsonString(),
+                filnavnAlderAntallFåttJobben to lagPlotAlderFåttJobben(datagrunnlag).toJsonString(),
+                filnavnAlderAndelPresentert to lagPlotAlderAndelPresentert(datagrunnlag).toJsonString(),
+                filnavnAlderAndelFåttJobben to lagPlotAlderAndelFåttJobben(datagrunnlag).toJsonString()
             )
         }
 
-    private fun Plot.lagBarAlder(
-        hentVerdi: (Aldersgruppe, LocalDate) -> Int,
-        aldersgruppe: Aldersgruppe,
-        description: String
-    ) =
-        bar {
-            val datoer = alderDatagrunnlag.gjeldendeDatoer()
-            x.strings = datoer.map { it.toString() }
-            y.numbers = datoer.map { hentVerdi(aldersgruppe, it) }
-            name = description
-        }
-
-    private fun Plot.lagBarAndelAlder(hentVerdi: (LocalDate) -> Double, description: String) = bar {
-        val datoer = alderDatagrunnlag.gjeldendeDatoer()
-        x.strings = datoer.map { it.toString() }
-        y.numbers = datoer.map { (hentVerdi(it) * 100).roundToInt() }
-        name = description
-    }
-
-    private fun lagPlotAlderPresentert(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
-        lagBarAlder(alderDatagrunnlag::hentAntallPresentert, Aldersgruppe.under30, "Antall presentert under 30")
-        lagBarAlder(alderDatagrunnlag::hentAntallPresentert, Aldersgruppe.over50, "Antall presentert over 50")
-        lagBarAlder(
-            alderDatagrunnlag::hentAntallPresentert,
-            Aldersgruppe.mellom30og50,
-            "Antall presentert mellom 30 og 50"
-        )
+    private fun lagPlotAlderPresentert(datagrunnlag: AlderDatagrunnlag) = Plotly.plot {
+        lagBar("Antall presentert under 30", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallPresentert(Aldersgruppe.under30, it) }
+        lagBar("Antall presentert over 50", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallPresentert(Aldersgruppe.over50, it) }
+        lagBar("Antall presentert mellom 30 og 50", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallPresentert(Aldersgruppe.mellom30og50, it) }
         getLayout("Antall")
     }
 
-    private fun lagPlotAlderAndelPresentert(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
-        lagBarAndelAlder(alderDatagrunnlag::hentAndelPresentertUng, "Andel presentert under 30")
-        lagBarAndelAlder(alderDatagrunnlag::hentAndelPresentertSenior, "Andel presentert over 50")
+    private fun lagPlotAlderAndelPresentert(datagrunnlag: AlderDatagrunnlag) = Plotly.plot {
+        lagBar("Andel presentert under 30", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAndelPresentertUng(it).somProsent() }
+        lagBar("Andel presentert over 50", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAndelPresentertSenior(it).somProsent() }
         getLayout("Andel %")
     }
 
-    private fun lagPlotAlderFåttJobben(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
-        lagBarAlder(alderDatagrunnlag::hentAntallFåttJobben, Aldersgruppe.under30, "Antall fått jobben under 30")
-        lagBarAlder(alderDatagrunnlag::hentAntallFåttJobben, Aldersgruppe.over50, "Antall fått jobben over 50")
-        lagBarAlder(
-            alderDatagrunnlag::hentAntallFåttJobben,
-            Aldersgruppe.mellom30og50,
-            "Antall fått jobben mellom 30 og 50"
-        )
+    private fun lagPlotAlderFåttJobben(datagrunnlag: AlderDatagrunnlag) = Plotly.plot {
+        lagBar("Antall fått jobben under 30", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallFåttJobben(Aldersgruppe.under30, it) }
+        lagBar("Antall fått jobben over 50", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallFåttJobben(Aldersgruppe.over50, it) }
+        lagBar("Antall fått jobben mellom 30 og 50", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAntallFåttJobben(Aldersgruppe.mellom30og50, it) }
         getLayout("Antall")
     }
 
-    private fun lagPlotAlderAndelFåttJobben(alderDatagrunnlag: AlderDatagrunnlag) = Plotly.plot {
-        lagBarAndelAlder(alderDatagrunnlag::hentAndelFåttJobbenUng, "Andel fått jobben under 30")
-        lagBarAndelAlder(alderDatagrunnlag::hentAndelFåttJobbenSenior, "Andel fått jobben over 50")
+    private fun lagPlotAlderAndelFåttJobben(datagrunnlag: AlderDatagrunnlag) = Plotly.plot {
+        lagBar("Andel fått jobben under 30", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAndelFåttJobbenUng(it).somProsent() }
+        lagBar("Andel fått jobben over 50", datagrunnlag.gjeldendeDatoer()) { datagrunnlag.hentAndelFåttJobbenSenior(it).somProsent() }
         getLayout("Andel %")
     }
 }

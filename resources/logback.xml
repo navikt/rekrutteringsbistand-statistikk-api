@@ -1,16 +1,9 @@
 <configuration>
-    <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
-                <maxDepthPerThrowable>30</maxDepthPerThrowable>
-            </throwableConverter>
-        </encoder>
-    </appender>
+<appender name="loggIJsonFormatTilKibana" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+</appender>
 
-    <!-- Sett til "TRACE" hvis du vil se request logging -->
-    <logger name="ktor.application" level="INFO"/>
-
-    <root level="INFO">
-        <appender-ref ref="stdout_json" />
-    </root>
+<root level="INFO">
+    <appender-ref ref="loggIJsonFormatTilKibana"/>
+</root>
 </configuration>

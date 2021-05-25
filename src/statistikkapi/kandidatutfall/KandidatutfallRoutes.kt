@@ -7,8 +7,10 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.micrometer.core.instrument.Metrics
+import kotlinx.coroutines.launch
 import statistikkapi.log
 import statistikkapi.kafka.KafkaTilDataverehusScheduler
+import statistikkapi.stillinger.StillingService
 import java.time.LocalDateTime
 
 data class OpprettKandidatutfall(
@@ -24,12 +26,22 @@ data class OpprettKandidatutfall(
     val tilretteleggingsbehov: List<String>
 )
 
-fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sendStatistikk: KafkaTilDataverehusScheduler) {
+fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sendStatistikk: KafkaTilDataverehusScheduler, stillingService: StillingService) {
 
     authenticate {
         post("/kandidatutfall") {
             val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
             log.info("Mottok ${kandidatutfall.size} kandidatutfall")
+
+            launch {
+                try {
+                    kandidatutfall.map { it.stillingsId }.distinct().forEach {
+                        stillingService.registrerStilling(it)
+                    }
+                } catch (e: Exception) {
+                    log.error("Kunne ikke registrere stilling", e)
+                }
+            }
 
             kandidatutfall.forEach {
                 kandidatutfallRepository.lagreUtfall(it, LocalDateTime.now())
