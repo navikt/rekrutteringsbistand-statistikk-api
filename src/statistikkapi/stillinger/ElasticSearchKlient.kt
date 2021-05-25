@@ -8,6 +8,7 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import statistikkapi.Cluster
 import statistikkapi.BearerToken
+import statistikkapi.log
 import java.time.LocalDateTime
 
 interface ElasticSearchKlient {
@@ -36,6 +37,7 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
     }
 
     private fun mapElasticSearchJsonSvarTilStilling(fulltElasticSearchSvarJson: String): ElasticSearchStilling? {
+        log.info("Skal mappe til stilling fra JSON: $fulltElasticSearchSvarJson")
 
         val jsonStilling = jacksonObjectMapper().readTree(fulltElasticSearchSvarJson)
             .at("/hits/hits")[0]
