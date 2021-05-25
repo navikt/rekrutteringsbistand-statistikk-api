@@ -56,7 +56,7 @@ fun lagApplicationEngine(
         Metrics.addRegistry(prometheusMeterRegistry)
 
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
-        val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, unleash)
+        val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer)
 
         val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
