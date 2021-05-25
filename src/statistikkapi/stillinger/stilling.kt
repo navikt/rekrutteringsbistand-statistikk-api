@@ -12,7 +12,7 @@ data class Stilling(
     val tidspunkt: LocalDateTime
 ) {
     infix fun `er ulik`(stillingFraElasticSearch: ElasticSearchStilling) = !(this `er lik` stillingFraElasticSearch)
-    private infix fun `er lik`(stillingFraElasticSearch: ElasticSearchStilling) =
+    infix fun `er lik`(stillingFraElasticSearch: ElasticSearchStilling) =
         uuid == stillingFraElasticSearch.uuid &&
                 opprettet == stillingFraElasticSearch.opprettet &&
                 publisert == stillingFraElasticSearch.publisert &&

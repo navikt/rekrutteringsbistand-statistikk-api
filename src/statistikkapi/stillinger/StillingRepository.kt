@@ -74,7 +74,6 @@ class StillingRepository(private val dataSource: DataSource) {
         const val prioriterteMålgrupper = "prioritertemålgrupper"
         const val tiltakEllerVirkemidler = "tiltakellervirkemidler"
         const val tidspunkt = "tidspunkt"
-        const val listeseparator = ";"
     }
 }
 
