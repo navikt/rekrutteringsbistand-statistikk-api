@@ -11,6 +11,7 @@ import io.ktor.http.*
 import org.junit.Test
 import statistikkapi.etElasticSearchSvarForEnStilling
 import statistikkapi.BearerToken
+import statistikkapi.etElasticSearchSvarForEnStillingMedTagsogStatligInkluderingsdugnad
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -24,22 +25,33 @@ class ElasticSearchKlientImplTest {
         val inkluderingstags = InkluderingTag.values().toList()
         val prioriterteMålgrupperTags = PrioriterteMålgrupperTag.values().toList()
         val tiltakVirkemiddelTags = TiltakEllerVirkemiddelTag.values().toList()
-        val klient = ElasticSearchKlientImpl(httpClientSøketreff(uuid, publiseringsdato, inkluderingstags, prioriterteMålgrupperTags, tiltakVirkemiddelTags), ::tokenProvider)
+        val httpKlientMedSøketreff = httpClientSøketreff(uuid, publiseringsdato, inkluderingstags, prioriterteMålgrupperTags, tiltakVirkemiddelTags)
+        val klient = ElasticSearchKlientImpl(httpKlientMedSøketreff, ::tokenProvider)
         val stilling = klient.hentStilling(uuid)
 
         assertThat(stilling).isNotNull()
         assertThat(stilling!!.uuid).isEqualTo(uuid)
         assertThat(stilling.publisert.toString()).isEqualTo(publiseringsdato)
-        assertThat(stilling.inkluderingsmuligheter).isEqualTo(inkluderingstags) // TODO: Navngiving på stilling?
+        assertThat(stilling.inkluderingsmuligheter).isEqualTo(inkluderingstags)
         assertThat(stilling.prioriterteMålgrupper).isEqualTo(prioriterteMålgrupperTags)
         assertThat(stilling.tiltakEllerEllerVirkemidler).isEqualTo(tiltakVirkemiddelTags)
+    }
+
+    @Test
+    fun `skal kunne parse JSON med uhåndtert tag statlig inkluderingsdugnad fra stillingssøk-proxy til Stilling-objekt`() {
+        val httpKlientMedSøketreffInkludertTagForStatligInkluderingsdugnad = httpClientSøketreffMedStatligInkluderingsdugnad()
+        val klient = ElasticSearchKlientImpl(httpKlientMedSøketreffInkludertTagForStatligInkluderingsdugnad, ::tokenProvider)
+        val stilling = klient.hentStilling("UUID")
+
+        assertThat(stilling).isNotNull()
     }
 
     @Test
     fun `manglende tags på søketreff skal gi Stilling-objekt`() {
         val uuid = UUID.randomUUID().toString()
         val publiseringsdato = LocalDate.of(2019, 11, 20).atTime(10, 31, 32, 0)
-        val klient = ElasticSearchKlientImpl(httpClientSøketreffUtenTags(uuid, publiseringsdato), ::tokenProvider)
+        val httpKlientSøketreffUtenTags = httpClientSøketreffUtenTags(uuid, publiseringsdato)
+        val klient = ElasticSearchKlientImpl(httpKlientSøketreffUtenTags, ::tokenProvider)
 
         val stilling = klient.hentStilling(uuid)
 
@@ -61,62 +73,6 @@ class ElasticSearchKlientImplTest {
         assertThat(stilling).isNull()
     }
 
-    private fun httpClientIngenTreff() =
-        HttpClient(MockEngine) {
-            engine {
-                addHandler {
-                    respond("""
-                        {"_index":"stilling_10","_type":"_doc","_id":"465869f2-a65f-4a8c-81d3-44763866d7e","found":false}
-                    """.trimIndent())
-                }
-            }
-        }
-
-    private fun httpClientSøketreffUtenTags(uuid: String, publiseringsdato: LocalDateTime) =
-        HttpClient(MockEngine) {
-            engine {
-                addHandler {
-                    respond("""
-                    {
-                        "took": 1,
-                        "timed_out": false,
-                        "_shards": {
-                            "total": 3,
-                            "successful": 3,
-                            "skipped": 0,
-                            "failed": 0
-                        },
-                        "hits": {
-                            "total": {
-                                "value": 1,
-                                "relation": "eq"
-                            },
-                            "max_score": 11.560985,
-                            "hits": [
-                                {
-                                    "_index": "stilling_10",
-                                    "_type": "_doc",
-                                    "_id": "23976042-786e-4304-8e0b-21b74340cfe3",
-                                    "_score": 11.560985,
-                                    "_source": {
-                                        "stilling": {
-                                            "uuid": "$uuid",
-                                            "created": "2019-01-03T12:02:26.262",
-                                            "published":"$publiseringsdato",
-                                            "properties": {}
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                    """.trimIndent())
-                }
-            }
-        }
-
-    private fun tokenProvider(scope: String) = BearerToken("a", LocalDateTime.now().plusSeconds(10))
-
     private fun httpClientSøketreff(uuid: String,
                                     publiseringsdato: String,
                                     inkluderingsTags: List<InkluderingTag>,
@@ -135,5 +91,53 @@ class ElasticSearchKlientImplTest {
             }
         }
 
+    private fun httpClientIngenTreff() =
+        HttpClient(MockEngine) {
+            engine {
+                addHandler {
+                    respond("""
+                        {"_index":"stilling_10","_type":"_doc","_id":"465869f2-a65f-4a8c-81d3-44763866d7e","found":false}
+                    """.trimIndent())
+                }
+            }
+        }
 
+    private fun httpClientSøketreffUtenTags(uuid: String, publiseringsdato: LocalDateTime) =
+        HttpClient(MockEngine) {
+            engine {
+                addHandler {
+                    respond("""
+                    {
+                        "_index": "stilling_11",
+                        "_type": "_doc",
+                        "_id": "207d78cf-c1b2-4a73-aa60-b9271a3d8dbd",
+                        "_version": 2,
+                        "_seq_no": 318052,
+                        "_primary_term": 1,
+                        "found": true,
+                        "_source": {
+                            "stilling": {
+                                "uuid": "$uuid",
+                                "created": "2019-01-03T12:02:26.262",
+                                "published":"$publiseringsdato",
+                                "properties": {}
+                            },
+                            "stillingsinfo": null
+                        }
+                    }
+                    """.trimIndent())
+                }
+            }
+        }
+
+    private fun httpClientSøketreffMedStatligInkluderingsdugnad() =
+        HttpClient(MockEngine) {
+            engine {
+                addHandler { request ->
+                    respond(etElasticSearchSvarForEnStillingMedTagsogStatligInkluderingsdugnad().trimIndent())
+                }
+            }
+        }
+
+    private fun tokenProvider(scope: String) = BearerToken("a", LocalDateTime.now().plusSeconds(10))
 }

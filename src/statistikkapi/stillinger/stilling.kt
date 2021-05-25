@@ -46,7 +46,7 @@ enum class PrioriterteMålgrupperTag {
     UNGE_UNDER_30,
     SENIORER_OVER_45,
     KOMMER_FRA_LAND_UTENFOR_EØS,
-    HULL_I_CV,
+    HULL_I_CV_EN,
     LITE_ELLER_INGEN_UTDANNING,
     LITE_ELLER_INGEN_ARBEIDSERFARING;
     companion object {

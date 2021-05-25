@@ -37,11 +37,14 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
     }
 
     private fun mapElasticSearchJsonSvarTilStilling(fulltElasticSearchSvarJson: String): ElasticSearchStilling? {
-        log.info("Skal mappe til stilling fra JSON: $fulltElasticSearchSvarJson")
+        val harFåttTreff = jacksonObjectMapper().readTree(fulltElasticSearchSvarJson).at("/found").asBoolean()
+
+        if (!harFåttTreff) {
+            return null
+        }
 
         val jsonStilling = jacksonObjectMapper().readTree(fulltElasticSearchSvarJson)
-            .at("/hits/hits")[0]
-            ?.at("/_source/stilling") ?: return null
+            .at("/_source")?.at("/stilling")!!
 
         val (inkluderingsmuligheter, prioriterteMålgrupper, tiltakEllerVirkemidler) = hentTags(jsonStilling.at("/properties/tags").toList().map { it.asText() })
 

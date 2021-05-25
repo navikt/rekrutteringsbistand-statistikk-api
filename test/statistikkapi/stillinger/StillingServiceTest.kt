@@ -72,7 +72,7 @@ class StillingServiceTest {
             opprettet = LocalDate.of(2021, 5, 2).atStartOfDay(),
             publisert = LocalDate.of(2021, 5, 2).atStartOfDay(),
             inkluderingsmuligheter = listOf(InkluderingTag.FYSISK),
-            prioriterteMålgrupper = listOf(PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS, PrioriterteMålgrupperTag.HULL_I_CV),
+            prioriterteMålgrupper = listOf(PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS, PrioriterteMålgrupperTag.HULL_I_CV_EN),
             tiltakEllerEllerVirkemidler = emptyList()
         )
         val stillingFraDatabase = Stilling(
