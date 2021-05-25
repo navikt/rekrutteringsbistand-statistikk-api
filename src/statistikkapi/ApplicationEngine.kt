@@ -14,7 +14,6 @@ import io.ktor.util.*
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.finn.unleash.Unleash
 import statistikkapi.datakatalog.DatakatalogKlient
 import statistikkapi.datakatalog.DatakatalogScheduler
 import statistikkapi.datakatalog.DatakatalogStatistikk
@@ -37,7 +36,6 @@ fun lagApplicationEngine(
     dataSource: DataSource,
     tokenValidationConfig: Authentication.Configuration.() -> Unit,
     datavarehusKafkaProducer: DatavarehusKafkaProducer,
-    unleash: Unleash,
     url: DatakatalogUrl,
     elasticSearchKlient: ElasticSearchKlient
 ): ApplicationEngine {

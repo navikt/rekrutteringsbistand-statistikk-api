@@ -37,7 +37,6 @@ fun main() {
         dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer,
-        unleash = UnleashConfig.unleash,
         url = datakatalogUrl,
         elasticSearchKlient = elasticSearchKlient
     )

@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import no.finn.unleash.FakeUnleash
 import org.junit.After
 import org.junit.Test
 import statistikkapi.db.TestDatabase
@@ -22,9 +21,6 @@ class SendKafkaMeldingTilDatavarehusTest {
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
-        private val unleash = FakeUnleash().apply {
-            enableAll()
-        }
 
         private val producerSomFeilerEtterFørsteKall = object : DatavarehusKafkaProducer {
             var førsteKall = true
@@ -41,7 +37,7 @@ class SendKafkaMeldingTilDatavarehusTest {
     fun `Feilsending med Kafka skal oppdatere antallSendtForsøk og sisteSendtForsøk`() {
         repository.lagreUtfall(etKandidatutfall, now())
         repository.lagreUtfall(etKandidatutfall.copy(aktørId = "10000254879659"), now())
-        hentUsendteUtfallOgSendPåKafka(repository, producerSomFeilerEtterFørsteKall, unleash).run()
+        hentUsendteUtfallOgSendPåKafka(repository, producerSomFeilerEtterFørsteKall).run()
 
         val nå = now()
         val vellyketUtfall = testRepository.hentUtfall()[0]
@@ -53,18 +49,6 @@ class SendKafkaMeldingTilDatavarehusTest {
         assertThat(feiletUtfall.sendtStatus).isEqualTo(IKKE_SENDT)
         assertThat(feiletUtfall.antallSendtForsøk).isEqualTo(1)
         assertThat(feiletUtfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
-    }
-
-    @Test
-    fun `Skal ikke sende kandidatutfall til Kafka hvis feature toggle er slått av`() {
-        repository.lagreUtfall(etKandidatutfall, now())
-        val unleashMedSlåttAvFeatureToggle = FakeUnleash()
-        hentUsendteUtfallOgSendPåKafka(repository, producerSomFeilerEtterFørsteKall, unleashMedSlåttAvFeatureToggle).run()
-
-        val lagraUtfall = testRepository.hentUtfall()[0]
-        assertThat(lagraUtfall.sendtStatus).isEqualTo(IKKE_SENDT)
-        assertThat(lagraUtfall.antallSendtForsøk).isEqualTo(0)
-        assertThat(lagraUtfall.sisteSendtForsøk).isNull()
     }
 
     @After
