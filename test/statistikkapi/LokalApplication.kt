@@ -1,7 +1,6 @@
 package statistikkapi
 import io.ktor.auth.*
 import io.ktor.util.*
-import no.finn.unleash.FakeUnleash
 import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.ktor.TokenSupportConfig
 import no.nav.security.token.support.ktor.tokenValidationSupport
@@ -38,16 +37,11 @@ fun start(
         )
     }
 
-    val unleash = FakeUnleash().apply {
-        enableAll()
-    }
-
     val applicationEngine = lagApplicationEngine(
         port,
         database.dataSource,
         tokenValidationConfig,
         datavarehusKafkaProducer,
-        unleash,
         DatakatalogUrl(Cluster.LOKAL)
     )
     applicationEngine.start()

@@ -14,7 +14,6 @@ import io.ktor.util.*
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.finn.unleash.Unleash
 import statistikkapi.datakatalog.DatakatalogKlient
 import statistikkapi.datakatalog.DatakatalogScheduler
 import statistikkapi.datakatalog.DatakatalogStatistikk
@@ -34,7 +33,6 @@ fun lagApplicationEngine(
     dataSource: DataSource,
     tokenValidationConfig: Authentication.Configuration.() -> Unit,
     datavarehusKafkaProducer: DatavarehusKafkaProducer,
-    unleash: Unleash,
     url: DatakatalogUrl
 ): ApplicationEngine {
     return embeddedServer(Netty, port) {
@@ -54,7 +52,7 @@ fun lagApplicationEngine(
         Metrics.addRegistry(prometheusMeterRegistry)
 
         val repository = KandidatutfallRepository(dataSource)
-        val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer, unleash)
+        val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(repository, datavarehusKafkaProducer)
         val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
         val sendHullICvTilDatakatalog = DatakatalogStatistikk(repository, DatakatalogKlient(url = url), dagensDato = { LocalDate.now() })
