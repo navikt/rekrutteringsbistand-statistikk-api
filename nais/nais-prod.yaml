@@ -2,7 +2,7 @@ apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
   name: rekrutteringsbistand-statistikk-api
-  namespace: default
+  namespace: arbeidsgiver
   labels:
     team: arbeidsgiver
 spec:
