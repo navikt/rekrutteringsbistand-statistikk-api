@@ -4,6 +4,7 @@ Aggregering, lagring og behandling av formidlingsstatistikk og annen statistikk 
 Starte appen:
 Høyreklikk på `LokalApplication.kt` i IntelliJ og velg `Run`.
 
+
 Får statistikk fra to kilder:
 - Presentering av kandidater (`presenterKandidater` i `VeiledersKandidatlisteController`)
 - Endring av utfall fra dropdown (`settUtfall` i `VeiledersKandidatlisteController`)
