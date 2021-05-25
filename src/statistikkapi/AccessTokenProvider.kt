@@ -36,7 +36,6 @@ class AccessTokenProvider(private val config: Config, private val httpKlient: Ht
             }
         )
         val accessToken = jacksonObjectMapper().readValue(response.readText(), AccessToken::class.java)
-        log.info("access-token: ${accessToken.access_token.split('.')[1]}")
         BearerToken(accessToken.access_token, LocalDateTime.now().plusSeconds(accessToken.expires_in.toLong()))
     }
 
