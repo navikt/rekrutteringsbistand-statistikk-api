@@ -17,7 +17,6 @@ val mockkVersion = "1.10.6"
 val kafkaEmbeddedEnvironmentVersion = "2.5.0"
 val kafkaAvroSerializerVersion = "5.5.3" // Kan ikke oppgradere til 6.1.0 siden no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion baserer seg på 5.4
 val shedlockVersion = "4.20.0"
-val unleashClientJavaVersion = "4.0.1"
 val pitestVersion = "1.5.2"
 val elasticSearchClientVersion = "7.10.1"
 
@@ -111,7 +110,6 @@ dependencies {
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
-    implementation("no.finn.unleash:unleash-client-java:$unleashClientJavaVersion")
 
     implementation("kscience.plotlykt:plotlykt-server:0.3.0")
 

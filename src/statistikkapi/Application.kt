@@ -10,7 +10,6 @@ import statistikkapi.db.Database
 import statistikkapi.kafka.DatavarehusKafkaProducerImpl
 import statistikkapi.kafka.KafkaConfig
 import statistikkapi.stillinger.ElasticSearchKlientImpl
-import statistikkapi.unleash.UnleashConfig
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
 
@@ -37,7 +36,6 @@ fun main() {
         dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer,
-        unleash = UnleashConfig.unleash,
         url = datakatalogUrl,
         elasticSearchKlient = elasticSearchKlient
     )
