@@ -26,9 +26,13 @@ class DatakatalogStatistikk(
     override fun run() {
         log.info("Starter jobb som sender statistikk til datakatalogen")
         log.info("Skal sende statistikk for målinger til og med ${dagensDato}")
-        plotlydataOgDataPakke().also { (plotly, datapakke) ->
-            datakatalogKlient.sendPlotlyFilTilDatavarehus(plotly)
-            datakatalogKlient.sendDatapakke(datapakke)
+        try {
+            plotlydataOgDataPakke().also { (plotly, datapakke) ->
+                datakatalogKlient.sendPlotlyFilTilDatavarehus(plotly)
+                datakatalogKlient.sendDatapakke(datapakke)
+            }
+        } catch (e: Exception) {
+            log.warn("Feil ved sending av datapakke til datavarehus.")
         }
         log.info("Har gjennomført jobb som sender statistikk til datakatalogen")
     }
