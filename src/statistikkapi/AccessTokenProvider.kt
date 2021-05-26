@@ -23,8 +23,6 @@ class AccessTokenProvider(private val config: Config, private val httpKlient: Ht
     }
 
     private fun nyttBearerToken() = runBlocking {
-        log.info("Skal hente token fra: ${config.tokenEndpoint}")
-
         val response: HttpResponse = httpKlient.submitForm(
             url = config.tokenEndpoint,
             formParameters = Parameters.build {

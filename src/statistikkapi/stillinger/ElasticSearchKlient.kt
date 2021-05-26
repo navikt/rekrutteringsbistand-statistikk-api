@@ -19,7 +19,6 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
                               private val tokenProvider: () -> BearerToken
 ): ElasticSearchKlient {
 
-    private val stillingssokProxyCluster = if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"
     private val token: BearerToken
         get() = tokenProvider()
 
