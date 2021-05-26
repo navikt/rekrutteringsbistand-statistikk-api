@@ -15,14 +15,14 @@ import java.time.LocalDateTime
 class AccessTokenProvider(private val config: Config, private val httpKlient: HttpClient = lagHttpKlient()) {
     private lateinit var bearerToken : BearerToken
 
-    fun getBearerToken(scope: String): BearerToken {
+    fun getBearerToken(): BearerToken {
         if (!this::bearerToken.isInitialized || bearerToken.erUtgått()) {
-            bearerToken = nyttBearerToken(scope)
+            bearerToken = nyttBearerToken()
         }
         return bearerToken
     }
 
-    private fun nyttBearerToken(scope: String) = runBlocking {
+    private fun nyttBearerToken() = runBlocking {
         log.info("Skal hente token fra: ${config.tokenEndpoint}")
 
         val response: HttpResponse = httpKlient.submitForm(
@@ -31,8 +31,7 @@ class AccessTokenProvider(private val config: Config, private val httpKlient: Ht
                 append("grant_type", "client_credentials")
                 append("client_secret", config.azureClientSecret)
                 append("client_id", config.azureClientId)
-                append("scope", scope)
-
+                append("scope", config.scope)
             }
         )
         val accessToken = jacksonObjectMapper().readValue(response.readText(), AccessToken::class.java)
@@ -49,11 +48,12 @@ class AccessTokenProvider(private val config: Config, private val httpKlient: Ht
     data class Config(
         val azureClientSecret: String,
         val azureClientId: String,
-        val tokenEndpoint: String
+        val tokenEndpoint: String,
+        val scope: String
     )
 
     companion object {
-        fun lagHttpKlient() = HttpClient() {
+        private fun lagHttpKlient() = HttpClient() {
             install(JsonFeature) {
                 serializer = JacksonSerializer {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

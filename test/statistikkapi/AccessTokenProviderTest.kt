@@ -15,7 +15,7 @@ class AccessTokenProviderTest {
     fun verifiserAtTokenKunHentesEnGang() {
         var antallGangerNyTokenHentet = 0
         val tokenClient = AccessTokenProvider(config = config(), httpKlient = lagVerifiableHttpClient(123) {antallGangerNyTokenHentet++})
-        tokenClient.getBearerToken("scope")
+        tokenClient.getBearerToken()
         assertThat(antallGangerNyTokenHentet).isEqualTo(1)
     }
 
@@ -23,8 +23,8 @@ class AccessTokenProviderTest {
     fun verifiserAtTokenHentesPåNyttOmDetErUtgått() {
         var antallGangerNyTokenHentet = 0
         val tokenClient = AccessTokenProvider(config = config(), httpKlient = lagVerifiableHttpClient(-123) {antallGangerNyTokenHentet++})
-        tokenClient.getBearerToken("scope")
-        tokenClient.getBearerToken("scope")
+        tokenClient.getBearerToken()
+        tokenClient.getBearerToken()
         assertThat(antallGangerNyTokenHentet).isEqualTo(2)
     }
 
@@ -56,6 +56,7 @@ class AccessTokenProviderTest {
     private fun config() = AccessTokenProvider.Config(
         "secret",
         "clientId",
-        "tokenEndpoint"
+        "tokenEndpoint",
+        "scope"
     )
 }

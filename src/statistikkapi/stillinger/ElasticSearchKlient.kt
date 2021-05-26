@@ -16,12 +16,12 @@ interface ElasticSearchKlient {
 }
 
 class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Apache),
-                              private val tokenProvider: (scope: String) -> BearerToken
+                              private val tokenProvider: () -> BearerToken
 ): ElasticSearchKlient {
 
     private val stillingssokProxyCluster = if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"
     private val token: BearerToken
-        get() = tokenProvider("api://${stillingssokProxyCluster}.arbeidsgiver.rekrutteringsbistand-stillingssok-proxy/.default")
+        get() = tokenProvider()
 
     private val stillingssokProxyDokumentUrl = when (Cluster.current) {
         Cluster.PROD_FSS -> "https://rekrutteringsbistand-stillingssok-proxy.intern.nav.no/stilling/_doc"
@@ -64,6 +64,10 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
             ukategoriserteTags.filter { PrioriterteMålgrupperTag.erGyldig(it) }.map { PrioriterteMålgrupperTag.fraNavn(it) },
             ukategoriserteTags.filter { TiltakEllerVirkemiddelTag.erGyldig(it) }.map { TiltakEllerVirkemiddelTag.fraNavn(it) }
         )
+
+    companion object {
+        val stillingssokProxyScope = "api://${if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"}.arbeidsgiver.rekrutteringsbistand-stillingssok-proxy/.default"
+    }
 }
 
 private fun JsonNode.asLocalDateTime() = LocalDateTime.parse(this.asText())

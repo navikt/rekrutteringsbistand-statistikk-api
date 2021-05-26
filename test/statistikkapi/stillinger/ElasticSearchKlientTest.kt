@@ -139,5 +139,5 @@ class ElasticSearchKlientImplTest {
             }
         }
 
-    private fun tokenProvider(scope: String) = BearerToken("a", LocalDateTime.now().plusSeconds(10))
+    private fun tokenProvider() = BearerToken("a", LocalDateTime.now().plusSeconds(10))
 }

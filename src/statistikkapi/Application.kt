@@ -28,7 +28,8 @@ fun main() {
     val stillingssokProxyAccessTokenClient = AccessTokenProvider(config = AccessTokenProvider.Config(
         azureClientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
         azureClientId = System.getenv("AZURE_APP_CLIENT_ID"),
-        tokenEndpoint = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT")
+        tokenEndpoint = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+        scope = ElasticSearchKlientImpl.stillingssokProxyScope
     ))
     val elasticSearchKlient = ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
 
