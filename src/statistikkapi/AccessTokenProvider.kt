@@ -60,7 +60,6 @@ class AccessTokenProvider(private val config: Config, private val httpKlient: Ht
             }
             engine {
                 System.getenv("HTTP_PROXY")?.let {
-                    log.info("Setter proxy")
                     this.proxy = ProxyBuilder.http(it)
                 }
             }

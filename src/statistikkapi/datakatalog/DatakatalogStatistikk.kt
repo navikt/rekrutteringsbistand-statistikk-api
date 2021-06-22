@@ -25,7 +25,7 @@ class DatakatalogStatistikk(
 
     override fun run() {
         log.info("Starter jobb som sender statistikk til datakatalogen")
-        log.info("Skal sende statistikk for målinger til og med ${dagensDato}")
+        log.info("Skal sende statistikk for målinger til og med $dagensDato")
         plotlydataOgDataPakke().also { (plotly, datapakke) ->
             datakatalogKlient.sendPlotlyFilTilDatavarehus(plotly)
             datakatalogKlient.sendDatapakke(datapakke)
@@ -46,9 +46,9 @@ class DatakatalogStatistikk(
                     kandidatutfallRepository.hentUtfallFåttJobben(målingerStartet))
         .let { (utfallElementPresentert, utfallElementFåttJobben) ->
             listOf(
-                HullStatistikk(HullDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato)),
-                AlderStatistikk(AlderDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato)),
-                TilretteleggingsbehovStatistikk(TilretteleggingsbehovDatagrunnlag(utfallElementPresentert,utfallElementFåttJobben,dagensDato))
+                HullStatistikk(HullDatagrunnlag(utfallElementPresentert, utfallElementFåttJobben, dagensDato)),
+                AlderStatistikk(AlderDatagrunnlag(utfallElementPresentert, utfallElementFåttJobben, dagensDato)),
+                TilretteleggingsbehovStatistikk(TilretteleggingsbehovDatagrunnlag(utfallElementPresentert, utfallElementFåttJobben,dagensDato))
             ).let {
                 it.flatMap(DatakatalogData::plotlyFiler) to it.flatMap(DatakatalogData::views).let(this::datapakke)
             }

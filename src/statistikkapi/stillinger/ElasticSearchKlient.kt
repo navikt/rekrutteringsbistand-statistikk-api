@@ -8,7 +8,6 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import statistikkapi.Cluster
 import statistikkapi.BearerToken
-import statistikkapi.log
 import java.time.LocalDateTime
 
 interface ElasticSearchKlient {
@@ -29,17 +28,10 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
     }
 
     override fun hentStilling(stillingUuid: String): ElasticSearchStilling? = runBlocking {
-        var start = System.currentTimeMillis()
         val esSvar: String = httpKlient.get("$stillingssokProxyDokumentUrl/$stillingUuid") {
             headers(token.leggTilBearerToken())
         }
-        log.info("Mottok utfall, hente stilling fra ES tok ${System.currentTimeMillis() - start} ms")
-
-        start = System.currentTimeMillis()
-        val stilling = mapElasticSearchJsonSvarTilStilling(esSvar)
-        log.info("Mottok utfall, mapElasticSearchJsonSvarTilStilling tok ${System.currentTimeMillis() - start} ms")
-
-        stilling
+        mapElasticSearchJsonSvarTilStilling(esSvar)
     }
 
     private fun mapElasticSearchJsonSvarTilStilling(fulltElasticSearchSvarJson: String): ElasticSearchStilling? {

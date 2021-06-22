@@ -10,7 +10,6 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
-import statistikkapi.log
 
 private fun datapakkeHttpClient() = HttpClient(Apache) {
     install(JsonFeature) {
@@ -21,8 +20,11 @@ private fun datapakkeHttpClient() = HttpClient(Apache) {
     }
 }
 
-class DatakatalogKlient(private val httpClient: HttpClient = datapakkeHttpClient(),
-                        private val url: DatakatalogUrl) {
+class DatakatalogKlient(
+    private val httpClient: HttpClient = datapakkeHttpClient(),
+    private val url: DatakatalogUrl
+) {
+
     fun sendPlotlyFilTilDatavarehus(plotlyJsons: List<Pair<String, String>>) {
         runBlocking {
             val response: HttpResponse = httpClient
@@ -39,17 +41,15 @@ class DatakatalogKlient(private val httpClient: HttpClient = datapakkeHttpClient
                         }
                     )
                 }
-            log.info("Svar fra datakatalog filapi $response")
         }
     }
     fun sendDatapakke(lagDatapakke: Datapakke) {
         runBlocking {
-            val response: HttpResponse = httpClient
-                .put(url.datapakke()) {
+            httpClient
+                .put<HttpResponse>(url.datapakke()) {
                     body = lagDatapakke
                     header(HttpHeaders.ContentType, ContentType.Application.Json)
                 }
-            log.info("Svar fra datakatalog datapakke api $response")
         }
     }
 }
