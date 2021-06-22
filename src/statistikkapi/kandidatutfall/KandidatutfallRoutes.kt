@@ -12,6 +12,7 @@ import statistikkapi.log
 import statistikkapi.kafka.KafkaTilDataverehusScheduler
 import statistikkapi.stillinger.StillingService
 import java.time.LocalDateTime
+import kotlin.concurrent.thread
 
 data class OpprettKandidatutfall(
     val aktørId: String,
@@ -37,7 +38,7 @@ fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sen
             log.info("Mottok ${kandidatutfall.size} kandidatutfall, tok {} ms", System.currentTimeMillis() - start2)
 
             start2 = System.currentTimeMillis();
-            launch {
+            thread {
                 try {
                     kandidatutfall.map { it.stillingsId }.distinct().forEach {
                         stillingService.registrerStilling(it)
