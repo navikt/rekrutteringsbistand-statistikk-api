@@ -30,9 +30,13 @@ fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sen
 
     authenticate {
         post("/kandidatutfall") {
-            val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
-            log.info("Mottok ${kandidatutfall.size} kandidatutfall")
+            val start = System.currentTimeMillis()
 
+            var start2 = System.currentTimeMillis();
+            val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
+            log.info("Mottok ${kandidatutfall.size} kandidatutfall, tok {} ms", System.currentTimeMillis() - start2)
+
+            start2 = System.currentTimeMillis();
             launch {
                 try {
                     kandidatutfall.map { it.stillingsId }.distinct().forEach {
@@ -42,14 +46,22 @@ fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sen
                     log.error("Kunne ikke registrere stilling", e)
                 }
             }
+            log.info("Mottok kandidatutfall, registrerte stillinger, tok {} ms", System.currentTimeMillis() - start2)
 
+            start2 = System.currentTimeMillis();
             kandidatutfall.forEach {
                 kandidatutfallRepository.lagreUtfall(it, LocalDateTime.now())
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall.name).increment()
             }
+            log.info("Mottok kandidatutfall, lagre utfall: {} ms", System.currentTimeMillis() - start2);
 
+            start2 = System.currentTimeMillis();
             sendStatistikk.kjørEnGangAsync()
+            log.info("Mottok kandidatutfall, send statistikk: {} ms", System.currentTimeMillis() - start2);
+
             call.respond(HttpStatusCode.Created)
+
+            log.info("Mottok kandidatutfall, hele kallet tok {} ms", System.currentTimeMillis() - start)
         }
     }
 }
