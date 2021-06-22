@@ -29,10 +29,17 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
     }
 
     override fun hentStilling(stillingUuid: String): ElasticSearchStilling? = runBlocking {
+        var start = System.currentTimeMillis()
         val esSvar: String = httpKlient.get("$stillingssokProxyDokumentUrl/$stillingUuid") {
             headers(token.leggTilBearerToken())
         }
-        mapElasticSearchJsonSvarTilStilling(esSvar)
+        log.info("Mottok utfall, hente stilling fra ES tok ${System.currentTimeMillis() - start} ms")
+
+        start = System.currentTimeMillis()
+        val stilling = mapElasticSearchJsonSvarTilStilling(esSvar)
+        log.info("Mottok utfall, mapElasticSearchJsonSvarTilStilling tok ${System.currentTimeMillis() - start} ms")
+
+        stilling
     }
 
     private fun mapElasticSearchJsonSvarTilStilling(fulltElasticSearchSvarJson: String): ElasticSearchStilling? {
