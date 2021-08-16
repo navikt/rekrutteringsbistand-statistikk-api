@@ -3,6 +3,7 @@ package statistikkapi.datakatalog
 import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor
 import net.javacrumbs.shedlock.core.LockConfiguration
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
+import statistikkapi.log
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -16,7 +17,7 @@ class DatakatalogScheduler(dataSource: DataSource, private val runnable: Runnabl
 
     private val runnableMedLås: TimerTask.() -> Unit = {
         lockingExecutor.executeWithLock(
-            runnable,
+            SwallowAndLogExceptions(runnable),
             LockConfiguration(Instant.now(),"retry-lock", Duration.ofMinutes(10), Duration.ofMillis(0L))
         )
     }
@@ -28,5 +29,14 @@ class DatakatalogScheduler(dataSource: DataSource, private val runnable: Runnabl
             action = runnableMedLås,
             initialDelay = Duration.ofSeconds(60).toMillis()
         )
+    }
+    private class SwallowAndLogExceptions(private val runnable: Runnable):Runnable {
+        override fun run() {
+            try {
+                runnable.run()
+            } catch (e:Exception) {
+                log.error("Feil ved sending av statistikk til datavarehus", e)
+            }
+        }
     }
 }
