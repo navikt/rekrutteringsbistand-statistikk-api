@@ -24,7 +24,7 @@ val elasticSearchClientVersion = "7.10.1"
 
 plugins {
     application
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.5.31"
 
     id("com.github.johnrengelman.shadow") version "6.0.0"
     id("com.github.ben-manes.versions") version "0.28.0"
