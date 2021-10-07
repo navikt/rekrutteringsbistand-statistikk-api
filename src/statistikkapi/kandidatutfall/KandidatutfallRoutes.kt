@@ -38,7 +38,7 @@ fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sen
                         stillingService.registrerStilling(it)
                     }
                 } catch (e: Exception) {
-                    log.error("Kunne ikke registrere stilling", e)
+                    log.error("Kunne ikke registrere stilling: $e", e)
                 }
             }
 
@@ -52,4 +52,3 @@ fun Route.kandidatutfall(kandidatutfallRepository: KandidatutfallRepository, sen
         }
     }
 }
-

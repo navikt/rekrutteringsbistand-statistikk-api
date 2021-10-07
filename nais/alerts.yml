@@ -2,29 +2,33 @@ apiVersion: "nais.io/v1"
 kind: "Alert"
 metadata:
   name: rekrutteringsbistand-statistikk-api
+  namespace: arbeidsgiver
   labels:
     team: arbeidsgiver
 spec:
   receivers:
     slack:
-      channel: 'inkludering-alerts-dev'
+      channel: 'inkludering-alerts-prod'
       prependText: 'rekrutteringsbistand-statistikk-api: '
   alerts:
     - alert: Applikasjonen er nede (ingen Kubernetes-pods er oppe)
       severity: danger
       expr: sum(up{app="rekrutteringsbistand-statistikk-api", job="kubernetes-pods"}) == 0
-      for: 2m
+      for: 1s
       description: "App {{ $labels.app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
       action: "`kubectl describe pod {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for events, og `kubectl logs {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}` for logger"
+    - alert: Det har blitt logget en error
+      expr: sum(increase(logd_messages_total{log_app="rekrutteringsbistand-stilling-indekser",log_level="Error"}[10m])) > 0
+      for: 1s
     - alert: Økning log level ERROR
       severity: danger
       expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api",log_level=~"Error"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api"}[3m]))) > 1
-      for: 3m
+      for: 1s
       action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye errors"
     - alert: Økning log level WARNING
       severity: warning
       expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api",log_level=~"Warning"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api"}[3m]))) > 1
-      for: 3m
+      for: 1s
       action: "Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}, for å se hvorfor det forekommer warnings"
     - alert: Økning HTTP serverfeil (5xx responser)
       severity: danger
