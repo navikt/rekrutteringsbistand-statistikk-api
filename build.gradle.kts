@@ -25,7 +25,8 @@ val shedlockVersion = "4.28.0"
 val pitestVersion = "1.7.0"
 val elasticSearchClientVersion = "7.10.1"
 val kotlinLoggingVersion = "2.0.11"
-
+val jsonassertVersion = "1.5.0"
+val plotlyktServerVersion = "0.3.0"
 
 
 plugins {
@@ -33,9 +34,9 @@ plugins {
     kotlin("jvm") version embeddedKotlinVersion
 
     id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("com.github.ben-manes.versions") version "0.28.0"
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.2.0"
-    id("info.solidsoft.pitest") version "1.5.2"
+    id("com.github.ben-manes.versions") version "0.39.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.2.1"
+    id("info.solidsoft.pitest") version "1.7.0"
 
     idea
 }
@@ -119,7 +120,7 @@ dependencies {
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
 
-    implementation("kscience.plotlykt:plotlykt-server:0.3.0")
+    implementation("kscience.plotlykt:plotlykt-server:$plotlyktServerVersion")
 
     testImplementation("no.nav.security:token-validation-test-support:$tokenValidationVersion") {
         exclude(group = "org.springframework.boot")
@@ -132,7 +133,7 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testImplementation("org.skyscreamer:jsonassert:1.5.0")
+    testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
     testImplementation(kotlin("test"))
 }
