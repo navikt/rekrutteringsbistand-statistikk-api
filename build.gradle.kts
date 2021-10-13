@@ -5,24 +5,24 @@ val kotlinVersion =
     embeddedKotlinVersion
 
 val kotlinCodeStyle = "official"
-val logbackVersion = "1.2.3"
+val logbackVersion = "1.2.6"
 val ktorVersion = "1.5.3"
 val h2Version = "1.4.200"
-val flywayVersion = "7.5.3"
-val hikariVersion = "4.0.2"
+val flywayVersion = "8.0.0"
+val hikariVersion = "5.0.0"
 val logstashEncoderVersion = "6.6"
 val vaultJdbcVersion = "1.3.7"
-val postgresVersion = "42.2.18"
-val tokenValidationVersion = "1.3.3"
+val postgresVersion = "42.2.24"
+val tokenValidationVersion = "1.3.8"
 val jacksonVersion = "2.13.0"
-val assertkVersion = "0.23.1"
-val micrometerPrometheusVersion = "1.6.3"
+val assertkVersion = "0.25"
+val micrometerPrometheusVersion = "1.7.4"
 val kafkaClientsVersion = "2.8.0"
 val mockkVersion = "1.12.0"
 val kafkaEmbeddedEnvironmentVersion = "2.8.0"
 val kafkaAvroSerializerVersion = "6.2.1"
-val shedlockVersion = "4.20.0"
-val pitestVersion = "1.5.2"
+val shedlockVersion = "4.28.0"
+val pitestVersion = "1.7.0"
 val elasticSearchClientVersion = "7.10.1"
 
 
@@ -83,6 +83,7 @@ repositories {
     }
     maven("https://dl.bintray.com/mipt-npm/dataforge")
     maven("https://dl.bintray.com/mipt-npm/kscience")
+    mavenCentral()
 }
 
 dependencies {
