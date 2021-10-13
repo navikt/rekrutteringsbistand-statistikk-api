@@ -37,11 +37,6 @@ plugins {
     idea
 }
 
-apply(plugin = "info.solidsoft.pitest")
-apply(plugin = "kotlin")
-apply(plugin = "application")
-apply(plugin = "com.github.johnrengelman.shadow")
-
 pitest {
     targetClasses.set(setOf("statistikkapi.*"))
     targetTests.set(setOf("statistikkapi.*"))
