@@ -1,17 +1,20 @@
+val kotlinVersion =
+// Det er minst sannsynlighet for dependency-plunder når vi bruker samme versjon av Kotlin som den som er bundlet med Gradle via gradlew.
+// For å se hvilken versjon det er, kjør "./gradlew -version".
+// Kotlin-versjonen oppgraderes slik: https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:upgrading_wrapper
+    embeddedKotlinVersion
+
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.3"
 val ktorVersion = "1.5.3"
-val kotlinVersion = "1.5.31"
 val h2Version = "1.4.200"
 val flywayVersion = "7.5.3"
 val hikariVersion = "4.0.2"
-val logstashEncoderVersion =
-    "6.5" // Oppgradering til 6.6 tar inn jackson:2.12.0 som ikke er kompatibel med jackson-versjonen til kafka
+val logstashEncoderVersion = "6.6"
 val vaultJdbcVersion = "1.3.7"
 val postgresVersion = "42.2.18"
 val tokenValidationVersion = "1.3.3"
-val jacksonVersion =
-    "2.11.0"  // Oppgradering til 2.12.1 lar seg foreløpig ikke gjøre: https://github.com/spring-projects/spring-boot/issues/23979
+val jacksonVersion = "2.13.0"
 val assertkVersion = "0.23.1"
 val micrometerPrometheusVersion = "1.6.3"
 val kafkaClientsVersion = "2.8.0"
@@ -26,7 +29,7 @@ val elasticSearchClientVersion = "7.10.1"
 
 plugins {
     application
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version embeddedKotlinVersion
 
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.github.ben-manes.versions") version "0.28.0"
