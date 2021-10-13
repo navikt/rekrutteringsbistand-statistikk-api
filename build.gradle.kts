@@ -24,6 +24,7 @@ val kafkaAvroSerializerVersion = "6.2.1"
 val shedlockVersion = "4.28.0"
 val pitestVersion = "1.7.0"
 val elasticSearchClientVersion = "7.10.1"
+val kotlinLoggingVersion = "2.0.11"
 
 
 
@@ -137,6 +138,6 @@ dependencies {
 
 configurations.all {
     resolutionStrategy {
-        force("io.github.microutils:kotlin-logging:2.0.6")
+        force("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
     }
 }
