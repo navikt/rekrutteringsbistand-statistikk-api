@@ -1,9 +1,7 @@
-val kotlinVersion =
-// Det er minst sannsynlighet for dependency-plunder når vi bruker samme versjon av Kotlin som den som er bundlet med Gradle via gradlew.
-// For å se hvilken versjon det er, kjør "./gradlew --version".
-// Kotlin-versjonen oppgraderes slik: https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:upgrading_wrapper
-    embeddedKotlinVersion
-
+/** Det er minst sannsynlighet for dependency-plunder når vi bruker samme versjon av Kotlin som den som er bundlet med Gradle via gradlew.
+For å se hvilken versjon det er, kjør "./gradlew --version".
+Kotlin-versjonen oppgraderes slik: https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:upgrading_wrapper
+ */
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.6"
 val ktorVersion = "1.6.4"
@@ -73,55 +71,43 @@ sourceSets["main"].resources.srcDirs("resources")
 sourceSets["test"].resources.srcDirs("testresources")
 
 repositories {
-    jcenter()
-    maven {
-        url = uri("https://packages.confluent.io/maven/")
-    }
-    maven {
-        url = uri("https://jitpack.io")
-    }
-    maven {
-        url = uri("https://dl.bintray.com/mipt-npm/dev")
-    }
+    mavenCentral()
+    maven("https://jcenter.bintray.com/")
+    maven("https://packages.confluent.io/maven/")
+    maven("https://jitpack.io")
+    maven("https://dl.bintray.com/mipt-npm/dev")
     maven("https://dl.bintray.com/mipt-npm/dataforge")
     maven("https://dl.bintray.com/mipt-npm/kscience")
-    mavenCentral()
 }
 
 dependencies {
     implementation(kotlin("reflect"))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
+    implementation(kotlin("stdlib-jdk8"))
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
-
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
-
     implementation("io.ktor:ktor-jackson:$ktorVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
-
     implementation("io.ktor:ktor-auth:$ktorVersion")
     implementation("no.nav.security:token-validation-ktor:$tokenValidationVersion") {
         exclude(group = "io.ktor", module = "ktor-auth")
     }
-
     implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerPrometheusVersion")
-
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
-
     implementation("kscience.plotlykt:plotlykt-server:$plotlyktServerVersion")
 
+    testImplementation(kotlin("test"))
     testImplementation("no.nav.security:token-validation-test-support:$tokenValidationVersion") {
         exclude(group = "org.springframework.boot")
     }
@@ -135,7 +121,6 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
-    testImplementation(kotlin("test"))
 }
 
 configurations.all {
