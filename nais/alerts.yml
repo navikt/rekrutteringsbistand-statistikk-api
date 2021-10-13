@@ -20,6 +20,7 @@ spec:
     - alert: Det har blitt logget en error
       expr: sum(increase(logd_messages_total{log_app="rekrutteringsbistand-stilling-indekser",log_level="Error"}[10m])) > 0
       for: 1s
+      action: "Sjekk loggen til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }}"
     - alert: Økning log level ERROR
       severity: danger
       expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api",log_level=~"Error"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api"}[3m]))) > 1
