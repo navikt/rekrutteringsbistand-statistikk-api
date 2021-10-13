@@ -13,7 +13,7 @@ val jacksonVersion = "2.11.0"  // Oppgradering til 2.12.1 lar seg foreløpig ikk
 val assertkVersion = "0.23.1"
 val micrometerPrometheusVersion = "1.6.3"
 val kafkaClientsVersion = "2.7.0"
-val mockkVersion = "1.10.6"
+val mockkVersion = "1.12.0"
 val kafkaEmbeddedEnvironmentVersion = "2.5.0"
 val kafkaAvroSerializerVersion = "5.5.3" // Kan ikke oppgradere til 6.1.0 siden no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion baserer seg på 5.4
 val shedlockVersion = "4.20.0"
@@ -47,10 +47,10 @@ pitest {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "13"
+        kotlinOptions.jvmTarget = "16"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "13"
+        kotlinOptions.jvmTarget = "16"
     }
 }
 
