@@ -1,12 +1,12 @@
 val kotlinVersion =
 // Det er minst sannsynlighet for dependency-plunder når vi bruker samme versjon av Kotlin som den som er bundlet med Gradle via gradlew.
-// For å se hvilken versjon det er, kjør "./gradlew -version".
+// For å se hvilken versjon det er, kjør "./gradlew --version".
 // Kotlin-versjonen oppgraderes slik: https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:upgrading_wrapper
     embeddedKotlinVersion
 
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.6"
-val ktorVersion = "1.5.3"
+val ktorVersion = "1.6.4"
 val h2Version = "1.4.200"
 val flywayVersion = "8.0.0"
 val hikariVersion = "5.0.0"
@@ -88,7 +88,7 @@ repositories {
 }
 
 dependencies {
-    dependencies { kotlin("reflect") }
+    implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -134,6 +134,7 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("org.skyscreamer:jsonassert:1.5.0")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
+    testImplementation(kotlin("test"))
 }
 
 configurations.all {
