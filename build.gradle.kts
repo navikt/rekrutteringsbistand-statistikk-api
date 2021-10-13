@@ -1,21 +1,23 @@
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.3"
 val ktorVersion = "1.5.3"
-val kotlinVersion = "1.4.32"
+val kotlinVersion = "1.5.31"
 val h2Version = "1.4.200"
 val flywayVersion = "7.5.3"
 val hikariVersion = "4.0.2"
-val logstashEncoderVersion = "6.5" // Oppgradering til 6.6 tar inn jackson:2.12.0 som ikke er kompatibel med jackson-versjonen til kafka
+val logstashEncoderVersion =
+    "6.5" // Oppgradering til 6.6 tar inn jackson:2.12.0 som ikke er kompatibel med jackson-versjonen til kafka
 val vaultJdbcVersion = "1.3.7"
 val postgresVersion = "42.2.18"
 val tokenValidationVersion = "1.3.3"
-val jacksonVersion = "2.11.0"  // Oppgradering til 2.12.1 lar seg foreløpig ikke gjøre: https://github.com/spring-projects/spring-boot/issues/23979
+val jacksonVersion =
+    "2.11.0"  // Oppgradering til 2.12.1 lar seg foreløpig ikke gjøre: https://github.com/spring-projects/spring-boot/issues/23979
 val assertkVersion = "0.23.1"
 val micrometerPrometheusVersion = "1.6.3"
-val kafkaClientsVersion = "2.7.0"
+val kafkaClientsVersion = "2.8.0"
 val mockkVersion = "1.12.0"
-val kafkaEmbeddedEnvironmentVersion = "2.5.0"
-val kafkaAvroSerializerVersion = "5.5.3" // Kan ikke oppgradere til 6.1.0 siden no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion baserer seg på 5.4
+val kafkaEmbeddedEnvironmentVersion = "2.8.0"
+val kafkaAvroSerializerVersion = "6.2.1"
 val shedlockVersion = "4.20.0"
 val pitestVersion = "1.5.2"
 val elasticSearchClientVersion = "7.10.1"
@@ -57,7 +59,7 @@ tasks {
 
 
 application {
-    mainClassName = "statistikkapi.ApplicationKt"
+    mainClass.set("statistikkapi.ApplicationKt")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
@@ -81,6 +83,7 @@ repositories {
 }
 
 dependencies {
+    dependencies { kotlin("reflect") }
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -123,13 +126,13 @@ dependencies {
     }
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
-    testImplementation ("io.ktor:ktor-client-mock:$ktorVersion")
-    testImplementation ("org.skyscreamer:jsonassert:1.5.0")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
+    testImplementation("org.skyscreamer:jsonassert:1.5.0")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
 }
 
 configurations.all {
-  resolutionStrategy {
-    force("io.github.microutils:kotlin-logging:2.0.6")
-  }
+    resolutionStrategy {
+        force("io.github.microutils:kotlin-logging:2.0.6")
+    }
 }
