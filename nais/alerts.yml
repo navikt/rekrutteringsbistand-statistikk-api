@@ -15,27 +15,27 @@ spec:
           expr: sum(up{app="rekrutteringsbistand-statistikk-api", job="kubernetes-pods"}) == 0
           for: 1s
           description: 'rekrutteringsbistand-statistikk-api er nede i namespace {{ $labels.kubernetes_namespace }}'
-          action: 'Sjekk logs.adeo.no for logger: https://logs.adeo.no/goto/006a4ac9bb82ea3b6d4cad1c7677547b'
+          action: 'https://logs.adeo.no/goto/2f78ed7f149ff63cdf76c8f86aa4125c'
 
         - alert: Det har skjedd en feil i rekrutteringsbistand-statistikk-api
           expr: sum(increase(logd_messages_total{log_app="rekrutteringsbistand-stilling-indekser",log_level="Error"}[10m])) > 0
           for: 1s
-          action: 'Sjekk logs.adeo.no for logger: https://logs.adeo.no/goto/a91e8e2fcf4183939216d95826e15c5e'
+          action: 'https://logs.adeo.no/goto/2f78ed7f149ff63cdf76c8f86aa4125c'
 
         - alert: Økning i warnings i rekrutteringsbistand-statistikk-api
           severity: warning
           expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api",log_level=~"Warning"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api"}[3m]))) > 1
           for: 1s
-          action: 'Sjekk logs.adeo.no for logger: https://logs.adeo.no/goto/a5f366c1662e713b4b9997c0dcf186ee'
+          action: 'https://logs.adeo.no/goto/2f78ed7f149ff63cdf76c8f86aa4125c'
 
         - alert: Økning i HTTP-serverfeil (5xx-responser) i rekrutteringsbistand-statistikk-api
           severity: danger
           expr: (100 * (sum by (backend) (rate(traefik_backend_requests_total{code=~"^5\\d\\d", backend=~"arbeidsgiver.nais.*/rekrutteringsbistand-statistikk-api/*"}[3m])) / sum by (backend) (rate(traefik_backend_requests_total{backend=~"arbeidsgiver.nais.*/rekrutteringsbistand-statistikk-api/*"}[3m])))) > 1
           for: 3m
-          action: 'Sjekk logs.adeo.no for logger: https://logs.adeo.no/goto/006a4ac9bb82ea3b6d4cad1c7677547b'
+          action: 'https://logs.adeo.no/goto/2f78ed7f149ff63cdf76c8f86aa4125c'
 
         - alert: Økning HTTP-klientfeil (4xx-responser) i rekrutteringsbistand-statistikk-api
           severity: warning
           expr: (100 * (sum by (backend) (rate(traefik_backend_requests_total{code=~"^4\\d\\d", backend=~"arbeidsgiver.nais.*/rekrutteringsbistand-statistikk-api/*"}[3m])) / sum by (backend) (rate(traefik_backend_requests_total{backend=~"arbeidsgiver.nais.*/rekrutteringsbistand-statistikk-api/*"}[3m])))) > 1
           for: 3m
-          action: 'Sjekk logs.adeo.no for logger: https://logs.adeo.no/goto/006a4ac9bb82ea3b6d4cad1c7677547b'
+          action: 'https://logs.adeo.no/goto/2f78ed7f149ff63cdf76c8f86aa4125c'
