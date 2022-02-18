@@ -5,7 +5,6 @@ import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.ktor.TokenSupportConfig
 import no.nav.security.token.support.ktor.tokenValidationSupport
 import no.nav.security.token.support.test.FileResourceRetriever
-import statistikkapi.datakatalog.DatakatalogUrl
 import statistikkapi.db.TestDatabase
 import statistikkapi.kafka.DatavarehusKafkaProducer
 import statistikkapi.kafka.DatavarehusKafkaProducerStub
@@ -44,7 +43,6 @@ fun start(
         database.dataSource,
         tokenValidationConfig,
         datavarehusKafkaProducer,
-        DatakatalogUrl(Cluster.LOKAL),
         object: ElasticSearchKlient {
             override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
         }

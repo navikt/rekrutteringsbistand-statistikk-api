@@ -24,7 +24,6 @@ val pitestVersion = "1.7.0"
 val elasticSearchClientVersion = "7.10.1"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.0"
-val plotlyktServerVersion = "0.3.0"
 
 
 plugins {
@@ -68,9 +67,6 @@ repositories {
     maven("https://jcenter.bintray.com/")
     maven("https://packages.confluent.io/maven/")
     maven("https://jitpack.io")
-    maven("https://dl.bintray.com/mipt-npm/dev")
-    maven("https://dl.bintray.com/mipt-npm/dataforge")
-    maven("https://dl.bintray.com/mipt-npm/kscience")
 }
 
 dependencies {
@@ -98,7 +94,6 @@ dependencies {
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
-    implementation("kscience.plotlykt:plotlykt-server:$plotlyktServerVersion")
 
     testImplementation(kotlin("test"))
     testImplementation("no.nav.security:token-validation-test-support:$tokenValidationVersion") {

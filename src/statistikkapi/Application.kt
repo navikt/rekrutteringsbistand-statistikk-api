@@ -5,7 +5,6 @@ import io.ktor.util.*
 import no.nav.security.token.support.ktor.tokenValidationSupport
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import statistikkapi.datakatalog.DatakatalogUrl
 import statistikkapi.db.Database
 import statistikkapi.kafka.DatavarehusKafkaProducerImpl
 import statistikkapi.kafka.KafkaConfig
@@ -23,7 +22,6 @@ fun main() {
     }
 
     val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
-    val datakatalogUrl = DatakatalogUrl(Cluster.current)
 
     val stillingssokProxyAccessTokenClient = AccessTokenProvider(config = AccessTokenProvider.Config(
         azureClientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
@@ -37,7 +35,6 @@ fun main() {
         dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer,
-        url = datakatalogUrl,
         elasticSearchKlient = elasticSearchKlient
     )
     applicationEngine.start()
