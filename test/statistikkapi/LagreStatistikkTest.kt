@@ -18,7 +18,7 @@ import java.time.temporal.ChronoUnit
 class LagreStatistikkTest {
 
     private val basePath = basePath(port)
-    private val client = innloggaHttpClient()
+    private val client = httpClientMedIssoIdToken()
 
     companion object {
         private val database = TestDatabase()

@@ -8,10 +8,9 @@ import statistikkapi.basePath
 import statistikkapi.db.TestDatabase
 import statistikkapi.db.TestRepository
 import statistikkapi.etKandidatutfall
-import statistikkapi.innloggaHttpClient
+import statistikkapi.httpClientMedIssoIdToken
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import no.nav.common.KafkaEnvironment
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
@@ -79,7 +78,7 @@ class DatavarehusKafkaTest {
 
 
     private val basePath = basePath(port)
-    private val client = innloggaHttpClient()
+    private val client = httpClientMedIssoIdToken()
 
     companion object {
         private val database = TestDatabase()

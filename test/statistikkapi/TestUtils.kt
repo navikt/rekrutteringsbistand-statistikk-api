@@ -12,16 +12,16 @@ import io.ktor.http.*
 import no.nav.security.token.support.test.JwtTokenGenerator
 import kotlin.random.Random
 
-fun lagCookie(): Cookie {
+fun lagIssoIdCookie(): Cookie {
     val token: SignedJWT = JwtTokenGenerator.createSignedJWT(enNavIdent)
     return Cookie("isso-idtoken", token.serialize())
 }
 
 fun randomPort(): Int = Random.nextInt(1000, 9999)
 
-fun innloggaHttpClient() = HttpClient(Apache) {
+fun httpClientMedIssoIdToken() = HttpClient(Apache) {
     install(HttpCookies) {
-        storage = ConstantCookiesStorage(lagCookie())
+        storage = ConstantCookiesStorage(lagIssoIdCookie())
     }
     install(JsonFeature) {
         serializer = JacksonSerializer {
