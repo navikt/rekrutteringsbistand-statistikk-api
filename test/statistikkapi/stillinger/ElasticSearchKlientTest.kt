@@ -133,7 +133,7 @@ class ElasticSearchKlientImplTest {
     private fun httpClientSøketreffMedStatligInkluderingsdugnad() =
         HttpClient(MockEngine) {
             engine {
-                addHandler { request ->
+                addHandler {
                     respond(etElasticSearchSvarForEnStillingMedTagsogStatligInkluderingsdugnad().trimIndent())
                 }
             }
