@@ -10,7 +10,6 @@ import io.ktor.metrics.micrometer.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.util.*
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
@@ -25,7 +24,6 @@ import statistikkapi.stillinger.StillingRepository
 import statistikkapi.stillinger.StillingService
 import javax.sql.DataSource
 
-@KtorExperimentalAPI
 fun lagApplicationEngine(
     port: Int = 8111,
     dataSource: DataSource,

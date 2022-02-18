@@ -7,7 +7,6 @@ import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Test
@@ -17,7 +16,6 @@ import statistikkapi.kandidatutfall.KandidatutfallRepository
 import statistikkapi.kandidatutfall.Utfall.*
 import java.time.LocalDate
 
-@KtorExperimentalAPI
 class HentStatistikkTest {
 
     private val basePath = basePath(port)

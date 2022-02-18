@@ -7,7 +7,6 @@ import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Test
@@ -16,7 +15,6 @@ import statistikkapi.db.TestRepository
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
-@KtorExperimentalAPI
 class LagreStatistikkTest {
 
     private val basePath = basePath(port)

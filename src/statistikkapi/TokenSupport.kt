@@ -1,11 +1,8 @@
 package statistikkapi
 
-import io.ktor.util.*
 import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.ktor.TokenSupportConfig
 
-
-@KtorExperimentalAPI
 fun tokenSupportConfig(cluster: Cluster): TokenSupportConfig {
     val issuerConfig = when (cluster) {
         Cluster.DEV_FSS -> IssuerConfig(

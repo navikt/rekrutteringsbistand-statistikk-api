@@ -1,7 +1,6 @@
 package statistikkapi
 
 import io.ktor.auth.*
-import io.ktor.util.*
 import no.nav.security.token.support.ktor.tokenValidationSupport
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -12,7 +11,6 @@ import statistikkapi.stillinger.ElasticSearchKlientImpl
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
 
-@KtorExperimentalAPI
 fun main() {
     val database = Database(Cluster.current)
 

@@ -1,6 +1,5 @@
 package statistikkapi
 import io.ktor.auth.*
-import io.ktor.util.*
 import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.ktor.TokenSupportConfig
 import no.nav.security.token.support.ktor.tokenValidationSupport
@@ -11,12 +10,10 @@ import statistikkapi.kafka.DatavarehusKafkaProducerStub
 import statistikkapi.stillinger.ElasticSearchKlient
 import statistikkapi.stillinger.ElasticSearchStilling
 
-@KtorExperimentalAPI
 fun main() {
     start()
 }
 
-@KtorExperimentalAPI
 fun start(
     database: TestDatabase = TestDatabase(),
     port: Int = 8111,
