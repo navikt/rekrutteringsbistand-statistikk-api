@@ -29,6 +29,7 @@ data class StatistikkOutboundDto(
 
 fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
 
+    // authenticate("isso")
     authenticate {
         get("/statistikk") {
             val queryParameters = call.parameters

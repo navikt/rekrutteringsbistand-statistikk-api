@@ -24,6 +24,7 @@ val pitestVersion = "1.7.0"
 val elasticSearchClientVersion = "7.10.1"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.0"
+val mockOAuth2ServerVersion = "0.4.3"
 
 
 plugins {
@@ -109,6 +110,8 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
+
+    testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
 }
 
 configurations.all {
