@@ -29,7 +29,7 @@ fun start(
             IssuerConfig(
                 name = "isso-idtoken",
                 discoveryUrl = "http://localhost:$mockOAuth2ServerPort/isso-idtoken/.well-known/openid-configuration",
-                acceptedAudience = listOf("aud-isso"),
+                acceptedAudience = listOf("loginService"),
                 cookieName = "isso-idtoken"
             )
         )

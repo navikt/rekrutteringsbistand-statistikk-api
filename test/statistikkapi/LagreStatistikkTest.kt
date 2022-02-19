@@ -29,7 +29,7 @@ class LagreStatistikkTest {
 
         init {
             start(database = database, port = port, mockOAuth2Server = mockOAuth2Server)
-            clientMedIssoIdToken = httpClientMedIssoIdToken(mockOAuth2Server)
+            clientMedIssoIdToken = httpClientMedLoginServiceToken(mockOAuth2Server)
         }
     }
 

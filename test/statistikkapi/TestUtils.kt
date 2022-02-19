@@ -12,21 +12,21 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import kotlin.random.Random
 
-private fun hentToken(mockOAuth2Server: MockOAuth2Server, issuerId: String) = mockOAuth2Server.issueToken("isso-idtoken", "aud-isso",
+private fun hentLoginServiceToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "loginService",
     DefaultOAuth2TokenCallback(
         issuerId = "enIssuerId",
         claims = mapOf(
             Pair("NAVident", enNavIdent),
         ),
-        audience = listOf("aud-isso")
+        audience = listOf("loginService")
     )
 )
 
 fun randomPort(): Int = Random.nextInt(1000, 9999)
 
-fun httpClientMedIssoIdToken(mockOAuth2Server: MockOAuth2Server) = HttpClient(Apache) {
+fun httpClientMedLoginServiceToken(mockOAuth2Server: MockOAuth2Server) = HttpClient(Apache) {
     install(HttpCookies) {
-        val token = hentToken(mockOAuth2Server, "isso-idtoken")
+        val token = hentLoginServiceToken(mockOAuth2Server)
         val cookie = Cookie("isso-idtoken", token.serialize())
         storage = ConstantCookiesStorage(cookie)
     }

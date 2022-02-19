@@ -35,7 +35,7 @@ class HentStatistikkTest {
                 port = port,
                 mockOAuth2Server = mockOAuth2Server
             )
-            clientMedIssoIdToken = httpClientMedIssoIdToken(mockOAuth2Server)
+            clientMedIssoIdToken = httpClientMedLoginServiceToken(mockOAuth2Server)
         }
     }
 

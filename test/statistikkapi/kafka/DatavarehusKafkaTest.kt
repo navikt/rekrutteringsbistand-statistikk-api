@@ -102,7 +102,7 @@ class DatavarehusKafkaTest {
         init {
             start(database, port, datavarehusKafkaProducer, mockOAuth2Server)
             lokalKafka.start()
-            clientMedIssoIdToken = httpClientMedIssoIdToken(mockOAuth2Server)
+            clientMedIssoIdToken = httpClientMedLoginServiceToken(mockOAuth2Server)
         }
 
         @AfterClass
