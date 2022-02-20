@@ -25,11 +25,11 @@ class LagreStatistikkTest {
         private val testRepository = TestRepository(database.dataSource)
         private val mockOAuth2Server = MockOAuth2Server()
         private val basePath = basePath(port)
-        private val clientMedIssoIdToken: HttpClient
+        private val clientMedLoginServiceCookie: HttpClient
 
         init {
             start(database = database, port = port, mockOAuth2Server = mockOAuth2Server)
-            clientMedIssoIdToken = httpClientMedLoginServiceToken(mockOAuth2Server)
+            clientMedLoginServiceCookie = httpClientMedLoginServiceToken(mockOAuth2Server)
         }
     }
 
@@ -37,7 +37,7 @@ class LagreStatistikkTest {
     fun `POST til kandidatutfall skal lagre til utfallstabellen`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
 
-        val response: HttpResponse = clientMedIssoIdToken.post("$basePath/kandidatutfall") {
+        val response: HttpResponse = clientMedLoginServiceCookie.post("$basePath/kandidatutfall") {
             body = kandidatutfallTilLagring
         }
 
@@ -64,7 +64,7 @@ class LagreStatistikkTest {
     fun `POST til kandidatutfall skal lagre til stillingstabellen`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
 
-        val response: HttpResponse = clientMedIssoIdToken.post("$basePath/kandidatutfall") {
+        val response: HttpResponse = clientMedLoginServiceCookie.post("$basePath/kandidatutfall") {
             body = kandidatutfallTilLagring
         }
 
