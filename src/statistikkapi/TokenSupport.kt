@@ -1,10 +1,9 @@
 package statistikkapi
 
 import no.nav.security.token.support.ktor.IssuerConfig
-import no.nav.security.token.support.ktor.TokenSupportConfig
 
-fun tokenSupportConfig(cluster: Cluster): TokenSupportConfig {
-    val issuerConfig = when (cluster) {
+fun tokenIssuerConfig(cluster: Cluster): IssuerConfig {
+    return when (cluster) {
         Cluster.DEV_FSS -> IssuerConfig(
             name = "isso",
             discoveryUrl = "https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration",
@@ -19,7 +18,6 @@ fun tokenSupportConfig(cluster: Cluster): TokenSupportConfig {
         )
         Cluster.LOKAL -> throw UnsupportedOperationException()
     }
-    return TokenSupportConfig(issuerConfig)
 }
 
 

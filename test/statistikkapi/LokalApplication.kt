@@ -24,13 +24,15 @@ fun start(
     val mockOAuth2ServerPort = randomPort()
     mockOAuth2Server.start(InetAddress.getByName("localhost"), mockOAuth2ServerPort)
 
+    val tokenIssuer = tokenIssuerConfig(Cluster.DEV_FSS)
+
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
         val tokenSupportConfig = TokenSupportConfig(
             IssuerConfig(
-                name = "isso-idtoken",
+                name = tokenIssuer.name,
                 discoveryUrl = "http://localhost:$mockOAuth2ServerPort/isso-idtoken/.well-known/openid-configuration",
-                acceptedAudience = listOf("loginService"),
-                cookieName = "isso-idtoken"
+                acceptedAudience = tokenIssuer.acceptedAudience,
+                cookieName = tokenIssuer.cookieName
             )
         )
 

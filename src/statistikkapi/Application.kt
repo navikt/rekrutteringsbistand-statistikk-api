@@ -8,13 +8,14 @@ import statistikkapi.db.Database
 import statistikkapi.kafka.DatavarehusKafkaProducerImpl
 import statistikkapi.kafka.KafkaConfig
 import statistikkapi.stillinger.ElasticSearchKlientImpl
+import no.nav.security.token.support.ktor.TokenSupportConfig
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
 
 fun main() {
     val database = Database(Cluster.current)
 
-    val tokenSupportConfig = tokenSupportConfig(Cluster.current)
+    val tokenSupportConfig = TokenSupportConfig(tokenIssuerConfig(Cluster.current))
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
         tokenValidationSupport(config = tokenSupportConfig)
     }

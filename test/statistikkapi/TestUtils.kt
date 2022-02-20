@@ -14,11 +14,11 @@ import kotlin.random.Random
 
 private fun hentLoginServiceToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "loginService",
     DefaultOAuth2TokenCallback(
-        issuerId = "enIssuerId",
+        issuerId = "isso",
         claims = mapOf(
             Pair("NAVident", enNavIdent),
         ),
-        audience = listOf("loginService")
+        audience = listOf("38e07d31-659d-4595-939a-f18dce3446c5")
     )
 )
 
