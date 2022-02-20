@@ -10,6 +10,7 @@ spec:
   port: 8111
   ingresses:
     - https://arbeidsgiver.nais.preprod.local/rekrutteringsbistand-statistikk-api/
+    - https://rekrutteringsbistand-statistikk-api.dev-fss-pub.nais.io
   liveness:
     path: /rekrutteringsbistand-statistikk-api/internal/isAlive
   readiness:
@@ -26,3 +27,6 @@ spec:
   azure:
     application:
       enabled: true
+      claims:
+        extra:
+          - NAVident
