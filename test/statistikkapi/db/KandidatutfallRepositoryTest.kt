@@ -6,7 +6,6 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import org.junit.After
 import org.junit.Test
-import statistikkapi.datakatalog.alder.Aldersgruppe
 import statistikkapi.etKandidatutfall
 import statistikkapi.etKontor1
 import statistikkapi.kandidatutfall.KandidatutfallRepository
@@ -127,13 +126,13 @@ class KandidatutfallRepositoryTest {
         val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1))
             .mapNotNull { it.alder }
 
-        val antallUtfallUnder30 = utfallFåttJobben.count { Aldersgruppe.under30.inneholder(it) }
-        val antallUtfallOver50 = utfallFåttJobben.count { Aldersgruppe.over50.inneholder(it) }
-        val antallUtfallMellom30Og50 = utfallFåttJobben.count { Aldersgruppe.mellom30og50.inneholder(it) }
+        val antallUtfallUnder30 = utfallFåttJobben.count { it < 30 }
+        val antallUtfallOver50 = utfallFåttJobben.count { it > 50 }
+        val antallUtfallMellom30g50 = utfallFåttJobben.count { it in 30..50 }
 
         assertThat(antallUtfallUnder30).isEqualTo(1)
         assertThat(antallUtfallOver50).isEqualTo(0)
-        assertThat(antallUtfallMellom30Og50).isEqualTo(0)
+        assertThat(antallUtfallMellom30g50).isEqualTo(0)
     }
 
     @Test

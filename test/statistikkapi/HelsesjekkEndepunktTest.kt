@@ -5,12 +5,9 @@ import assertk.assertions.isEqualTo
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
-import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-
-@KtorExperimentalAPI
 class HelsesjekkEndepunktTest {
 
     private val basePath = basePath(port)

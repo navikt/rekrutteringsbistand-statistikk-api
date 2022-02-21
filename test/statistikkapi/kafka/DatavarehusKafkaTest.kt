@@ -27,7 +27,6 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 
-@KtorExperimentalAPI
 class DatavarehusKafkaTest {
 
 
