@@ -27,6 +27,7 @@ spec:
     inbound:
       rules:
         - application: rekrutteringsbistand-statistikk
+          namespace: toi
           cluster: dev-gcp
   webproxy: true
   azure:
