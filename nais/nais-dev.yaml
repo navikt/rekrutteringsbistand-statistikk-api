@@ -23,6 +23,11 @@ spec:
     paths:
       - kvPath: /serviceuser/data/dev/srv-rekbis-stat
         mountPath: /secret/serviceuser
+  accessPolicy:
+    inbound:
+      rules:
+        - application: rekrutteringsbistand-statistikk
+          cluster: dev-gcp
   webproxy: true
   azure:
     application:
