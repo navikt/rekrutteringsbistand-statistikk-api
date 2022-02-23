@@ -9,8 +9,9 @@ spec:
   image: {{version}}
   port: 8111
   ingresses:
+      # TODO: Fjern arbeidsgiver.nais.preprod.local-ingress og context-path
     - https://arbeidsgiver.nais.preprod.local/rekrutteringsbistand-statistikk-api/
-    - https://rekrutteringsbistand-statistikk-api.dev-fss-pub.nais.io
+    - https://rekrutteringsbistand-statistikk-api.dev-fss-pub.nais.io/rekrutteringsbistand-statistikk-api
   liveness:
     path: /rekrutteringsbistand-statistikk-api/internal/isAlive
   readiness:
