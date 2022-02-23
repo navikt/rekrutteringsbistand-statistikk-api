@@ -30,6 +30,9 @@ spec:
         - application: rekrutteringsbistand-statistikk
           namespace: toi
           cluster: dev-gcp
+        - application: rekrutteringsbistand-container
+          namespace: toi
+          cluster: dev-gcp
   webproxy: true
   azure:
     application:
