@@ -24,8 +24,8 @@ spec:
 
         - alert: Økning i warnings i rekrutteringsbistand-statistikk-api
           severity: warning
-          expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api",log_level=~"Warning"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api"}[3m]))) > 1
-          for: 1s
+          expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api",log_level=~"Warning"}[3m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api"}[3m]))) > 2
+          for: 1m
           action: 'https://logs.adeo.no/goto/2f78ed7f149ff63cdf76c8f86aa4125c'
 
         - alert: Økning i HTTP-serverfeil (5xx-responser) i rekrutteringsbistand-statistikk-api
