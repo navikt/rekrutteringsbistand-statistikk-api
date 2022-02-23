@@ -9,7 +9,9 @@ spec:
   image: {{version}}
   port: 8111
   ingresses:
+      # TODO: Fjern arbeidsgiver.nais.preprod.local-ingress og context-path
     - https://arbeidsgiver.nais.preprod.local/rekrutteringsbistand-statistikk-api/
+    - https://rekrutteringsbistand-statistikk-api.dev-fss-pub.nais.io/rekrutteringsbistand-statistikk-api
   liveness:
     path: /rekrutteringsbistand-statistikk-api/internal/isAlive
   readiness:
@@ -22,7 +24,19 @@ spec:
     paths:
       - kvPath: /serviceuser/data/dev/srv-rekbis-stat
         mountPath: /secret/serviceuser
+  accessPolicy:
+    inbound:
+      rules:
+        - application: rekrutteringsbistand-statistikk
+          namespace: toi
+          cluster: dev-gcp
+        - application: rekrutteringsbistand-container
+          namespace: toi
+          cluster: dev-gcp
   webproxy: true
   azure:
     application:
       enabled: true
+      claims:
+        extra:
+          - NAVident
