@@ -64,7 +64,7 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
         )
 
     companion object {
-        val stillingssokProxyScope = "api://${if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"}.arbeidsgiver.rekrutteringsbistand-stillingssok-proxy/.default"
+        val stillingssokProxyScope = "api://${if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"}.toi.rekrutteringsbistand-stillingssok-proxy/.default"
     }
 }
 
