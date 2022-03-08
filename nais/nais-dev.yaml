@@ -33,6 +33,9 @@ spec:
         - application: rekrutteringsbistand-container
           namespace: toi
           cluster: dev-gcp
+        - application: rekrutteringsbistand-kandidat-api
+          namespace: toi
+          cluster: dev-fss
   webproxy: true
   azure:
     application:

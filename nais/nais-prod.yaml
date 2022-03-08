@@ -23,6 +23,18 @@ spec:
     paths:
       - kvPath: /serviceuser/data/prod/srv-rekbis-stat
         mountPath: /secret/serviceuser
+  accessPolicy:
+    inbound:
+      rules:
+        - application: rekrutteringsbistand-statistikk
+          namespace: toi
+          cluster: prod-gcp
+        - application: rekrutteringsbistand-container
+          namespace: toi
+          cluster: prod-gcp
+        - application: rekrutteringsbistand-kandidat-api
+          namespace: toi
+          cluster: prod-fss
   webproxy: true
   azure:
     application:
