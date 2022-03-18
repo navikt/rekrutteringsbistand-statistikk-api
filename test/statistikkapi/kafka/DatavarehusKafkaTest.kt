@@ -4,25 +4,22 @@ import assertk.assertThat
 import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import statistikkapi.basePath
+import io.ktor.client.*
 import statistikkapi.db.TestDatabase
 import statistikkapi.db.TestRepository
-import statistikkapi.etKandidatutfall
-import statistikkapi.innloggaHttpClient
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import no.nav.common.KafkaEnvironment
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
+import no.nav.security.mock.oauth2.MockOAuth2Server
 import statistikkapi.kandidatutfall.Kandidatutfall
 import statistikkapi.kandidatutfall.SendtStatus.SENDT
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Test
-import statistikkapi.randomPort
-import statistikkapi.start
+import statistikkapi.*
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
@@ -34,7 +31,7 @@ class DatavarehusKafkaTest {
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
         val expected = listOf(etKandidatutfall, etKandidatutfall)
 
-        client.post<HttpResponse>("$basePath/kandidatutfall") {
+        clientMedIssoIdToken.post<HttpResponse>("$basePath/kandidatutfall") {
             body = expected
         }
 
@@ -56,7 +53,7 @@ class DatavarehusKafkaTest {
     fun `Sending på Kafka-topic skal endre status fra IKKE_SENDT til SENDT`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
 
-        client.post<HttpResponse>("$basePath/kandidatutfall") {
+        clientMedIssoIdToken.post<HttpResponse>("$basePath/kandidatutfall") {
             body = kandidatutfallTilLagring
         }
         consumeKafka() // Vent
@@ -75,11 +72,8 @@ class DatavarehusKafkaTest {
     @After
     fun cleanUp() {
         repository.slettAlleUtfall()
+        mockOAuth2Server.shutdown()
     }
-
-
-    private val basePath = basePath(port)
-    private val client = innloggaHttpClient()
 
     companion object {
         private val database = TestDatabase()
@@ -89,6 +83,9 @@ class DatavarehusKafkaTest {
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(
             producerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url)
         )
+        private val mockOAuth2Server = MockOAuth2Server()
+        private val basePath = basePath(port)
+        private val clientMedIssoIdToken: HttpClient
 
         private fun consumeKafka(): List<AvroKandidatutfall> {
             val consumer = KafkaConsumer<String, AvroKandidatutfall>(
@@ -103,8 +100,9 @@ class DatavarehusKafkaTest {
         }
 
         init {
-            start(database, port, datavarehusKafkaProducer)
+            start(database, port, datavarehusKafkaProducer, mockOAuth2Server)
             lokalKafka.start()
+            clientMedIssoIdToken = httpClientMedIssoIdToken(mockOAuth2Server)
         }
 
         @AfterClass
