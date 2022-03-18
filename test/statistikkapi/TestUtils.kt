@@ -8,21 +8,15 @@ import io.ktor.client.engine.apache.*
 import io.ktor.client.features.*
 import io.ktor.client.features.cookies.*
 import io.ktor.client.features.json.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.security.token.support.test.JwtTokenGenerator
+import org.apache.http.HttpHeaders
 import kotlin.random.Random
-
-fun lagCookie(): Cookie {
-    val token: SignedJWT = JwtTokenGenerator.createSignedJWT(enNavIdent)
-    return Cookie("isso-idtoken", token.serialize())
-}
 
 fun randomPort(): Int = Random.nextInt(1000, 9999)
 
 fun innloggaHttpClient() = HttpClient(Apache) {
-    install(HttpCookies) {
-        storage = ConstantCookiesStorage(lagCookie())
-    }
     install(JsonFeature) {
         serializer = JacksonSerializer {
             registerModule(JavaTimeModule())
@@ -31,6 +25,7 @@ fun innloggaHttpClient() = HttpClient(Apache) {
     }
     defaultRequest {
         contentType(ContentType.Application.Json)
+        header(HttpHeaders.AUTHORIZATION, "Bearer ${JwtTokenGenerator.createSignedJWT(enNavIdent).serialize()}")
     }
 }
 

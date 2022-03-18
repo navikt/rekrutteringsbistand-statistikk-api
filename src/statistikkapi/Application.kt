@@ -1,6 +1,8 @@
 package statistikkapi
 
 import io.ktor.auth.*
+import no.nav.security.token.support.ktor.IssuerConfig
+import no.nav.security.token.support.ktor.TokenSupportConfig
 import no.nav.security.token.support.ktor.tokenValidationSupport
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,9 +16,15 @@ val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistik
 fun main() {
     val database = Database(Cluster.current)
 
-    val tokenSupportConfig = tokenSupportConfig(Cluster.current)
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
-        tokenValidationSupport(config = tokenSupportConfig)
+        tokenValidationSupport(config =  TokenSupportConfig(
+            IssuerConfig(
+                name = "azuread",
+                discoveryUrl = System.getenv("AZURE_APP_WELL_KNOWN_URL"),
+                acceptedAudience = listOf(System.getenv("AZURE_APP_CLIENT_ID")),
+                cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
+            )
+        ))
     }
 
     val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())

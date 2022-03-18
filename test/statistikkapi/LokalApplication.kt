@@ -25,7 +25,6 @@ fun start(
                 name = "isso",
                 discoveryUrl = "http://metadata",
                 acceptedAudience = listOf("aud-localhost", "aud-isso"),
-                cookieName = "isso-idtoken"
             )
         )
 
