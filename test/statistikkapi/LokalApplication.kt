@@ -27,10 +27,9 @@ fun start(
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
         val tokenSupportConfig = TokenSupportConfig(
             IssuerConfig(
-                name = "isso-idtoken",
-                discoveryUrl = "http://localhost:$mockOAuth2ServerPort/isso-idtoken/.well-known/openid-configuration",
-                acceptedAudience = listOf("aud-isso"),
-                cookieName = "isso-idtoken"
+                name = "azuread",
+                discoveryUrl = "http://localhost:$mockOAuth2ServerPort/azuread/.well-known/openid-configuration",
+                acceptedAudience = listOf("statistikk-api")
             )
         )
 

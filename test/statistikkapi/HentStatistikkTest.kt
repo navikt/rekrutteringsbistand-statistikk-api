@@ -23,7 +23,7 @@ class HentStatistikkTest {
     companion object {
         private val port = randomPort()
         private val mockOAuth2Server = MockOAuth2Server()
-        private val clientMedIssoIdToken: HttpClient
+        private val klientMedBearerToken = httpKlientMedBearerToken(mockOAuth2Server)
         private val basePath = basePath(port)
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
@@ -35,7 +35,6 @@ class HentStatistikkTest {
                 port = port,
                 mockOAuth2Server = mockOAuth2Server
             )
-            clientMedIssoIdToken = httpClientMedIssoIdToken(mockOAuth2Server)
         }
     }
 
@@ -46,8 +45,7 @@ class HentStatistikkTest {
             LocalDate.of(2020, 10, 15).atStartOfDay()
         )
 
-        val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
-
+        val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
                 HentStatistikk(
@@ -70,7 +68,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 10, 15).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
                     HentStatistikk(
@@ -93,7 +91,7 @@ class HentStatistikkTest {
             LocalDate.of(2020, 10, 15).atStartOfDay()
         )
 
-        val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+        val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
                 HentStatistikk(
@@ -112,7 +110,7 @@ class HentStatistikkTest {
     fun `Registrert formidling innen tidsperiode skal telles`() = runBlocking {
         repository.lagreUtfall(etKandidatutfall, LocalDate.of(2020, 10, 15).atStartOfDay())
 
-        val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+        val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
                 HentStatistikk(
@@ -131,7 +129,7 @@ class HentStatistikkTest {
         repository.lagreUtfall(etKandidatutfall, LocalDate.of(2020, 1, 1).atStartOfDay())
         repository.lagreUtfall(etKandidatutfall, LocalDate.of(2021, 5, 1).atStartOfDay())
 
-        val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+        val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
                 HentStatistikk(
@@ -151,7 +149,7 @@ class HentStatistikkTest {
         repository.lagreUtfall(etKandidatutfall.copy(kandidatlisteId = "1"), LocalDate.of(2020, 1, 1).atStartOfDay())
         repository.lagreUtfall(etKandidatutfall.copy(kandidatlisteId = "2"), LocalDate.of(2020, 1, 1).atStartOfDay())
 
-        val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+        val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
                 HentStatistikk(
@@ -170,7 +168,7 @@ class HentStatistikkTest {
         repository.lagreUtfall(etKandidatutfall.copy(aktørId = "1"), LocalDate.of(2020, 1, 1).atStartOfDay())
         repository.lagreUtfall(etKandidatutfall.copy(aktørId = "2"), LocalDate.of(2020, 1, 1).atStartOfDay())
 
-        val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+        val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
                 HentStatistikk(
@@ -196,7 +194,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 1, 1).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
                     HentStatistikk(
@@ -223,7 +221,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 1, 2).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
                     HentStatistikk(
@@ -243,7 +241,7 @@ class HentStatistikkTest {
         repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT), LocalDate.of(2020, 1, 1).atStartOfDay())
         repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT), LocalDate.of(2020, 1, 2).atStartOfDay())
 
-        val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+        val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
                 HentStatistikk(
@@ -266,7 +264,7 @@ class HentStatistikkTest {
         )
         repository.lagreUtfall(etKandidatutfall.copy(utfall = PRESENTERT), LocalDate.of(2020, 1, 2).atStartOfDay())
 
-        val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+        val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
                 HentStatistikk(
@@ -304,7 +302,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
                     HentStatistikk(
@@ -331,7 +329,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
                     HentStatistikk(
@@ -358,7 +356,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
                     HentStatistikk(
@@ -385,7 +383,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
                     HentStatistikk(
@@ -413,7 +411,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
                     HentStatistikk(
@@ -441,7 +439,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
                     HentStatistikk(
@@ -468,7 +466,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
                     HentStatistikk(
@@ -495,7 +493,7 @@ class HentStatistikkTest {
                 LocalDate.of(2020, 10, 16).atStartOfDay()
             )
 
-            val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+            val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
                 leggTilQueryParametere(
                     this,
 
@@ -517,7 +515,7 @@ class HentStatistikkTest {
             LocalDate.of(2020, 1, 1).atTime(13, 55)
         )
 
-        val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+        val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
 
@@ -539,7 +537,7 @@ class HentStatistikkTest {
             LocalDate.of(2020, 1, 1).atTime(19, 54)
         )
 
-        val response: StatistikkOutboundDto = clientMedIssoIdToken.get("$basePath/statistikk") {
+        val response: StatistikkOutboundDto = klientMedBearerToken.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
 

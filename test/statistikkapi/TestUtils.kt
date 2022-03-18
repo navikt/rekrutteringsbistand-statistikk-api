@@ -7,29 +7,25 @@ import io.ktor.client.engine.apache.*
 import io.ktor.client.features.*
 import io.ktor.client.features.cookies.*
 import io.ktor.client.features.json.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import kotlin.random.Random
 
-private fun hentToken(mockOAuth2Server: MockOAuth2Server, issuerId: String) = mockOAuth2Server.issueToken(issuerId, "aud-isso",
+fun hentToken(mockOAuth2Server: MockOAuth2Server, issuerId: String): String = mockOAuth2Server.issueToken(issuerId, "klient",
     DefaultOAuth2TokenCallback(
-        issuerId = "enIssuerId",
+        issuerId = issuerId,
         claims = mapOf(
             Pair("NAVident", enNavIdent),
         ),
-        audience = listOf("aud-isso")
+        audience = listOf("statistikk-api")
     )
-)
+).serialize()
 
 fun randomPort(): Int = Random.nextInt(1000, 9999)
 
-fun httpClientMedIssoIdToken(mockOAuth2Server: MockOAuth2Server) = HttpClient(Apache) {
-    install(HttpCookies) {
-        val token = hentToken(mockOAuth2Server, "isso-idtoken")
-        val cookie = Cookie("isso-idtoken", token.serialize())
-        storage = ConstantCookiesStorage(cookie)
-    }
+fun httpKlientMedBearerToken(mockOAuth2Server: MockOAuth2Server) = HttpClient(Apache) {
     install(JsonFeature) {
         serializer = JacksonSerializer {
             registerModule(JavaTimeModule())
@@ -38,6 +34,7 @@ fun httpClientMedIssoIdToken(mockOAuth2Server: MockOAuth2Server) = HttpClient(Ap
     }
     defaultRequest {
         contentType(ContentType.Application.Json)
+        header("Authorization", "Bearer ${hentToken(mockOAuth2Server, "azuread")}")
     }
 }
 

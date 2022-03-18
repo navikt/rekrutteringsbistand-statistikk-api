@@ -84,8 +84,8 @@ class DatavarehusKafkaTest {
             producerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url)
         )
         private val mockOAuth2Server = MockOAuth2Server()
+        private val clientMedIssoIdToken = httpKlientMedBearerToken(mockOAuth2Server)
         private val basePath = basePath(port)
-        private val clientMedIssoIdToken: HttpClient
 
         private fun consumeKafka(): List<AvroKandidatutfall> {
             val consumer = KafkaConsumer<String, AvroKandidatutfall>(
@@ -102,7 +102,6 @@ class DatavarehusKafkaTest {
         init {
             start(database, port, datavarehusKafkaProducer, mockOAuth2Server)
             lokalKafka.start()
-            clientMedIssoIdToken = httpClientMedIssoIdToken(mockOAuth2Server)
         }
 
         @AfterClass
