@@ -5,10 +5,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.features.*
-import io.ktor.client.features.cookies.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import org.apache.http.HttpHeaders
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import kotlin.random.Random
@@ -34,7 +34,7 @@ fun httpKlientMedBearerToken(mockOAuth2Server: MockOAuth2Server) = HttpClient(Ap
     }
     defaultRequest {
         contentType(ContentType.Application.Json)
-        header("Authorization", "Bearer ${hentToken(mockOAuth2Server, "azuread")}")
+        header(HttpHeaders.AUTHORIZATION, "Bearer ${hentToken(mockOAuth2Server, "azuread")}")
     }
 }
 
