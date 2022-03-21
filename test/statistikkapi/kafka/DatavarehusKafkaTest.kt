@@ -29,7 +29,7 @@ class DatavarehusKafkaTest {
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
         val expected = listOf(etKandidatutfall, etKandidatutfall)
 
-        klientMedBearerToken.post<HttpResponse>("$basePath/kandidatutfall") {
+        client.post<HttpResponse>("$basePath/kandidatutfall") {
             body = expected
         }
 
@@ -51,7 +51,7 @@ class DatavarehusKafkaTest {
     fun `Sending på Kafka-topic skal endre status fra IKKE_SENDT til SENDT`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
 
-        klientMedBearerToken.post<HttpResponse>("$basePath/kandidatutfall") {
+        client.post<HttpResponse>("$basePath/kandidatutfall") {
             body = kandidatutfallTilLagring
         }
         consumeKafka() // Vent
@@ -82,7 +82,7 @@ class DatavarehusKafkaTest {
             producerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url)
         )
         private val mockOAuth2Server = MockOAuth2Server()
-        private val klientMedBearerToken = httpKlientMedBearerToken(mockOAuth2Server)
+        private val client = httpclient(mockOAuth2Server)
         private val basePath = basePath(port)
 
         private fun consumeKafka(): List<AvroKandidatutfall> {

@@ -24,7 +24,7 @@ class LagreStatistikkTest {
         private val database = TestDatabase()
         private val testRepository = TestRepository(database.dataSource)
         private val mockOAuth2Server = MockOAuth2Server()
-        private val klientMedBearerToken = httpKlientMedBearerToken(mockOAuth2Server)
+        private val client = httpclient(mockOAuth2Server)
         private val basePath = basePath(port)
 
         init {
@@ -36,7 +36,7 @@ class LagreStatistikkTest {
     fun `POST til kandidatutfall skal lagre til utfallstabellen`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
 
-        val response: HttpResponse = klientMedBearerToken.post("$basePath/kandidatutfall") {
+        val response: HttpResponse = client.post("$basePath/kandidatutfall") {
             body = kandidatutfallTilLagring
         }
 
@@ -63,7 +63,7 @@ class LagreStatistikkTest {
     fun `POST til kandidatutfall skal lagre til stillingstabellen`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
 
-        val response: HttpResponse = klientMedBearerToken.post("$basePath/kandidatutfall") {
+        val response: HttpResponse = client.post("$basePath/kandidatutfall") {
             body = kandidatutfallTilLagring
         }
 
