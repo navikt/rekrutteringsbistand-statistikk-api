@@ -24,7 +24,7 @@ class LagreStatistikkTest {
         private val database = TestDatabase()
         private val testRepository = TestRepository(database.dataSource)
         private val mockOAuth2Server = MockOAuth2Server()
-        private val client = httpclient(mockOAuth2Server)
+        private val client = httpKlientMedBearerToken(mockOAuth2Server)
         private val basePath = basePath(port)
 
         init {
