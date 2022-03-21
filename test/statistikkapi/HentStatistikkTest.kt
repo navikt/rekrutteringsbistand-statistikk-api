@@ -8,6 +8,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
+import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.After
 import org.junit.Test
 import statistikkapi.db.TestDatabase
@@ -18,17 +19,22 @@ import java.time.LocalDate
 
 class HentStatistikkTest {
 
-    private val basePath = basePath(port)
-    private val client = innloggaHttpClient()
 
     companion object {
+        private val port = randomPort()
+        private val mockOAuth2Server = MockOAuth2Server()
+        private val client = httpKlientMedBearerToken(mockOAuth2Server)
+        private val basePath = basePath(port)
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
-        private val port = randomPort()
 
         init {
-            start(database, port)
+            start(
+                database = database,
+                port = port,
+                mockOAuth2Server = mockOAuth2Server
+            )
         }
     }
 
@@ -40,7 +46,6 @@ class HentStatistikkTest {
         )
 
         val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-
             leggTilQueryParametere(
                 this,
                 HentStatistikk(
@@ -550,6 +555,7 @@ class HentStatistikkTest {
     @After
     fun cleanUp() {
         testRepository.slettAlleUtfall()
+        mockOAuth2Server.shutdown()
     }
 
     private fun leggTilQueryParametere(httpRequestBuilder: HttpRequestBuilder, hentStatistikk: HentStatistikk) {

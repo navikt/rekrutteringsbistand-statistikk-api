@@ -11,7 +11,7 @@ val hikariVersion = "5.0.0"
 val logstashEncoderVersion = "6.6"
 val vaultJdbcVersion = "1.3.7"
 val postgresVersion = "42.2.24"
-val tokenValidationVersion = "1.3.8"
+val tokenValidationVersion = "2.0.12"
 val jacksonVersion = "2.13.0"
 val assertkVersion = "0.25"
 val micrometerPrometheusVersion = "1.7.4"
@@ -24,6 +24,7 @@ val pitestVersion = "1.7.0"
 val elasticSearchClientVersion = "7.10.1"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.0"
+val mockOAuth2ServerVersion = "0.4.3"
 
 
 plugins {
@@ -96,9 +97,6 @@ dependencies {
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
 
     testImplementation(kotlin("test"))
-    testImplementation("no.nav.security:token-validation-test-support:$tokenValidationVersion") {
-        exclude(group = "org.springframework.boot")
-    }
     testImplementation("com.h2database:h2:$h2Version")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
@@ -109,6 +107,8 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
+
+    testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
 }
 
 configurations.all {

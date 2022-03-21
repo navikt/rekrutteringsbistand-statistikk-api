@@ -16,15 +16,16 @@ val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistik
 fun main() {
     val database = Database(Cluster.current)
 
+    val tokenSupportConfig = TokenSupportConfig(
+        IssuerConfig(
+            name = "azuread",
+            discoveryUrl = System.getenv("AZURE_APP_WELL_KNOWN_URL"),
+            acceptedAudience = listOf(System.getenv("AZURE_APP_CLIENT_ID")),
+            cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
+        )
+    )
     val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
-        tokenValidationSupport(config =  TokenSupportConfig(
-            IssuerConfig(
-                name = "azuread",
-                discoveryUrl = System.getenv("AZURE_APP_WELL_KNOWN_URL"),
-                acceptedAudience = listOf(System.getenv("AZURE_APP_CLIENT_ID")),
-                cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
-            )
-        ))
+        tokenValidationSupport(config = tokenSupportConfig)
     }
 
     val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())

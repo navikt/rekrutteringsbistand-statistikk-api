@@ -1,4 +1,5 @@
 package statistikkapi
+
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
@@ -8,6 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
+import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.After
 import org.junit.Test
 import statistikkapi.db.TestDatabase
@@ -17,17 +19,16 @@ import java.time.temporal.ChronoUnit
 
 class LagreStatistikkTest {
 
-    private val basePath = basePath(port)
-    private val client = innloggaHttpClient()
-
     companion object {
+        private val port = randomPort()
         private val database = TestDatabase()
         private val testRepository = TestRepository(database.dataSource)
-
-        private val port = randomPort()
+        private val mockOAuth2Server = MockOAuth2Server()
+        private val client = httpKlientMedBearerToken(mockOAuth2Server)
+        private val basePath = basePath(port)
 
         init {
-            start(database, port)
+            start(database = database, port = port, mockOAuth2Server = mockOAuth2Server)
         }
     }
 
@@ -83,5 +84,6 @@ class LagreStatistikkTest {
     fun cleanUp() {
         testRepository.slettAlleUtfall()
         testRepository.slettAlleStillinger()
+        mockOAuth2Server.shutdown()
     }
 }
