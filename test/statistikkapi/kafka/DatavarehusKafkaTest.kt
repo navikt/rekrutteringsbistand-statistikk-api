@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import io.ktor.client.*
 import statistikkapi.db.TestDatabase
 import statistikkapi.db.TestRepository
 import io.ktor.client.request.post
@@ -26,12 +25,11 @@ import java.time.LocalDateTime.now
 
 class DatavarehusKafkaTest {
 
-
     @Test
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
         val expected = listOf(etKandidatutfall, etKandidatutfall)
 
-        clientMedIssoIdToken.post<HttpResponse>("$basePath/kandidatutfall") {
+        klientMedBearerToken.post<HttpResponse>("$basePath/kandidatutfall") {
             body = expected
         }
 
@@ -53,7 +51,7 @@ class DatavarehusKafkaTest {
     fun `Sending på Kafka-topic skal endre status fra IKKE_SENDT til SENDT`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
 
-        clientMedIssoIdToken.post<HttpResponse>("$basePath/kandidatutfall") {
+        klientMedBearerToken.post<HttpResponse>("$basePath/kandidatutfall") {
             body = kandidatutfallTilLagring
         }
         consumeKafka() // Vent
@@ -84,7 +82,7 @@ class DatavarehusKafkaTest {
             producerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url)
         )
         private val mockOAuth2Server = MockOAuth2Server()
-        private val clientMedIssoIdToken = httpKlientMedBearerToken(mockOAuth2Server)
+        private val klientMedBearerToken = httpKlientMedBearerToken(mockOAuth2Server)
         private val basePath = basePath(port)
 
         private fun consumeKafka(): List<AvroKandidatutfall> {
