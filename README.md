@@ -4,12 +4,11 @@ Aggregering, lagring og behandling av formidlingsstatistikk og annen statistikk 
 Starte appen:
 Høyreklikk på `LokalApplication.kt` i IntelliJ og velg `Run`.
 
+Får statistikk fra to hendelser i Rekrutteringsbistand sitt GUI:
+- Presentering av kandidater for arbeidsgiver
+- Endring av utfall fra dropdown
 
-Får statistikk fra to kilder:
-- Presentering av kandidater (`presenterKandidater` i `VeiledersKandidatlisteController`)
-- Endring av utfall fra dropdown (`settUtfall` i `VeiledersKandidatlisteController`)
-
-`rekrutteringsbistand-kandidat` (frontend) kaller `pam-kandidatsok-api` (backend) som igjen kaller `rekrutteringsbistand-statistikk-api` (backend) og lagrer i databasen.
+`rekrutteringsbistand-kandidat` (frontend) kaller `rekrutteringsbistand-kandidat-api` (backend) som igjen kaller `rekrutteringsbistand-statistikk-api` (backend) og lagrer i databasen.
 
 For hver endring av utfall på en kandidat, lagres en ny rad i databasen.
 
