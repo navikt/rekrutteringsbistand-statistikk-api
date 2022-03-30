@@ -6,3 +6,5 @@ Brukernavn og passord er servicebruker til applikasjonen. Disse ligger i Vault. 
 Derfor må vi logge inn i podden manuelt for å hente ut brukernavn og passord:
 `kubectl exec -it <pod> -- /bin/sh`
 Brukernavn og passord ligger under `/secret/serviceuser`.
+
+Alternativt ser det ut som det finnes en plugin til IntelliJ: https://www.jetbrains.com/help/idea/2021.3/big-data-tools-kafka.html#messaging  Ikke testet per 2022-03-30.
