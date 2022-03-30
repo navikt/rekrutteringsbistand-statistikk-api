@@ -1,18 +1,17 @@
-package statistikkapi.kafka
+package no.nav.statistikkapi.kafka
 
 import assertk.assertThat
 import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNull
+import no.nav.statistikkapi.db.TestDatabase
+import no.nav.statistikkapi.db.TestRepository
+import no.nav.statistikkapi.etKandidatutfall
+import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
+import no.nav.statistikkapi.kandidatutfall.SendtStatus.SENDT
 import org.junit.After
 import org.junit.Test
-import statistikkapi.db.TestDatabase
-import statistikkapi.db.TestRepository
-import statistikkapi.etKandidatutfall
-import statistikkapi.kandidatutfall.Kandidatutfall
-import statistikkapi.kandidatutfall.KandidatutfallRepository
-import statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
-import statistikkapi.kandidatutfall.SendtStatus.SENDT
 import java.time.LocalDateTime.now
 
 class SendKafkaMeldingTilDatavarehusTest {

@@ -1,4 +1,4 @@
-package statistikkapi.kandidatutfall
+package no.nav.statistikkapi.kandidatutfall
 
 import java.time.LocalDateTime
 import java.util.*

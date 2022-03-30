@@ -1,4 +1,4 @@
-package statistikkapi.stillinger
+package no.nav.statistikkapi.stillinger
 
 class StillingService(
     private val elasticSearchKlient: ElasticSearchKlient,

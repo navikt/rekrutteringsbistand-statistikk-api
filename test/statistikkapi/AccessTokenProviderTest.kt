@@ -1,4 +1,4 @@
-package statistikkapi
+package no.nav.statistikkapi
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo

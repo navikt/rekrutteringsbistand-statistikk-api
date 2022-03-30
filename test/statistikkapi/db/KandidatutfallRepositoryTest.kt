@@ -1,4 +1,4 @@
-package statistikkapi.db
+package no.nav.statistikkapi.db
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
@@ -6,10 +6,10 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import org.junit.After
 import org.junit.Test
-import statistikkapi.etKandidatutfall
-import statistikkapi.etKontor1
-import statistikkapi.kandidatutfall.KandidatutfallRepository
-import statistikkapi.kandidatutfall.Utfall
+import no.nav.statistikkapi.etKandidatutfall
+import no.nav.statistikkapi.etKontor1
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.kandidatutfall.Utfall
 import java.time.LocalDate
 
 class KandidatutfallRepositoryTest {

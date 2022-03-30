@@ -1,4 +1,4 @@
-package statistikkapi.nais
+package no.nav.statistikkapi.nais
 
 import io.ktor.application.*
 import io.ktor.response.*

@@ -1,11 +1,11 @@
-package statistikkapi
+package no.nav.statistikkapi
 
-import statistikkapi.kandidatutfall.OpprettKandidatutfall
-import statistikkapi.kandidatutfall.Utfall
-import statistikkapi.stillinger.ElasticSearchStilling
-import statistikkapi.stillinger.InkluderingTag
-import statistikkapi.stillinger.PrioriterteMålgrupperTag
-import statistikkapi.stillinger.TiltakEllerVirkemiddelTag
+import no.nav.statistikkapi.kandidatutfall.OpprettKandidatutfall
+import no.nav.statistikkapi.kandidatutfall.Utfall
+import no.nav.statistikkapi.stillinger.ElasticSearchStilling
+import no.nav.statistikkapi.stillinger.InkluderingTag
+import no.nav.statistikkapi.stillinger.PrioriterteMålgrupperTag
+import no.nav.statistikkapi.stillinger.TiltakEllerVirkemiddelTag
 import java.time.LocalDate
 
 const val enNavIdent = "X123456"

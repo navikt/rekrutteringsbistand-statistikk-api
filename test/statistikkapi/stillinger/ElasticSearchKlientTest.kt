@@ -1,4 +1,4 @@
-package statistikkapi.stillinger
+package no.nav.statistikkapi.stillinger
 
 import assertk.assertThat
 import assertk.assertions.isEmpty
@@ -9,9 +9,9 @@ import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import org.junit.Test
-import statistikkapi.etElasticSearchSvarForEnStilling
-import statistikkapi.BearerToken
-import statistikkapi.etElasticSearchSvarForEnStillingMedTagsogStatligInkluderingsdugnad
+import no.nav.statistikkapi.etElasticSearchSvarForEnStilling
+import no.nav.statistikkapi.BearerToken
+import no.nav.statistikkapi.etElasticSearchSvarForEnStillingMedTagsogStatligInkluderingsdugnad
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*

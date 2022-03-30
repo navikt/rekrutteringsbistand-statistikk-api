@@ -38,8 +38,8 @@ plugins {
 }
 
 pitest {
-    targetClasses.set(setOf("statistikkapi.*"))
-    targetTests.set(setOf("statistikkapi.*"))
+    targetClasses.set(setOf("no.nav.statistikkapi.*"))
+    targetTests.set(setOf("no.nav.statistikkapi.*"))
     useClasspathFile.set(true)
 }
 
