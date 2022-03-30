@@ -55,7 +55,7 @@ tasks {
 
 
 application {
-    mainClass.set("statistikkapi.ApplicationKt")
+    mainClass.set("no.nav.statistikkapi.ApplicationKt")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")
