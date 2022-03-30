@@ -1,4 +1,4 @@
-package statistikkapi.db
+package no.nav.statistikkapi.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource

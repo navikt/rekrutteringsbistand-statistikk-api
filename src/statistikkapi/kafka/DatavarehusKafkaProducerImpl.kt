@@ -1,8 +1,8 @@
-package statistikkapi.kafka
+package no.nav.statistikkapi.kafka
 
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
-import statistikkapi.kandidatutfall.Kandidatutfall
-import statistikkapi.log
+import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
+import no.nav.statistikkapi.log
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*

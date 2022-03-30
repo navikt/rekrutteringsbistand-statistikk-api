@@ -1,14 +1,14 @@
-package statistikkapi
+package no.nav.statistikkapi
 import io.ktor.auth.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.ktor.IssuerConfig
 import no.nav.security.token.support.ktor.TokenSupportConfig
 import no.nav.security.token.support.ktor.tokenValidationSupport
-import statistikkapi.db.TestDatabase
-import statistikkapi.kafka.DatavarehusKafkaProducer
-import statistikkapi.kafka.DatavarehusKafkaProducerStub
-import statistikkapi.stillinger.ElasticSearchKlient
-import statistikkapi.stillinger.ElasticSearchStilling
+import no.nav.statistikkapi.db.TestDatabase
+import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
+import no.nav.statistikkapi.kafka.DatavarehusKafkaProducerStub
+import no.nav.statistikkapi.stillinger.ElasticSearchKlient
+import no.nav.statistikkapi.stillinger.ElasticSearchStilling
 import java.net.InetAddress
 
 fun main() {

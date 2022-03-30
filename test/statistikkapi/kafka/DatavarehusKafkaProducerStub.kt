@@ -1,7 +1,7 @@
-package statistikkapi.kafka
+package no.nav.statistikkapi.kafka
 
-import statistikkapi.kandidatutfall.Kandidatutfall
-import statistikkapi.log
+import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
+import no.nav.statistikkapi.log
 
 class DatavarehusKafkaProducerStub: DatavarehusKafkaProducer {
 

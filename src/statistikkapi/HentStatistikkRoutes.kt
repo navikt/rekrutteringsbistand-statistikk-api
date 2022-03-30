@@ -1,11 +1,11 @@
-package statistikkapi
+package no.nav.statistikkapi
 
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
 
 data class HentStatistikk(

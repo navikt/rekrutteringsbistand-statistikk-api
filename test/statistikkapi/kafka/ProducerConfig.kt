@@ -1,4 +1,4 @@
-package statistikkapi.kafka
+package no.nav.statistikkapi.kafka
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig

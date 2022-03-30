@@ -1,4 +1,4 @@
-package statistikkapi
+package no.nav.statistikkapi
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -12,8 +12,8 @@ import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.After
 import org.junit.Test
-import statistikkapi.db.TestDatabase
-import statistikkapi.db.TestRepository
+import no.nav.statistikkapi.db.TestDatabase
+import no.nav.statistikkapi.db.TestRepository
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 

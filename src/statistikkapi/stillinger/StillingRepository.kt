@@ -1,4 +1,4 @@
-package statistikkapi.stillinger
+package no.nav.statistikkapi.stillinger
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -7,13 +7,12 @@ import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import javax.sql.DataSource
-import kotlin.reflect.KClass
 
 class StillingRepository(private val dataSource: DataSource) {
 
 
     fun lagreStilling(stilling: ElasticSearchStilling) {
-         dataSource.connection.use {
+        dataSource.connection.use {
             it.prepareStatement(
                 """INSERT into $stillingtabell (
                                $uuid,
@@ -23,7 +22,8 @@ class StillingRepository(private val dataSource: DataSource) {
                                $prioriterteMålgrupper,
                                $tiltakEllerVirkemidler,
                                $tidspunkt    
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)""").run {
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)"""
+            ).run {
                 setString(1, stilling.uuid)
                 setTimestamp(2, Timestamp.valueOf(stilling.opprettet))
                 setTimestamp(3, Timestamp.valueOf(stilling.publisert))
@@ -59,9 +59,15 @@ class StillingRepository(private val dataSource: DataSource) {
         uuid = getString(uuid),
         opprettet = getTimestamp(opprettet).toLocalDateTime(),
         publisert = getTimestamp(publisert).toLocalDateTime(),
-        inkluderingsmuligheter = listFromJSONArray(inkluderingsmuligheter, object: TypeReference<List<InkluderingTag>>(){}),
-        prioriterteMålgrupper = listFromJSONArray(prioriterteMålgrupper, object: TypeReference<List<PrioriterteMålgrupperTag>>(){}),
-        tiltakEllerVirkemidler = listFromJSONArray(tiltakEllerVirkemidler, object: TypeReference<List<TiltakEllerVirkemiddelTag>>() {}),
+        inkluderingsmuligheter = listFromJSONArray(
+            inkluderingsmuligheter,
+            object : TypeReference<List<InkluderingTag>>() {}),
+        prioriterteMålgrupper = listFromJSONArray(
+            prioriterteMålgrupper,
+            object : TypeReference<List<PrioriterteMålgrupperTag>>() {}),
+        tiltakEllerVirkemidler = listFromJSONArray(
+            tiltakEllerVirkemidler,
+            object : TypeReference<List<TiltakEllerVirkemiddelTag>>() {}),
         tidspunkt = getTimestamp(tidspunkt).toLocalDateTime()
     )
 

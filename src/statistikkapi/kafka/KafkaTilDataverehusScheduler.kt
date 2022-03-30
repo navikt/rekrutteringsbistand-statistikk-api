@@ -1,4 +1,4 @@
-package statistikkapi.kafka
+package no.nav.statistikkapi.kafka
 
 import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor
 import net.javacrumbs.shedlock.core.LockConfiguration

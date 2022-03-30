@@ -1,4 +1,4 @@
-package statistikkapi
+package no.nav.statistikkapi
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -13,7 +13,7 @@ import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 
 class AccessTokenProvider(private val config: Config, private val httpKlient: HttpClient = lagHttpKlient()) {
-    private lateinit var bearerToken : BearerToken
+    private lateinit var bearerToken: BearerToken
 
     fun getBearerToken(): BearerToken {
         if (!this::bearerToken.isInitialized || bearerToken.erUtgått()) {
@@ -26,6 +26,10 @@ class AccessTokenProvider(private val config: Config, private val httpKlient: Ht
         val response: HttpResponse = httpKlient.submitForm(
             url = config.tokenEndpoint,
             formParameters = Parameters.build {
+                // Note that the StringValuesBuilder class that exposes the append function is incorrectly marked with
+                // the InternalAPI annotation. This issue will be fixed in v2.0.0. As a workaround, you can add the
+                // @OptIn(InternalAPI::class) annotation to explicitly opt-in to use this API.
+                //  https://ktor.io/docs/request.html#headers
                 append("grant_type", "client_credentials")
                 append("client_secret", config.azureClientSecret)
                 append("client_id", config.azureClientId)
@@ -51,7 +55,7 @@ class AccessTokenProvider(private val config: Config, private val httpKlient: Ht
     )
 
     companion object {
-        private fun lagHttpKlient() = HttpClient() {
+        private fun lagHttpKlient() = HttpClient {
             install(JsonFeature) {
                 serializer = JacksonSerializer {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -74,6 +78,12 @@ class BearerToken(
     private val utløpsmarginSekunder = 30L
     fun erUtgått() = utgår.minusSeconds(utløpsmarginSekunder).isBefore(LocalDateTime.now())
     fun leggTilBearerToken(): HeadersBuilder.() -> Unit = {
-        this.apply { append(HttpHeaders.Authorization, "Bearer $accessToken") }
+        this.apply {
+            // Note that the StringValuesBuilder class that exposes the append function is incorrectly marked with
+            // the InternalAPI annotation. This issue will be fixed in v2.0.0. As a workaround, you can add the
+            // @OptIn(InternalAPI::class) annotation to explicitly opt-in to use this API.
+            //  https://ktor.io/docs/request.html#headers
+            append(HttpHeaders.Authorization, "Bearer $accessToken")
+        }
     }
 }

@@ -1,9 +1,9 @@
-package statistikkapi.kandidatutfall
+package no.nav.statistikkapi.kandidatutfall
 
-import statistikkapi.HentStatistikk
-import statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
-import statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
-import statistikkapi.kandidatutfall.Utfall.PRESENTERT
+import no.nav.statistikkapi.HentStatistikk
+import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
+import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
+import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp

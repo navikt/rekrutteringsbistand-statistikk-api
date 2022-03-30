@@ -1,4 +1,4 @@
-package statistikkapi.stillinger
+package no.nav.statistikkapi.stillinger
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -6,8 +6,8 @@ import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
-import statistikkapi.Cluster
-import statistikkapi.BearerToken
+import no.nav.statistikkapi.Cluster
+import no.nav.statistikkapi.BearerToken
 import java.time.LocalDateTime
 
 interface ElasticSearchKlient {

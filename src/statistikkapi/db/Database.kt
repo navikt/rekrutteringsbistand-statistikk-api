@@ -1,8 +1,8 @@
-package statistikkapi.db
+package no.nav.statistikkapi.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import statistikkapi.Cluster
+import no.nav.statistikkapi.Cluster
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.flywaydb.core.Flyway
 import javax.sql.DataSource

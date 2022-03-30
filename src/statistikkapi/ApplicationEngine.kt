@@ -1,4 +1,4 @@
-package statistikkapi
+package no.nav.statistikkapi
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -13,15 +13,15 @@ import io.ktor.server.netty.*
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import statistikkapi.kafka.DatavarehusKafkaProducer
-import statistikkapi.kafka.KafkaTilDataverehusScheduler
-import statistikkapi.kafka.hentUsendteUtfallOgSendPåKafka
-import statistikkapi.kandidatutfall.KandidatutfallRepository
-import statistikkapi.kandidatutfall.kandidatutfall
-import statistikkapi.nais.naisEndepunkt
-import statistikkapi.stillinger.ElasticSearchKlient
-import statistikkapi.stillinger.StillingRepository
-import statistikkapi.stillinger.StillingService
+import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
+import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
+import no.nav.statistikkapi.kafka.hentUsendteUtfallOgSendPåKafka
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.kandidatutfall.kandidatutfall
+import no.nav.statistikkapi.nais.naisEndepunkt
+import no.nav.statistikkapi.stillinger.ElasticSearchKlient
+import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.stillinger.StillingService
 import javax.sql.DataSource
 
 fun lagApplicationEngine(

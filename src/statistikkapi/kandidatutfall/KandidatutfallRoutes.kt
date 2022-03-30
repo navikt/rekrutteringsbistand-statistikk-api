@@ -1,4 +1,4 @@
-package statistikkapi.kandidatutfall
+package no.nav.statistikkapi.kandidatutfall
 
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -7,9 +7,9 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.micrometer.core.instrument.Metrics
-import statistikkapi.log
-import statistikkapi.kafka.KafkaTilDataverehusScheduler
-import statistikkapi.stillinger.StillingService
+import no.nav.statistikkapi.log
+import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
+import no.nav.statistikkapi.stillinger.StillingService
 import java.time.LocalDateTime
 import kotlin.concurrent.thread
 

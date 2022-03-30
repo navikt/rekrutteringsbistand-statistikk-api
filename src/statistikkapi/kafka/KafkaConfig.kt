@@ -1,8 +1,8 @@
-package statistikkapi.kafka
+package no.nav.statistikkapi.kafka
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
-import statistikkapi.Cluster
+import no.nav.statistikkapi.Cluster
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SaslConfigs

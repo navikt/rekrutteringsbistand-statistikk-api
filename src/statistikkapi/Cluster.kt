@@ -1,4 +1,4 @@
-package statistikkapi
+package no.nav.statistikkapi
 
 enum class Cluster {
     DEV_FSS, PROD_FSS, LOKAL;

@@ -1,9 +1,5 @@
-package statistikkapi.stillinger
+package no.nav.statistikkapi.stillinger
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotEqualTo
-import assertk.assertions.isNotNull
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -35,7 +31,12 @@ class StillingServiceTest {
     fun `Skal lagre stilling fra ElasticSearch hvis stillingen har blitt endret fra sist den ble lagret`() {
         val likeStillingerFraELasticSearchOgFraDatabase = likStillingFraElasticSearchOgDatabase()
         val endretStillingFraElasticSearch =
-            likeStillingerFraELasticSearchOgFraDatabase.first.copy(inkluderingsmuligheter = listOf(InkluderingTag.ARBEIDSTID, InkluderingTag.FYSISK))
+            likeStillingerFraELasticSearchOgFraDatabase.first.copy(
+                inkluderingsmuligheter = listOf(
+                    InkluderingTag.ARBEIDSTID,
+                    InkluderingTag.FYSISK
+                )
+            )
         val stillingFraDatabase = likeStillingerFraELasticSearchOgFraDatabase.second
         every { elasticSearchKlient.hentStilling(any()) } returns endretStillingFraElasticSearch
         every { stillingRepository.hentNyesteStilling(any()) } returns stillingFraDatabase
@@ -72,7 +73,10 @@ class StillingServiceTest {
             opprettet = LocalDate.of(2021, 5, 2).atStartOfDay(),
             publisert = LocalDate.of(2021, 5, 2).atStartOfDay(),
             inkluderingsmuligheter = listOf(InkluderingTag.FYSISK),
-            prioriterteMålgrupper = listOf(PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS, PrioriterteMålgrupperTag.HULL_I_CV_EN),
+            prioriterteMålgrupper = listOf(
+                PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS,
+                PrioriterteMålgrupperTag.HULL_I_CV_EN
+            ),
             tiltakEllerEllerVirkemidler = emptyList()
         )
         val stillingFraDatabase = Stilling(

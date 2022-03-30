@@ -1,9 +1,9 @@
-package statistikkapi.db
+package no.nav.statistikkapi.db
 
-import statistikkapi.kandidatutfall.Kandidatutfall
-import statistikkapi.kandidatutfall.KandidatutfallRepository
-import statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
-import statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
+import no.nav.statistikkapi.stillinger.StillingRepository
 import javax.sql.DataSource
 
 class TestRepository(private val dataSource: DataSource) {

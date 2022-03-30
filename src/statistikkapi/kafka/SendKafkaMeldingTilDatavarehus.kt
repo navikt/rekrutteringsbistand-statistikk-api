@@ -1,8 +1,8 @@
-package statistikkapi.kafka
+package no.nav.statistikkapi.kafka
 
 import io.micrometer.core.instrument.Metrics
-import statistikkapi.log
-import statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.log
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 
 fun hentUsendteUtfallOgSendPåKafka(
     kandidatutfallRepository: KandidatutfallRepository,

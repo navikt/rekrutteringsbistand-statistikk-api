@@ -1,4 +1,4 @@
-package statistikkapi.stillinger
+package no.nav.statistikkapi.stillinger
 
 import java.time.LocalDateTime
 

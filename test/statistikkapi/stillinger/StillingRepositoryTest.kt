@@ -1,10 +1,10 @@
-package statistikkapi.stillinger
+package no.nav.statistikkapi.stillinger
 
 import assertk.assertThat
 import assertk.assertions.*
 import org.junit.After
 import org.junit.Test
-import statistikkapi.db.TestDatabase
+import no.nav.statistikkapi.db.TestDatabase
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
