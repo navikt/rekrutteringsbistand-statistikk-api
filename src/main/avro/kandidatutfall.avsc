@@ -9,6 +9,7 @@
     { "name": "navKontor", "type": "string" },
     { "name": "kandidatlisteId", "type": "string" },
     { "name": "stillingsId", "type": "string" },
-    { "name": "tidspunkt", "type": "string" }
+    { "name": "tidspunkt", "type": "string" },
+    { "name": "dummyfelt", "type": "string" }
   ]
 }

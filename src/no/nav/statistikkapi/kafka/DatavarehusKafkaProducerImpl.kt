@@ -27,7 +27,8 @@ class DatavarehusKafkaProducerImpl(config: Properties) : DatavarehusKafkaProduce
             kandidatutfall.navKontor,
             kandidatutfall.kandidatlisteId.toString(),
             kandidatutfall.stillingsId.toString(),
-            kandidatutfall.tidspunkt.toString()
+            kandidatutfall.tidspunkt.toString(),
+            "Et nytt dummyfelt"
         )
         val kafkaId = UUID.randomUUID().toString()
         producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, _ ->
