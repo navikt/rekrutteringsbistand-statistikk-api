@@ -31,8 +31,11 @@ class DatavarehusKafkaProducerImpl(config: Properties) : DatavarehusKafkaProduce
             "Et nytt dummyfelt"
         )
         val kafkaId = UUID.randomUUID().toString()
-        producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, _ ->
-            log.info("Sendte melding på Kafka. dbId: ${kandidatutfall.dbId}," +
+        producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, exception ->
+            if(metadata==null)
+                log.error("Feil ved sending av medlding på kafka. dbId: ${kandidatutfall.dbId}", exception)
+            else
+                log.info("Sendte melding på Kafka. dbId: ${kandidatutfall.dbId}," +
                      "kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
         }
     }
