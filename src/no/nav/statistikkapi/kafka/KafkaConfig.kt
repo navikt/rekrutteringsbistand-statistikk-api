@@ -2,6 +2,7 @@ package no.nav.statistikkapi.kafka
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
+import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig
 import no.nav.statistikkapi.Cluster
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -27,6 +28,7 @@ class KafkaConfig {
             }
 
             put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://kafka-schema-registry.tpa.svc.nais.local:8081")
+            put(SchemaRegistryConfig.SCHEMA_COMPATIBILITY_CONFIG, "FORWARD")
 
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
