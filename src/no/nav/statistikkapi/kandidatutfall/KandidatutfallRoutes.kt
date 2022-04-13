@@ -8,7 +8,6 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.micrometer.core.instrument.Metrics
 import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
-import no.nav.statistikkapi.stillinger.StillingService
 import java.time.LocalDateTime
 
 data class OpprettKandidatutfall(
@@ -27,29 +26,15 @@ data class OpprettKandidatutfall(
 fun Route.kandidatutfall(
     kandidatutfallRepository: KandidatutfallRepository,
     sendStatistikk: KafkaTilDataverehusScheduler,
-    stillingService: StillingService
 ) {
 
     authenticate {
         post("/kandidatutfall") {
             val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
-
-            // TODO Are: Ide: Flytt registrering av stilling til Runnable. Fordeler: Ingen ventetid for veileder og hvis det feiler kommer systemet til å prøve igjen automatsik.
-//            thread {
-//                try {
-//                    kandidatutfall.map { it.stillingsId }.distinct().forEach {
-//                        stillingService.registrerStilling(it)
-//                    }
-//                } catch (e: Exception) {
-//                    log.error("Kunne ikke registrere stilling: $e", e)
-//                }
-//            }
-
             kandidatutfall.forEach {
                 kandidatutfallRepository.lagreUtfall(it, LocalDateTime.now())
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall.name).increment()
             }
-
             sendStatistikk.kjørEnGangAsync()
             call.respond(HttpStatusCode.Created)
         }

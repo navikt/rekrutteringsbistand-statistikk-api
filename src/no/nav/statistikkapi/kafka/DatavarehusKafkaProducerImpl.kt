@@ -12,7 +12,7 @@ interface DatavarehusKafkaProducer {
     fun send(kandidatutfall: Kandidatutfall)
 }
 
-class DatavarehusKafkaProducerImpl(private val config: Properties, private val repository: StillingRepository) : DatavarehusKafkaProducer {
+class DatavarehusKafkaProducerImpl(config: Properties, private val repository: StillingRepository) : DatavarehusKafkaProducer {
 
     private val producer: KafkaProducer<String, AvroKandidatutfall> = KafkaProducer(config)
 

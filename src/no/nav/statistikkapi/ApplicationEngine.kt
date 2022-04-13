@@ -43,23 +43,19 @@ fun lagApplicationEngine(
         install(Authentication, tokenValidationConfig)
 
         val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-        install(MicrometerMetrics) {
-            registry = prometheusMeterRegistry
-        }
+        install(MicrometerMetrics) { registry = prometheusMeterRegistry }
         Metrics.addRegistry(prometheusMeterRegistry)
 
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
         val stillingService = StillingService(elasticSearchKlient, stillingRepository)
         val sendKafkaMelding: Runnable =
             hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
-
         val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
-
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 naisEndepunkt(prometheusMeterRegistry)
-                kandidatutfall(kandidatutfallRepository, datavarehusScheduler, stillingService)
+                kandidatutfall(kandidatutfallRepository, datavarehusScheduler)
                 hentStatistikk(kandidatutfallRepository)
             }
         }

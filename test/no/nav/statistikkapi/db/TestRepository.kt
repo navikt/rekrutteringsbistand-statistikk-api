@@ -1,12 +1,9 @@
 package no.nav.statistikkapi.db
 
-import io.mockk.InternalPlatformDsl.toStr
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
-import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
-import java.util.*
 import javax.sql.DataSource
 
 class TestRepository(private val dataSource: DataSource) {

@@ -62,11 +62,12 @@ class SendKafkaMeldingTilDatavarehusTest {
         hentUsendteUtfallOgSendPåKafka(utfallRepo, producerSomFeilerEtterFørsteKall, stillingService).run()
 
         val nå = now()
+        assertThat(testRepository.hentAntallStillinger()).isEqualTo(1)
         val vellyketUtfall = testRepository.hentUtfall()[0]
+        assertThat(stillingRepo.hentNyesteStilling(vellyketUtfall.stillingsId)).isNotNull()
         assertThat(vellyketUtfall.sendtStatus).isEqualTo(SENDT)
         assertThat(vellyketUtfall.antallSendtForsøk).isEqualTo(1)
         assertThat(vellyketUtfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
-        assertThat(stillingRepo.hentNyesteStilling(vellyketUtfall.stillingsId)).isNotNull()
 
         val feiletUtfall = testRepository.hentUtfall()[1]
         assertThat(feiletUtfall.sendtStatus).isEqualTo(IKKE_SENDT)

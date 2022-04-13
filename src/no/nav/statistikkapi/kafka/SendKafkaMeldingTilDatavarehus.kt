@@ -13,8 +13,8 @@ fun hentUsendteUtfallOgSendPåKafka(
     kandidatutfallRepository
         .hentUsendteUtfall()
         .forEach {
-            kandidatutfallRepository.registrerSendtForsøk(it)
             try {
+                kandidatutfallRepository.registrerSendtForsøk(it)
                 stillingService.registrerStilling(it.stillingsId)
                 kafkaProducer.send(it)
                 kandidatutfallRepository.registrerSomSendt(it)

@@ -6,17 +6,18 @@ import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
-import no.nav.statistikkapi.Cluster
 import no.nav.statistikkapi.BearerToken
+import no.nav.statistikkapi.Cluster
 import java.time.LocalDateTime
 
 interface ElasticSearchKlient {
-    fun hentStilling(stillingsIDUuid: String): ElasticSearchStilling?
+    fun hentStilling(stillingUuid: String): ElasticSearchStilling?
 }
 
-class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Apache),
-                              private val tokenProvider: () -> BearerToken
-): ElasticSearchKlient {
+class ElasticSearchKlientImpl(
+    private val httpKlient: HttpClient = HttpClient(Apache),
+    private val tokenProvider: () -> BearerToken
+) : ElasticSearchKlient {
 
     private val token: BearerToken
         get() = tokenProvider()
@@ -44,31 +45,35 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
         val jsonStilling = jacksonObjectMapper().readTree(fulltElasticSearchSvarJson)
             .at("/_source")?.at("/stilling")!!
 
-        val jsonStillingsInfo = jacksonObjectMapper().readTree(fulltElasticSearchSvarJson)
-            .at("/_source")?.at("/stillingsinfo")!!
+        val jsonStillingsInfo =
+            jacksonObjectMapper().readTree(fulltElasticSearchSvarJson).at("/_source")?.at("/stillingsinfo")!!
 
-        val (inkluderingsmuligheter, prioriterteMålgrupper, tiltakEllerVirkemidler) = hentTags(jsonStilling.at("/properties/tags").toList().map { it.asText() })
+        val (inkluderingsmuligheter, prioriterteMålgrupper, tiltakEllerVirkemidler) = hentTags(
+            jsonStilling.at("/properties/tags").toList().map { it.asText() })
 
         return ElasticSearchStilling(
-                uuid = jsonStilling.at("/uuid").asText(),
-                opprettet = jsonStilling.at("/created").asLocalDateTime(),
-                publisert = jsonStilling.at("/published").asLocalDateTime(),
-                inkluderingsmuligheter = inkluderingsmuligheter,
-                prioriterteMålgrupper = prioriterteMålgrupper,
-                tiltakEllerEllerVirkemidler = tiltakEllerVirkemidler,
-                stillingskategori = Stillingskategori.fraElasticSearch(jsonStillingsInfo.at("/stillingskategori").asText())
-            )
+            uuid = jsonStilling.at("/uuid").asText(),
+            opprettet = jsonStilling.at("/created").asLocalDateTime(),
+            publisert = jsonStilling.at("/published").asLocalDateTime(),
+            inkluderingsmuligheter = inkluderingsmuligheter,
+            prioriterteMålgrupper = prioriterteMålgrupper,
+            tiltakEllerEllerVirkemidler = tiltakEllerVirkemidler,
+            stillingskategori = Stillingskategori.fraElasticSearch(jsonStillingsInfo.at("/stillingskategori").asText())
+        )
     }
 
     private fun hentTags(ukategoriserteTags: List<String>): Triple<List<InkluderingTag>, List<PrioriterteMålgrupperTag>, List<TiltakEllerVirkemiddelTag>> =
         Triple(
             ukategoriserteTags.filter { InkluderingTag.erGyldig(it) }.map { InkluderingTag.fraNavn(it) },
-            ukategoriserteTags.filter { PrioriterteMålgrupperTag.erGyldig(it) }.map { PrioriterteMålgrupperTag.fraNavn(it) },
-            ukategoriserteTags.filter { TiltakEllerVirkemiddelTag.erGyldig(it) }.map { TiltakEllerVirkemiddelTag.fraNavn(it) }
+            ukategoriserteTags.filter { PrioriterteMålgrupperTag.erGyldig(it) }
+                .map { PrioriterteMålgrupperTag.fraNavn(it) },
+            ukategoriserteTags.filter { TiltakEllerVirkemiddelTag.erGyldig(it) }
+                .map { TiltakEllerVirkemiddelTag.fraNavn(it) }
         )
 
     companion object {
-        val stillingssokProxyScope = "api://${if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"}.toi.rekrutteringsbistand-stillingssok-proxy/.default"
+        val stillingssokProxyScope =
+            "api://${if (Cluster.current == Cluster.PROD_FSS) "prod-gcp" else "dev-gcp"}.toi.rekrutteringsbistand-stillingssok-proxy/.default"
     }
 }
 
