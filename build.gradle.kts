@@ -43,6 +43,10 @@ pitest {
     useClasspathFile.set(true)
 }
 
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
 tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = "16"
@@ -51,7 +55,6 @@ tasks {
         kotlinOptions.jvmTarget = "16"
     }
 }
-
 
 
 application {
