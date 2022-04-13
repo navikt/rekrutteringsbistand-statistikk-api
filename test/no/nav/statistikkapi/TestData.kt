@@ -2,10 +2,7 @@ package no.nav.statistikkapi
 
 import no.nav.statistikkapi.kandidatutfall.OpprettKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Utfall
-import no.nav.statistikkapi.stillinger.ElasticSearchStilling
-import no.nav.statistikkapi.stillinger.InkluderingTag
-import no.nav.statistikkapi.stillinger.PrioriterteMålgrupperTag
-import no.nav.statistikkapi.stillinger.TiltakEllerVirkemiddelTag
+import no.nav.statistikkapi.stillinger.*
 import java.time.LocalDate
 
 const val enNavIdent = "X123456"
@@ -57,7 +54,8 @@ fun enElasticSearchStilling() = ElasticSearchStilling(
     publisert = LocalDate.of(2021, 3, 3).atStartOfDay(),
     inkluderingsmuligheter = listOf(InkluderingTag.FYSISK),
     prioriterteMålgrupper = listOf(PrioriterteMålgrupperTag.HULL_I_CV_EN, PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS),
-    tiltakEllerEllerVirkemidler = listOf(TiltakEllerVirkemiddelTag.LÆRLINGPLASS)
+    tiltakEllerEllerVirkemidler = listOf(TiltakEllerVirkemiddelTag.LÆRLINGPLASS),
+    stillingskategori = Stillingskategori.STILLING
 )
 
 fun etElasticSearchSvarForEnStilling(
@@ -169,7 +167,9 @@ fun etElasticSearchSvarForEnStilling(
                     "applicationdue": "2019-12-31T01:00"
                 }
             },
-            "stillingsinfo": null 
+            "stillingsinfo": {
+                "stillingskategori": "STILLING"
+             }
         }
     }
     """
@@ -273,7 +273,9 @@ fun etElasticSearchSvarForEnStillingMedTagsogStatligInkluderingsdugnad() = """
                 "sector": "Offentlig"
             }
         },
-        "stillingsinfo": null
+        "stillingsinfo": {
+            "stillingskategori": "STILLING"
+        }
     }
 }
 """.trimIndent()

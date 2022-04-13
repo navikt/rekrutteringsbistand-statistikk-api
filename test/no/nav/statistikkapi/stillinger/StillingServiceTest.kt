@@ -77,7 +77,8 @@ class StillingServiceTest {
                 PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS,
                 PrioriterteMålgrupperTag.HULL_I_CV_EN
             ),
-            tiltakEllerEllerVirkemidler = emptyList()
+            tiltakEllerEllerVirkemidler = emptyList(),
+            stillingskategori = Stillingskategori.STILLING
         )
         val stillingFraDatabase = Stilling(
             uuid = elasticSearchStilling.uuid,
@@ -86,7 +87,8 @@ class StillingServiceTest {
             inkluderingsmuligheter = elasticSearchStilling.inkluderingsmuligheter,
             prioriterteMålgrupper = elasticSearchStilling.prioriterteMålgrupper,
             tiltakEllerVirkemidler = emptyList(),
-            tidspunkt = LocalDate.of(2021, 5, 4).atStartOfDay()
+            tidspunkt = LocalDate.of(2021, 5, 4).atStartOfDay(),
+            stillingskategori = Stillingskategori.STILLING
         )
         return Pair(elasticSearchStilling, stillingFraDatabase)
     }

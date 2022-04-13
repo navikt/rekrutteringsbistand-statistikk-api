@@ -8,6 +8,7 @@ import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.DatavarehusKafkaProducerImpl
 import no.nav.statistikkapi.kafka.KafkaConfig
 import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
+import no.nav.statistikkapi.stillinger.StillingRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -28,7 +29,8 @@ fun main() {
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
+    val stillingRepository = StillingRepository(database.dataSource)
+    val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig(), stillingRepository)
 
     val stillingssokProxyAccessTokenClient = AccessTokenProvider(
         config = AccessTokenProvider.Config(
@@ -45,7 +47,8 @@ fun main() {
         dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer,
-        elasticSearchKlient = elasticSearchKlient
+        elasticSearchKlient = elasticSearchKlient,
+        stillingRepository = stillingRepository
     )
     applicationEngine.start()
     log.info("Applikasjon startet i miljø: ${Cluster.current}")

@@ -30,7 +30,9 @@ class StillingRepositoryTest {
             publisert = LocalDate.of(2021, 3, 3).atStartOfDay(),
             inkluderingsmuligheter = listOf(InkluderingTag.ARBEIDSTID, InkluderingTag.FYSISK),
             prioriterteMålgrupper = listOf(PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS),
-            tiltakEllerEllerVirkemidler = listOf(TiltakEllerVirkemiddelTag.LÆRLINGPLASS))
+            tiltakEllerEllerVirkemidler = listOf(TiltakEllerVirkemiddelTag.LÆRLINGPLASS),
+            stillingskategori = Stillingskategori.STILLING
+        )
 
         repository.lagreStilling(stilling)
         val databaseStilling = repository.hentNyesteStilling(stilling.uuid) ?: throw IllegalStateException("Ingen stilling funnet i databasen med den UUID´en")
@@ -46,7 +48,9 @@ class StillingRepositoryTest {
             publisert = LocalDate.of(2021, 3, 3).atStartOfDay(),
             inkluderingsmuligheter = listOf(InkluderingTag.ARBEIDSTID, InkluderingTag.FYSISK),
             prioriterteMålgrupper = listOf(PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS),
-            tiltakEllerEllerVirkemidler = listOf(TiltakEllerVirkemiddelTag.LÆRLINGPLASS))
+            tiltakEllerEllerVirkemidler = listOf(TiltakEllerVirkemiddelTag.LÆRLINGPLASS),
+            stillingskategori = Stillingskategori.STILLING
+        )
         repository.lagreStilling(stilling)
 
         val lagretStilling = repository.hentNyesteStilling(stilling.uuid)
@@ -57,6 +61,7 @@ class StillingRepositoryTest {
         assertThat(lagretStilling.inkluderingsmuligheter).isEqualTo(stilling.inkluderingsmuligheter)
         assertThat(lagretStilling.prioriterteMålgrupper).isEqualTo(stilling.prioriterteMålgrupper)
         assertThat(lagretStilling.tiltakEllerVirkemidler).isEqualTo(stilling.tiltakEllerEllerVirkemidler)
+        assertThat(lagretStilling.stillingskategori).isEqualTo(stilling.stillingskategori)
         assertThat(lagretStilling.tidspunkt).isBetween(LocalDateTime.now().minusSeconds(2), LocalDateTime.now().plusSeconds(2))
     }
 

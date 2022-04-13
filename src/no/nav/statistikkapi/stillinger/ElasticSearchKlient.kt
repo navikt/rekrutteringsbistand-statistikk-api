@@ -44,6 +44,9 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
         val jsonStilling = jacksonObjectMapper().readTree(fulltElasticSearchSvarJson)
             .at("/_source")?.at("/stilling")!!
 
+        val jsonStillingsInfo = jacksonObjectMapper().readTree(fulltElasticSearchSvarJson)
+            .at("/_source")?.at("/stillingsinfo")!!
+
         val (inkluderingsmuligheter, prioriterteMålgrupper, tiltakEllerVirkemidler) = hentTags(jsonStilling.at("/properties/tags").toList().map { it.asText() })
 
         return ElasticSearchStilling(
@@ -52,7 +55,8 @@ class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Ap
                 publisert = jsonStilling.at("/published").asLocalDateTime(),
                 inkluderingsmuligheter = inkluderingsmuligheter,
                 prioriterteMålgrupper = prioriterteMålgrupper,
-                tiltakEllerEllerVirkemidler = tiltakEllerVirkemidler
+                tiltakEllerEllerVirkemidler = tiltakEllerVirkemidler,
+                stillingskategori = Stillingskategori.fraElasticSearch(jsonStillingsInfo.at("/stillingskategori").asText())
             )
     }
 

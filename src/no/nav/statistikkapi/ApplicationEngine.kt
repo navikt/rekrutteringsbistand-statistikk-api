@@ -29,7 +29,8 @@ fun lagApplicationEngine(
     dataSource: DataSource,
     tokenValidationConfig: Authentication.Configuration.() -> Unit,
     datavarehusKafkaProducer: DatavarehusKafkaProducer,
-    elasticSearchKlient: ElasticSearchKlient
+    elasticSearchKlient: ElasticSearchKlient,
+    stillingRepository: StillingRepository = StillingRepository(dataSource)
 ): ApplicationEngine {
     return embeddedServer(Netty, port) {
         install(CallLogging)
@@ -52,7 +53,6 @@ fun lagApplicationEngine(
 
         val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
-        val stillingRepository = StillingRepository(dataSource)
         val stillingService = StillingService(elasticSearchKlient, stillingRepository)
 
         routing {

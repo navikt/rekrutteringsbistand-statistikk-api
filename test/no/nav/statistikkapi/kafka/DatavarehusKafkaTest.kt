@@ -19,6 +19,7 @@ import org.junit.After
 import org.junit.AfterClass
 import org.junit.Test
 import no.nav.statistikkapi.*
+import no.nav.statistikkapi.stillinger.StillingRepository
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
@@ -79,7 +80,8 @@ class DatavarehusKafkaTest {
         private val port = randomPort()
         private val lokalKafka = KafkaEnvironment(withSchemaRegistry = true)
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(
-            producerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url)
+            producerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url),
+            StillingRepository(database.dataSource)
         )
         private val mockOAuth2Server = MockOAuth2Server()
         private val client = httpKlientMedBearerToken(mockOAuth2Server)

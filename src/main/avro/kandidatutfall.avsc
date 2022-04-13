@@ -1,3 +1,9 @@
+[{
+  "namespace": "no.nav.rekrutteringsbistand",
+  "name": "AvroStillingskategori",
+  "type": "enum",
+  "symbols": ["STILLING", "FORMIDLING", "ARBEIDSTRENING", "JOBBMESSE"]
+},
 {
   "namespace": "no.nav.rekrutteringsbistand",
   "type": "record",
@@ -9,6 +15,7 @@
     { "name": "navKontor", "type": "string" },
     { "name": "kandidatlisteId", "type": "string" },
     { "name": "stillingsId", "type": "string" },
-    { "name": "tidspunkt", "type": "string" }
+    { "name": "tidspunkt", "type": "string" },
+    { "name": "stillingskategori", "type": ["null","AvroStillingskategori"], "default": null }
   ]
-}
+}]

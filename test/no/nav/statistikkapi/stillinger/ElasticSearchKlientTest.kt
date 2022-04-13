@@ -122,7 +122,9 @@ class ElasticSearchKlientImplTest {
                                 "published":"$publiseringsdato",
                                 "properties": {}
                             },
-                            "stillingsinfo": null
+                            "stillingsinfo": {
+                                "stillingskategori": "STILLING"
+                            }
                         }
                     }
                     """.trimIndent())
