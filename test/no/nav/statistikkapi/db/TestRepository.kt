@@ -1,9 +1,12 @@
 package no.nav.statistikkapi.db
 
+import io.mockk.InternalPlatformDsl.toStr
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
+import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
+import java.util.*
 import javax.sql.DataSource
 
 class TestRepository(private val dataSource: DataSource) {
@@ -16,7 +19,9 @@ class TestRepository(private val dataSource: DataSource) {
 
     fun hentUtfall(): List<Kandidatutfall> {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("SELECT * FROM ${KandidatutfallRepository.kandidatutfallTabell} ORDER BY id ASC").executeQuery()
+            val resultSet =
+                it.prepareStatement("SELECT * FROM ${KandidatutfallRepository.kandidatutfallTabell} ORDER BY id ASC")
+                    .executeQuery()
             return generateSequence {
                 if (resultSet.next()) konverterTilKandidatutfall(resultSet)
                 else null
@@ -25,15 +30,16 @@ class TestRepository(private val dataSource: DataSource) {
     }
 
     fun hentAntallStillinger() = dataSource.connection.use {
-            it.prepareStatement("SELECT count(*) FROM ${StillingRepository.stillingtabell}").executeQuery().run {
-                next()
-                getInt(1)
-            }
+        it.prepareStatement("SELECT count(*) FROM ${StillingRepository.stillingtabell}").executeQuery().run {
+            next()
+            getInt(1)
         }
+    }
 
     fun slettAlleStillinger() {
         dataSource.connection.use {
             it.prepareStatement("DELETE FROM ${StillingRepository.stillingtabell}").execute()
         }
     }
+
 }

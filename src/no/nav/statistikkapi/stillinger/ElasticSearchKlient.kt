@@ -11,7 +11,7 @@ import no.nav.statistikkapi.BearerToken
 import java.time.LocalDateTime
 
 interface ElasticSearchKlient {
-    fun hentStilling(stillingUuid: String): ElasticSearchStilling?
+    fun hentStilling(stillingsIDUuid: String): ElasticSearchStilling?
 }
 
 class ElasticSearchKlientImpl(private val httpKlient: HttpClient = HttpClient(Apache),

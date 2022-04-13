@@ -12,7 +12,7 @@ interface DatavarehusKafkaProducer {
     fun send(kandidatutfall: Kandidatutfall)
 }
 
-class DatavarehusKafkaProducerImpl(config: Properties, val repository: StillingRepository) : DatavarehusKafkaProducer {
+class DatavarehusKafkaProducerImpl(private val config: Properties, private val repository: StillingRepository) : DatavarehusKafkaProducer {
 
     private val producer: KafkaProducer<String, AvroKandidatutfall> = KafkaProducer(config)
 
@@ -21,7 +21,7 @@ class DatavarehusKafkaProducerImpl(config: Properties, val repository: StillingR
     }
 
     override fun send(kandidatutfall: Kandidatutfall) {
-        val stillingskategori = repository.hentNyesteStilling(kandidatutfall.stillingsId.toString())!!.stillingskategori
+        val stillingskategori = repository.hentNyesteStilling(kandidatutfall.stillingsId)!!.stillingskategori
 
         val melding = AvroKandidatutfall(
             kandidatutfall.aktorId,

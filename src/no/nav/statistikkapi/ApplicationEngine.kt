@@ -49,11 +49,12 @@ fun lagApplicationEngine(
         Metrics.addRegistry(prometheusMeterRegistry)
 
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
-        val sendKafkaMelding: Runnable = hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer)
+        val stillingService = StillingService(elasticSearchKlient, stillingRepository)
+        val sendKafkaMelding: Runnable =
+            hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
 
         val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
-        val stillingService = StillingService(elasticSearchKlient, stillingRepository)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {

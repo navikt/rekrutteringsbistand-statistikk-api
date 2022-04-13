@@ -6,6 +6,7 @@ import net.minidev.json.JSONArray
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import java.util.*
 import javax.sql.DataSource
 
 class StillingRepository(private val dataSource: DataSource) {
@@ -38,7 +39,9 @@ class StillingRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentNyesteStilling(stillingUuid: String): Stilling? =
+    fun hentNyesteStilling(stillingsId: UUID): Stilling? = hentNyesteStilling(stillingsId.toString())
+
+    private fun hentNyesteStilling(stillingUuid: String): Stilling? =
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """

@@ -1,18 +1,21 @@
 package no.nav.statistikkapi.kafka
 
 import io.micrometer.core.instrument.Metrics
-import no.nav.statistikkapi.log
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.log
+import no.nav.statistikkapi.stillinger.StillingService
 
 fun hentUsendteUtfallOgSendPåKafka(
     kandidatutfallRepository: KandidatutfallRepository,
-    kafkaProducer: DatavarehusKafkaProducer
+    kafkaProducer: DatavarehusKafkaProducer,
+    stillingService: StillingService
 ) = Runnable {
     kandidatutfallRepository
         .hentUsendteUtfall()
         .forEach {
             kandidatutfallRepository.registrerSendtForsøk(it)
             try {
+                stillingService.registrerStilling(it.stillingsId)
                 kafkaProducer.send(it)
                 kandidatutfallRepository.registrerSomSendt(it)
             } catch (e: Exception) {
