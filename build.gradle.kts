@@ -29,7 +29,7 @@ val mockOAuth2ServerVersion = "0.4.3"
 
 plugins {
     application
-    kotlin("jvm") version embeddedKotlinVersion // Kotlinversjon styres av gradlew, se https://blog.nishtahir.com/how-to-properly-update-the-gradle-wrapper/
+    kotlin("jvm") version "1.5.31" // Kotlinversjon bør styres av gradlew, se https://blog.nishtahir.com/how-to-properly-update-the-gradle-wrapper/
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.github.ben-manes.versions") version "0.39.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.2.1"
