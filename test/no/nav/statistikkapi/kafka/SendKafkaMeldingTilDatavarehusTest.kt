@@ -18,6 +18,7 @@ import no.nav.statistikkapi.kandidatutfall.SendtStatus.SENDT
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -35,7 +36,7 @@ class SendKafkaMeldingTilDatavarehusTest {
 
         private val producerSomFeilerEtterFørsteKall = object : DatavarehusKafkaProducer {
             var førsteKall = true
-            override fun send(kandidatutfall: Kandidatutfall) {
+            override fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori) {
                 if (førsteKall) {
                     førsteKall = false
                     return
