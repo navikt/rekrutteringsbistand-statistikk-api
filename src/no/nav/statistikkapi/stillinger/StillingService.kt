@@ -9,7 +9,8 @@ class StillingService(
 
     fun registrerStilling(stillingsId: UUID) {
         val stillingFraDatabase: Stilling? = stillingRepository.hentNyesteStilling(stillingsId)
-        val stillingFraElasticSearch: ElasticSearchStilling? = elasticSearchKlient.hentStilling(stillingsId.toString()) // TODO Are: UUID?
+        val stillingFraElasticSearch: ElasticSearchStilling? =
+            elasticSearchKlient.hentStilling(stillingsId.toString())
 
         if (stillingFraElasticSearch == null && stillingFraDatabase == null) {
             throw RuntimeException("Eksisterer ingen stilling med UUID: $stillingsId")
@@ -23,4 +24,8 @@ class StillingService(
             stillingRepository.lagreStilling(stillingFraElasticSearch!!)
         }
     }
+
+    fun hentNyesteStilling(stillingsId: UUID): Stilling? =
+        stillingRepository.hentNyesteStilling(stillingsId)
+
 }

@@ -3,16 +3,17 @@ package no.nav.statistikkapi.kafka
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.log
-import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
 
 interface DatavarehusKafkaProducer {
-    fun send(kandidatutfall: Kandidatutfall)
+    fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori)
 }
 
-class DatavarehusKafkaProducerImpl(config: Properties, private val repository: StillingRepository) : DatavarehusKafkaProducer {
+class DatavarehusKafkaProducerImpl(config: Properties) :
+    DatavarehusKafkaProducer {
 
     private val producer: KafkaProducer<String, AvroKandidatutfall> = KafkaProducer(config)
 
@@ -20,8 +21,7 @@ class DatavarehusKafkaProducerImpl(config: Properties, private val repository: S
         const val TOPIC = "aapen-formidlingsutfallEndret-v1"
     }
 
-    override fun send(kandidatutfall: Kandidatutfall) {
-        val stillingskategori = repository.hentNyesteStilling(kandidatutfall.stillingsId)!!.stillingskategori
+    override fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori) {
 
         val melding = AvroKandidatutfall(
             kandidatutfall.aktorId,
@@ -35,8 +35,10 @@ class DatavarehusKafkaProducerImpl(config: Properties, private val repository: S
         )
         val kafkaId = UUID.randomUUID().toString()
         producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, _ ->
-            log.info("Sendte melding på Kafka. dbId: ${kandidatutfall.dbId}," +
-                     "kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
+            log.info(
+                "Sendte melding på Kafka. dbId: ${kandidatutfall.dbId}," +
+                        "kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}"
+            )
         }
     }
 }

@@ -10,22 +10,20 @@ fun hentUsendteUtfallOgSendPåKafka(
     kafkaProducer: DatavarehusKafkaProducer,
     stillingService: StillingService
 ) = Runnable {
-    kandidatutfallRepository
-        .hentUsendteUtfall()
-        .forEach {
-            try {
-                kandidatutfallRepository.registrerSendtForsøk(it)
-                stillingService.registrerStilling(it.stillingsId)
-                kafkaProducer.send(it)
-                kandidatutfallRepository.registrerSomSendt(it)
-            } catch (e: Exception) {
-                log.error("Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall", e)
-                Metrics.counter(
-                    "rekrutteringsbistand.statistikk.kafka.feilet",
-                    "antallSendtForsøk", it.antallSendtForsøk.toString()
-                ).increment()
-                return@Runnable
-            }
+    kandidatutfallRepository.hentUsendteUtfall().forEach {
+        try {
+            kandidatutfallRepository.registrerSendtForsøk(it)
+            stillingService.registrerStilling(it.stillingsId)
+            val stillingskategori = stillingService.hentNyesteStilling(it.stillingsId)!!.stillingskategori
+            kafkaProducer.send(it, stillingskategori)
+            kandidatutfallRepository.registrerSomSendt(it)
+        } catch (e: Exception) {
+            log.error("Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall", e)
+            Metrics.counter(
+                "rekrutteringsbistand.statistikk.kafka.feilet", "antallSendtForsøk", it.antallSendtForsøk.toString()
+            ).increment()
+            return@Runnable
         }
+    }
 }
 

@@ -30,7 +30,7 @@ fun main() {
     }
 
     val stillingRepository = StillingRepository(database.dataSource)
-    val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig(), stillingRepository)
+    val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
 
     val stillingssokProxyAccessTokenClient = AccessTokenProvider(
         config = AccessTokenProvider.Config(
