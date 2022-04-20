@@ -1,6 +1,6 @@
 name: Build & deploy
 
-on: [push]
+on: [ push ]
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/rekrutteringsbistand-statistikk-api:${{ github.sha }}
@@ -15,16 +15,16 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Run tests
-        run: ./gradlew check --info
+        run: ./gradlew --no-daemon check --info
 
   deploy-to-dev:
     name: Deploy to dev
@@ -40,16 +40,16 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Build jar with Gradle
-        run: ./gradlew shadowJar
+        run: ./gradlew --no-daemon shadowJar
       - name: Build and publish Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
