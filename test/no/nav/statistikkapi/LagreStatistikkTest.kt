@@ -68,18 +68,6 @@ class LagreStatistikkTest {
     }
 
     @Test
-    fun `POST til kandidatutfall skal lagre til stillingstabellen`() = runBlocking {
-        val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
-
-        val response: HttpResponse = client.post("$basePath/kandidatutfall") {
-            body = kandidatutfallTilLagring
-        }
-
-        assertThat(response.status).isEqualTo(HttpStatusCode.Created)
-        assertThat(testRepository.hentAntallStillinger()).isEqualTo(1)
-    }
-
-    @Test
     fun `POST til kandidatutfall skal gi unauthorized hvis man ikke er logget inn`() = runBlocking {
         val uinnloggaClient = HttpClient(Apache) {
             expectSuccess = false

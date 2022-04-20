@@ -63,7 +63,6 @@ class SendKafkaMeldingTilDatavarehusTest {
         hentUsendteUtfallOgSendPåKafka(utfallRepo, producerSomFeilerEtterFørsteKall, stillingService).run()
 
         val nå = now()
-        assertThat(testRepository.hentAntallStillinger()).isEqualTo(1)
         val vellyketUtfall = testRepository.hentUtfall()[0]
         assertThat(stillingRepo.hentNyesteStilling(vellyketUtfall.stillingsId)).isNotNull()
         assertThat(vellyketUtfall.sendtStatus).isEqualTo(SENDT)
@@ -74,6 +73,18 @@ class SendKafkaMeldingTilDatavarehusTest {
         assertThat(feiletUtfall.sendtStatus).isEqualTo(IKKE_SENDT)
         assertThat(feiletUtfall.antallSendtForsøk).isEqualTo(1)
         assertThat(feiletUtfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
+    }
+
+    @Test
+    fun `Sending med Kafka skal oppdatere stilling-tabellen`() {
+        every { elasticSearchKlientMock.hentStilling(etKandidatutfall.stillingsId) } returns enElasticSearchStilling()
+        assertThat(etKandidatutfall.stillingsId).isEqualTo(enElasticSearchStilling().uuid)
+        utfallRepo.lagreUtfall(etKandidatutfall, now())
+        assertThat(testRepository.hentAntallStillinger()).isZero()
+
+        hentUsendteUtfallOgSendPåKafka(utfallRepo, producerSomFeilerEtterFørsteKall, stillingService).run()
+
+        assertThat(testRepository.hentAntallStillinger()).isEqualTo(1)
     }
 
 
