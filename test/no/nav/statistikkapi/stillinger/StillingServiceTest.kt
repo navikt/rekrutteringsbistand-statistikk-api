@@ -49,9 +49,10 @@ class StillingServiceTest {
 
     @Test
     fun `Skal lagre stilling fra ElasticSearch hvis stillingen ikke finnes i databasen`() {
-        val stillingFraElasticSearch = likStillingFraElasticSearchOgDatabase().first
+        val stilling = likStillingFraElasticSearchOgDatabase()
+        val stillingFraElasticSearch = stilling.first
         every { elasticSearchKlient.hentStilling(any()) } returns stillingFraElasticSearch
-        every { stillingRepository.hentNyesteStilling(any()) } returns null
+        every { stillingRepository.hentNyesteStilling(any()) } returns null andThen stilling.second
         justRun { stillingRepository.lagreStilling(stillingFraElasticSearch) }
 
         stillingService.registrerOgHent(UUID.randomUUID())
