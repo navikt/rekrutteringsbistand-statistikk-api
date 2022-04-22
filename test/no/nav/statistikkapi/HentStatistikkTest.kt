@@ -362,7 +362,6 @@ class HentStatistikkTest {
         assertThat(actual.antallPresentert).isEqualTo(1)
     }
 
-    // TODO: Er dette riktig?
     @Test
     fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 1 være 0`() {
         val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
@@ -389,7 +388,6 @@ class HentStatistikkTest {
         assertThat(actual.antallPresentert).isEqualTo(0)
     }
 
-    // TODO: Er dette riktig?
     @Test
     fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 2 være 1`() {
         val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
