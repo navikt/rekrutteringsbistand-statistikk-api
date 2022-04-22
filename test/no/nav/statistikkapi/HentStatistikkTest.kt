@@ -39,113 +39,87 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Siste registrerte presentering på en kandidat og kandidatliste skal telles`() = runBlocking {
+    fun `Siste registrerte presentering på en kandidat og kandidatliste skal telles`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(utfall = PRESENTERT),
             LocalDate.of(2020, 10, 15).atStartOfDay()
         )
 
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-                HentStatistikk(
-                    fraOgMed = LocalDate.of(2020, 10, 1),
-                    tilOgMed = LocalDate.of(2020, 10, 31),
-                    navKontor = etKandidatutfall.navKontor
-                )
-            )
-        }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-        assertThat(response.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallPresentert).isEqualTo(1)
     }
 
 
     @Test
-    fun `Siste registrerte fått jobben på en kandidat og kandidatliste skal telles som presentert og fått jobben`() =
-        runBlocking {
-            repository.lagreUtfall(
-                etKandidatutfall.copy(utfall = FATT_JOBBEN),
-                LocalDate.of(2020, 10, 15).atStartOfDay()
-            )
+    fun `Siste registrerte fått jobben på en kandidat og kandidatliste skal telles som presentert og fått jobben`() {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = FATT_JOBBEN),
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
-            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-                leggTilQueryParametere(
-                    this,
-                    HentStatistikk(
-                        fraOgMed = LocalDate.of(2020, 10, 1),
-                        tilOgMed = LocalDate.of(2020, 10, 31),
-                        navKontor = etKandidatutfall.navKontor
-                    )
-                )
-            }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-            assertThat(response.antallFåttJobben).isEqualTo(1)
-            assertThat(response.antallPresentert).isEqualTo(1)
-        }
+        assertThat(actual.antallFåttJobben).isEqualTo(1)
+        assertThat(actual.antallPresentert).isEqualTo(1)
+    }
 
 
     @Test
-    fun `Ikke presentert skal ikke telles`() = runBlocking {
+    fun `Ikke presentert skal ikke telles`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(utfall = IKKE_PRESENTERT),
             LocalDate.of(2020, 10, 15).atStartOfDay()
         )
 
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-                HentStatistikk(
-                    fraOgMed = LocalDate.of(2020, 10, 1),
-                    tilOgMed = LocalDate.of(2020, 10, 31),
-                    navKontor = etKandidatutfall.navKontor
-                )
-            )
-        }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-        assertThat(response.antallPresentert).isEqualTo(0)
-        assertThat(response.antallFåttJobben).isEqualTo(0)
+        assertThat(actual.antallPresentert).isEqualTo(0)
+        assertThat(actual.antallFåttJobben).isEqualTo(0)
     }
 
     @Test
-    fun `Registrert formidling innen tidsperiode skal telles`() = runBlocking {
+    fun `Registrert formidling innen tidsperiode skal telles`() {
         repository.lagreUtfall(etKandidatutfall, LocalDate.of(2020, 10, 15).atStartOfDay())
 
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-                HentStatistikk(
-                    fraOgMed = LocalDate.of(2020, 10, 1),
-                    tilOgMed = LocalDate.of(2020, 10, 31),
-                    navKontor = etKandidatutfall.navKontor
-                )
-            )
-        }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-        assertThat(response.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallPresentert).isEqualTo(1)
     }
 
     @Test
-    fun `Registrert formidling før eller etter gitt tidsperiode skal ikke telles`() = runBlocking {
+    fun `Registrert formidling før eller etter gitt tidsperiode skal ikke telles`() {
         repository.lagreUtfall(etKandidatutfall, LocalDate.of(2020, 1, 1).atStartOfDay())
         repository.lagreUtfall(etKandidatutfall, LocalDate.of(2021, 5, 1).atStartOfDay())
 
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-                HentStatistikk(
-                    fraOgMed = LocalDate.of(2020, 2, 1),
-                    tilOgMed = LocalDate.of(2020, 4, 1),
-                    navKontor = etKandidatutfall.navKontor
-                )
-            )
-        }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 2, 1),
+            tilOgMed = LocalDate.of(2020, 4, 1),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-        assertThat(response.antallPresentert).isEqualTo(0)
-        assertThat(response.antallFåttJobben).isEqualTo(0)
+        assertThat(actual.antallPresentert).isEqualTo(0)
+        assertThat(actual.antallFåttJobben).isEqualTo(0)
     }
 
     @Test
-    fun `Registrert utfall på samme kandidat på to kandidatlister skal gi to tellinger`() = runBlocking {
+    fun `Registrert utfall på samme kandidat på to kandidatlister skal gi to tellinger`() {
         val kandidatutfall1 = etKandidatutfall.copy(kandidatlisteId = "1")
         val kandidatutfall2 = kandidatutfall1.copy(kandidatlisteId = "2")
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
@@ -154,22 +128,17 @@ class HentStatistikkTest {
         repository.lagreUtfall(kandidatutfall1, LocalDate.of(2020, 1, 1).atStartOfDay())
         repository.lagreUtfall(kandidatutfall2, LocalDate.of(2020, 1, 1).atStartOfDay())
 
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-                HentStatistikk(
-                    fraOgMed = LocalDate.of(2020, 1, 1),
-                    tilOgMed = LocalDate.of(2020, 1, 2),
-                    navKontor = etKandidatutfall.navKontor
-                )
-            )
-        }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 1, 1),
+            tilOgMed = LocalDate.of(2020, 1, 2),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-        assertThat(response.antallPresentert).isEqualTo(2)
+        assertThat(actual.antallPresentert).isEqualTo(2)
     }
 
     @Test
-    fun `Registrerte utfall på to kandidater på en kandidatliste skal gi to tellinger`() = runBlocking {
+    fun `Registrerte utfall på to kandidater på en kandidatliste skal gi to tellinger`() {
         val kandidatutfall1 = etKandidatutfall.copy(aktørId = "1")
         val kandidatutfall2 = kandidatutfall1.copy(aktørId = "2")
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
@@ -177,85 +146,68 @@ class HentStatistikkTest {
         repository.lagreUtfall(kandidatutfall1, LocalDate.of(2020, 1, 1).atStartOfDay())
         repository.lagreUtfall(kandidatutfall2, LocalDate.of(2020, 1, 1).atStartOfDay())
 
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-                HentStatistikk(
-                    fraOgMed = LocalDate.of(2020, 1, 1),
-                    tilOgMed = LocalDate.of(2020, 1, 2),
-                    navKontor = etKandidatutfall.navKontor
-                )
-            )
-        }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 1, 1),
+            tilOgMed = LocalDate.of(2020, 1, 2),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-        assertThat(response.antallPresentert).isEqualTo(2)
+        assertThat(actual.antallPresentert).isEqualTo(2)
     }
 
     @Test
-    fun `Presentert og fått jobben på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() =
-        runBlocking {
-            val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT)
-            val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN)
-            assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-            assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
+    fun `Presentert og fått jobben på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() {
+        val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT)
+        val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN)
+        assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
+        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-            repository.lagreUtfall(
-                kandidatutfall1,
-                LocalDate.of(2020, 1, 1).atStartOfDay()
-            )
-            repository.lagreUtfall(
-                kandidatutfall2,
-                LocalDate.of(2020, 1, 1).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall1,
+            LocalDate.of(2020, 1, 1).atStartOfDay()
+        )
+        repository.lagreUtfall(
+            kandidatutfall2,
+            LocalDate.of(2020, 1, 1).atStartOfDay()
+        )
 
-            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-                leggTilQueryParametere(
-                    this,
-                    HentStatistikk(
-                        fraOgMed = LocalDate.of(2020, 1, 1),
-                        tilOgMed = LocalDate.of(2020, 1, 2),
-                        navKontor = etKandidatutfall.navKontor
-                    )
-                )
-            }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 1, 1),
+            tilOgMed = LocalDate.of(2020, 1, 2),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-            assertThat(response.antallPresentert).isEqualTo(1)
-            assertThat(response.antallFåttJobben).isEqualTo(1)
-        }
+        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallFåttJobben).isEqualTo(1)
+    }
 
     @Test
-    fun `Fått jobben to ganger på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() =
-        runBlocking {
-            val kandidatutfall1 = etKandidatutfall.copy(utfall = FATT_JOBBEN)
-            val kandidatutfall2 = kandidatutfall1.copy()
-            assertThat(kandidatutfall1).isEqualTo(kandidatutfall2)
+    fun `Fått jobben to ganger på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() {
+        val kandidatutfall1 = etKandidatutfall.copy(utfall = FATT_JOBBEN)
+        val kandidatutfall2 = kandidatutfall1.copy()
+        assertThat(kandidatutfall1).isEqualTo(kandidatutfall2)
 
-            repository.lagreUtfall(
-                kandidatutfall1,
-                LocalDate.of(2020, 1, 1).atStartOfDay()
-            )
-            repository.lagreUtfall(
-                kandidatutfall2,
-                LocalDate.of(2020, 1, 2).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall1,
+            LocalDate.of(2020, 1, 1).atStartOfDay()
+        )
+        repository.lagreUtfall(
+            kandidatutfall2,
+            LocalDate.of(2020, 1, 2).atStartOfDay()
+        )
 
-            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-                leggTilQueryParametere(
-                    this,
-                    HentStatistikk(
-                        fraOgMed = LocalDate.of(2020, 1, 1),
-                        tilOgMed = LocalDate.of(2020, 1, 2),
-                        navKontor = etKandidatutfall.navKontor
-                    )
-                )
-            }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 1, 1),
+            tilOgMed = LocalDate.of(2020, 1, 2),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-            assertThat(response.antallPresentert).isEqualTo(1)
-            assertThat(response.antallFåttJobben).isEqualTo(1)
-        }
+        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallFåttJobben).isEqualTo(1)
+    }
 
     @Test
-    fun `Presentert to ganger på samme kandidat og samme kandidatliste skal kun telles som presentert`() = runBlocking {
+    fun `Presentert to ganger på samme kandidat og samme kandidatliste skal kun telles som presentert`() {
         val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT)
         val kandidatutfall2 = kandidatutfall1.copy()
         assertThat(kandidatutfall1).isEqualTo(kandidatutfall2)
@@ -263,23 +215,18 @@ class HentStatistikkTest {
         repository.lagreUtfall(kandidatutfall1, LocalDate.of(2020, 1, 1).atStartOfDay())
         repository.lagreUtfall(kandidatutfall2, LocalDate.of(2020, 1, 2).atStartOfDay())
 
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-                HentStatistikk(
-                    fraOgMed = LocalDate.of(2020, 1, 1),
-                    tilOgMed = LocalDate.of(2020, 1, 3),
-                    navKontor = etKandidatutfall.navKontor
-                )
-            )
-        }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 1, 1),
+            tilOgMed = LocalDate.of(2020, 1, 3),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-        assertThat(response.antallPresentert).isEqualTo(1)
-        assertThat(response.antallFåttJobben).isEqualTo(0)
+        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallFåttJobben).isEqualTo(0)
     }
 
     @Test
-    fun `Fått jobben skal ikke telles hvis det ikke er nyeste registrering`() = runBlocking {
+    fun `Fått jobben skal ikke telles hvis det ikke er nyeste registrering`() {
         val kandidatutfall1 = etKandidatutfall.copy(utfall = FATT_JOBBEN)
         val kandidatutfall2 = etKandidatutfall.copy(utfall = PRESENTERT)
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
@@ -291,19 +238,14 @@ class HentStatistikkTest {
         )
         repository.lagreUtfall(kandidatutfall2, LocalDate.of(2020, 1, 2).atStartOfDay())
 
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-                HentStatistikk(
-                    fraOgMed = LocalDate.of(2020, 1, 1),
-                    tilOgMed = LocalDate.of(2020, 1, 3),
-                    navKontor = etKandidatutfall.navKontor
-                )
-            )
-        }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 1, 1),
+            tilOgMed = LocalDate.of(2020, 1, 3),
+            navKontor = etKandidatutfall.navKontor
+        )
 
-        assertThat(response.antallPresentert).isEqualTo(1)
-        assertThat(response.antallFåttJobben).isEqualTo(0)
+        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallFåttJobben).isEqualTo(0)
     }
 
     @Test
@@ -312,277 +254,266 @@ class HentStatistikkTest {
             expectSuccess = false
         }
 
-        val response: HttpResponse = uinnloggaClient.get("$basePath/statistikk")
-        assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+        val actual: HttpResponse = uinnloggaClient.get("$basePath/statistikk")
+        assertThat(actual.status).isEqualTo(HttpStatusCode.Unauthorized)
     }
 
     @Test
-    fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() =
-        runBlocking {
-            val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
-            val kandidatutfall2 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor2)
-            assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-            assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
+    fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() {
+        val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
+        val kandidatutfall2 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor2)
+        assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
+        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-            repository.lagreUtfall(
-                kandidatutfall1,
-                LocalDate.of(2020, 10, 15).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall1,
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
-            repository.lagreUtfall(
-                kandidatutfall2,
-                LocalDate.of(2020, 10, 16).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall2,
+            LocalDate.of(2020, 10, 16).atStartOfDay()
+        )
 
-            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-                leggTilQueryParametere(
-                    this,
-                    HentStatistikk(
-                        fraOgMed = LocalDate.of(2020, 10, 1),
-                        tilOgMed = LocalDate.of(2020, 10, 31),
-                        navKontor = etKontor1
-                    )
-                )
-            }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKontor1
+        )
 
-            assertThat(response.antallPresentert).isEqualTo(0)
-        }
+        assertThat(actual.antallPresentert).isEqualTo(0)
+    }
 
     @Test
-    fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() =
-        runBlocking {
-            val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
-            val kandidatutfall2 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor2)
-            assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-            assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
+    fun `Gitt presentert med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() {
+        val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
+        val kandidatutfall2 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor2)
+        assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
+        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-            repository.lagreUtfall(
-                kandidatutfall1,
-                LocalDate.of(2020, 10, 15).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall1,
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
-            repository.lagreUtfall(
-                kandidatutfall2,
-                LocalDate.of(2020, 10, 16).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall2,
+            LocalDate.of(2020, 10, 16).atStartOfDay()
+        )
 
-            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-                leggTilQueryParametere(
-                    this,
-                    HentStatistikk(
-                        fraOgMed = LocalDate.of(2020, 10, 1),
-                        tilOgMed = LocalDate.of(2020, 10, 31),
-                        navKontor = etKontor2
-                    )
-                )
-            }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKontor2
+        )
 
-            assertThat(response.antallPresentert).isEqualTo(1)
-        }
+        assertThat(actual.antallPresentert).isEqualTo(1)
+    }
 
     @Test
-    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() =
-        runBlocking {
-            val kandidatutfall1 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor1)
-            val kandidatutfall2 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
-            assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-            assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
+    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 1 være 0`() {
+        val kandidatutfall1 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor1)
+        val kandidatutfall2 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
+        assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
+        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-            repository.lagreUtfall(
-                kandidatutfall1,
-                LocalDate.of(2020, 10, 15).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall1,
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
-            repository.lagreUtfall(
-                kandidatutfall2,
-                LocalDate.of(2020, 10, 16).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall2,
+            LocalDate.of(2020, 10, 16).atStartOfDay()
+        )
 
-            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-                leggTilQueryParametere(
-                    this,
-                    HentStatistikk(
-                        fraOgMed = LocalDate.of(2020, 10, 1),
-                        tilOgMed = LocalDate.of(2020, 10, 31),
-                        navKontor = etKontor1
-                    )
-                )
-            }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKontor1
+        )
 
-            assertThat(response.antallPresentert).isEqualTo(0)
-        }
+        assertThat(actual.antallPresentert).isEqualTo(0)
+    }
 
     @Test
-    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() =
-        runBlocking {
-            val kandidatutfall1 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor1)
-            val kandidatutfall2 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
-            assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-            assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
+    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() {
+        val kandidatutfall1 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor1)
+        val kandidatutfall2 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
+        assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
+        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-            repository.lagreUtfall(
-                kandidatutfall1,
-                LocalDate.of(2020, 10, 15).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall1,
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
-            repository.lagreUtfall(
-                kandidatutfall2,
-                LocalDate.of(2020, 10, 16).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall2,
+            LocalDate.of(2020, 10, 16).atStartOfDay()
+        )
 
-            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-                leggTilQueryParametere(
-                    this,
-                    HentStatistikk(
-                        fraOgMed = LocalDate.of(2020, 10, 1),
-                        tilOgMed = LocalDate.of(2020, 10, 31),
-                        navKontor = etKontor2
-                    )
-                )
-            }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKontor2
+        )
 
-            assertThat(response.antallPresentert).isEqualTo(1)
-        }
+        assertThat(actual.antallPresentert).isEqualTo(1)
+    }
 
     // TODO: Er dette riktig?
     @Test
-    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 1 være 0`() =
-        runBlocking {
-            val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
-            val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
-            assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-            assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 1 være 0`() {
+        val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
+        val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
+        assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
+        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-            repository.lagreUtfall(
-                kandidatutfall1,
-                LocalDate.of(2020, 10, 15).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall1,
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
-            repository.lagreUtfall(
-                kandidatutfall2,
-                LocalDate.of(2020, 10, 16).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall2,
+            LocalDate.of(2020, 10, 16).atStartOfDay()
+        )
 
-            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-                leggTilQueryParametere(
-                    this,
-                    HentStatistikk(
-                        fraOgMed = LocalDate.of(2020, 10, 1),
-                        tilOgMed = LocalDate.of(2020, 10, 31),
-                        navKontor = etKontor1
-                    )
-                )
-            }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKontor1
+        )
 
-            assertThat(response.antallPresentert).isEqualTo(0)
-        }
+        assertThat(actual.antallPresentert).isEqualTo(0)
+    }
 
     // TODO: Er dette riktig?
     @Test
-    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 2 være 1`() =
-        runBlocking {
-            val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
-            val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
-            assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-            assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 2 være 1`() {
+        val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
+        val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
+        assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
+        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-            hentStatistikk(
-                fraOgMed = LocalDate.of(2020, 10, 1),
-                tilOgMed = LocalDate.of(2020, 10, 31),
-                navKontor = etKontor2
-            ).run {
-                assertThat(antallPresentert).isEqualTo(0)
-            }
-
-            repository.lagreUtfall(
-                kandidatutfall1,
-                LocalDate.of(2020, 10, 15).atStartOfDay()
-            )
-
-            repository.lagreUtfall(
-                kandidatutfall2,
-                LocalDate.of(2020, 10, 16).atStartOfDay()
-            )
-
-            hentStatistikk(
-                fraOgMed = LocalDate.of(2020, 10, 1),
-                tilOgMed = LocalDate.of(2020, 10, 31),
-                navKontor = etKontor2
-            ).run {
-                assertThat(antallPresentert).isEqualTo(1)
-            }
+        hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKontor2
+        ).run {
+            assertThat(antallPresentert).isEqualTo(0)
         }
+
+        repository.lagreUtfall(
+            kandidatutfall1,
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
+
+        repository.lagreUtfall(
+            kandidatutfall2,
+            LocalDate.of(2020, 10, 16).atStartOfDay()
+        )
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKontor2
+        )
+
+        assertThat(actual.antallPresentert).isEqualTo(1)
+
+    }
 
     @Test
-    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 1 være 0`() =
-        runBlocking {
-            val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
-            val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
-            assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-            assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 1 være 0`() {
+        val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
+        val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
+        assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
+        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-            repository.lagreUtfall(
-                kandidatutfall1,
-                LocalDate.of(2020, 10, 15).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall1,
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
-            repository.lagreUtfall(
-                kandidatutfall2,
-                LocalDate.of(2020, 10, 16).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall2,
+            LocalDate.of(2020, 10, 16).atStartOfDay()
+        )
 
-            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-                leggTilQueryParametere(
-                    this,
-                    HentStatistikk(
-                        fraOgMed = LocalDate.of(2020, 10, 1),
-                        tilOgMed = LocalDate.of(2020, 10, 31),
-                        navKontor = etKontor1
-                    )
-                )
-            }
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKontor1
+        )
 
-            assertThat(response.antallFåttJobben).isEqualTo(0)
-        }
+        assertThat(actual.antallFåttJobben).isEqualTo(0)
+    }
 
     @Test
-    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 2 være 1`() =
-        runBlocking {
-            val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
-            val kandidatutfall2 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
-            assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-            assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall fått jobb for kontor 2 være 1`() {
+        val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
+        val kandidatutfall2 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
+        assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
+        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-            repository.lagreUtfall(
-                kandidatutfall1,
-                LocalDate.of(2020, 10, 15).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall1,
+            LocalDate.of(2020, 10, 15).atStartOfDay()
+        )
 
-            repository.lagreUtfall(
-                kandidatutfall2,
-                LocalDate.of(2020, 10, 16).atStartOfDay()
-            )
+        repository.lagreUtfall(
+            kandidatutfall2,
+            LocalDate.of(2020, 10, 16).atStartOfDay()
+        )
 
-            val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-                leggTilQueryParametere(
-                    this,
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 10, 1),
+            tilOgMed = LocalDate.of(2020, 10, 31),
+            navKontor = etKontor2
+        )
 
-                    HentStatistikk(
-                        fraOgMed = LocalDate.of(2020, 10, 1),
-                        tilOgMed = LocalDate.of(2020, 10, 31),
-                        navKontor = etKontor2
-                    )
-                )
-            }
+        assertThat(actual.antallFåttJobben).isEqualTo(1)
+    }
 
-            assertThat(response.antallFåttJobben).isEqualTo(1)
-        }
+    @Test
+    fun `Gitt en presentering en gitt dag så skal vi få presentering hvis tilOgMed er samme dag`() {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
+            LocalDate.of(2020, 1, 1).atTime(13, 55)
+        )
 
-    private suspend fun hentStatistikk(
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2019, 1, 1),
+            tilOgMed = LocalDate.of(2020, 1, 1),
+            navKontor = etKontor1
+        )
+
+        assertThat(actual.antallPresentert).isEqualTo(1)
+    }
+
+    @Test
+    fun `Gitt en presentering en gitt dag så skal vi få presentering hvis fraOgMed er samme dag`() {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
+            LocalDate.of(2020, 1, 1).atTime(19, 54)
+        )
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 1, 1),
+            tilOgMed = LocalDate.of(2020, 1, 2),
+            navKontor = etKontor1
+        )
+
+        assertThat(actual.antallPresentert).isEqualTo(1)
+    }
+
+    private fun hentStatistikk(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
         navKontor: String
-    ): StatistikkOutboundDto =
+    ): StatistikkOutboundDto = runBlocking {
         client.get("$basePath/statistikk") {
             leggTilQueryParametere(
                 this,
@@ -593,49 +524,6 @@ class HentStatistikkTest {
                 )
             )
         }
-
-    @Test
-    fun `Gitt en presentering en gitt dag så skal vi få presentering hvis tilOgMed er samme dag`() = runBlocking {
-        repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
-            LocalDate.of(2020, 1, 1).atTime(13, 55)
-        )
-
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-
-                HentStatistikk(
-                    fraOgMed = LocalDate.of(2019, 1, 1),
-                    tilOgMed = LocalDate.of(2020, 1, 1),
-                    navKontor = etKontor1
-                )
-            )
-        }
-
-        assertThat(response.antallPresentert).isEqualTo(1)
-    }
-
-    @Test
-    fun `Gitt en presentering en gitt dag så skal vi få presentering hvis fraOgMed er samme dag`() = runBlocking {
-        repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1),
-            LocalDate.of(2020, 1, 1).atTime(19, 54)
-        )
-
-        val response: StatistikkOutboundDto = client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-
-                HentStatistikk(
-                    fraOgMed = LocalDate.of(2020, 1, 1),
-                    tilOgMed = LocalDate.of(2020, 1, 2),
-                    navKontor = etKontor1
-                )
-            )
-        }
-
-        assertThat(response.antallPresentert).isEqualTo(1)
     }
 
     @After
