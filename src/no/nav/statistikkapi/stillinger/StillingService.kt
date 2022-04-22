@@ -1,5 +1,6 @@
 package no.nav.statistikkapi.stillinger
 
+import java.time.LocalDateTime
 import java.util.*
 
 class StillingService(
@@ -7,8 +8,11 @@ class StillingService(
     private val stillingRepository: StillingRepository
 ) {
 
-    fun registrerStilling(stillingsId: UUID) {
+    fun registrerOgHent(stillingsId: UUID): Stilling {
         val stillingFraDatabase: Stilling? = stillingRepository.hentNyesteStilling(stillingsId)
+        if(stillingFraDatabase?.tidspunkt?.yngreEnn30Sekunder() == true) // Trenger ikke kalles om stillingen er såpass ny. Unødvendig ytelsesoptimalisering
+            return stillingFraDatabase
+
         val stillingFraElasticSearch: ElasticSearchStilling? =
             elasticSearchKlient.hentStilling(stillingsId.toString())
 
@@ -23,9 +27,8 @@ class StillingService(
         if (måLagreStillingFraElasticSearch) {
             stillingRepository.lagreStilling(stillingFraElasticSearch!!)
         }
+        return stillingRepository.hentNyesteStilling(stillingsId)!!
     }
-
-    fun hentNyesteStilling(stillingsId: UUID): Stilling? =
-        stillingRepository.hentNyesteStilling(stillingsId)
-
 }
+
+private fun LocalDateTime.yngreEnn30Sekunder() = isAfter(LocalDateTime.now().minusSeconds(30))

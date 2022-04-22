@@ -1,7 +1,6 @@
 package no.nav.statistikkapi.kafka
 
 import io.micrometer.core.instrument.Metrics
-import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.stillinger.StillingService
@@ -11,15 +10,11 @@ fun hentUsendteUtfallOgSendPåKafka(
     kafkaProducer: DatavarehusKafkaProducer,
     stillingService: StillingService
 ) = Runnable {
-    fun List<Kandidatutfall>.registrerStillinger() =
-        map(Kandidatutfall::stillingsId).distinct().forEach(stillingService::registrerStilling)
-
     kandidatutfallRepository.hentUsendteUtfall()
-        .also(List<Kandidatutfall>::registrerStillinger)
         .forEach {
             try {
                 kandidatutfallRepository.registrerSendtForsøk(it)
-                val stillingskategori = stillingService.hentNyesteStilling(it.stillingsId)!!.stillingskategori
+                val stillingskategori = stillingService.registrerOgHent(it.stillingsId).stillingskategori
                 kafkaProducer.send(it, stillingskategori)
                 kandidatutfallRepository.registrerSomSendt(it)
             } catch (e: Exception) {
@@ -27,8 +22,6 @@ fun hentUsendteUtfallOgSendPåKafka(
                 Metrics.counter(
                     "rekrutteringsbistand.statistikk.kafka.feilet", "antallSendtForsøk", it.antallSendtForsøk.toString()
                 ).increment()
-                return@Runnable
             }
         }
 }
-

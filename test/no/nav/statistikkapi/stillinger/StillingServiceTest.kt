@@ -22,7 +22,7 @@ class StillingServiceTest {
         every { elasticSearchKlient.hentStilling(any()) } returns stillingFraElasticSearch
         every { stillingRepository.hentNyesteStilling(any()) } returns stillingFraDatabase
 
-        stillingService.registrerStilling(UUID.randomUUID())
+        stillingService.registrerOgHent(UUID.randomUUID())
 
         verify(exactly = 0) { stillingRepository.lagreStilling(any()) }
     }
@@ -42,7 +42,7 @@ class StillingServiceTest {
         every { stillingRepository.hentNyesteStilling(any()) } returns stillingFraDatabase
         justRun { stillingRepository.lagreStilling(endretStillingFraElasticSearch) }
 
-        stillingService.registrerStilling(UUID.randomUUID())
+        stillingService.registrerOgHent(UUID.randomUUID())
 
         verify(exactly = 1) { stillingRepository.lagreStilling(endretStillingFraElasticSearch) }
     }
@@ -54,7 +54,7 @@ class StillingServiceTest {
         every { stillingRepository.hentNyesteStilling(any()) } returns null
         justRun { stillingRepository.lagreStilling(stillingFraElasticSearch) }
 
-        stillingService.registrerStilling(UUID.randomUUID())
+        stillingService.registrerOgHent(UUID.randomUUID())
 
         verify(exactly = 1) { stillingRepository.lagreStilling(stillingFraElasticSearch) }
     }
@@ -64,7 +64,7 @@ class StillingServiceTest {
         every { elasticSearchKlient.hentStilling(any()) } returns null
         every { stillingRepository.hentNyesteStilling(any()) } returns null
 
-        stillingService.registrerStilling(UUID.randomUUID())
+        stillingService.registrerOgHent(UUID.randomUUID())
     }
 
     private fun likStillingFraElasticSearchOgDatabase(): Pair<ElasticSearchStilling, Stilling> {
