@@ -173,7 +173,6 @@ class HentStatistikkTest {
         val kandidatutfall1 = etKandidatutfall.copy(aktørId = "1")
         val kandidatutfall2 = kandidatutfall1.copy(aktørId = "2")
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
         repository.lagreUtfall(kandidatutfall1, LocalDate.of(2020, 1, 1).atStartOfDay())
         repository.lagreUtfall(kandidatutfall2, LocalDate.of(2020, 1, 1).atStartOfDay())
@@ -510,7 +509,7 @@ class HentStatistikkTest {
                 tilOgMed = LocalDate.of(2020, 10, 31),
                 navKontor = etKontor2
             ).run {
-                assertThat(antallPresentert).isEqualTo(0)
+                assertThat(antallPresentert).isEqualTo(1)
             }
         }
 
