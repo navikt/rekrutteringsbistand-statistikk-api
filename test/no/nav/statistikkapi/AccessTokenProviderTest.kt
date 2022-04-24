@@ -36,7 +36,7 @@ class AccessTokenProviderTest {
                 }
             }
             engine {
-                addHandler { request ->
+                addHandler {
                     harHentetNyToken()
                     respond(content =
                         """
