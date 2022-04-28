@@ -58,7 +58,7 @@ class ElasticSearchKlientImpl(
             inkluderingsmuligheter = inkluderingsmuligheter,
             prioriterteMålgrupper = prioriterteMålgrupper,
             tiltakEllerEllerVirkemidler = tiltakEllerVirkemidler,
-            stillingskategori = Stillingskategori.fraElasticSearch(jsonStillingsInfo.at("/stillingskategori").asText())
+            stillingskategori = Stillingskategori.fraElasticSearch(jsonStillingsInfo.at("/stillingskategori").tilTekst())
         )
     }
 
@@ -78,3 +78,5 @@ class ElasticSearchKlientImpl(
 }
 
 private fun JsonNode.asLocalDateTime() = LocalDateTime.parse(this.asText())
+
+private fun JsonNode.tilTekst() = if(this.isNull || this.isMissingNode) null else this.asText()
