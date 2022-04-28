@@ -34,11 +34,14 @@ class DatavarehusKafkaProducerImpl(config: Properties) :
             stillingskategori.tilAvro()
         )
         val kafkaId = UUID.randomUUID().toString()
-        producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, _ ->
-            log.info(
-                "Sendte melding på Kafka. dbId: ${kandidatutfall.dbId}," +
-                        "kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}"
-            )
+        producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, exception ->
+            if (exception != null) {
+                val msg =
+                    "Forsøkte å sende Kafak-melding til Datavarehus. Kanidatutfallets dbId: ${kandidatutfall.dbId}"
+                log.error(msg, exception)
+            } else {
+                log.info("Sendte melding på Kafka. Kandidatutfallets dbId: ${kandidatutfall.dbId},kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
+            }
         }
     }
 }
