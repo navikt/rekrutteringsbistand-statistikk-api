@@ -19,7 +19,7 @@ spec:
 
     - alert: Det har skjedd en feil i rekrutteringsbistand-statistikk-api
       severity: danger
-      expr: sum(increase(logd_messages_total{log_app="rekrutteringsbistand-stilling-indekser",log_level="Error"}[10m])) > 0
+      expr: sum(increase(logd_messages_total{log_app="rekrutteringsbistand-statistikk-api",log_level="Error"}[10m])) > 0
       for: 1s
       action: 'https://logs.adeo.no/goto/2f78ed7f149ff63cdf76c8f86aa4125c'
 
