@@ -1,7 +1,5 @@
 package no.nav.statistikkapi.kafka
 
-import io.confluent.kafka.schemaregistry.CompatibilityLevel
-import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import no.nav.statistikkapi.Cluster
@@ -28,7 +26,10 @@ class KafkaConfig {
                 put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, System.getenv("NAV_TRUSTSTORE_PASSWORD"))
             }
 
-            put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://kafka-schema-registry.tpa.svc.nais.local:8081")
+            put(
+                KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG,
+                "http://kafka-schema-registry.tpa.svc.nais.local:8081"
+            )
 
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
@@ -43,6 +44,7 @@ class KafkaConfig {
         }
         private val serviceuserUsername: String = System.getenv("SERVICEUSER_USERNAME")
         private val serviceuserPassword: String = System.getenv("SERVICEUSER_PASSWORD")
-        private val saslJaasConfig = "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${serviceuserUsername}\" password=\"${serviceuserPassword}\";"
+        private val saslJaasConfig =
+            "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${serviceuserUsername}\" password=\"${serviceuserPassword}\";"
     }
 }
