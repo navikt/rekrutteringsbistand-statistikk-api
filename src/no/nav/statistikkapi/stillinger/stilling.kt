@@ -85,7 +85,7 @@ enum class Stillingskategori {
     }
 
     companion object {
-        fun fraElasticSearch(s: String) = valueOf(s)
-        fun fraDatabase(s: String) = valueOf(s)
+        fun fraElasticSearch(s: String?) = if (s == null) STILLING else valueOf(s)
+        fun fraDatabase(s: String?) = if (s == null) STILLING else valueOf(s)
     }
 }
