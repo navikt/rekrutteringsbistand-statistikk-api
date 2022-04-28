@@ -3,6 +3,7 @@ package no.nav.statistikkapi.stillinger
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import net.minidev.json.JSONArray
+import no.nav.statistikkapi.log
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -74,7 +75,9 @@ class StillingRepository(private val dataSource: DataSource) {
             tiltakEllerVirkemidler,
             object : TypeReference<List<TiltakEllerVirkemiddelTag>>() {}),
         tidspunkt = getTimestamp(tidspunkt).toLocalDateTime(),
-        stillingskategori = Stillingskategori.fraDatabase(getString(stillingskategori))
+        stillingskategori = Stillingskategori.fraDatabase(getString(stillingskategori).also {
+            if (it == null) log.info("Stillingskategori var null i databasen for stillingsID $uuid. Tolker det som at dette er en vanlig stilling og bruker verdien ${Stillingskategori.STILLING} videre istedenfor null")
+        })
     )
 
     companion object {
