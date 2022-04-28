@@ -37,7 +37,7 @@ class DatavarehusKafkaProducerImpl(config: Properties) :
         producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, exception ->
             if (exception != null) {
                 val msg =
-                    "Forsøkte å sende Kafak-melding til Datavarehus. Kanidatutfallets dbId: ${kandidatutfall.dbId}"
+                    "Forsøkte å sende Kafka-melding til Datavarehus. Kanidatutfallets dbId: ${kandidatutfall.dbId}"
                 log.error(msg, exception)
             } else {
                 log.info("Sendte melding på Kafka. Kandidatutfallets dbId: ${kandidatutfall.dbId},kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
