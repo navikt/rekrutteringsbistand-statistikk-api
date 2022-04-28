@@ -24,6 +24,12 @@ Kan sjekke formidlingene tre plasser:
     
 Diverse dokumentasjon ligger i [doc mappa](./doc).
 
+## Avro-skjema-kompabilitet
+Schema-registryet på topicet er bruker ikke standard backward-compatibility, men bruker heller "forward transitive".
+Dette kan man se ved å gjøre get-kall mot https://kafka-schema-registry.nais.preprod.local/config/aapen-formidlingsutfallEndret-v1-value
+API-referanse: https://docs.confluent.io/platform/current/schema-registry/develop/api.html
+
+
 ## Koble til H2-database med IntelliJ
 - Bytt ut `jdbcUrl` i `TestDatabase.kt` til `jdbc:h2:~/test;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE`. Da lagres databasen til en fil `test` på home path.
 - I IntelliJ, velg "Database", new DataSource, H2 og lim inn samme URL og koble til.
