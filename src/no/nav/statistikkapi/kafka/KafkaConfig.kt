@@ -29,7 +29,6 @@ class KafkaConfig {
             }
 
             put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://kafka-schema-registry.tpa.svc.nais.local:8081")
-            put(SchemaRegistryConfig.SCHEMA_COMPATIBILITY_CONFIG, CompatibilityLevel.FORWARD_TRANSITIVE)
 
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
