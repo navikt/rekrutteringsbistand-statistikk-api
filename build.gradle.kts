@@ -43,6 +43,10 @@ pitest {
     useClasspathFile.set(true)
 }
 
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
 tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = "16"
@@ -51,7 +55,6 @@ tasks {
         kotlinOptions.jvmTarget = "16"
     }
 }
-
 
 
 application {
@@ -93,6 +96,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerPrometheusVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
+    implementation("io.confluent:kafka-schema-registry:$kafkaAvroSerializerVersion")
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
 
@@ -103,7 +107,9 @@ dependencies {
         exclude(group = "org.eclipse.jetty")
     }
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
-    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
+    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion") {
+        exclude(group = "io.confluent", "kafka-schema-registry")
+    }
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")

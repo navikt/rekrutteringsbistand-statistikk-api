@@ -122,7 +122,9 @@ class ElasticSearchKlientImplTest {
                                 "published":"$publiseringsdato",
                                 "properties": {}
                             },
-                            "stillingsinfo": null
+                            "stillingsinfo": {
+                                "stillingskategori": "STILLING"
+                            }
                         }
                     }
                     """.trimIndent())
@@ -133,7 +135,7 @@ class ElasticSearchKlientImplTest {
     private fun httpClientSøketreffMedStatligInkluderingsdugnad() =
         HttpClient(MockEngine) {
             engine {
-                addHandler { request ->
+                addHandler {
                     respond(etElasticSearchSvarForEnStillingMedTagsogStatligInkluderingsdugnad().trimIndent())
                 }
             }

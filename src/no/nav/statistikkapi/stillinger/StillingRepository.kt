@@ -3,9 +3,11 @@ package no.nav.statistikkapi.stillinger
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import net.minidev.json.JSONArray
+import no.nav.statistikkapi.log
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import java.util.*
 import javax.sql.DataSource
 
 class StillingRepository(private val dataSource: DataSource) {
@@ -21,8 +23,9 @@ class StillingRepository(private val dataSource: DataSource) {
                                $inkluderingsmuligheter,
                                $prioriterteMålgrupper,
                                $tiltakEllerVirkemidler,
-                               $tidspunkt    
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)"""
+                               $tidspunkt,
+                               $stillingskategori
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
             ).run {
                 setString(1, stilling.uuid)
                 setTimestamp(2, Timestamp.valueOf(stilling.opprettet))
@@ -31,12 +34,15 @@ class StillingRepository(private val dataSource: DataSource) {
                 setString(5, stilling.prioriterteMålgrupper.somJSONArray())
                 setString(6, stilling.tiltakEllerEllerVirkemidler.somJSONArray())
                 setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
+                setString(8, stilling.stillingskategori.name)
                 executeUpdate()
             }
         }
     }
 
-    fun hentNyesteStilling(stillingUuid: String): Stilling? =
+    fun hentNyesteStilling(stillingsId: UUID): Stilling? = hentNyesteStilling(stillingsId.toString())
+
+    private fun hentNyesteStilling(stillingUuid: String): Stilling? =
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -68,7 +74,10 @@ class StillingRepository(private val dataSource: DataSource) {
         tiltakEllerVirkemidler = listFromJSONArray(
             tiltakEllerVirkemidler,
             object : TypeReference<List<TiltakEllerVirkemiddelTag>>() {}),
-        tidspunkt = getTimestamp(tidspunkt).toLocalDateTime()
+        tidspunkt = getTimestamp(tidspunkt).toLocalDateTime(),
+        stillingskategori = Stillingskategori.fraDatabase(getString(stillingskategori).also {
+            if (it == null) log.info("Stillingskategori var null i databasen for stillingsID $uuid. Tolker det som at dette er en vanlig stilling og bruker verdien ${Stillingskategori.STILLING} videre istedenfor null")
+        })
     )
 
     companion object {
@@ -80,6 +89,7 @@ class StillingRepository(private val dataSource: DataSource) {
         const val prioriterteMålgrupper = "prioritertemålgrupper"
         const val tiltakEllerVirkemidler = "tiltakellervirkemidler"
         const val tidspunkt = "tidspunkt"
+        const val stillingskategori = "stillingskategori"
     }
 }
 

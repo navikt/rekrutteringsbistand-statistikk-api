@@ -3,15 +3,17 @@ package no.nav.statistikkapi.kafka
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.log
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
 
 interface DatavarehusKafkaProducer {
-    fun send(kandidatutfall: Kandidatutfall)
+    fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori)
 }
 
-class DatavarehusKafkaProducerImpl(config: Properties) : DatavarehusKafkaProducer {
+class DatavarehusKafkaProducerImpl(config: Properties) :
+    DatavarehusKafkaProducer {
 
     private val producer: KafkaProducer<String, AvroKandidatutfall> = KafkaProducer(config)
 
@@ -19,7 +21,8 @@ class DatavarehusKafkaProducerImpl(config: Properties) : DatavarehusKafkaProduce
         const val TOPIC = "aapen-formidlingsutfallEndret-v1"
     }
 
-    override fun send(kandidatutfall: Kandidatutfall) {
+    override fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori) {
+
         val melding = AvroKandidatutfall(
             kandidatutfall.aktorId,
             kandidatutfall.utfall.name,
@@ -27,12 +30,15 @@ class DatavarehusKafkaProducerImpl(config: Properties) : DatavarehusKafkaProduce
             kandidatutfall.navKontor,
             kandidatutfall.kandidatlisteId.toString(),
             kandidatutfall.stillingsId.toString(),
-            kandidatutfall.tidspunkt.toString()
+            kandidatutfall.tidspunkt.toString(),
+            stillingskategori.tilAvro()
         )
         val kafkaId = UUID.randomUUID().toString()
         producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, _ ->
-            log.info("Sendte melding på Kafka. dbId: ${kandidatutfall.dbId}," +
-                     "kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
+            log.info(
+                "Sendte melding på Kafka. dbId: ${kandidatutfall.dbId}," +
+                        "kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}"
+            )
         }
     }
 }

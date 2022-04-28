@@ -22,7 +22,7 @@ class StillingServiceTest {
         every { elasticSearchKlient.hentStilling(any()) } returns stillingFraElasticSearch
         every { stillingRepository.hentNyesteStilling(any()) } returns stillingFraDatabase
 
-        stillingService.registrerStilling(UUID.randomUUID().toString())
+        stillingService.registrerOgHent(UUID.randomUUID())
 
         verify(exactly = 0) { stillingRepository.lagreStilling(any()) }
     }
@@ -42,19 +42,20 @@ class StillingServiceTest {
         every { stillingRepository.hentNyesteStilling(any()) } returns stillingFraDatabase
         justRun { stillingRepository.lagreStilling(endretStillingFraElasticSearch) }
 
-        stillingService.registrerStilling(UUID.randomUUID().toString())
+        stillingService.registrerOgHent(UUID.randomUUID())
 
         verify(exactly = 1) { stillingRepository.lagreStilling(endretStillingFraElasticSearch) }
     }
 
     @Test
     fun `Skal lagre stilling fra ElasticSearch hvis stillingen ikke finnes i databasen`() {
-        val stillingFraElasticSearch = likStillingFraElasticSearchOgDatabase().first
+        val stilling = likStillingFraElasticSearchOgDatabase()
+        val stillingFraElasticSearch = stilling.first
         every { elasticSearchKlient.hentStilling(any()) } returns stillingFraElasticSearch
-        every { stillingRepository.hentNyesteStilling(any()) } returns null
+        every { stillingRepository.hentNyesteStilling(any()) } returns null andThen stilling.second
         justRun { stillingRepository.lagreStilling(stillingFraElasticSearch) }
 
-        stillingService.registrerStilling(UUID.randomUUID().toString())
+        stillingService.registrerOgHent(UUID.randomUUID())
 
         verify(exactly = 1) { stillingRepository.lagreStilling(stillingFraElasticSearch) }
     }
@@ -64,7 +65,7 @@ class StillingServiceTest {
         every { elasticSearchKlient.hentStilling(any()) } returns null
         every { stillingRepository.hentNyesteStilling(any()) } returns null
 
-        stillingService.registrerStilling(UUID.randomUUID().toString())
+        stillingService.registrerOgHent(UUID.randomUUID())
     }
 
     private fun likStillingFraElasticSearchOgDatabase(): Pair<ElasticSearchStilling, Stilling> {
@@ -77,7 +78,8 @@ class StillingServiceTest {
                 PrioriterteMålgrupperTag.KOMMER_FRA_LAND_UTENFOR_EØS,
                 PrioriterteMålgrupperTag.HULL_I_CV_EN
             ),
-            tiltakEllerEllerVirkemidler = emptyList()
+            tiltakEllerEllerVirkemidler = emptyList(),
+            stillingskategori = Stillingskategori.STILLING
         )
         val stillingFraDatabase = Stilling(
             uuid = elasticSearchStilling.uuid,
@@ -86,7 +88,8 @@ class StillingServiceTest {
             inkluderingsmuligheter = elasticSearchStilling.inkluderingsmuligheter,
             prioriterteMålgrupper = elasticSearchStilling.prioriterteMålgrupper,
             tiltakEllerVirkemidler = emptyList(),
-            tidspunkt = LocalDate.of(2021, 5, 4).atStartOfDay()
+            tidspunkt = LocalDate.of(2021, 5, 4).atStartOfDay(),
+            stillingskategori = Stillingskategori.STILLING
         )
         return Pair(elasticSearchStilling, stillingFraDatabase)
     }

@@ -1,24 +1,24 @@
 package no.nav.statistikkapi.stillinger
 
+import java.util.*
+
 class StillingService(
     private val elasticSearchKlient: ElasticSearchKlient,
     private val stillingRepository: StillingRepository
 ) {
 
-    fun registrerStilling(stillingUuid: String) {
-        val stillingFraDatabase: Stilling? = stillingRepository.hentNyesteStilling(stillingUuid)
-        val stillingFraElasticSearch: ElasticSearchStilling? = elasticSearchKlient.hentStilling(stillingUuid)
-
+    fun registrerOgHent(stillingsId: UUID): Stilling {
+        val stillingFraDatabase: Stilling? = stillingRepository.hentNyesteStilling(stillingsId)
+        val stillingFraElasticSearch: ElasticSearchStilling? = elasticSearchKlient.hentStilling(stillingsId.toString())
         if (stillingFraElasticSearch == null && stillingFraDatabase == null) {
-            throw RuntimeException("Eksisterer ingen stilling med UUID: $stillingUuid")
+            throw RuntimeException("Eksisterer ingen stilling med UUID: $stillingsId")
         }
-
         val måLagreStillingFraElasticSearch =
             stillingFraDatabase == null ||
-                    stillingFraElasticSearch != null && (stillingFraDatabase `er ulik` stillingFraElasticSearch)
-
+                    (stillingFraElasticSearch != null && (stillingFraDatabase `er ulik` stillingFraElasticSearch))
         if (måLagreStillingFraElasticSearch) {
             stillingRepository.lagreStilling(stillingFraElasticSearch!!)
         }
+        return stillingRepository.hentNyesteStilling(stillingsId)!!
     }
 }

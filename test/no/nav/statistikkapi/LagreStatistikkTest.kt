@@ -10,10 +10,11 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.junit.After
-import org.junit.Test
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
+import org.junit.After
+import org.junit.BeforeClass
+import org.junit.Test
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -29,6 +30,13 @@ class LagreStatistikkTest {
 
         init {
             start(database = database, port = port, mockOAuth2Server = mockOAuth2Server)
+        }
+
+        @BeforeClass
+        @JvmStatic
+        fun beforeClass() {
+            testRepository.slettAlleUtfall()
+            testRepository.slettAlleStillinger()
         }
     }
 
@@ -57,18 +65,6 @@ class LagreStatistikkTest {
                 LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
             )
         }
-    }
-
-    @Test
-    fun `POST til kandidatutfall skal lagre til stillingstabellen`() = runBlocking {
-        val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
-
-        val response: HttpResponse = client.post("$basePath/kandidatutfall") {
-            body = kandidatutfallTilLagring
-        }
-
-        assertThat(response.status).isEqualTo(HttpStatusCode.Created)
-        assertThat(testRepository.hentAntallStillinger()).isEqualTo(1)
     }
 
     @Test
