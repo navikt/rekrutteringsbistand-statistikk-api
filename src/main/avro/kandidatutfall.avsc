@@ -16,6 +16,6 @@
     { "name": "kandidatlisteId", "type": "string" },
     { "name": "stillingsId", "type": "string" },
     { "name": "tidspunkt", "type": "string" },
-    { "name": "stillingskategori", "type": "AvroStillingskategori" }
+    { "name": "stillingskategori", "type": ["null","AvroStillingskategori"], "default": null }
   ]
 }]
