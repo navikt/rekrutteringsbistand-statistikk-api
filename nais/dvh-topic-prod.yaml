@@ -1,0 +1,22 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: rapid-1
+  namespace: toi
+  labels:
+    team: toi
+  annotations:
+    kafka.nais.io/removeDataWhenResourceIsDeleted: "false"
+spec:
+  pool: nav-prod
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 1
+    partitions: 1
+    replication: 3
+    retentionBytes: -1
+    retentionHours: 336
+  acl:
+    - team: arbeidsgiver
+      application: rekrutteringsbistand-statistikk-api
+      access: readwrite
