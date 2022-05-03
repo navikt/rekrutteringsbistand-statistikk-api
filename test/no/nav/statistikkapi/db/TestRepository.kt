@@ -14,6 +14,12 @@ class TestRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun slettAlleLønnstilskudd() {
+        dataSource.connection.use {
+            it.prepareStatement("DELETE FROM ${KandidatutfallRepository.lønnstilskuddTabell}").execute()
+        }
+    }
+
     fun hentUtfall(): List<Kandidatutfall> {
         dataSource.connection.use {
             val resultSet =

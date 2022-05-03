@@ -24,7 +24,8 @@ class StatistikkParametere {
 
 data class StatistikkOutboundDto(
     val antallPresentert: Int,
-    val antallFåttJobben: Int
+    val antallFåttJobben: Int,
+    val antallFåttJobbenTiltak: Int
 )
 
 fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
@@ -46,12 +47,13 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                     navKontor = navKontorParameter
                 )
 
-                val antallPresentert =
-                    kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
-                val antallFåttJobben =
-                    kandidatutfallRepository.hentAntallFåttJobben(hentStatistikk)
+                val antallPresentert = kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
+                val fåttJobben = kandidatutfallRepository.hentAktoridFåttJobben(hentStatistikk).distinct()
+                val fåttJobbenTiltak =  kandidatutfallRepository.hentAktøridFåttJobbenTiltak(hentStatistikk).distinct()
 
-                call.respond(StatistikkOutboundDto(antallPresentert, antallFåttJobben))
+                val unikeInnslagTiltak: List<String> = fåttJobbenTiltak-fåttJobben
+
+                call.respond(StatistikkOutboundDto(antallPresentert, fåttJobben.size, unikeInnslagTiltak.size))
             }
         }
     }

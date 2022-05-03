@@ -1,9 +1,11 @@
 package no.nav.statistikkapi
 
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.OpprettKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Utfall
 import no.nav.statistikkapi.stillinger.*
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 const val enNavIdent = "X123456"
@@ -49,6 +51,16 @@ val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(
     harHullICv = null,
     alder = null,
     tilretteleggingsbehov = emptyList()
+)
+
+val aktørId1 = "100000000001"
+val aktørId2 = "100000000002"
+
+fun etLønnstilskudd(aktørid: String) = KandidatutfallRepository.OpprettLønnstilskudd(
+    aktørId = aktørid,
+    fnr = "12121212121",
+    navkontor = "NAV SKI",
+    tidspunkt = LocalDateTime.of(2022, 5, 3,0,0,0)
 )
 
 fun enElasticSearchStilling() = ElasticSearchStilling(

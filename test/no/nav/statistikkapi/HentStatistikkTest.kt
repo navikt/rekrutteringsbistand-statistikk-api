@@ -2,6 +2,7 @@ package no.nav.statistikkapi
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isZero
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
@@ -9,12 +10,12 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.junit.After
-import org.junit.Test
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
+import org.junit.After
+import org.junit.Test
 import java.time.LocalDate
 
 class HentStatistikkTest {
@@ -507,6 +508,84 @@ class HentStatistikkTest {
         assertThat(actual.antallPresentert).isEqualTo(1)
     }
 
+    @Test
+    fun `Gitt lønnstilskudd i basen så skal det telles`() {
+        repository.lagreTilskudd(
+            etLønnstilskudd(aktørId1)
+        )
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2022, 1, 1),
+            tilOgMed = LocalDate.of(2022, 12, 31),
+            navKontor = etLønnstilskudd(aktørId1).navkontor
+        )
+
+        assertThat(actual.antallFåttJobbenTiltak).isEqualTo(1)
+        assertThat(actual.antallPresentert).isZero()
+        assertThat(actual.antallFåttJobben).isZero()
+    }
+
+    @Test
+    fun `Gitt to lønnstilskudd med ulik aktørid i basen så skal begge telles`() {
+        repository.lagreTilskudd(
+            etLønnstilskudd(aktørId1)
+        )
+
+        repository.lagreTilskudd(
+            etLønnstilskudd(aktørId2)
+        )
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2022, 1, 1),
+            tilOgMed = LocalDate.of(2022, 12, 31),
+            navKontor = etLønnstilskudd(aktørId1).navkontor
+        )
+
+        assertThat(actual.antallFåttJobbenTiltak).isEqualTo(2)
+        assertThat(actual.antallPresentert).isZero()
+        assertThat(actual.antallFåttJobben).isZero()
+    }
+
+    @Test
+    fun `Gitt ingen lønnstilskudd  så skal 0 returneres`() {
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2022, 1, 1),
+            tilOgMed = LocalDate.of(2022, 12, 31),
+            navKontor = etLønnstilskudd(aktørId1).navkontor
+        )
+
+        assertThat(actual.antallFåttJobbenTiltak).isZero()
+        assertThat(actual.antallPresentert).isZero()
+        assertThat(actual.antallFåttJobben).isZero()
+    }
+
+    @Test
+    fun `Gitt lønnstilskudd som allerede er registrert så skal det ikke telles`() {
+        repository.lagreUtfall(
+            etKandidatutfall.copy(
+                utfall = FATT_JOBBEN,
+                aktørId = aktørId1,
+                navKontor = etLønnstilskudd(aktørId1).navkontor
+            ),
+            LocalDate.of(2022, 5, 3).atStartOfDay()
+        )
+
+        repository.lagreTilskudd(
+            etLønnstilskudd(aktørId1)
+        )
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2022, 1, 1),
+            tilOgMed = LocalDate.of(2022, 12, 31),
+            navKontor = etLønnstilskudd(aktørId1).navkontor
+        )
+
+        assertThat(actual.antallFåttJobbenTiltak).isEqualTo(0)
+        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallFåttJobben).isEqualTo(1)
+    }
+
     private fun hentStatistikk(
         fraOgMed: LocalDate,
         tilOgMed: LocalDate,
@@ -527,6 +606,7 @@ class HentStatistikkTest {
     @After
     fun cleanUp() {
         testRepository.slettAlleUtfall()
+        testRepository.slettAlleLønnstilskudd()
         mockOAuth2Server.shutdown()
     }
 
