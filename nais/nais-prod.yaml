@@ -36,6 +36,8 @@ spec:
           namespace: toi
           cluster: prod-fss
   webproxy: true
+  kafka:
+    pool: nav-prod
   azure:
     application:
       enabled: true
