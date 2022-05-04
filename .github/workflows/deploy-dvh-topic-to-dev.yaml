@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      # - ny-aiventopic-til-dvh
+      - ny-aiventopic-til-dvh
     paths:
       - .github/workflows/deploy-dvh-topic-to-dev.yaml
       - nais/dvh-dvh-topic-dev.yaml
