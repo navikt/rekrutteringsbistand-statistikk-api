@@ -1,4 +1,4 @@
-name: Deploy kandidat-topic to prod
+name: Deploy dvh-topic to prod
 
 on:
   push:

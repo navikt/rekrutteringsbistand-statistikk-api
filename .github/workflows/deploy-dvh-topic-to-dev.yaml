@@ -1,4 +1,4 @@
-name: Deploy kandidat-topic to dev
+name: Deploy dvh-topic to dev
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - ny-aiventopic-til-dvh
     paths:
       - .github/workflows/deploy-dvh-topic-to-dev.yaml
-      - nais/dvh-dvh-topic-dev.yaml
+      - nais/dvh-topic-dev.yaml
 
 jobs:
   deploy-kandidat-topic-to-dev:
@@ -19,4 +19,4 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          RESOURCE: nais/dvh-dvh-topic-dev.yaml
+          RESOURCE: nais/dvh-topic-dev.yaml
