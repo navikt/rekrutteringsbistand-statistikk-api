@@ -2,9 +2,9 @@ apiVersion: 'nais.io/v1'
 kind: 'Alert'
 metadata:
   name: rekrutteringsbistand-statistikk-api
-  namespace: arbeidsgiver
+  namespace: toi
   labels:
-    team: arbeidsgiver
+    team: toi
 spec:
   receivers:
     slack:
