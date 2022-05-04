@@ -37,6 +37,8 @@ spec:
           namespace: toi
           cluster: dev-fss
   webproxy: true
+  kafka:
+    pool: nav-dev
   azure:
     application:
       enabled: true
