@@ -5,8 +5,9 @@ metadata:
   namespace: toi
   labels:
     team: toi
-  annotations:
-    kafka.nais.io/removeDataWhenResourceIsDeleted: "false"
+    # Må legges til om topicen med data ønskes slettet: https://doc.nais.io/persistence/kafka/manage_topics/#permanently-deleting-topic-and-data
+    #annotations:
+    #kafka.nais.io/removeDataWhenResourceIsDeleted: "true"
 spec:
   pool: nav-prod
   config:
