@@ -92,7 +92,7 @@ class DatavarehusKafkaTest {
                     lokalKafka.schemaRegistry!!.url
                 )
             )
-            consumer.subscribe(listOf(DatavarehusKafkaProducerImpl.TOPIC))
+            consumer.subscribe(listOf(DatavarehusKafkaProducerImpl.topic))
             val records = consumer.poll(Duration.ofSeconds(5))
             return records.map { it.value() }
         }
