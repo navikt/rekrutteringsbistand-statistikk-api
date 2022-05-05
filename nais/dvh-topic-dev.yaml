@@ -18,6 +18,6 @@ spec:
     retentionBytes: -1
     retentionHours: 336
   acl:
-    - team: arbeidsgiver
+    - team: toi
       application: rekrutteringsbistand-statistikk-api
       access: readwrite
