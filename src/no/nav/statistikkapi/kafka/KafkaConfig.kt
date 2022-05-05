@@ -26,6 +26,7 @@ class KafkaConfig {
             val schemaregisterUser = systemEnv("KAFKA_SCHEMA_REGISTRY_USER")
             val schemaregisterPassword = systemEnv("KAFKA_SCHEMA_REGISTRY_PASSWORD")
             put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, systemEnv("KAFKA_SCHEMA_REGISTRY"))
+            put(KafkaAvroSerializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO")
             put(KafkaAvroSerializerConfig.USER_INFO_CONFIG, "$schemaregisterUser:$schemaregisterPassword")
 
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
