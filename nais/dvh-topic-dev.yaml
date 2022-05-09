@@ -1,0 +1,23 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: kandidatutfall
+  namespace: toi
+  labels:
+    team: toi
+  # Må legges til om topicen med data ønskes slettet: https://doc.nais.io/persistence/kafka/manage_topics/#permanently-deleting-topic-and-data
+  #annotations:
+    #kafka.nais.io/removeDataWhenResourceIsDeleted: "true"
+spec:
+  pool: nav-dev
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 1
+    partitions: 1
+    replication: 3
+    retentionBytes: -1
+    retentionHours: 1680
+  acl:
+    - team: toi
+      application: rekrutteringsbistand-statistikk-api
+      access: readwrite

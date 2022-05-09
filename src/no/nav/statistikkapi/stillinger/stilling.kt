@@ -75,12 +75,11 @@ enum class TiltakEllerVirkemiddelTag {
 }
 
 enum class Stillingskategori {
-    STILLING, FORMIDLING, ARBEIDSTRENING, JOBBMESSE;
+    STILLING, FORMIDLING, JOBBMESSE;
 
     fun tilAvro() = when (this) {
         STILLING -> AvroStillingskategori.STILLING
         FORMIDLING -> AvroStillingskategori.FORMIDLING
-        ARBEIDSTRENING -> AvroStillingskategori.ARBEIDSTRENING
         JOBBMESSE -> AvroStillingskategori.JOBBMESSE
     }
 

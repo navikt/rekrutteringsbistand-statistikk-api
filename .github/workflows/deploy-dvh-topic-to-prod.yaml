@@ -1,0 +1,21 @@
+name: Deploy dvh-topic to prod
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/deploy-dvh-topic-to-prod.yaml
+      - nais/dvh-topic-prod.yaml
+
+jobs:
+  deploy-kandidat-topic-to-prod:
+    name: Deploy dvh-topic to prod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: nais/deploy/actions/deploy@master
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          RESOURCE: nais/dvh-topic-prod.yaml
