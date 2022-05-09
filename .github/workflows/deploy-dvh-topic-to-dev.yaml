@@ -3,7 +3,7 @@ name: Deploy dvh-topic to dev
 on:
   push:
     branches:
-      - main
+      - master
       - ny-aiventopic-til-dvh
     paths:
       - .github/workflows/deploy-dvh-topic-to-dev.yaml

@@ -3,7 +3,7 @@ name: Deploy dvh-topic to prod
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - .github/workflows/deploy-dvh-topic-to-prod.yaml
       - nais/dvh-topic-prod.yaml
