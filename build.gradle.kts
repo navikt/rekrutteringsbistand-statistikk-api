@@ -4,7 +4,7 @@ Kotlin-versjonen oppgraderes slik: https://docs.gradle.org/current/userguide/gra
  */
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.6"
-val ktorVersion = "1.6.4"
+val ktorVersion = "1.6.8"
 val h2Version = "1.4.200"
 val flywayVersion = "8.0.0"
 val hikariVersion = "5.0.0"
@@ -49,10 +49,10 @@ java {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "16"
+        kotlinOptions.jvmTarget = "17"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "16"
+        kotlinOptions.jvmTarget = "17"
     }
 }
 
