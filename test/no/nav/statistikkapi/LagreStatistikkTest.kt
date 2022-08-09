@@ -45,7 +45,7 @@ class LagreStatistikkTest {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfallMedUkjentHullICv)
 
         val response: HttpResponse = client.post("$basePath/kandidatutfall") {
-            body = kandidatutfallTilLagring
+            setBody(kandidatutfallTilLagring)
         }
 
         assertThat(response.status).isEqualTo(HttpStatusCode.Created)

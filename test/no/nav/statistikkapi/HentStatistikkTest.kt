@@ -3,6 +3,7 @@ package no.nav.statistikkapi
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -521,7 +522,7 @@ class HentStatistikkTest {
                     navKontor = navKontor
                 )
             )
-        }
+        }.body()
     }
 
     @After

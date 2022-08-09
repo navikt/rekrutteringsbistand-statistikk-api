@@ -2,14 +2,16 @@ package no.nav.statistikkapi
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.features.*
-import io.ktor.jackson.*
-import io.ktor.metrics.micrometer.*
-import io.ktor.routing.*
+import io.ktor.serialization.jackson.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.Authentication
 import io.ktor.server.engine.*
+import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
@@ -27,7 +29,7 @@ import javax.sql.DataSource
 fun lagApplicationEngine(
     port: Int = 8111,
     dataSource: DataSource,
-    tokenValidationConfig: Authentication.Configuration.() -> Unit,
+    tokenValidationConfig: AuthenticationConfig.() -> Unit,
     datavarehusKafkaProducer: DatavarehusKafkaProducer,
     elasticSearchKlient: ElasticSearchKlient,
     stillingRepository: StillingRepository = StillingRepository(dataSource)

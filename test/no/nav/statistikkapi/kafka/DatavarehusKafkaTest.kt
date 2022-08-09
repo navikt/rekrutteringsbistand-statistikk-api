@@ -4,10 +4,9 @@ import assertk.assertThat
 import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import io.ktor.client.request.*
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import io.ktor.client.request.post
-import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.runBlocking
 import no.nav.common.KafkaEnvironment
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
@@ -29,8 +28,8 @@ class DatavarehusKafkaTest {
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
         val expected = listOf(etKandidatutfall, etKandidatutfall)
 
-        client.post<HttpResponse>("$basePath/kandidatutfall") {
-            body = expected
+        client.post("$basePath/kandidatutfall") {
+            setBody(expected)
         }
 
         val actuals: List<AvroKandidatutfall> = consumeKafka()
@@ -51,8 +50,8 @@ class DatavarehusKafkaTest {
     fun `Sending på Kafka-topic skal endre status fra IKKE_SENDT til SENDT`() = runBlocking {
         val kandidatutfallTilLagring = listOf(etKandidatutfall, etKandidatutfall)
 
-        client.post<HttpResponse>("$basePath/kandidatutfall") {
-            body = kandidatutfallTilLagring
+        client.post("$basePath/kandidatutfall") {
+            setBody(kandidatutfallTilLagring)
         }
         consumeKafka() // Vent
 

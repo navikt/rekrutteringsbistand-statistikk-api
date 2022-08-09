@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import no.nav.statistikkapi.BearerToken
 import no.nav.statistikkapi.Cluster
@@ -31,7 +32,7 @@ class ElasticSearchKlientImpl(
     override fun hentStilling(stillingUuid: String): ElasticSearchStilling? = runBlocking {
         val esSvar: String = httpKlient.get("$stillingssokProxyDokumentUrl/$stillingUuid") {
             headers(token.leggTilBearerToken())
-        }
+        }.bodyAsText()
         mapElasticSearchJsonSvarTilStilling(esSvar)
     }
 

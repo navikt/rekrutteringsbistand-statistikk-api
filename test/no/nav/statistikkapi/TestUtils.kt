@@ -4,10 +4,11 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import org.apache.http.HttpHeaders
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
@@ -26,8 +27,8 @@ fun hentToken(mockOAuth2Server: MockOAuth2Server, issuerId: String): String = mo
 fun randomPort(): Int = Random.nextInt(1000, 9999)
 
 fun httpKlientMedBearerToken(mockOAuth2Server: MockOAuth2Server) = HttpClient(Apache) {
-    install(JsonFeature) {
-        serializer = JacksonSerializer {
+    install(ContentNegotiation) {
+        jackson {
             registerModule(JavaTimeModule())
             disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         }

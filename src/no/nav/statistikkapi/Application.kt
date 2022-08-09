@@ -1,9 +1,11 @@
 package no.nav.statistikkapi
 
 import io.ktor.auth.*
-import no.nav.security.token.support.ktor.IssuerConfig
-import no.nav.security.token.support.ktor.TokenSupportConfig
-import no.nav.security.token.support.ktor.tokenValidationSupport
+import io.ktor.auth.Authentication
+import io.ktor.server.auth.*
+import no.nav.security.token.support.v2.IssuerConfig
+import no.nav.security.token.support.v2.TokenSupportConfig
+import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.DatavarehusKafkaProducerImpl
 import no.nav.statistikkapi.kafka.KafkaConfig
@@ -25,7 +27,7 @@ fun main() {
             cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
         )
     )
-    val tokenValidationConfig: Authentication.Configuration.() -> Unit = {
+    val tokenValidationConfig: AuthenticationConfig.() -> Unit = {
         tokenValidationSupport(config = tokenSupportConfig)
     }
 

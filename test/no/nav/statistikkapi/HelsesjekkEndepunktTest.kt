@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -22,13 +23,13 @@ class HelsesjekkEndepunktTest {
 
     @Test
     fun `GET til isReady skal returnere 'Ready'`() = runBlocking {
-        val response: String = client.get("$basePath/internal/isReady")
+        val response: String = client.get("$basePath/internal/isReady").bodyAsText()
         assertThat(response).isEqualTo("Ready")
     }
 
     @Test
     fun `GET til isAlive skal returnere 'Alive'`() = runBlocking {
-        val response: String = client.get("$basePath/internal/isAlive")
+        val response: String = client.get("$basePath/internal/isAlive").bodyAsText()
         assertThat(response).isEqualTo("Alive")
     }
 }

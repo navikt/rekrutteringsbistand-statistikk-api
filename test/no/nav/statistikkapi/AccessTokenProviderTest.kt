@@ -5,8 +5,9 @@ import assertk.assertions.isEqualTo
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
-import io.ktor.client.features.json.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import org.junit.Test
 
 class AccessTokenProviderTest {
@@ -30,8 +31,8 @@ class AccessTokenProviderTest {
 
     private fun lagVerifiableHttpClient(utgårOmSekunder: Int, harHentetNyToken: () -> Unit) =
         HttpClient(MockEngine) {
-            install(JsonFeature) {
-                serializer = JacksonSerializer {
+            install(ContentNegotiation) {
+                jackson {
                     registerModule(JavaTimeModule())
                 }
             }
