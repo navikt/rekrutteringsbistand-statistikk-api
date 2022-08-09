@@ -25,6 +25,7 @@ val elasticSearchClientVersion = "7.10.1"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.0"
 val mockOAuth2ServerVersion = "0.4.3"
+val rapidsAndRiversVersion = "2022072721371658950659.c1e8f7bf35c6"
 
 
 plugins {
@@ -98,6 +99,7 @@ dependencies {
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
+    implementation("com.github.navikt:rapids-and-rivers:$rapidsAndRiversVersion")
 
     testImplementation(kotlin("test"))
     testImplementation("com.h2database:h2:$h2Version")
