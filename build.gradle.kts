@@ -4,14 +4,15 @@ Kotlin-versjonen oppgraderes slik: https://docs.gradle.org/current/userguide/gra
  */
 val kotlinCodeStyle = "official"
 val logbackVersion = "1.2.6"
-val ktorVersion = "1.6.8"
+val ktorVersion = "2.0.2"
+val ktorLesserVersion = "1.6.8"
 val h2Version = "1.4.200"
 val flywayVersion = "8.0.0"
 val hikariVersion = "5.0.0"
 val logstashEncoderVersion = "6.6"
 val vaultJdbcVersion = "1.3.7"
 val postgresVersion = "42.2.24"
-val tokenValidationVersion = "2.0.12"
+val tokenValidationVersion = "2.1.0"
 val jacksonVersion = "2.13.0"
 val assertkVersion = "0.25"
 val micrometerPrometheusVersion = "1.7.4"
@@ -25,7 +26,6 @@ val elasticSearchClientVersion = "7.10.1"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.0"
 val mockOAuth2ServerVersion = "0.4.3"
-val rapidsAndRiversVersion = "2022072721371658950659.c1e8f7bf35c6"
 
 
 plugins {
@@ -82,24 +82,25 @@ dependencies {
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
-    implementation("io.ktor:ktor-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-jackson:$ktorLesserVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
-    implementation("io.ktor:ktor-auth:$ktorVersion")
-    implementation("no.nav.security:token-validation-ktor:$tokenValidationVersion") {
+    implementation("io.ktor:ktor-auth:$ktorLesserVersion")
+    implementation("no.nav.security:token-validation-ktor-v2:$tokenValidationVersion") {
         exclude(group = "io.ktor", module = "ktor-auth")
     }
-    implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
+    implementation("io.ktor:ktor-metrics-micrometer:$ktorLesserVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerPrometheusVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
-    implementation("com.github.navikt:rapids-and-rivers:$rapidsAndRiversVersion")
 
     testImplementation(kotlin("test"))
     testImplementation("com.h2database:h2:$h2Version")
