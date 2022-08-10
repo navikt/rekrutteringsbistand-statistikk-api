@@ -6,19 +6,15 @@ import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.Authentication
-import io.ktor.server.engine.*
-import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
 import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
 import no.nav.statistikkapi.kafka.hentUsendteUtfallOgSendPåKafka
-import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.kandidatutfall
 import no.nav.statistikkapi.nais.naisEndepunkt
@@ -27,38 +23,14 @@ import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
 import javax.sql.DataSource
 
-fun startApp(
-    dataSource: DataSource,
+fun settOppKtor(
+    application: Application,
     tokenValidationConfig: AuthenticationConfig.() -> Unit,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer,
-    elasticSearchKlient: ElasticSearchKlient,
-    ktor: Application?,
-    rapidsConnection: RapidsConnection
-) {
-    if(ktor == null) {
-        log.info("Ktor er null")
-    } else {
-        log.info("Ktor Ok")
-    }
-
-}
-
-fun startAppLocal(
     dataSource: DataSource,
-    tokenValidationConfig: AuthenticationConfig.() -> Unit,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer,
     elasticSearchKlient: ElasticSearchKlient,
-    ktor: Application?,
-    rapidsConnection: RapidsConnection
+    datavarehusKafkaProducer: DatavarehusKafkaProducer
 ) {
-    if(ktor == null) {
-        log.info("Ktor er null")
-    } else {
-        log.info("Ktor Ok")
-    }
-    Kandidathendelselytter(rapidsConnection)
-
-    ktor!!.apply {
+    application.apply {
         install(CallLogging)
         install(ContentNegotiation) {
             jackson {
@@ -69,7 +41,7 @@ fun startAppLocal(
         install(Authentication, tokenValidationConfig)
 
         val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-        install(MicrometerMetrics) { registry = prometheusMeterRegistry }
+        //install(MicrometerMetrics) { registry = prometheusMeterRegistry }
         Metrics.addRegistry(prometheusMeterRegistry)
 
         val stillingRepository = StillingRepository(dataSource)
@@ -87,8 +59,10 @@ fun startAppLocal(
             }
         }
         datavarehusScheduler.kjørPeriodisk()
-    }
 
-    log.info("Applikasjon startet i miljø: ${Cluster.current}")
+        log.info("Ktor satt opp i miljø: ${Cluster.current}")
+    }
 }
+
+
 

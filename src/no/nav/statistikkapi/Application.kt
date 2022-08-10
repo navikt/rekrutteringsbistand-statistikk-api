@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
@@ -61,45 +60,15 @@ fun main() {
     val elasticSearchKlient =
         ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
 
-    var ktor: Application? = null
-
     val rapid = RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
     ).withKtorModule {
-            install(CallLogging)
-            install(ContentNegotiation) {
-                jackson {
-                    registerModule(JavaTimeModule())
-                    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                }
-            }
-            install(Authentication, tokenValidationConfig)
-
-            val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-            //install(MicrometerMetrics) { registry = prometheusMeterRegistry }
-            Metrics.addRegistry(prometheusMeterRegistry)
-
-            val stillingRepository = StillingRepository(database.dataSource)
-            val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
-            val stillingService = StillingService(elasticSearchKlient, stillingRepository)
-            val sendKafkaMelding: Runnable =
-                hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
-            val datavarehusScheduler = KafkaTilDataverehusScheduler(database.dataSource, sendKafkaMelding)
-
-            routing {
-                route("/rekrutteringsbistand-statistikk-api") {
-                    naisEndepunkt(prometheusMeterRegistry)
-                    kandidatutfall(kandidatutfallRepository, datavarehusScheduler)
-                    hentStatistikk(kandidatutfallRepository)
-                }
-            }
-            datavarehusScheduler.kjørPeriodisk()
-
-        log.info("Applikasjon startet i miljø: ${Cluster.current}")
-
+            settOppKtor(this, tokenValidationConfig, database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
     }.build()
 
     Kandidathendelselytter(rapid)
 
     rapid.start()
 }
+
+
