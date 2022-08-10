@@ -50,6 +50,7 @@ fun main() {
     ).withKtorModule {
         ktor = this
     }.build()
+    rapid.start()
 
     startApp(
         dataSource = database.dataSource,

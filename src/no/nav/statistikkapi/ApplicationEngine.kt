@@ -66,7 +66,6 @@ fun startApp(
         datavarehusScheduler.kjørPeriodisk()
     }
 
-    rapidsConnection.start()
     log.info("Applikasjon startet i miljø: ${Cluster.current}")
 }
 
