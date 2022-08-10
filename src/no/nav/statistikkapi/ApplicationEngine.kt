@@ -35,15 +35,26 @@ fun startApp(
     ktor: Application?,
     rapidsConnection: RapidsConnection
 ) {
-    var teller = 1;
-    while(ktor == null && teller <=20) {
-        Thread.sleep(100)
-        teller++
-    }
     if(ktor == null) {
-        log.info("Ktor feilet under oppstart")
+        log.info("Ktor er null")
     } else {
-        log.info("Ktor startet")
+        log.info("Ktor Ok")
+    }
+
+}
+
+fun startAppLocal(
+    dataSource: DataSource,
+    tokenValidationConfig: AuthenticationConfig.() -> Unit,
+    datavarehusKafkaProducer: DatavarehusKafkaProducer,
+    elasticSearchKlient: ElasticSearchKlient,
+    ktor: Application?,
+    rapidsConnection: RapidsConnection
+) {
+    if(ktor == null) {
+        log.info("Ktor er null")
+    } else {
+        log.info("Ktor Ok")
     }
     Kandidathendelselytter(rapidsConnection)
 

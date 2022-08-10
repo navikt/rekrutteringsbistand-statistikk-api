@@ -44,7 +44,7 @@ fun start(
     val ktor = embeddedServer(Netty, port = port) {}
     val ktorApplication = ktor.application
 
-    startApp(
+    startAppLocal(
         database.dataSource,
         tokenValidationConfig,
         datavarehusKafkaProducer,
