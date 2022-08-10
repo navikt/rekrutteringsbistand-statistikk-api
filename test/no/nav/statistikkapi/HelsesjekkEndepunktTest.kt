@@ -25,12 +25,12 @@ class HelsesjekkEndepunktTest {
     @Test
     fun `GET til isReady skal returnere 'Ready'`() = runBlocking {
         val response: String = client.get("$basePath/internal/isReady").body()
-        assertThat(response).isEqualTo(""""Ready"""")
+        assertThat(response).isEqualTo("Ready")
     }
 
     @Test
     fun `GET til isAlive skal returnere 'Alive'`() = runBlocking {
         val response: String = client.get("$basePath/internal/isAlive").body()
-        assertThat(response).isEqualTo(""""Alive"""")
+        assertThat(response).isEqualTo("Alive")
     }
 }
