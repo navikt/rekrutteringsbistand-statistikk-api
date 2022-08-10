@@ -76,7 +76,7 @@ fun main() {
             install(Authentication, tokenValidationConfig)
 
             val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-            install(MicrometerMetrics) { registry = prometheusMeterRegistry }
+            //install(MicrometerMetrics) { registry = prometheusMeterRegistry }
             Metrics.addRegistry(prometheusMeterRegistry)
 
             val stillingRepository = StillingRepository(database.dataSource)
