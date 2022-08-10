@@ -1,6 +1,9 @@
 package no.nav.statistikkapi
 
 import io.ktor.server.auth.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
@@ -10,6 +13,7 @@ import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
 import no.nav.statistikkapi.kafka.DatavarehusKafkaProducerStub
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchStilling
+import no.nav.statistikkapi.stillinger.StillingRepository
 import java.net.InetAddress
 
 fun main() {
@@ -37,23 +41,19 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    val envs = System.getenv() + mapOf(
-        "HTTP_PORT" to port.toString(),
-        "NAIS_APP_NAME" to "rekrutteringsbistand-statistikk-api-test",
-        "NAIS_NAMESPACE" to "test",
-        "NAIS_CLUSTER_NAME" to "test"
-    )
+    val ktor = embeddedServer(Netty, port = port) {}
+    val ktorApplication = ktor.application
 
-    val applicationEngine = lagRapidsApplication(
-        envs,
+    startApp(
         database.dataSource,
         tokenValidationConfig,
         datavarehusKafkaProducer,
         object : ElasticSearchKlient {
             override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
-        }
+        },
+        ktorApplication,
+        TestRapid()
     )
-    applicationEngine.start()
-
+    ktor.start()
     log.info("Applikasjon startet")
 }

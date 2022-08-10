@@ -1,20 +1,17 @@
 package no.nav.statistikkapi
 
+import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import no.nav.helse.rapids_rivers.RapidsConnection
+import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.Database
-import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
 import no.nav.statistikkapi.kafka.DatavarehusKafkaProducerImpl
 import no.nav.statistikkapi.kafka.KafkaConfig
-import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
-import no.nav.statistikkapi.stillinger.StillingRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import javax.sql.DataSource
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
 
@@ -33,7 +30,6 @@ fun main() {
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    val stillingRepository = StillingRepository(database.dataSource)
     val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
 
     val stillingssokProxyAccessTokenClient = AccessTokenProvider(
@@ -47,13 +43,20 @@ fun main() {
     val elasticSearchKlient =
         ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
 
-    val rapidsConnection = lagRapidsApplication(
+    var ktor: Application? = null
+
+    val rapid = RapidApplication.Builder(
+        RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
+    ).withKtorModule {
+        ktor = this
+    }.build()
+
+    startApp(
         dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer,
         elasticSearchKlient = elasticSearchKlient,
-        stillingRepository = stillingRepository
+        ktor = ktor!!,
+        rapidsConnection = rapid
     )
-    rapidsConnection.start()
-    log.info("Applikasjon startet i miljø: ${Cluster.current}")
 }
