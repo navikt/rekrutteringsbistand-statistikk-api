@@ -35,13 +35,19 @@ fun startApp(
     ktor: Application?,
     rapidsConnection: RapidsConnection
 ) {
+    var teller = 1;
+    while(ktor == null && teller <=20) {
+        Thread.sleep(100)
+        teller++
+    }
     if(ktor == null) {
-        log.error("ktor er ikke initialisert")
-        return
+        log.info("Ktor feilet under oppstart")
+    } else {
+        log.info("Ktor startet")
     }
     Kandidathendelselytter(rapidsConnection)
 
-    ktor.apply {
+    ktor!!.apply {
         install(CallLogging)
         install(ContentNegotiation) {
             jackson {
