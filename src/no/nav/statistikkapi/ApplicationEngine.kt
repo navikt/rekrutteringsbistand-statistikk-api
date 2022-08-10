@@ -32,10 +32,13 @@ fun startApp(
     tokenValidationConfig: AuthenticationConfig.() -> Unit,
     datavarehusKafkaProducer: DatavarehusKafkaProducer,
     elasticSearchKlient: ElasticSearchKlient,
-    ktor: Application,
+    ktor: Application?,
     rapidsConnection: RapidsConnection
 ) {
-
+    if(ktor == null) {
+        log.error("ktor er ikke initialisert")
+        return
+    }
     Kandidathendelselytter(rapidsConnection)
 
     ktor.apply {

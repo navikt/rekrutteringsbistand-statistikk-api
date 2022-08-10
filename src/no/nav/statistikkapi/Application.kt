@@ -50,14 +50,16 @@ fun main() {
     ).withKtorModule {
         ktor = this
     }.build()
-    rapid.start()
+
 
     startApp(
         dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer,
         elasticSearchKlient = elasticSearchKlient,
-        ktor = ktor!!,
+        ktor = ktor,
         rapidsConnection = rapid
     )
+
+    rapid.start()
 }
