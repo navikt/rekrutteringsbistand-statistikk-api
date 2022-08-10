@@ -18,6 +18,7 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
 import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
 import no.nav.statistikkapi.kafka.hentUsendteUtfallOgSendPåKafka
+import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.kandidatutfall
 import no.nav.statistikkapi.nais.naisEndepunkt
@@ -34,6 +35,8 @@ fun startApp(
     ktor: Application,
     rapidsConnection: RapidsConnection
 ) {
+
+    Kandidathendelselytter(rapidsConnection)
 
     ktor.apply {
         install(CallLogging)
