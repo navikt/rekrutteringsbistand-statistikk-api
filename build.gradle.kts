@@ -77,6 +77,7 @@ repositories {
 dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
+    implementation("com.github.navikt:rapids-and-rivers:2022061809451655538329.d6deccc62862")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")

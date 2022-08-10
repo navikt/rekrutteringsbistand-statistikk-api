@@ -37,8 +37,15 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    val applicationEngine = lagApplicationEngine(
-        port,
+    val envs = System.getenv() + mapOf(
+        "HTTP_PORT" to port.toString(),
+        "NAIS_APP_NAME" to "rekrutteringsbistand-statistikk-api-test",
+        "NAIS_NAMESPACE" to "test",
+        "NAIS_CLUSTER_NAME" to "test"
+    )
+
+    val applicationEngine = lagRapidsApplication(
+        envs,
         database.dataSource,
         tokenValidationConfig,
         datavarehusKafkaProducer,

@@ -1,18 +1,20 @@
 package no.nav.statistikkapi
 
-import io.ktor.auth.*
-import io.ktor.auth.Authentication
 import io.ktor.server.auth.*
+import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.Database
+import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
 import no.nav.statistikkapi.kafka.DatavarehusKafkaProducerImpl
 import no.nav.statistikkapi.kafka.KafkaConfig
+import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
 import no.nav.statistikkapi.stillinger.StillingRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import javax.sql.DataSource
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
 
@@ -45,13 +47,13 @@ fun main() {
     val elasticSearchKlient =
         ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
 
-    val applicationEngine = lagApplicationEngine(
+    val rapidsConnection = lagRapidsApplication(
         dataSource = database.dataSource,
         tokenValidationConfig = tokenValidationConfig,
         datavarehusKafkaProducer = datavarehusKafkaProducer,
         elasticSearchKlient = elasticSearchKlient,
         stillingRepository = stillingRepository
     )
-    applicationEngine.start()
+    rapidsConnection.start()
     log.info("Applikasjon startet i miljø: ${Cluster.current}")
 }
