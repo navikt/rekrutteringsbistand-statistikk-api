@@ -13,12 +13,12 @@ spec:
     - https://arbeidsgiver.nais.preprod.local/rekrutteringsbistand-statistikk-api/
     - https://rekrutteringsbistand-statistikk-api.dev-fss-pub.nais.io/rekrutteringsbistand-statistikk-api
   liveness:
-    path: /rekrutteringsbistand-statistikk-api/internal/isAlive
+    path: /isalive
   readiness:
-    path: /rekrutteringsbistand-statistikk-api/internal/isReady
+    path: /isready
   prometheus:
     enabled: true
-    path: /rekrutteringsbistand-statistikk-api/internal/prometheus
+    path: /metrics
   vault:
     enabled: true
     paths:
@@ -45,3 +45,12 @@ spec:
       claims:
         extra:
           - NAVident
+  env:
+    - name: KAFKA_RAPID_TOPIC
+      value: toi.rapid-1
+    - name: KAFKA_CONSUMER_GROUP_ID
+      value: "rekrutteringsbistand-statistikk-api-rapidconsumer-1"
+    - name: KAFKA_RESET_POLICY
+      value: "latest"
+    - name: HTTP_PORT
+      value: "8111"

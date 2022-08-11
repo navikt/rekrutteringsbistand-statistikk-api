@@ -2,14 +2,13 @@ package no.nav.statistikkapi
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.features.*
-import io.ktor.jackson.*
-import io.ktor.metrics.micrometer.*
-import io.ktor.routing.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.serialization.jackson.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.Authentication
+import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
@@ -24,15 +23,14 @@ import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
 import javax.sql.DataSource
 
-fun lagApplicationEngine(
-    port: Int = 8111,
+fun settOppKtor(
+    application: Application,
+    tokenValidationConfig: AuthenticationConfig.() -> Unit,
     dataSource: DataSource,
-    tokenValidationConfig: Authentication.Configuration.() -> Unit,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer,
     elasticSearchKlient: ElasticSearchKlient,
-    stillingRepository: StillingRepository = StillingRepository(dataSource)
-): ApplicationEngine {
-    return embeddedServer(Netty, port) {
+    datavarehusKafkaProducer: DatavarehusKafkaProducer
+) {
+    application.apply {
         install(CallLogging)
         install(ContentNegotiation) {
             jackson {
@@ -42,10 +40,7 @@ fun lagApplicationEngine(
         }
         install(Authentication, tokenValidationConfig)
 
-        val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-        install(MicrometerMetrics) { registry = prometheusMeterRegistry }
-        Metrics.addRegistry(prometheusMeterRegistry)
-
+        val stillingRepository = StillingRepository(dataSource)
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
         val stillingService = StillingService(elasticSearchKlient, stillingRepository)
         val sendKafkaMelding: Runnable =
@@ -54,13 +49,15 @@ fun lagApplicationEngine(
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
-                naisEndepunkt(prometheusMeterRegistry)
                 kandidatutfall(kandidatutfallRepository, datavarehusScheduler)
                 hentStatistikk(kandidatutfallRepository)
             }
         }
-
         datavarehusScheduler.kjørPeriodisk()
+
+        log.info("Ktor satt opp i miljø: ${Cluster.current}")
     }
 }
+
+
 

@@ -1,13 +1,14 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import io.ktor.application.*
-import io.ktor.auth.*
 import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Metrics
 import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
+import no.nav.statistikkapi.log
 import java.time.LocalDateTime
 
 data class OpprettKandidatutfall(
@@ -30,6 +31,7 @@ fun Route.kandidatutfall(
 
     authenticate {
         post("/kandidatutfall") {
+            log.info("Tar i mot kandidatutfall")
             val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
             kandidatutfall.forEach {
                 kandidatutfallRepository.lagreUtfall(it, LocalDateTime.now())

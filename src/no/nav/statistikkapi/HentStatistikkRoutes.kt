@@ -1,17 +1,15 @@
 package no.nav.statistikkapi
 
-import io.ktor.application.*
-import io.ktor.auth.*
 import io.ktor.http.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
 
 data class HentStatistikk(
-    val fraOgMed: LocalDate,
-    val tilOgMed: LocalDate,
-    val navKontor: String
+    val fraOgMed: LocalDate, val tilOgMed: LocalDate, val navKontor: String
 )
 
 class StatistikkParametere {
@@ -23,8 +21,7 @@ class StatistikkParametere {
 }
 
 data class StatistikkOutboundDto(
-    val antallPresentert: Int,
-    val antallFåttJobben: Int
+    val antallPresentert: Int, val antallFåttJobben: Int
 )
 
 fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
@@ -46,10 +43,8 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                     navKontor = navKontorParameter
                 )
 
-                val antallPresentert =
-                    kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
-                val antallFåttJobben =
-                    kandidatutfallRepository.hentAntallFåttJobben(hentStatistikk)
+                val antallPresentert = kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
+                val antallFåttJobben = kandidatutfallRepository.hentAntallFåttJobben(hentStatistikk)
 
                 call.respond(StatistikkOutboundDto(antallPresentert, antallFåttJobben))
             }
