@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Metrics
 import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
+import no.nav.statistikkapi.log
 import java.time.LocalDateTime
 
 data class OpprettKandidatutfall(
