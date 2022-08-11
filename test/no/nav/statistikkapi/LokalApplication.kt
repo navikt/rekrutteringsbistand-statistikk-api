@@ -1,10 +1,9 @@
 package no.nav.statistikkapi
 
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.v2.IssuerConfig
@@ -16,9 +15,7 @@ import no.nav.statistikkapi.kafka.DatavarehusKafkaProducerStub
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchStilling
-import no.nav.statistikkapi.stillinger.StillingRepository
 import java.net.InetAddress
-import javax.sql.DataSource
 
 fun main() {
     start()
@@ -45,37 +42,17 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    val ktor = embeddedServer(Netty, port = port) {}
-    val ktorApplication = ktor.application
-
-
-    startAppLocal(
-        database.dataSource,
-        tokenValidationConfig,
-        datavarehusKafkaProducer,
-        object : ElasticSearchKlient {
-            override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
-        },
-        ktorApplication,
-        TestRapid()
-    )
-    ktor.start()
-    log.info("Applikasjon startet")
-}
-
-fun startAppLocal(
-    dataSource: DataSource,
-    tokenValidationConfig: AuthenticationConfig.() -> Unit,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer,
-    elasticSearchKlient: ElasticSearchKlient,
-    ktor: Application?,
-    rapidsConnection: RapidsConnection
-) {
-    Kandidathendelselytter(rapidsConnection)
-
-    ktor!!.apply {
-        settOppKtor(this, tokenValidationConfig, dataSource, elasticSearchKlient, datavarehusKafkaProducer)
+    val rapid = TestRapid()
+    Kandidathendelselytter(rapid)
+    val elasticSearchKlient = object : ElasticSearchKlient {
+        override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
     }
 
-    log.info("Applikasjon startet i miljø: ${Cluster.current}")
+    val ktorServer = embeddedServer(CIO, port = port) {}
+    val ktorApplication = ktorServer.application
+
+    settOppKtor(ktorApplication, tokenValidationConfig, database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
+
+    ktorServer.start()
+    log.info("Applikasjon startet")
 }
