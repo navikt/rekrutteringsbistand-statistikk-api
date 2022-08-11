@@ -20,12 +20,12 @@ spec:
   #  enabled: true
   #  path: /rekrutteringsbistand-statistikk-api/internal/prometheus
   liveness:
-    path: /isalive
+    path: /rekrutteringsbistand-statistikk-api/isalive
   readiness:
-    path: /isready
+    path: /rekrutteringsbistand-statistikk-api/isready
   prometheus:
     enabled: true
-    path: /metrics
+    path: /rekrutteringsbistand-statistikk-api/metrics
   vault:
     enabled: true
     paths:
