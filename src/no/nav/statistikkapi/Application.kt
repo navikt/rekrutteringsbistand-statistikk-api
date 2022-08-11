@@ -1,16 +1,7 @@
 package no.nav.statistikkapi
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import io.ktor.serialization.jackson.*
-import io.ktor.server.application.*
+
 import io.ktor.server.auth.*
-import io.ktor.server.plugins.callloging.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.routing.*
-import io.micrometer.core.instrument.Metrics
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
@@ -18,15 +9,8 @@ import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.DatavarehusKafkaProducerImpl
 import no.nav.statistikkapi.kafka.KafkaConfig
-import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
-import no.nav.statistikkapi.kafka.hentUsendteUtfallOgSendPåKafka
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
-import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.kandidatutfall.kandidatutfall
-import no.nav.statistikkapi.nais.naisEndepunkt
 import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
-import no.nav.statistikkapi.stillinger.StillingRepository
-import no.nav.statistikkapi.stillinger.StillingService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -60,18 +44,14 @@ fun main() {
     val elasticSearchKlient =
         ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
 
-    /*RapidApplication.Builder(
+    RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
     ).withKtorModule {
             settOppKtor(this, tokenValidationConfig, database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
     }.build().apply {
         Kandidathendelselytter(this)
         start()
-    }*/
-    RapidApplication.create(System.getenv()).also {
-        Kandidathendelselytter(it)
-    }.start()
-
+    }
 }
 
 
