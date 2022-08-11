@@ -59,14 +59,19 @@ fun main() {
     )
     val elasticSearchKlient =
         ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
-    RapidApplication.Builder(
+
+    /*RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
     ).withKtorModule {
             settOppKtor(this, tokenValidationConfig, database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
     }.build().apply {
         Kandidathendelselytter(this)
         start()
-    }
+    }*/
+    RapidApplication.create(System.getenv()).also {
+        Kandidathendelselytter(it)
+    }.start()
+
 }
 
 
