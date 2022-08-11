@@ -12,12 +12,12 @@ spec:
     - https://arbeidsgiver.nais.adeo.no/rekrutteringsbistand-statistikk-api/
     - https://rekrutteringsbistand-statistikk-api.prod-fss-pub.nais.io
   liveness:
-    path: /rekrutteringsbistand-statistikk-api/internal/isAlive
+    path: /isalive
   readiness:
-    path: /rekrutteringsbistand-statistikk-api/internal/isReady
+    path: /isready
   prometheus:
     enabled: true
-    path: /rekrutteringsbistand-statistikk-api/internal/prometheus
+    path: /metrics
   vault:
     enabled: true
     paths:
@@ -51,3 +51,5 @@ spec:
       value: "rekrutteringsbistand-statistikk-api-rapidconsumer-1"
     - name: KAFKA_RESET_POLICY
       value: "latest"
+    - name: HTTP_PORT
+      value: "8111"

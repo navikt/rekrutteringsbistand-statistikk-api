@@ -30,6 +30,7 @@ fun Route.kandidatutfall(
 
     authenticate {
         post("/kandidatutfall") {
+            log.info("Tar i mot kandidatutfall")
             val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
             kandidatutfall.forEach {
                 kandidatutfallRepository.lagreUtfall(it, LocalDateTime.now())

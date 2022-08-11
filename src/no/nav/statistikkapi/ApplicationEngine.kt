@@ -40,10 +40,6 @@ fun settOppKtor(
         }
         install(Authentication, tokenValidationConfig)
 
-        val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-        //install(MicrometerMetrics) { registry = prometheusMeterRegistry }
-        Metrics.addRegistry(prometheusMeterRegistry)
-
         val stillingRepository = StillingRepository(dataSource)
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
         val stillingService = StillingService(elasticSearchKlient, stillingRepository)
@@ -53,7 +49,6 @@ fun settOppKtor(
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
-                naisEndepunkt(prometheusMeterRegistry)
                 kandidatutfall(kandidatutfallRepository, datavarehusScheduler)
                 hentStatistikk(kandidatutfallRepository)
             }
