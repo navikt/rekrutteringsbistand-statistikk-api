@@ -3,7 +3,6 @@ package no.nav.statistikkapi
 import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.v2.IssuerConfig
@@ -51,7 +50,13 @@ fun start(
     val ktorServer = embeddedServer(CIO, port = port) {}
     val ktorApplication = ktorServer.application
 
-    settOppKtor(ktorApplication, tokenValidationConfig, database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
+    settOppKtor(
+        ktorApplication,
+        tokenValidationConfig,
+        database.dataSource,
+        elasticSearchKlient,
+        datavarehusKafkaProducer
+    )
 
     ktorServer.start()
     log.info("Applikasjon startet")
