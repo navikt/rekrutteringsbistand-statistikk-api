@@ -21,7 +21,7 @@ data class OpprettKandidatutfall(
     val synligKandidat: Boolean,
     val harHullICv: Boolean?,
     val alder: Int?,
-    val tilretteleggingsbehov: List<String>
+    val tilretteleggingsbehov: List<String>,
 )
 
 fun Route.kandidatutfall(
