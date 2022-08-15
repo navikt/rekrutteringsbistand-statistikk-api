@@ -69,10 +69,7 @@ class LagreStatistikkTest {
             )
         }
     }
-
-    // Gitt POST med JSON-payload med ukjente felter
-    // når mottar POST-request
-    // så skal OpprettKandidatutfall-objektet bli lagret i db
+    
     @Test
     fun `POST til kandidatutfall skal lagre til utfallstabellen også når JSON-payload har ukjente felter`() =
         runBlocking {

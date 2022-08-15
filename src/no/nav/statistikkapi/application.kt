@@ -60,7 +60,7 @@ fun main() {
     RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
     ).withKtorModule {
-            settOppKtor(this, tokenValidationConfig, database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
+        settOppKtor(this, tokenValidationConfig, database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
     }.build().apply {
         Kandidathendelselytter(this)
         start()
