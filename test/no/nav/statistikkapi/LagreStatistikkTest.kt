@@ -1,8 +1,11 @@
 package no.nav.statistikkapi
 
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
@@ -66,6 +69,45 @@ class LagreStatistikkTest {
             )
         }
     }
+
+    // Gitt POST med JSON-payload med ukjente felter
+    // når mottar POST-request
+    // så skal OpprettKandidatutfall-objektet bli lagret i db
+    @Test
+    fun `POST til kandidatutfall skal lagre til utfallstabellen også når JSON-payload har ukjente felter`() =
+        runBlocking {
+            val objectMapper = jacksonObjectMapper()
+            val kandidatutfallTilLagring = etKandidatutfall
+            val kandidatutfallJsonString: String = objectMapper.writeValueAsString(kandidatutfallTilLagring)
+            val kandidatutfallJson: ObjectNode = objectMapper.readTree(kandidatutfallJsonString) as ObjectNode
+            kandidatutfallJson.put("ukjentFelt", "anyString")
+
+            val utvidetKandidatutfallJsonString = objectMapper.writeValueAsString(kandidatutfallJson)
+            log.info("AAA " + utvidetKandidatutfallJsonString)
+            val response: HttpResponse = client.post("$basePath/kandidatutfall") {
+                setBody(listOf(utvidetKandidatutfallJsonString))
+            }
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.Created)
+            val lagredeUtfall = testRepository.hentUtfall()
+            assertThat(lagredeUtfall).hasSize(1)
+            val lagretUtfall = lagredeUtfall.first()
+            assertThat(lagretUtfall.dbId).isNotNull()
+            assertThat(lagretUtfall.aktorId).isEqualTo(kandidatutfallTilLagring.aktørId)
+            assertThat(lagretUtfall.utfall.name).isEqualTo(kandidatutfallTilLagring.utfall.name)
+            assertThat(lagretUtfall.navIdent).isEqualTo(kandidatutfallTilLagring.navIdent)
+            assertThat(lagretUtfall.navKontor).isEqualTo(kandidatutfallTilLagring.navKontor)
+            assertThat(lagretUtfall.kandidatlisteId.toString()).isEqualTo(kandidatutfallTilLagring.kandidatlisteId)
+            assertThat(lagretUtfall.stillingsId.toString()).isEqualTo(kandidatutfallTilLagring.stillingsId)
+            assertThat(lagretUtfall.synligKandidat).isEqualTo(kandidatutfallTilLagring.synligKandidat)
+            assertThat(lagretUtfall.hullICv).isEqualTo(kandidatutfallTilLagring.harHullICv)
+            assertThat(lagretUtfall.alder).isEqualTo(kandidatutfallTilLagring.alder)
+            assertThat(lagretUtfall.tilretteleggingsbehov).isEqualTo(kandidatutfallTilLagring.tilretteleggingsbehov)
+            assertThat(lagretUtfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
+                LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+            )
+        }
+
 
     @Test
     fun `POST til kandidatutfall skal gi unauthorized hvis man ikke er logget inn`() = runBlocking {
