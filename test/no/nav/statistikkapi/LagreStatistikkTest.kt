@@ -81,11 +81,10 @@ class LagreStatistikkTest {
             val kandidatutfallJsonString: String = objectMapper.writeValueAsString(kandidatutfallTilLagring)
             val kandidatutfallJson: ObjectNode = objectMapper.readTree(kandidatutfallJsonString) as ObjectNode
             kandidatutfallJson.put("ukjentFelt", "anyString")
+            val kandidatutfallJsonListe = listOf(kandidatutfallJson)
 
-            val utvidetKandidatutfallJsonString = objectMapper.writeValueAsString(kandidatutfallJson)
-            log.info("AAA " + utvidetKandidatutfallJsonString)
             val response: HttpResponse = client.post("$basePath/kandidatutfall") {
-                setBody(listOf(utvidetKandidatutfallJsonString))
+                setBody(kandidatutfallJsonListe)
             }
 
             assertThat(response.status).isEqualTo(HttpStatusCode.Created)
@@ -107,7 +106,6 @@ class LagreStatistikkTest {
                 LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
             )
         }
-
 
     @Test
     fun `POST til kandidatutfall skal gi unauthorized hvis man ikke er logget inn`() = runBlocking {
