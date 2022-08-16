@@ -23,6 +23,7 @@ import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime.now
+import java.time.ZonedDateTime
 
 class SendKafkaMeldingTilDatavarehusTest {
 
@@ -56,8 +57,8 @@ class SendKafkaMeldingTilDatavarehusTest {
     fun `Feilsending med Kafka skal oppdatere antallSendtForsøk og sisteSendtForsøk`() {
         every { elasticSearchKlientMock.hentStilling(etKandidatutfall.stillingsId) } returns enElasticSearchStilling()
         assertThat(etKandidatutfall.stillingsId).isEqualTo(enElasticSearchStilling().uuid)
-        utfallRepo.lagreUtfall(etKandidatutfall, now())
-        utfallRepo.lagreUtfall(etKandidatutfall.copy(aktørId = "10000254879659"), now())
+        utfallRepo.lagreUtfall(etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now()))
+        utfallRepo.lagreUtfall(etKandidatutfall.copy(aktørId = "10000254879659", tidspunktForHendelsen = ZonedDateTime.now()))
         assertThat(testRepository.hentAntallStillinger()).isZero()
 
         hentUsendteUtfallOgSendPåKafka(utfallRepo, producerSomFeilerEtterFørsteKall, stillingService).run()
@@ -79,7 +80,7 @@ class SendKafkaMeldingTilDatavarehusTest {
     fun `Sending med Kafka skal oppdatere stilling-tabellen`() {
         every { elasticSearchKlientMock.hentStilling(etKandidatutfall.stillingsId) } returns enElasticSearchStilling()
         assertThat(etKandidatutfall.stillingsId).isEqualTo(enElasticSearchStilling().uuid)
-        utfallRepo.lagreUtfall(etKandidatutfall, now())
+        utfallRepo.lagreUtfall(etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now()))
         assertThat(testRepository.hentAntallStillinger()).isZero()
 
         hentUsendteUtfallOgSendPåKafka(utfallRepo, producerSomFeilerEtterFørsteKall, stillingService).run()

@@ -155,7 +155,7 @@ class KandidatutfallRepositoryTest {
                 utfall = Utfall.PRESENTERT, navKontor = etKontor1, harHullICv = true, alder = 29,
                 tidspunktForHendelsen = ZonedDateTime.of(
                     LocalDate.of(2020, 1, 1).atTime(19, 29),
-                    ZoneId.of("Oslo/Europe")
+                    ZoneId.of("Europe/Oslo")
                 )
             )
         )
@@ -164,7 +164,7 @@ class KandidatutfallRepositoryTest {
                 utfall = Utfall.FATT_JOBBEN, navKontor = etKontor1, harHullICv = null, alder = 30,
                 tidspunktForHendelsen = ZonedDateTime.of(
                     LocalDate.of(2020, 3, 4).atTime(20, 30),
-                    ZoneId.of("Oslo/Europe")
+                    ZoneId.of("Europe/Oslo")
                 )
             )
         )
@@ -186,13 +186,13 @@ class KandidatutfallRepositoryTest {
         val fåttJobbenUtfall = etKandidatutfall.copy(
             utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 1).atStartOfDay(),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         val presentertUtfall = etKandidatutfall.copy(
             utfall = Utfall.PRESENTERT, tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 2).atStartOfDay(),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         repository.lagreUtfall(fåttJobbenUtfall)
@@ -212,7 +212,7 @@ class KandidatutfallRepositoryTest {
                 harHullICv = true,
                 tidspunktForHendelsen = ZonedDateTime.of(
                     LocalDate.of(2020, 3, 3).atTime(20, 59),
-                    ZoneId.of("Oslo/Europe")
+                    ZoneId.of("Europe/Oslo")
                 )
             )
         )
@@ -227,13 +227,13 @@ class KandidatutfallRepositoryTest {
         val presentertUtfall = etKandidatutfall.copy(
             utfall = Utfall.PRESENTERT, tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 3).atTime(20, 59),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         val fåttJobbenUtfall = etKandidatutfall.copy(
             utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 8).atTime(20, 59),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         repository.lagreUtfall(presentertUtfall)
@@ -249,7 +249,7 @@ class KandidatutfallRepositoryTest {
         val fåttJobbenUtfall = etKandidatutfall.copy(
             utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 8).atTime(20, 59),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         repository.lagreUtfall(fåttJobbenUtfall)
@@ -265,14 +265,14 @@ class KandidatutfallRepositoryTest {
         val presentertUtfallKandidat1 = etKandidatutfall.copy(
             aktørId = "kandidat1", utfall = Utfall.PRESENTERT, tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 3).atTime(20, 59),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         val fåttJobbenUtfallKandidat2 = etKandidatutfall.copy(
             aktørId = "kandidat2", utfall = Utfall.FATT_JOBBEN,
             tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 9).atTime(20, 59),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         repository.lagreUtfall(presentertUtfallKandidat1)
@@ -289,19 +289,19 @@ class KandidatutfallRepositoryTest {
             aktørId = "kandidat1", utfall = Utfall.PRESENTERT,
             tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 3).atTime(20, 59),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         val fåttJobbenUtfallKandidat1 = etKandidatutfall.copy(
             aktørId = "kandidat1", utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 8).atTime(20, 59),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         val fåttJobbenUtfallKandidat2 = etKandidatutfall.copy(
             aktørId = "kandidat2", utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 9).atTime(20, 59),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         repository.lagreUtfall(presentertUtfallKandidat1)
@@ -318,13 +318,13 @@ class KandidatutfallRepositoryTest {
         val førstePresentertUtfall = etKandidatutfall.copy(
             utfall = Utfall.PRESENTERT, tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 3).atTime(20, 49),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         val andrePresentertUtfall = etKandidatutfall.copy(
             utfall = Utfall.PRESENTERT, tidspunktForHendelsen = ZonedDateTime.of(
                 LocalDate.of(2020, 3, 3).atTime(20, 59),
-                ZoneId.of("Oslo/Europe")
+                ZoneId.of("Europe/Oslo")
             )
         )
         repository.lagreUtfall(førstePresentertUtfall)
@@ -341,7 +341,7 @@ class KandidatutfallRepositoryTest {
             etKandidatutfall.copy(
                 utfall = Utfall.PRESENTERT, tilretteleggingsbehov = listOf(), tidspunktForHendelsen = ZonedDateTime.of(
                     LocalDate.of(2020, 3, 2).atTime(20, 49),
-                    ZoneId.of("Oslo/Europe")
+                    ZoneId.of("Europe/Oslo")
                 )
             )
         )
