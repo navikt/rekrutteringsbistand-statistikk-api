@@ -10,6 +10,7 @@ import io.micrometer.core.instrument.Metrics
 import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
 import no.nav.statistikkapi.log
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 data class OpprettKandidatutfall(
@@ -34,7 +35,10 @@ fun Route.kandidatutfall(
     authenticate {
         post("/kandidatutfall") {
             log.info("Tar i mot kandidatutfall")
-            val kandidatutfall: Array<OpprettKandidatutfall> = call.receive()
+            val kandidatutfall: List<OpprettKandidatutfall> = call.receive<Array<OpprettKandidatutfall>>()
+                .map { it.copy(tidspunktForHendelsen = it.tidspunktForHendelsen.withZoneSameInstant(ZoneId.of("Europe/Oslo")))
+                }
+
             kandidatutfall.forEach {
                 kandidatutfallRepository.lagreUtfall(it)
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall.name).increment()

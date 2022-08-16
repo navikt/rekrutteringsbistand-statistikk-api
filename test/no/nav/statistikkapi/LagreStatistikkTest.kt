@@ -5,6 +5,7 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
@@ -74,7 +75,7 @@ class LagreStatistikkTest {
     @Test
     fun `POST til kandidatutfall skal lagre til utfallstabellen også når JSON-payload har ukjente felter`() =
         runBlocking {
-            val objectMapper = jacksonObjectMapper()
+            val objectMapper = jacksonObjectMapper().registerModule( JavaTimeModule());
             val kandidatutfallTilLagring = etKandidatutfall
             val kandidatutfallJsonString: String = objectMapper.writeValueAsString(kandidatutfallTilLagring)
             val kandidatutfallJson: ObjectNode = objectMapper.readTree(kandidatutfallJsonString) as ObjectNode

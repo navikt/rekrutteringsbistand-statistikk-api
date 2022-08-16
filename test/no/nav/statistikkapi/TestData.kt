@@ -4,6 +4,7 @@ import no.nav.statistikkapi.kandidatutfall.OpprettKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Utfall
 import no.nav.statistikkapi.stillinger.*
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -37,7 +38,7 @@ val etKandidatutfall = OpprettKandidatutfall(
     harHullICv = true,
     alder = 54,
     tilretteleggingsbehov = listOf("permittert", "arbeidstid"),
-    tidspunktForHendelsen = ZonedDateTime.now()
+    tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("Europe/Oslo"))
 )
 
 val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(
@@ -51,7 +52,7 @@ val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(
     harHullICv = null,
     alder = null,
     tilretteleggingsbehov = emptyList(),
-    tidspunktForHendelsen = ZonedDateTime.now()
+    tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("Europe/Oslo"))
 )
 
 fun enElasticSearchStilling() = ElasticSearchStilling(

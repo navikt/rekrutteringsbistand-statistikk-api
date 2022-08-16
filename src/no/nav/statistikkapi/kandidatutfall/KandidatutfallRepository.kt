@@ -4,6 +4,7 @@ import no.nav.statistikkapi.HentStatistikk
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
+import no.nav.statistikkapi.log
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -15,6 +16,8 @@ import javax.sql.DataSource
 class KandidatutfallRepository(private val dataSource: DataSource) {
 
     fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
+        log.info("*****1 " + kandidatutfall.tidspunktForHendelsen.toLocalDateTime())
+        log.info("*****2 " + kandidatutfall.tidspunktForHendelsen)
         dataSource.connection.use {
             it.prepareStatement(
                 """INSERT INTO $kandidatutfallTabell (

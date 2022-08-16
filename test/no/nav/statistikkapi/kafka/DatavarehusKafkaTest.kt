@@ -21,12 +21,16 @@ import no.nav.statistikkapi.*
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class DatavarehusKafkaTest {
 
     @Test
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
-        val expected = listOf(etKandidatutfall, etKandidatutfall)
+        val expected = listOf(etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("Europe/Oslo")))
+            , etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("Europe/Oslo"))))
+        println("****3 " + etKandidatutfall.tidspunktForHendelsen)
 
         client.post("$basePath/kandidatutfall") {
             setBody(expected)
