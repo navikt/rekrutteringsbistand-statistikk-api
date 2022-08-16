@@ -19,8 +19,8 @@ import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.kandidatutfall
-import no.nav.statistikkapi.stillinger.ElasticSearchKlient
-import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
+import no.nav.statistikkapi.stillinger.StillingEsKlient
+import no.nav.statistikkapi.stillinger.StillingEsKlientImpl
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
 import org.slf4j.Logger
@@ -51,11 +51,11 @@ fun main() {
             azureClientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
             azureClientId = System.getenv("AZURE_APP_CLIENT_ID"),
             tokenEndpoint = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
-            scope = ElasticSearchKlientImpl.stillingssokProxyScope
+            scope = StillingEsKlientImpl.stillingssokProxyScope
         )
     )
     val elasticSearchKlient =
-        ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
+        StillingEsKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
 
     RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
@@ -71,7 +71,7 @@ fun settOppKtor(
     application: Application,
     tokenValidationConfig: AuthenticationConfig.() -> Unit,
     dataSource: DataSource,
-    elasticSearchKlient: ElasticSearchKlient,
+    stillingEsKlient: StillingEsKlient,
     datavarehusKafkaProducer: DatavarehusKafkaProducer
 ) {
     application.apply {
@@ -87,7 +87,7 @@ fun settOppKtor(
 
         val stillingRepository = StillingRepository(dataSource)
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
-        val stillingService = StillingService(elasticSearchKlient, stillingRepository)
+        val stillingService = StillingService(stillingEsKlient, stillingRepository)
         val sendKafkaMelding: Runnable =
             hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
         val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)

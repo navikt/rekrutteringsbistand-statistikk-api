@@ -3,13 +3,13 @@ package no.nav.statistikkapi.stillinger
 import java.util.*
 
 class StillingService(
-    private val elasticSearchKlient: ElasticSearchKlient,
+    private val stillingEsKlient: StillingEsKlient,
     private val stillingRepository: StillingRepository
 ) {
 
     fun registrerOgHent(stillingsId: UUID): Stilling {
         val stillingFraDatabase: Stilling? = stillingRepository.hentNyesteStilling(stillingsId)
-        val stillingFraElasticSearch: ElasticSearchStilling? = elasticSearchKlient.hentStilling(stillingsId.toString())
+        val stillingFraElasticSearch: ElasticSearchStilling? = stillingEsKlient.hentStilling(stillingsId.toString())
         if (stillingFraElasticSearch == null && stillingFraDatabase == null) {
             throw RuntimeException("Eksisterer ingen stilling med UUID: $stillingsId")
         }

@@ -11,14 +11,14 @@ import no.nav.statistikkapi.BearerToken
 import no.nav.statistikkapi.Cluster
 import java.time.LocalDateTime
 
-interface ElasticSearchKlient {
+interface StillingEsKlient {
     fun hentStilling(stillingUuid: String): ElasticSearchStilling?
 }
 
-class ElasticSearchKlientImpl(
+class StillingEsKlientImpl(
     private val httpKlient: HttpClient = HttpClient(Apache),
     private val tokenProvider: () -> BearerToken
-) : ElasticSearchKlient {
+) : StillingEsKlient {
 
     private val token: BearerToken
         get() = tokenProvider()

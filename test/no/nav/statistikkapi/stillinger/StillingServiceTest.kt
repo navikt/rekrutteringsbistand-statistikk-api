@@ -11,15 +11,15 @@ import java.util.*
 class StillingServiceTest {
 
     private val stillingRepository = mockk<StillingRepository>()
-    private val elasticSearchKlient = mockk<ElasticSearchKlient>()
-    private val stillingService = StillingService(elasticSearchKlient, stillingRepository)
+    private val stillingEsKlient = mockk<StillingEsKlient>()
+    private val stillingService = StillingService(stillingEsKlient, stillingRepository)
 
     @Test
     fun `Skal ikke lagre stilling fra ElasticSearch hvis den er lik stilling som allerede er lagret`() {
         val stillingFraElasticSearchOgFraDatabase = likStillingFraElasticSearchOgDatabase()
         val stillingFraElasticSearch = stillingFraElasticSearchOgFraDatabase.first
         val stillingFraDatabase = stillingFraElasticSearchOgFraDatabase.second
-        every { elasticSearchKlient.hentStilling(any()) } returns stillingFraElasticSearch
+        every { stillingEsKlient.hentStilling(any()) } returns stillingFraElasticSearch
         every { stillingRepository.hentNyesteStilling(any()) } returns stillingFraDatabase
 
         stillingService.registrerOgHent(UUID.randomUUID())
@@ -38,7 +38,7 @@ class StillingServiceTest {
                 )
             )
         val stillingFraDatabase = likeStillingerFraELasticSearchOgFraDatabase.second
-        every { elasticSearchKlient.hentStilling(any()) } returns endretStillingFraElasticSearch
+        every { stillingEsKlient.hentStilling(any()) } returns endretStillingFraElasticSearch
         every { stillingRepository.hentNyesteStilling(any()) } returns stillingFraDatabase
         justRun { stillingRepository.lagreStilling(endretStillingFraElasticSearch) }
 
@@ -51,7 +51,7 @@ class StillingServiceTest {
     fun `Skal lagre stilling fra ElasticSearch hvis stillingen ikke finnes i databasen`() {
         val stilling = likStillingFraElasticSearchOgDatabase()
         val stillingFraElasticSearch = stilling.first
-        every { elasticSearchKlient.hentStilling(any()) } returns stillingFraElasticSearch
+        every { stillingEsKlient.hentStilling(any()) } returns stillingFraElasticSearch
         every { stillingRepository.hentNyesteStilling(any()) } returns null andThen stilling.second
         justRun { stillingRepository.lagreStilling(stillingFraElasticSearch) }
 
@@ -62,7 +62,7 @@ class StillingServiceTest {
 
     @Test(expected = RuntimeException::class)
     fun `Dersom man ikke får treff på stillingUuid i hverken database eller ElasticSearch skal feil kastes`() {
-        every { elasticSearchKlient.hentStilling(any()) } returns null
+        every { stillingEsKlient.hentStilling(any()) } returns null
         every { stillingRepository.hentNyesteStilling(any()) } returns null
 
         stillingService.registrerOgHent(UUID.randomUUID())

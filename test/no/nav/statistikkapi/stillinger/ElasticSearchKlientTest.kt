@@ -16,7 +16,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class ElasticSearchKlientImplTest {
+class StillingEsKlientImplTest {
 
     @Test
     fun `skal kunne parse JSON fra stillingssøk-proxy til Stilling-objekt`() {
@@ -26,7 +26,7 @@ class ElasticSearchKlientImplTest {
         val prioriterteMålgrupperTags = PrioriterteMålgrupperTag.values().toList()
         val tiltakVirkemiddelTags = TiltakEllerVirkemiddelTag.values().toList()
         val httpKlientMedSøketreff = httpClientSøketreff(uuid, publiseringsdato, inkluderingstags, prioriterteMålgrupperTags, tiltakVirkemiddelTags)
-        val klient = ElasticSearchKlientImpl(httpKlientMedSøketreff, ::tokenProvider)
+        val klient = StillingEsKlientImpl(httpKlientMedSøketreff, ::tokenProvider)
         val stilling = klient.hentStilling(uuid)
 
         assertThat(stilling).isNotNull()
@@ -40,7 +40,7 @@ class ElasticSearchKlientImplTest {
     @Test
     fun `skal kunne parse JSON med uhåndtert tag statlig inkluderingsdugnad fra stillingssøk-proxy til Stilling-objekt`() {
         val httpKlientMedSøketreffInkludertTagForStatligInkluderingsdugnad = httpClientSøketreffMedStatligInkluderingsdugnad()
-        val klient = ElasticSearchKlientImpl(httpKlientMedSøketreffInkludertTagForStatligInkluderingsdugnad, ::tokenProvider)
+        val klient = StillingEsKlientImpl(httpKlientMedSøketreffInkludertTagForStatligInkluderingsdugnad, ::tokenProvider)
         val stilling = klient.hentStilling("UUID")
 
         assertThat(stilling).isNotNull()
@@ -51,7 +51,7 @@ class ElasticSearchKlientImplTest {
         val uuid = UUID.randomUUID().toString()
         val publiseringsdato = LocalDate.of(2019, 11, 20).atTime(10, 31, 32, 0)
         val httpKlientSøketreffUtenTags = httpClientSøketreffUtenTags(uuid, publiseringsdato)
-        val klient = ElasticSearchKlientImpl(httpKlientSøketreffUtenTags, ::tokenProvider)
+        val klient = StillingEsKlientImpl(httpKlientSøketreffUtenTags, ::tokenProvider)
 
         val stilling = klient.hentStilling(uuid)
 
@@ -66,7 +66,7 @@ class ElasticSearchKlientImplTest {
     @Test
     fun `Ingen treff på dokumentuuid skal gi null`() {
         val uuid = UUID.randomUUID().toString()
-        val klient = ElasticSearchKlientImpl(httpClientIngenTreff(), ::tokenProvider)
+        val klient = StillingEsKlientImpl(httpClientIngenTreff(), ::tokenProvider)
 
         val stilling = klient.hentStilling(uuid)
 
