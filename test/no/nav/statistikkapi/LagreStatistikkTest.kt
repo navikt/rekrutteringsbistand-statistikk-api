@@ -12,6 +12,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
@@ -30,6 +31,7 @@ class LagreStatistikkTest {
         private val mockOAuth2Server = MockOAuth2Server()
         private val client = httpKlientMedBearerToken(mockOAuth2Server)
         private val basePath = basePath(port)
+        private val rapid = TestRapid()
 
         init {
             start(database = database, port = port, mockOAuth2Server = mockOAuth2Server)
@@ -40,7 +42,13 @@ class LagreStatistikkTest {
         fun beforeClass() {
             testRepository.slettAlleUtfall()
             testRepository.slettAlleStillinger()
+            rapid.reset()
         }
+    }
+
+    @Test
+    fun `Når CV_DELT_VIA_REKRUTTERINGSBISTAND-hendelse leses skal noe skje med dette tullet`() {
+
     }
 
     @Test
@@ -119,4 +127,21 @@ class LagreStatistikkTest {
         testRepository.slettAlleStillinger()
         mockOAuth2Server.shutdown()
     }
+
+    fun enMelding(aktørId: String = "dummyAktørId") = """
+        {
+          "@event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
+          "kandidathendelse": {
+            "type": "CV_DELT_VIA_REKRUTTERINGSBISTAND",
+            "aktørId": "$aktørId",
+            "organisasjonsnummer": "972112097",
+            "kandidatlisteId": "34e81692-27ef-4fda-9b55-e17588f65061",
+            "tidspunkt": "2022-08-15T12:10:43.698+02:00",
+            "stillingsId": "a3c925af-ebf4-40d1-aeee-efc9259107a4",
+            "utførtAvNavIdent": "Z994633",
+            "utførtAvNavKontorKode": "0313",
+            "synligKandidat": true
+          }
+        }
+    """.trimIndent()
 }
