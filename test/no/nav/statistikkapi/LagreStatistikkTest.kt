@@ -15,6 +15,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
+import org.joda.time.Minutes
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -65,11 +66,11 @@ class LagreStatistikkTest {
             assertThat(utfall.alder).isEqualTo(kandidatutfallTilLagring[index].alder)
             assertThat(utfall.tilretteleggingsbehov).isEqualTo(kandidatutfallTilLagring[index].tilretteleggingsbehov)
             assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
-                LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+                kandidatutfallTilLagring[index].tidspunktForHendelsen.toLocalDateTime().truncatedTo(ChronoUnit.MINUTES)
             )
         }
     }
-    
+
     @Test
     fun `POST til kandidatutfall skal lagre til utfallstabellen også når JSON-payload har ukjente felter`() =
         runBlocking {
@@ -100,7 +101,7 @@ class LagreStatistikkTest {
             assertThat(lagretUtfall.alder).isEqualTo(kandidatutfallTilLagring.alder)
             assertThat(lagretUtfall.tilretteleggingsbehov).isEqualTo(kandidatutfallTilLagring.tilretteleggingsbehov)
             assertThat(lagretUtfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
-                LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+                kandidatutfallTilLagring.tidspunktForHendelsen.toLocalDateTime().truncatedTo(ChronoUnit.MINUTES)
             )
         }
 
