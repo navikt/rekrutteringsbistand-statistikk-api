@@ -21,6 +21,8 @@ import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
 class LagreStatistikkTest {
@@ -103,6 +105,26 @@ class LagreStatistikkTest {
             assertThat(lagretUtfall.tilretteleggingsbehov).isEqualTo(kandidatutfallTilLagring.tilretteleggingsbehov)
             assertThat(lagretUtfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
                 kandidatutfallTilLagring.tidspunktForHendelsen.toLocalDateTime().truncatedTo(ChronoUnit.MINUTES)
+            )
+        }
+
+    @Test
+    fun `POST til kandidatutfall med UTC tidssone skal konvertere til norsk tid`() =
+        runBlocking {
+            val kandidatutfallTilLagring = etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("UTC")))
+
+            val osloTid = etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("Europe/Oslo")))
+
+            val response: HttpResponse = client.post("$basePath/kandidatutfall") {
+                setBody(listOf(kandidatutfallTilLagring))
+            }
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.Created)
+            val lagredeUtfall = testRepository.hentUtfall()
+            assertThat(lagredeUtfall).hasSize(1)
+            val lagretUtfall = lagredeUtfall.first()
+            assertThat(lagretUtfall.tidspunkt.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(
+                osloTid.tidspunktForHendelsen.toLocalDateTime().truncatedTo(ChronoUnit.SECONDS)
             )
         }
 

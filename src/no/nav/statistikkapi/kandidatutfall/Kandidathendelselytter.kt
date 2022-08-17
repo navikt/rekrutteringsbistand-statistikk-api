@@ -18,5 +18,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection): River.PacketLi
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         log.info("Mottok en melding om at CV er delt med arbeidsgiver via rekrutteringsbistand men gjør ingenting med den!")
+        // Vi kan ha gamle eventer som har utc tidssone. Kjør dette for sikkerhetsskyld på tidspunktene:
+        // it.copy(tidspunktForHendelsen = it.tidspunktForHendelsen.withZoneSameInstant(ZoneId.of("Europe/Oslo")))
     }
 }
