@@ -28,8 +28,8 @@ class DatavarehusKafkaTest {
 
     @Test
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
-        val expected = listOf(etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("Europe/Oslo")))
-            , etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("Europe/Oslo"))))
+        val expected = listOf(etKandidatutfall.copy(tidspunktForHendelsen = nowOslo())
+            , etKandidatutfall.copy(tidspunktForHendelsen = nowOslo()))
         println("****3 " + etKandidatutfall.tidspunktForHendelsen)
 
         client.post("$basePath/kandidatutfall") {

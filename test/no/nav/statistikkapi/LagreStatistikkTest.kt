@@ -113,7 +113,7 @@ class LagreStatistikkTest {
         runBlocking {
             val kandidatutfallTilLagring = etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("UTC")))
 
-            val osloTid = etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("Europe/Oslo")))
+            val osloTid = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo())
 
             val response: HttpResponse = client.post("$basePath/kandidatutfall") {
                 setBody(listOf(kandidatutfallTilLagring))
