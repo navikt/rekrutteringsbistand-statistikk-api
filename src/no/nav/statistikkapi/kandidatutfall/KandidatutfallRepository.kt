@@ -16,8 +16,6 @@ import javax.sql.DataSource
 class KandidatutfallRepository(private val dataSource: DataSource) {
 
     fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
-        log.info("*****1 " + kandidatutfall.tidspunktForHendelsen.toLocalDateTime())
-        log.info("*****2 " + kandidatutfall.tidspunktForHendelsen)
         dataSource.connection.use {
             it.prepareStatement(
                 """INSERT INTO $kandidatutfallTabell (
