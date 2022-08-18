@@ -77,14 +77,33 @@ class LagreStatistikkTest {
         assertThat(actual.sisteSendtForsøk).isNull()
     }
 
-    fun kandidathendelseMap() = mapOf(
+    @Test
+    fun sjekkIdempotens() {
+        val tidspunktFørsteMelding = "2022-08-18T11:33:02.5+02:00"
+
+        val førsteMelding = kandidathendelseMap(tidspunktFørsteMelding)
+
+        val kandidathendelsesmeldingJson1: String = jacksonObjectMapper().writeValueAsString(førsteMelding)
+        val kandidathendelsesmeldingJson2: String = jacksonObjectMapper().writeValueAsString(kandidathendelseMap())
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson1)
+        rapid.sendTestMessage(kandidathendelsesmeldingJson2)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall.size).isEqualTo(1)
+
+        val expectedTidspunkt = ZonedDateTime.parse(tidspunktFørsteMelding).toLocalDateTime()
+        assertThat(alleUtfall.first().tidspunkt).isEqualTo(expectedTidspunkt)
+    }
+
+    fun kandidathendelseMap(tidspunkt: String = "2022-08-18T10:33:02.5+02:00") = mapOf(
         "@event_name" to "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
         "kandidathendelse" to mapOf(
             "type" to "CV_DELT_VIA_REKRUTTERINGSBISTAND",
             "aktørId" to "dummyAktørid",
             "organisasjonsnummer" to "123456789",
             "kandidatlisteId" to "24e81692-37ef-4fda-9b55-e17588f65061",
-            "tidspunkt" to "2022-08-18T10:33:02.5+02:00",
+            "tidspunkt" to tidspunkt,
             "stillingsId" to "b3c925af-ebf4-50d1-aeee-efc9259107a4",
             "utførtAvNavIdent" to "Z994632",
             "utførtAvNavKontorKode" to "0313",
