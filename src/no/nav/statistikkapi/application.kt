@@ -111,6 +111,3 @@ fun settOppKtor(
  * Tidspunkt uten nanosekunder, for å unngå at to like tidspunkter blir ulike pga at database og Microsoft Windws håndterer nanos annerledes enn Mac og Linux.
  */
 fun nowOslo(): ZonedDateTime = ZonedDateTime.now(ZoneId.of("Europe/Oslo")).truncatedTo(ChronoUnit.MILLIS)
-
-
-

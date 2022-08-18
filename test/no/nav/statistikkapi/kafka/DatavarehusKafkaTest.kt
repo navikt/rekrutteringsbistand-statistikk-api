@@ -46,7 +46,7 @@ class DatavarehusKafkaTest {
             assertThat(actual.getNavKontor()).isEqualTo(expected[index].navKontor)
             assertThat(actual.getKandidatlisteId()).isEqualTo(expected[index].kandidatlisteId)
             assertThat(actual.getStillingsId()).isEqualTo(expected[index].stillingsId)
-            assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(now().minusSeconds(10), now())
+            assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(nowOslo().toLocalDateTime().minusSeconds(10), now())
         }
     }
 
