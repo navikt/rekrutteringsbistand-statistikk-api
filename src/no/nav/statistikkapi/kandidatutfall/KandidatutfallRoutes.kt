@@ -9,8 +9,7 @@ import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Metrics
 import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
 import no.nav.statistikkapi.log
-import java.time.LocalDateTime
-import java.time.ZoneId
+import no.nav.statistikkapi.toOslo
 import java.time.ZonedDateTime
 
 data class OpprettKandidatutfall(
@@ -36,7 +35,8 @@ fun Route.kandidatutfall(
         post("/kandidatutfall") {
             log.info("Tar i mot kandidatutfall")
             val kandidatutfall: List<OpprettKandidatutfall> = call.receive<Array<OpprettKandidatutfall>>()
-                .map { it.copy(tidspunktForHendelsen = it.tidspunktForHendelsen.withZoneSameInstant(ZoneId.of("Europe/Oslo")))
+                .map {
+                    it.copy(tidspunktForHendelsen = it.tidspunktForHendelsen.toOslo())
                 }
 
             kandidatutfall.forEach {

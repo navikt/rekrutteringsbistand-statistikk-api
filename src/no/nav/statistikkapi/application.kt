@@ -2,9 +2,10 @@ package no.nav.statistikkapi
 
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import io.ktor.serialization.jackson.*
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.callloging.*
@@ -25,9 +26,9 @@ import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.ZoneId
+import java.time.ZoneId.of
 import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
+import java.time.temporal.ChronoUnit.MILLIS
 import javax.sql.DataSource
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
@@ -65,9 +66,15 @@ fun main() {
     ).withKtorModule {
         settOppKtor(this, tokenValidationConfig, database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
     }.build().apply {
-        Kandidathendelselytter(this)
+        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource))
         start()
     }
+}
+
+val objectMapper: ObjectMapper = jacksonObjectMapper().apply {
+    registerModule(JavaTimeModule())
+    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    disable((DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES))
 }
 
 fun settOppKtor(
@@ -80,11 +87,7 @@ fun settOppKtor(
     application.apply {
         install(CallLogging)
         install(ContentNegotiation) {
-            jackson {
-                registerModule(JavaTimeModule())
-                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                disable((DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES))
-            }
+            objectMapper
         }
         install(Authentication, tokenValidationConfig)
 
@@ -110,4 +113,6 @@ fun settOppKtor(
 /**
  * Tidspunkt uten nanosekunder, for å unngå at to like tidspunkter blir ulike pga at database og Microsoft Windws håndterer nanos annerledes enn Mac og Linux.
  */
-fun nowOslo(): ZonedDateTime = ZonedDateTime.now(ZoneId.of("Europe/Oslo")).truncatedTo(ChronoUnit.MILLIS)
+fun nowOslo(): ZonedDateTime = ZonedDateTime.now().toOslo()
+
+fun ZonedDateTime.toOslo(): ZonedDateTime = this.truncatedTo(MILLIS).withZoneSameInstant(of("Europe/Oslo"))

@@ -75,7 +75,6 @@ class LagreStatistikkViaHttpTest {
     @Test
     fun `POST til kandidatutfall skal lagre til utfallstabellen også når JSON-payload har ukjente felter`() =
         runBlocking {
-            val objectMapper = jacksonObjectMapper().registerModule( JavaTimeModule());
             val kandidatutfallTilLagring = etKandidatutfall
             val kandidatutfallJsonString: String = objectMapper.writeValueAsString(kandidatutfallTilLagring)
             val kandidatutfallJson: ObjectNode = objectMapper.readTree(kandidatutfallJsonString) as ObjectNode

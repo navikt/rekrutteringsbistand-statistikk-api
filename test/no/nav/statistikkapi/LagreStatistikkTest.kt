@@ -10,10 +10,10 @@ import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.SendtStatus
-import no.nav.statistikkapi.kandidatutfall.Utfall
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
+import java.time.ZonedDateTime
 
 class LagreStatistikkTest {
 
@@ -21,6 +21,7 @@ class LagreStatistikkTest {
         private val database = TestDatabase()
         private val rapid: TestRapid = TestRapid()
         private val testRepository = TestRepository(database.dataSource)
+
         @BeforeClass
         @JvmStatic
         fun beforeClass() {
@@ -40,6 +41,8 @@ class LagreStatistikkTest {
         rapid.sendTestMessage(json)
     }
 
+    // TODO: Tester: tidspunkt for hendelse og duplikater
+
     // given: gitt at det ligger en CV-delt-melding på topic
     // when: når vi konsumerer
     // then: skal det lagres et presentert-kandidatutfall i databasen
@@ -56,18 +59,19 @@ class LagreStatistikkTest {
         val actual = alleUtfall.first()
         val kandidathendelse = kandidathendelsemelding["kandidathendelse"] as Map<*, *>
         assertThat(actual.dbId).isNotNull()
-        assertThat(actual.utfall).isEqualTo(kandidathendelse["utfall"])
         assertThat(actual.aktorId).isEqualTo(kandidathendelse["aktørId"])
         assertThat(actual.alder).isEqualTo(kandidathendelse["alder"])
-        assertThat(actual.tidspunkt).isEqualTo(kandidathendelse["tidspunkt"])
+        val expectedTidspunkt = ZonedDateTime.parse(kandidathendelse["tidspunkt"].toString()).toLocalDateTime()
+        assertThat(actual.tidspunkt).isEqualTo(expectedTidspunkt)
         assertThat(actual.hullICv).isEqualTo(kandidathendelse["harHullICv"])
-        assertThat(actual.kandidatlisteId).isEqualTo(kandidathendelse["kandidatlisteId"])
-        assertThat(actual.stillingsId).isEqualTo(kandidathendelse["stillingsId"])
+        assertThat(actual.kandidatlisteId.toString()).isEqualTo(kandidathendelse["kandidatlisteId"])
+        assertThat(actual.stillingsId.toString()).isEqualTo(kandidathendelse["stillingsId"])
         assertThat(actual.navIdent).isEqualTo(kandidathendelse["utførtAvNavIdent"])
         assertThat(actual.navKontor).isEqualTo(kandidathendelse["utførtAvNavKontorKode"])
         assertThat(actual.tilretteleggingsbehov).isEqualTo(kandidathendelse["tilretteleggingsbehov"])
         assertThat(actual.synligKandidat).isEqualTo(kandidathendelse["synligKandidat"])
-        assertThat(actual.utfall).isEqualTo(Utfall.PRESENTERT)
+        val expectedUtfall = Kandidathendelselytter.Type.valueOf(kandidathendelse["type"].toString()).toUtfall()
+        assertThat(actual.utfall).isEqualTo(expectedUtfall)
         assertThat(actual.antallSendtForsøk).isEqualTo(0)
         assertThat(actual.sendtStatus).isEqualTo(SendtStatus.IKKE_SENDT)
         assertThat(actual.sisteSendtForsøk).isNull()

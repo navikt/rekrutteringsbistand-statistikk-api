@@ -13,6 +13,7 @@ import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
 import no.nav.statistikkapi.kafka.DatavarehusKafkaProducerStub
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchStilling
 import java.net.InetAddress
@@ -43,7 +44,7 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    Kandidathendelselytter(rapid)
+    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource))
     val elasticSearchKlient = object : ElasticSearchKlient {
         override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
     }
