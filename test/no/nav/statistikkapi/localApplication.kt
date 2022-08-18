@@ -3,6 +3,7 @@ package no.nav.statistikkapi
 import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.v2.IssuerConfig
@@ -24,7 +25,8 @@ fun start(
     database: TestDatabase = TestDatabase(),
     port: Int = 8111,
     datavarehusKafkaProducer: DatavarehusKafkaProducer = DatavarehusKafkaProducerStub(),
-    mockOAuth2Server: MockOAuth2Server = MockOAuth2Server()
+    mockOAuth2Server: MockOAuth2Server = MockOAuth2Server(),
+    rapid: RapidsConnection = TestRapid()
 ) {
     val mockOAuth2ServerPort = randomPort()
     mockOAuth2Server.start(InetAddress.getByName("localhost"), mockOAuth2ServerPort)
@@ -41,7 +43,6 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    val rapid = TestRapid()
     Kandidathendelselytter(rapid)
     val elasticSearchKlient = object : ElasticSearchKlient {
         override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
