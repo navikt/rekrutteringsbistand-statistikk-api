@@ -112,7 +112,5 @@ fun settOppKtor(
  */
 fun nowOslo(): ZonedDateTime = ZonedDateTime.now(ZoneId.of("Europe/Oslo")).truncatedTo(ChronoUnit.MILLIS)
 
-fun ZonedDateTime.tilNorskTidssone() = this.withZoneSameInstant(ZoneId.of("Europe/Oslo"))
-
 
 
