@@ -21,12 +21,16 @@ import no.nav.statistikkapi.*
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class DatavarehusKafkaTest {
 
     @Test
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
-        val expected = listOf(etKandidatutfall, etKandidatutfall)
+        val expected = listOf(etKandidatutfall.copy(tidspunktForHendelsen = nowOslo())
+            , etKandidatutfall.copy(tidspunktForHendelsen = nowOslo()))
+        println("****3 " + etKandidatutfall.tidspunktForHendelsen)
 
         client.post("$basePath/kandidatutfall") {
             setBody(expected)
@@ -42,7 +46,7 @@ class DatavarehusKafkaTest {
             assertThat(actual.getNavKontor()).isEqualTo(expected[index].navKontor)
             assertThat(actual.getKandidatlisteId()).isEqualTo(expected[index].kandidatlisteId)
             assertThat(actual.getStillingsId()).isEqualTo(expected[index].stillingsId)
-            assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(now().minusSeconds(10), now())
+            assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(nowOslo().toLocalDateTime().minusSeconds(10), nowOslo().toLocalDateTime())
         }
     }
 

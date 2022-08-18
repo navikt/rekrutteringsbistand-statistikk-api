@@ -5,6 +5,7 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.apache.*
@@ -15,10 +16,13 @@ import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
+import org.joda.time.Minutes
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
 class LagreStatistikkTest {
@@ -65,15 +69,15 @@ class LagreStatistikkTest {
             assertThat(utfall.alder).isEqualTo(kandidatutfallTilLagring[index].alder)
             assertThat(utfall.tilretteleggingsbehov).isEqualTo(kandidatutfallTilLagring[index].tilretteleggingsbehov)
             assertThat(utfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
-                LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+                kandidatutfallTilLagring[index].tidspunktForHendelsen.toLocalDateTime().truncatedTo(ChronoUnit.MINUTES)
             )
         }
     }
-    
+
     @Test
     fun `POST til kandidatutfall skal lagre til utfallstabellen også når JSON-payload har ukjente felter`() =
         runBlocking {
-            val objectMapper = jacksonObjectMapper()
+            val objectMapper = jacksonObjectMapper().registerModule( JavaTimeModule());
             val kandidatutfallTilLagring = etKandidatutfall
             val kandidatutfallJsonString: String = objectMapper.writeValueAsString(kandidatutfallTilLagring)
             val kandidatutfallJson: ObjectNode = objectMapper.readTree(kandidatutfallJsonString) as ObjectNode
@@ -100,7 +104,27 @@ class LagreStatistikkTest {
             assertThat(lagretUtfall.alder).isEqualTo(kandidatutfallTilLagring.alder)
             assertThat(lagretUtfall.tilretteleggingsbehov).isEqualTo(kandidatutfallTilLagring.tilretteleggingsbehov)
             assertThat(lagretUtfall.tidspunkt.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
-                LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)
+                kandidatutfallTilLagring.tidspunktForHendelsen.toLocalDateTime().truncatedTo(ChronoUnit.MINUTES)
+            )
+        }
+
+    @Test
+    fun `POST til kandidatutfall med UTC tidssone skal konvertere til norsk tid`() =
+        runBlocking {
+            val kandidatutfallTilLagring = etKandidatutfall.copy(tidspunktForHendelsen = ZonedDateTime.now(ZoneId.of("UTC")))
+
+            val osloTid = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo())
+
+            val response: HttpResponse = client.post("$basePath/kandidatutfall") {
+                setBody(listOf(kandidatutfallTilLagring))
+            }
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.Created)
+            val lagredeUtfall = testRepository.hentUtfall()
+            assertThat(lagredeUtfall).hasSize(1)
+            val lagretUtfall = lagredeUtfall.first()
+            assertThat(lagretUtfall.tidspunkt.truncatedTo(ChronoUnit.SECONDS)).isEqualTo(
+                osloTid.tidspunktForHendelsen.toLocalDateTime().truncatedTo(ChronoUnit.SECONDS)
             )
         }
 
