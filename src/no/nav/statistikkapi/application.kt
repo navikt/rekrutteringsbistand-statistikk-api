@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.callloging.*
@@ -71,7 +72,9 @@ fun main() {
     }
 }
 
-val objectMapper: ObjectMapper = jacksonObjectMapper().apply {
+val objectMapper = defaultProperties(jacksonObjectMapper())
+
+fun defaultProperties(objectMapper: ObjectMapper) = objectMapper.apply {
     registerModule(JavaTimeModule())
     disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     disable((DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES))
@@ -87,7 +90,9 @@ fun settOppKtor(
     application.apply {
         install(CallLogging)
         install(ContentNegotiation) {
-            objectMapper
+            jackson {
+                defaultProperties(this)
+            }
         }
         install(Authentication, tokenValidationConfig)
 
