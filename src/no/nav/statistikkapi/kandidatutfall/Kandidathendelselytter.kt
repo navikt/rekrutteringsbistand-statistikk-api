@@ -23,16 +23,15 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        log.info("Mottok en melding om at CV er delt med arbeidsgiver via rekrutteringsbistand men gjør ingenting med den i prod!") // TODO oppdater kommentar
+        val kandidathendelse: Kandidathendelse =
+            objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
 
-        if (Cluster.current == LOKAL || Cluster.current == DEV_FSS) {
-            val kandidathendelse: Kandidathendelse =
-                objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
-
-            if(kanStolePåDatakvaliteten(kandidathendelse)) {
-                val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
-                repo.lagreUtfallIdempotent(opprettKandidatutfall)
-            }
+        if(kanStolePåDatakvaliteten(kandidathendelse)) {
+            val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
+            log.info("Har lest kandidatutfall fra Kafka")
+            repo.lagreUtfallIdempotent(opprettKandidatutfall)
+        } else {
+            log.info("Lagrer ikke kandidatutfall fordi vi ikke stoler på kvaliteten i meldingen")
         }
     }
     
