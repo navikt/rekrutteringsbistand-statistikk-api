@@ -38,8 +38,6 @@ class LagreStatistikkTest {
         rapid.sendTestMessage(json)
     }
 
-    // TODO: Tester: tidspunkt for hendelse og duplikater
-
     @Test
     fun `en kandidathendelsemelding skal lagres som kandidatutfall i databasen`() {
         val kandidathendelsemelding = kandidathendelseMap()

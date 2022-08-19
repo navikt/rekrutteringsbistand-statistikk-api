@@ -5,6 +5,7 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.statistikkapi.*
+import no.nav.statistikkapi.Cluster.DEV_FSS
 import no.nav.statistikkapi.Cluster.LOKAL
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -22,8 +23,9 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        log.info("Mottok en melding om at CV er delt med arbeidsgiver via rekrutteringsbistand men gjør ingenting med den!") // TODO oppdater kommentar
-        if (Cluster.current == LOKAL) {
+        log.info("Mottok en melding om at CV er delt med arbeidsgiver via rekrutteringsbistand men gjør ingenting med den i prod!") // TODO oppdater kommentar
+
+        if (Cluster.current == LOKAL || Cluster.current == DEV_FSS) {
             val kandidathendelse: Kandidathendelse =
                 objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
 
@@ -32,7 +34,6 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
                 repo.lagreUtfallIdempotent(opprettKandidatutfall)
             }
         }
-
     }
     
     fun kanStolePåDatakvaliteten(kandidathendelse: Kandidathendelse): Boolean {
