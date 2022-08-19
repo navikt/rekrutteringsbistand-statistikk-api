@@ -29,7 +29,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
             val kandidathendelse: Kandidathendelse =
                 objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
             val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
-            repo.lagreUtfall(opprettKandidatutfall)
+            repo.lagreUtfallIdempotent(opprettKandidatutfall)
         }
 
     }

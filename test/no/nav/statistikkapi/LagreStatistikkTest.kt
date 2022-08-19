@@ -1,6 +1,7 @@
 package no.nav.statistikkapi
 
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -82,7 +83,7 @@ class LagreStatistikkTest {
         rapid.sendTestMessage(objectMapper.writeValueAsString(enHeltLikMelding))
 
         val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall.size).isEqualTo(1)
+        assertThat(alleUtfall).hasSize(1)
     }
 
     fun kandidathendelseMap() = mapOf(

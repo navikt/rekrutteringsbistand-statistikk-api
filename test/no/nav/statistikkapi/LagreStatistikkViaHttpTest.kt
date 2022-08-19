@@ -13,9 +13,11 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
+import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
+import no.nav.statistikkapi.kafka.DatavarehusKafkaTest
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -124,6 +126,22 @@ class LagreStatistikkViaHttpTest {
                 osloTid.tidspunktForHendelsen.toLocalDateTime().truncatedTo(ChronoUnit.SECONDS)
             )
         }
+
+    @Test
+    fun `POST av to identiske kandidatutfall skal kun lagre et kandidatutfall i databasen`() = runBlocking {
+        val kandidatutfallTilLagring = listOf(
+            etKandidatutfall.copy(tidspunktForHendelsen = nowOslo()),
+            etKandidatutfall.copy(tidspunktForHendelsen = nowOslo())
+        )
+
+        val response: HttpResponse = client.post("$basePath/kandidatutfall") {
+            setBody(kandidatutfallTilLagring)
+        }
+
+        assertThat(response.status).isEqualTo(HttpStatusCode.Created)
+        val lagredeUtfall = testRepository.hentUtfall()
+        assertThat(lagredeUtfall).hasSize(1)
+    }
 
     @Test
     fun `POST til kandidatutfall skal gi unauthorized hvis man ikke er logget inn`() = runBlocking {

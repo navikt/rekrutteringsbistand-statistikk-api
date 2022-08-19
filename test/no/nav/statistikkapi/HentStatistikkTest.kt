@@ -46,7 +46,7 @@ class HentStatistikkTest {
 
     @Test
     fun `Siste registrerte presentering på en kandidat og kandidatliste skal telles`() {
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             etKandidatutfall.copy(utfall = PRESENTERT, tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
@@ -62,7 +62,7 @@ class HentStatistikkTest {
 
     @Test
     fun `Siste registrerte fått jobben på en kandidat og kandidatliste skal telles som presentert og fått jobben`() {
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             etKandidatutfall.copy(utfall = FATT_JOBBEN, tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
@@ -79,7 +79,7 @@ class HentStatistikkTest {
 
     @Test
     fun `Ikke presentert skal ikke telles`() {
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             etKandidatutfall.copy(utfall = IKKE_PRESENTERT, tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
@@ -95,7 +95,7 @@ class HentStatistikkTest {
 
     @Test
     fun `Registrert formidling innen tidsperiode skal telles`() {
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             etKandidatutfall.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
@@ -110,8 +110,8 @@ class HentStatistikkTest {
 
     @Test
     fun `Registrert formidling før eller etter gitt tidsperiode skal ikke telles`() {
-        repository.lagreUtfall(etKandidatutfall.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 1)))
-        repository.lagreUtfall(etKandidatutfall.copy(tidspunktForHendelsen = lagTidspunkt(2020, 5, 1)))
+        repository.lagreUtfallIdempotent(etKandidatutfall.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 1)))
+        repository.lagreUtfallIdempotent(etKandidatutfall.copy(tidspunktForHendelsen = lagTidspunkt(2020, 5, 1)))
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2020, 2, 1),
@@ -130,8 +130,8 @@ class HentStatistikkTest {
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-        repository.lagreUtfall(kandidatutfall1)
-        repository.lagreUtfall(kandidatutfall2)
+        repository.lagreUtfallIdempotent(kandidatutfall1)
+        repository.lagreUtfallIdempotent(kandidatutfall2)
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2020, 1, 1),
@@ -148,8 +148,8 @@ class HentStatistikkTest {
         val kandidatutfall2 = kandidatutfall1.copy(aktørId = "2", tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
 
-        repository.lagreUtfall(kandidatutfall1)
-        repository.lagreUtfall(kandidatutfall2)
+        repository.lagreUtfallIdempotent(kandidatutfall1)
+        repository.lagreUtfallIdempotent(kandidatutfall2)
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2020, 1, 1),
@@ -167,10 +167,10 @@ class HentStatistikkTest {
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
         )
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
         )
 
@@ -190,10 +190,10 @@ class HentStatistikkTest {
         val kandidatutfall2 = kandidatutfall1.copy()
         assertThat(kandidatutfall1).isEqualTo(kandidatutfall2)
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
         )
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 2))
         )
 
@@ -213,8 +213,8 @@ class HentStatistikkTest {
         val kandidatutfall2 = kandidatutfall1.copy()
         assertThat(kandidatutfall1).isEqualTo(kandidatutfall2)
 
-        repository.lagreUtfall(kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 1)))
-        repository.lagreUtfall(kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 2)))
+        repository.lagreUtfallIdempotent(kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 1)))
+        repository.lagreUtfallIdempotent(kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 2)))
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2020, 1, 1),
@@ -233,10 +233,10 @@ class HentStatistikkTest {
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
         )
-        repository.lagreUtfall(kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 3)))
+        repository.lagreUtfallIdempotent(kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 3)))
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2020, 1, 1),
@@ -265,11 +265,11 @@ class HentStatistikkTest {
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 1, 15))
         )
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 16))
         )
 
@@ -289,11 +289,11 @@ class HentStatistikkTest {
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 16))
         )
 
@@ -313,11 +313,11 @@ class HentStatistikkTest {
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 16))
         )
 
@@ -337,11 +337,11 @@ class HentStatistikkTest {
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 16))
         )
 
@@ -361,11 +361,11 @@ class HentStatistikkTest {
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 16))
         )
 
@@ -393,11 +393,11 @@ class HentStatistikkTest {
             assertThat(antallPresentert).isEqualTo(0)
         }
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 16))
         )
 
@@ -418,11 +418,11 @@ class HentStatistikkTest {
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 16))
         )
 
@@ -442,11 +442,11 @@ class HentStatistikkTest {
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall1.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             kandidatutfall2.copy(tidspunktForHendelsen = lagTidspunkt(2020, 10, 16))
         )
 
@@ -461,7 +461,7 @@ class HentStatistikkTest {
 
     @Test
     fun `Gitt en presentering en gitt dag så skal vi få presentering hvis tilOgMed er samme dag`() {
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1,
                     tidspunktForHendelsen = lagTidspunkt(2020, 1, 1).plusHours(13).plusMinutes(55)),
         )
@@ -477,7 +477,7 @@ class HentStatistikkTest {
 
     @Test
     fun `Gitt en presentering en gitt dag så skal vi få presentering hvis fraOgMed er samme dag`() {
-        repository.lagreUtfall(
+        repository.lagreUtfallIdempotent(
             etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1,
                     tidspunktForHendelsen = lagTidspunkt(2020, 1, 1).plusHours(19).plusMinutes(54))
         )

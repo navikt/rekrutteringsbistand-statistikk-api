@@ -18,6 +18,7 @@ import org.junit.After
 import org.junit.AfterClass
 import org.junit.Test
 import no.nav.statistikkapi.*
+import org.junit.Before
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
@@ -28,9 +29,9 @@ class DatavarehusKafkaTest {
 
     @Test
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
-        val expected = listOf(etKandidatutfall.copy(tidspunktForHendelsen = nowOslo())
-            , etKandidatutfall.copy(tidspunktForHendelsen = nowOslo()))
-        println("****3 " + etKandidatutfall.tidspunktForHendelsen)
+        val utfall1 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo())
+        val utfall2 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo().plusDays(1))
+        val expected = listOf(utfall1, utfall2)
 
         client.post("$basePath/kandidatutfall") {
             setBody(expected)
@@ -46,7 +47,11 @@ class DatavarehusKafkaTest {
             assertThat(actual.getNavKontor()).isEqualTo(expected[index].navKontor)
             assertThat(actual.getKandidatlisteId()).isEqualTo(expected[index].kandidatlisteId)
             assertThat(actual.getStillingsId()).isEqualTo(expected[index].stillingsId)
-            assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(nowOslo().toLocalDateTime().minusSeconds(10), nowOslo().toLocalDateTime())
+
+            val expectedTidspunkt = if (index == 0) utfall1.tidspunktForHendelsen else utfall2.tidspunktForHendelsen
+            assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(
+                expectedTidspunkt.toLocalDateTime().minusSeconds(10), expectedTidspunkt.toLocalDateTime()
+            )
         }
     }
 

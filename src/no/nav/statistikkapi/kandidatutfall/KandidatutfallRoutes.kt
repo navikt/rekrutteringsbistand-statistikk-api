@@ -40,7 +40,7 @@ fun Route.kandidatutfall(
                 }
 
             kandidatutfall.forEach {
-                kandidatutfallRepository.lagreUtfall(it)
+                kandidatutfallRepository.lagreUtfallIdempotent(it)
                 Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall.name).increment()
             }
             sendStatistikk.kjørEnGangAsync()

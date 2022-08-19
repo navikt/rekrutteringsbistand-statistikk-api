@@ -4,7 +4,6 @@ import no.nav.statistikkapi.HentStatistikk
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
-import no.nav.statistikkapi.log
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -15,7 +14,10 @@ import javax.sql.DataSource
 
 class KandidatutfallRepository(private val dataSource: DataSource) {
 
-    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
+    fun lagreUtfallIdempotent(kandidatutfall: OpprettKandidatutfall) {
+
+        if (kandidatutfallAlleredeLagret(kandidatutfall)) return
+
         dataSource.connection.use {
             it.prepareStatement(
                 """INSERT INTO $kandidatutfallTabell (
@@ -44,6 +46,27 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
                 setString(11, kandidatutfall.tilretteleggingsbehov.joinToString(separator = tilretteleggingsbehovdelimiter))
                 executeUpdate()
+            }
+        }
+    }
+
+    private fun kandidatutfallAlleredeLagret(kandidatutfall: OpprettKandidatutfall): Boolean {
+        dataSource.connection.use {
+            it.prepareStatement("""
+                select 1 from $kandidatutfallTabell 
+                where $aktørId = ?
+                    and $kandidatlisteid = ?
+                    and $utfall = ?
+                    and $tidspunkt = ?
+                    and $navident = ?
+            """.trimIndent()).apply {
+                setString(1, kandidatutfall.aktørId)
+                setString(2, kandidatutfall.kandidatlisteId)
+                setString(3, kandidatutfall.utfall.toString())
+                setTimestamp(4, Timestamp.valueOf(kandidatutfall.tidspunktForHendelsen.toLocalDateTime()))
+                setString(5, kandidatutfall.navIdent)
+                val resultSet = executeQuery()
+                return resultSet.next()
             }
         }
     }
