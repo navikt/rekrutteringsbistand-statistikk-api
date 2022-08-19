@@ -75,7 +75,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
     }
 
 
-    enum class Type(private val eventNamePostfix: String) {
+    enum class Type(val eventName: String) {
         CV_DELT_UTENFOR_REKRUTTERINGSBISTAND("cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand"),
         CV_DELT_VIA_REKRUTTERINGSBISTAND("cv-delt-med-arbeidsgiver-via-rekrutteringsbistand");
 

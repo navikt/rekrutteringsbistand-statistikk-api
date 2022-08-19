@@ -6,7 +6,9 @@ import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
+import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter.Type
 import no.nav.statistikkapi.kandidatutfall.SendtStatus
+import no.nav.statistikkapi.kandidatutfall.Utfall
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -62,7 +64,7 @@ class LagreStatistikkTest {
         assertThat(actual.navKontor).isEqualTo(kandidathendelse["utførtAvNavKontorKode"])
         assertThat(actual.tilretteleggingsbehov).isEqualTo(kandidathendelse["tilretteleggingsbehov"])
         assertThat(actual.synligKandidat).isEqualTo(kandidathendelse["synligKandidat"])
-        val expectedUtfall = Kandidathendelselytter.Type.valueOf(kandidathendelse["type"].toString()).toUtfall()
+        val expectedUtfall = Type.valueOf(kandidathendelse["type"].toString()).toUtfall()
         assertThat(actual.utfall).isEqualTo(expectedUtfall)
         assertThat(actual.antallSendtForsøk).isEqualTo(0)
         assertThat(actual.sendtStatus).isEqualTo(SendtStatus.IKKE_SENDT)
@@ -103,11 +105,28 @@ class LagreStatistikkTest {
         assertThat(alleUtfall).isEmpty()
     }
 
+    @Test
+    fun `en melding om cv-delt-utenfor-rekrutteringsbistand lagres i databasen`() {
+        val kandidathendelsemelding =
+            kandidathendelseMap(type = Type.CV_DELT_UTENFOR_REKRUTTERINGSBISTAND)
 
-    fun kandidathendelseMap(tidspunkt: String = "2022-09-18T10:33:02.5+02:00") = mapOf(
-        "@event_name" to "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(1)
+        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.PRESENTERT)
+    }
+
+
+    fun kandidathendelseMap(
+        tidspunkt: String = "2022-09-18T10:33:02.5+02:00",
+        type: Type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND
+    ) = mapOf(
+        "@event_name" to "kandidat.${type.eventName}",
         "kandidathendelse" to mapOf(
-            "type" to "CV_DELT_VIA_REKRUTTERINGSBISTAND",
+            "type" to "${type.name}",
             "aktørId" to "dummyAktørid",
             "organisasjonsnummer" to "123456789",
             "kandidatlisteId" to "24e81692-37ef-4fda-9b55-e17588f65061",
