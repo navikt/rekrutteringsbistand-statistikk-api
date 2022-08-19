@@ -119,6 +119,33 @@ class LagreStatistikkTest {
         assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.PRESENTERT)
     }
 
+    @Test
+    fun `en melding om har-fått-jobben lagres i databasen`() {
+        val kandidathendelsemelding =
+            kandidathendelseMap(type = Type.HAR_FÅTT_JOBBEN)
+
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(1)
+        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.FATT_JOBBEN)
+    }
+
+    @Test
+    fun `en melding om fjern-registrering-av-cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand lagres i databasen`() {
+        val kandidathendelsemelding =
+            kandidathendelseMap(type = Type.FJERN_REGISTRERING_AV_CV_DELT_UTENFOR_REKRUTTERINGSBISTAND)
+
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(1)
+        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.IKKE_PRESENTERT)
+    }
 
     fun kandidathendelseMap(
         tidspunkt: String = "2022-09-18T10:33:02.5+02:00",

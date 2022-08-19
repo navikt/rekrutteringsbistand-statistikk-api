@@ -21,7 +21,8 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
                     values = listOf(
                         "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
                         "kandidat.cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand",
-
+                        "kandidat.har-fått-jobben",
+                        "kandidat.fjern-registrering-av-cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand"
                     )
                 )
                 it.interestedIn("kandidathendelse")
@@ -81,16 +82,18 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
             )
     }
 
-
     enum class Type(val eventName: String) {
         CV_DELT_UTENFOR_REKRUTTERINGSBISTAND("cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand"),
-        CV_DELT_VIA_REKRUTTERINGSBISTAND("cv-delt-med-arbeidsgiver-via-rekrutteringsbistand");
+        CV_DELT_VIA_REKRUTTERINGSBISTAND("cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"),
+        HAR_FÅTT_JOBBEN("har-fått-jobben"),
+        FJERN_REGISTRERING_AV_CV_DELT_UTENFOR_REKRUTTERINGSBISTAND("fjern-registrering-av-cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand");
 
         fun toUtfall(): Utfall =
             when (this) {
                 CV_DELT_UTENFOR_REKRUTTERINGSBISTAND -> Utfall.PRESENTERT
                 CV_DELT_VIA_REKRUTTERINGSBISTAND -> Utfall.PRESENTERT
+                HAR_FÅTT_JOBBEN -> Utfall.FATT_JOBBEN
+                FJERN_REGISTRERING_AV_CV_DELT_UTENFOR_REKRUTTERINGSBISTAND -> Utfall.IKKE_PRESENTERT
             }
-
     }
 }
