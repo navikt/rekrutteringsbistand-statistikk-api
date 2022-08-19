@@ -16,7 +16,14 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
     init {
         River(rapidsConnection).apply {
             validate {
-                it.demandValue("@event_name", "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand")
+                it.demandAny(
+                    key = "@event_name",
+                    values = listOf(
+                        "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
+                        "kandidat.cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand",
+
+                    )
+                )
                 it.interestedIn("kandidathendelse")
             }
         }.register(this)
@@ -26,7 +33,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
         val kandidathendelse: Kandidathendelse =
             objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
 
-        if(kanStolePåDatakvaliteten(kandidathendelse)) {
+        if (kanStolePåDatakvaliteten(kandidathendelse)) {
             val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
             log.info("Har lest kandidatutfall fra Kafka")
             repo.lagreUtfallIdempotent(opprettKandidatutfall)
@@ -34,11 +41,11 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
             log.info("Lagrer ikke kandidatutfall fordi vi ikke stoler på kvaliteten i meldingen")
         }
     }
-    
+
     fun kanStolePåDatakvaliteten(kandidathendelse: Kandidathendelse): Boolean {
         val kunMeldingerEtter: ZonedDateTime = ZonedDateTime.of(
             2022, 8, 19, 11,
-            0,0,0,
+            0, 0, 0,
             ZoneId.of("Europe/Oslo")
         )
         return kandidathendelse.tidspunkt.isAfter(kunMeldingerEtter)
