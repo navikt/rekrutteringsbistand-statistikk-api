@@ -4,11 +4,9 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
-import no.nav.statistikkapi.Cluster
+import no.nav.statistikkapi.*
 import no.nav.statistikkapi.Cluster.LOKAL
-import no.nav.statistikkapi.log
-import no.nav.statistikkapi.objectMapper
-import no.nav.statistikkapi.toOslo
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val repo: KandidatutfallRepository) :
@@ -28,10 +26,22 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
         if (Cluster.current == LOKAL) {
             val kandidathendelse: Kandidathendelse =
                 objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
-            val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
-            repo.lagreUtfallIdempotent(opprettKandidatutfall)
+
+            if(kanStolePåDatakvaliteten(kandidathendelse)) {
+                val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
+                repo.lagreUtfallIdempotent(opprettKandidatutfall)
+            }
         }
 
+    }
+    
+    fun kanStolePåDatakvaliteten(kandidathendelse: Kandidathendelse): Boolean {
+        val kunMeldingerEtter: ZonedDateTime = ZonedDateTime.of(
+            2022, 8, 19, 11,
+            0,0,0,
+            ZoneId.of("Europe/Oslo")
+        )
+        return kandidathendelse.tidspunkt.isAfter(kunMeldingerEtter)
     }
 
     data class Kandidathendelse(

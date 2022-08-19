@@ -1,10 +1,7 @@
 package no.nav.statistikkapi
 
 import assertk.assertThat
-import assertk.assertions.hasSize
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
-import assertk.assertions.isNull
+import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
@@ -86,14 +83,37 @@ class LagreStatistikkTest {
         assertThat(alleUtfall).hasSize(1)
     }
 
-    fun kandidathendelseMap() = mapOf(
+    @Test
+    fun `en kandidathendelsemelding skal lagres om hendelsestidspunkt er etter spesifisert tidspunkt`() {
+        val kandidathendelsemelding = kandidathendelseMap(tidspunkt = "2022-08-19T11:00:01+02:00")
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall.size).isEqualTo(1)
+    }
+
+    @Test
+    fun `en kandidathendelsemelding skal ikke lagres om hendelsestidspunkt er lik spesifisert tidspunkt`() {
+        val kandidathendelsemelding = kandidathendelseMap(tidspunkt = "2022-08-19T11:00:00+02:00")
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).isEmpty()
+    }
+
+
+    fun kandidathendelseMap(tidspunkt: String = "2022-09-18T10:33:02.5+02:00") = mapOf(
         "@event_name" to "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
         "kandidathendelse" to mapOf(
             "type" to "CV_DELT_VIA_REKRUTTERINGSBISTAND",
             "aktørId" to "dummyAktørid",
             "organisasjonsnummer" to "123456789",
             "kandidatlisteId" to "24e81692-37ef-4fda-9b55-e17588f65061",
-            "tidspunkt" to "2022-08-18T10:33:02.5+02:00",
+            "tidspunkt" to "$tidspunkt",
             "stillingsId" to "b3c925af-ebf4-50d1-aeee-efc9259107a4",
             "utførtAvNavIdent" to "Z994632",
             "utførtAvNavKontorKode" to "0313",
