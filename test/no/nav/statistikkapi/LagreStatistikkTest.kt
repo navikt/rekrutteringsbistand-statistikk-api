@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
@@ -43,13 +42,10 @@ class LagreStatistikkTest {
 
     // TODO: Tester: tidspunkt for hendelse og duplikater
 
-    // given: gitt at det ligger en CV-delt-melding på topic
-    // when: når vi konsumerer
-    // then: skal det lagres et presentert-kandidatutfall i databasen
     @Test
     fun `en kandidathendelsemelding skal lagres som kandidatutfall i databasen`() {
         val kandidathendelsemelding = kandidathendelseMap()
-        val kandidathendelsesmeldingJson = jacksonObjectMapper().writeValueAsString(kandidathendelsemelding)
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
 
         rapid.sendTestMessage(kandidathendelsesmeldingJson)
 
@@ -78,32 +74,25 @@ class LagreStatistikkTest {
     }
 
     @Test
-    fun sjekkIdempotens() {
-        val tidspunktFørsteMelding = "2022-08-18T11:33:02.5+02:00"
+    fun `en kandidathendelsemelding skal ikke lagres som kandidatutfall når samme utfall allerede er lagret`() {
+        val enMelding = kandidathendelseMap()
+        val enHeltLikMelding = kandidathendelseMap()
 
-        val førsteMelding = kandidathendelseMap(tidspunktFørsteMelding)
-
-        val kandidathendelsesmeldingJson1: String = jacksonObjectMapper().writeValueAsString(førsteMelding)
-        val kandidathendelsesmeldingJson2: String = jacksonObjectMapper().writeValueAsString(kandidathendelseMap())
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson1)
-        rapid.sendTestMessage(kandidathendelsesmeldingJson2)
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enMelding))
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enHeltLikMelding))
 
         val alleUtfall = testRepository.hentUtfall()
         assertThat(alleUtfall.size).isEqualTo(1)
-
-        val expectedTidspunkt = ZonedDateTime.parse(tidspunktFørsteMelding).toLocalDateTime()
-        assertThat(alleUtfall.first().tidspunkt).isEqualTo(expectedTidspunkt)
     }
 
-    fun kandidathendelseMap(tidspunkt: String = "2022-08-18T10:33:02.5+02:00") = mapOf(
+    fun kandidathendelseMap() = mapOf(
         "@event_name" to "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
         "kandidathendelse" to mapOf(
             "type" to "CV_DELT_VIA_REKRUTTERINGSBISTAND",
             "aktørId" to "dummyAktørid",
             "organisasjonsnummer" to "123456789",
             "kandidatlisteId" to "24e81692-37ef-4fda-9b55-e17588f65061",
-            "tidspunkt" to tidspunkt,
+            "tidspunkt" to "2022-08-18T10:33:02.5+02:00",
             "stillingsId" to "b3c925af-ebf4-50d1-aeee-efc9259107a4",
             "utførtAvNavIdent" to "Z994632",
             "utførtAvNavKontorKode" to "0313",

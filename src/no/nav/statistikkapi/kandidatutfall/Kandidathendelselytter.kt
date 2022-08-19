@@ -26,8 +26,6 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         log.info("Mottok en melding om at CV er delt med arbeidsgiver via rekrutteringsbistand men gjør ingenting med den!") // TODO oppdater kommentar
         if (Cluster.current == LOKAL) {
-            // Vi kan ha gamle eventer som har utc tidssone. Kjør dette for sikkerhetsskyld på tidspunktene:
-            // it.copy(tidspunktForHendelsen = it.tidspunktForHendelsen.withZoneSameInstant(ZoneId.of("Europe/Oslo")))
             val kandidathendelse: Kandidathendelse =
                 objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
             val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
@@ -62,7 +60,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
                 harHullICv = harHullICv,
                 alder = alder,
                 tilretteleggingsbehov = tilretteleggingsbehov,
-                tidspunktForHendelsen = tidspunkt.toOslo()
+                tidspunktForHendelsen = tidspunkt.toOslo() // Kan ha gamle eventer med tidspunkt i UTC
             )
     }
 
