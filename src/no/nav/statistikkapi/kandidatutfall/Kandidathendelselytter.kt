@@ -18,12 +18,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
             validate {
                 it.demandAny(
                     key = "@event_name",
-                    values = listOf(
-                        "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
-                        "kandidat.cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand",
-                        "kandidat.har-fått-jobben",
-                        "kandidat.fjern-registrering-av-cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand"
-                    )
+                    values = Type.values().map { "kandidat.${it.eventName}" }
                 )
                 it.interestedIn("kandidathendelse")
             }
@@ -83,17 +78,19 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
     }
 
     enum class Type(val eventName: String) {
-        CV_DELT_UTENFOR_REKRUTTERINGSBISTAND("cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand"),
+        REGISTRER_CV_DELT("registrer-cv-delt"),
         CV_DELT_VIA_REKRUTTERINGSBISTAND("cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"),
-        HAR_FÅTT_JOBBEN("har-fått-jobben"),
-        FJERN_REGISTRERING_AV_CV_DELT_UTENFOR_REKRUTTERINGSBISTAND("fjern-registrering-av-cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand");
+        REGISTER_FÅTT_JOBBEN("registrer-fått-jobben"),
+        FJERN_REGISTRERING_AV_CV_DELT("fjern-registrering-av-cv-delt"),
+        FJERN_REGISTRERING_FÅTT_JOBBEN("fjern-registrering-fått-jobben");
 
         fun toUtfall(): Utfall =
             when (this) {
-                CV_DELT_UTENFOR_REKRUTTERINGSBISTAND -> Utfall.PRESENTERT
+                REGISTRER_CV_DELT -> Utfall.PRESENTERT
                 CV_DELT_VIA_REKRUTTERINGSBISTAND -> Utfall.PRESENTERT
-                HAR_FÅTT_JOBBEN -> Utfall.FATT_JOBBEN
-                FJERN_REGISTRERING_AV_CV_DELT_UTENFOR_REKRUTTERINGSBISTAND -> Utfall.IKKE_PRESENTERT
+                REGISTER_FÅTT_JOBBEN -> Utfall.FATT_JOBBEN
+                FJERN_REGISTRERING_AV_CV_DELT -> Utfall.IKKE_PRESENTERT
+                FJERN_REGISTRERING_FÅTT_JOBBEN -> Utfall.PRESENTERT
             }
     }
 }

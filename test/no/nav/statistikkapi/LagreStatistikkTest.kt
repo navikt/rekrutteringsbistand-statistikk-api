@@ -72,6 +72,48 @@ class LagreStatistikkTest {
     }
 
     @Test
+    fun `en melding om REGISTRER_CV_DELT lagres i databasen`() {
+        val kandidathendelsemelding =
+            kandidathendelseMap(type = Type.REGISTRER_CV_DELT)
+
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(1)
+        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.PRESENTERT)
+    }
+
+    @Test
+    fun `en melding om REGISTER_FÅTT_JOBBEN lagres i databasen`() {
+        val kandidathendelsemelding =
+            kandidathendelseMap(type = Type.REGISTER_FÅTT_JOBBEN)
+
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(1)
+        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.FATT_JOBBEN)
+    }
+
+    @Test
+    fun `en melding om FJERN_REGISTRERING_AV_CV_DELT lagres i databasen`() {
+        val kandidathendelsemelding =
+            kandidathendelseMap(type = Type.FJERN_REGISTRERING_AV_CV_DELT)
+
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(1)
+        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.IKKE_PRESENTERT)
+    }
+
+    @Test
     fun `en kandidathendelsemelding skal ikke lagres som kandidatutfall når samme utfall allerede er lagret`() {
         val enMelding = kandidathendelseMap()
         val enHeltLikMelding = kandidathendelseMap()
@@ -103,48 +145,6 @@ class LagreStatistikkTest {
 
         val alleUtfall = testRepository.hentUtfall()
         assertThat(alleUtfall).isEmpty()
-    }
-
-    @Test
-    fun `en melding om cv-delt-utenfor-rekrutteringsbistand lagres i databasen`() {
-        val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.CV_DELT_UTENFOR_REKRUTTERINGSBISTAND)
-
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).hasSize(1)
-        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.PRESENTERT)
-    }
-
-    @Test
-    fun `en melding om har-fått-jobben lagres i databasen`() {
-        val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.HAR_FÅTT_JOBBEN)
-
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).hasSize(1)
-        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.FATT_JOBBEN)
-    }
-
-    @Test
-    fun `en melding om fjern-registrering-av-cv-delt-med-arbeidsgiver-utenfor-rekrutteringsbistand lagres i databasen`() {
-        val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.FJERN_REGISTRERING_AV_CV_DELT_UTENFOR_REKRUTTERINGSBISTAND)
-
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).hasSize(1)
-        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.IKKE_PRESENTERT)
     }
 
     fun kandidathendelseMap(
