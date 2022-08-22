@@ -86,6 +86,20 @@ class LagreStatistikkTest {
     }
 
     @Test
+    fun `en melding om CV_DELT_VIA_REKRUTTERINGSBISTAND lagres i databasen`() {
+        val kandidathendelsemelding =
+            kandidathendelseMap(type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND)
+
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(1)
+        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.PRESENTERT)
+    }
+
+    @Test
     fun `en melding om REGISTER_FÅTT_JOBBEN lagres i databasen`() {
         val kandidathendelsemelding =
             kandidathendelseMap(type = Type.REGISTER_FÅTT_JOBBEN)
@@ -111,6 +125,20 @@ class LagreStatistikkTest {
         val alleUtfall = testRepository.hentUtfall()
         assertThat(alleUtfall).hasSize(1)
         assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.IKKE_PRESENTERT)
+    }
+
+    @Test
+    fun `en melding om FJERN_REGISTRERING_FÅTT_JOBBEN lagres i databasen`() {
+        val kandidathendelsemelding =
+            kandidathendelseMap(type = Type.FJERN_REGISTRERING_FÅTT_JOBBEN)
+
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(1)
+        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.PRESENTERT)
     }
 
     @Test
