@@ -5,7 +5,6 @@ import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter.Type
 import no.nav.statistikkapi.kandidatutfall.SendtStatus
 import no.nav.statistikkapi.kandidatutfall.Utfall
@@ -170,11 +169,11 @@ class LagreStatistikkTest {
     fun `Skal ikke lagre duplikat`() {
         val enPresentertMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
         val enFåttJobbenMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(1).toString(), type = Type.REGISTER_FÅTT_JOBBEN)
-        val lestPåNytt = kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
+        val duplikat = enPresentertMelding
 
         rapid.sendTestMessage(objectMapper.writeValueAsString(enPresentertMelding))
         rapid.sendTestMessage(objectMapper.writeValueAsString(enFåttJobbenMelding))
-        rapid.sendTestMessage(objectMapper.writeValueAsString(lestPåNytt))
+        rapid.sendTestMessage(objectMapper.writeValueAsString(duplikat))
 
         val alleUtfall = testRepository.hentUtfall()
         assertThat(alleUtfall).hasSize(2)

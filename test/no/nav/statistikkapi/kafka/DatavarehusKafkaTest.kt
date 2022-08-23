@@ -18,6 +18,7 @@ import org.junit.After
 import org.junit.AfterClass
 import org.junit.Test
 import no.nav.statistikkapi.*
+import no.nav.statistikkapi.kandidatutfall.Utfall
 import org.junit.Before
 import java.time.Duration
 import java.time.LocalDateTime
@@ -29,8 +30,8 @@ class DatavarehusKafkaTest {
 
     @Test
     fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
-        val utfall1 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo())
-        val utfall2 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo().plusDays(1))
+        val utfall1 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo(), utfall = Utfall.PRESENTERT)
+        val utfall2 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo().plusDays(1), utfall = Utfall.FATT_JOBBEN)
         val expected = listOf(utfall1, utfall2)
 
         client.post("$basePath/kandidatutfall") {
