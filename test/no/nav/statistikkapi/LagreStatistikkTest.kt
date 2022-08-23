@@ -152,6 +152,36 @@ class LagreStatistikkTest {
     }
 
     @Test
+    fun `En melding skal ikke lagres dersom utfall er lik som på siste melding for samme kandidat og kandidatliste`() {
+        val etTidspunkt = nowOslo().minusHours(2)
+        val enMelding = kandidathendelseMap(tidspunkt = etTidspunkt.toString())
+        val etSenereTidspunkt = nowOslo()
+        val enLikMeldingMenMedSenereTidspunkt = kandidathendelseMap(tidspunkt = etSenereTidspunkt.toString())
+
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enMelding))
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enLikMeldingMenMedSenereTidspunkt))
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(1)
+        assertThat(alleUtfall.first().tidspunkt).isEqualTo(enMelding)
+    }
+
+    @Test
+    fun `Skal lagre melding med samme utfall som vi har mottatt tidligere når vi har en annen melding i mellom`() {
+        val enPresentertMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
+        val enFåttJobbenMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(1).toString(), type = Type.REGISTER_FÅTT_JOBBEN)
+        val enNyPresentertMelding = kandidathendelseMap(tidspunkt = nowOslo().toString(), type = Type.REGISTRER_CV_DELT)
+
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enPresentertMelding))
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enFåttJobbenMelding))
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enNyPresentertMelding))
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(3)
+        assertThat(alleUtfall.map { it.utfall }).containsExactlyInAnyOrder(Utfall.PRESENTERT, Utfall.PRESENTERT, Utfall.FATT_JOBBEN)
+    }
+
+    @Test
     fun `en kandidathendelsemelding skal ikke lagres som kandidatutfall når samme utfall allerede er lagret`() {
         val enMelding = kandidathendelseMap()
         val enHeltLikMelding = kandidathendelseMap()
