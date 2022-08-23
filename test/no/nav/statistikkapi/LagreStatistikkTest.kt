@@ -142,6 +142,16 @@ class LagreStatistikkTest {
     }
 
     @Test
+    fun `en kandidathendelsemelding skal ikke lagres dersom stillingId er null`() {
+        val enMelding = kandidathendelseMap(stillingsId = null)
+
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enMelding))
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(0)
+    }
+
+    @Test
     fun `en kandidathendelsemelding skal ikke lagres som kandidatutfall når samme utfall allerede er lagret`() {
         val enMelding = kandidathendelseMap()
         val enHeltLikMelding = kandidathendelseMap()
@@ -177,7 +187,8 @@ class LagreStatistikkTest {
 
     fun kandidathendelseMap(
         tidspunkt: String = "2022-09-18T10:33:02.5+02:00",
-        type: Type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND
+        type: Type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND,
+        stillingsId: String? = "b3c925af-ebf4-50d1-aeee-efc9259107a4"
     ) = mapOf(
         "@event_name" to "kandidat.${type.eventName}",
         "kandidathendelse" to mapOf(
@@ -186,7 +197,7 @@ class LagreStatistikkTest {
             "organisasjonsnummer" to "123456789",
             "kandidatlisteId" to "24e81692-37ef-4fda-9b55-e17588f65061",
             "tidspunkt" to "$tidspunkt",
-            "stillingsId" to "b3c925af-ebf4-50d1-aeee-efc9259107a4",
+            "stillingsId" to stillingsId,
             "utførtAvNavIdent" to "Z994632",
             "utførtAvNavKontorKode" to "0313",
             "synligKandidat" to true,
