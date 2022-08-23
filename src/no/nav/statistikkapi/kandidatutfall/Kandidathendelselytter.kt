@@ -5,6 +5,7 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.statistikkapi.*
+import no.nav.statistikkapi.stillinger.InkluderingTag.Companion.erGyldig
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -30,18 +31,21 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
         log.info("Har mottatt kandidathendelse")
 
         if (kandidathendelse.stillingsId == null) {
-            log.info("Lagrer ikke kandidatutfall fordi stillingsId er null")
+            log.info("Behandler ikke melding fordi den er uten stilingsId")
+            return
         } else if (!kanStolePåDatakvaliteten(kandidathendelse)) {
-            log.info("Lagrer ikke  kandidatutfall pga meldingsdato er for gammel")
+            log.info("Behandler ikke melding fordi vi ikke kan stole på datakvaliteten")
+            return
+        }
+
+        val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
+
+        if (repo.kandidatutfallAlleredeLagret(opprettKandidatutfall)) {
+            log.info("Lagrer ikke fordi vi har lagret samme utfall tidligere")
+        } else if (repo.hentSisteUtfallForKandidatIKandidatliste(opprettKandidatutfall) == opprettKandidatutfall.utfall) {
+            log.info("Lagrer ikke fordi siste kandidatutfall for samme kandidat og kandidatliste har likt utfall")
         } else {
-            val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
-            val sisteUtfall = repo.hentSisteUtfallForKandidatIKandidatliste(opprettKandidatutfall)
-            if(sisteUtfall != opprettKandidatutfall.utfall) {
-                log.info("Lagrer kandidatutfall")
-                repo.lagreUtfall(opprettKandidatutfall)
-            } else {
-                log.info("Lagrer ikke kandidatutfall fordi det finnes duplikat i databasen")
-            }
+            repo.lagreUtfall(opprettKandidatutfall)
         }
     }
 

@@ -27,7 +27,7 @@ data class OpprettKandidatutfall(
 )
 
 fun Route.kandidatutfall(
-    kandidatutfallRepository: KandidatutfallRepository,
+    repo: KandidatutfallRepository,
     sendStatistikk: KafkaTilDataverehusScheduler,
 ) {
 
@@ -40,15 +40,17 @@ fun Route.kandidatutfall(
                 }
 
             kandidatutfall.forEach {
-                if (!kandidatutfallRepository.kandidatutfallAlleredeLagret(it)) {
-                    kandidatutfallRepository.lagreUtfall(it)
-                    Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall.name)
-                        .increment()
+                if (repo.kandidatutfallAlleredeLagret(it)) {
+                    log.info("Lagrer ikke fordi vi har lagret samme utfall tidligere")
+                } else if (repo.hentSisteUtfallForKandidatIKandidatliste(it) == it.utfall) {
+                    log.info("Lagrer ikke fordi siste kandidatutfall for samme kandidat og kandidatliste har likt utfall")
                 } else {
-                    log.info("Ikke lagret fordi det finnes duplikat i databasen")
+                    repo.lagreUtfall(it)
+                    Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall.name)
+                        .increment() // TODO: Flytt til kandidatlytter
                 }
             }
-            sendStatistikk.kjørEnGangAsync()
+            sendStatistikk.kjørEnGangAsync() // TODO: Flytt til kandidatlytter
             call.respond(HttpStatusCode.Created)
         }
     }

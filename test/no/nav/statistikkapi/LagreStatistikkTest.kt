@@ -167,22 +167,7 @@ class LagreStatistikkTest {
     }
 
     @Test
-    fun `Skal lagre melding med samme utfall som vi har mottatt tidligere når vi har en annen melding i mellom`() {
-        val enPresentertMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
-        val enFåttJobbenMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(1).toString(), type = Type.REGISTER_FÅTT_JOBBEN)
-        val enNyPresentertMelding = kandidathendelseMap(tidspunkt = nowOslo().toString(), type = Type.REGISTRER_CV_DELT)
-
-        rapid.sendTestMessage(objectMapper.writeValueAsString(enPresentertMelding))
-        rapid.sendTestMessage(objectMapper.writeValueAsString(enFåttJobbenMelding))
-        rapid.sendTestMessage(objectMapper.writeValueAsString(enNyPresentertMelding))
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).hasSize(3)
-        assertThat(alleUtfall.map { it.utfall }).containsExactlyInAnyOrder(Utfall.PRESENTERT, Utfall.PRESENTERT, Utfall.FATT_JOBBEN)
-    }
-
-    @Test
-    fun `Vi skal ikke lagre duplikat`() {
+    fun `Skal ikke lagre duplikat`() {
         val enPresentertMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
         val enFåttJobbenMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(1).toString(), type = Type.REGISTER_FÅTT_JOBBEN)
         val lestPåNytt = kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
