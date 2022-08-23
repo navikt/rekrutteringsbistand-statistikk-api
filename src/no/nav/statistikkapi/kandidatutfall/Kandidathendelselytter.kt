@@ -29,12 +29,16 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
         val kandidathendelse: Kandidathendelse =
             objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
 
-        if (kanStolePåDatakvaliteten(kandidathendelse)) {
-            val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
-            log.info("Har lest kandidatutfall fra Kafka")
-            repo.lagreUtfallIdempotent(opprettKandidatutfall)
+        log.info("Har mottatt kandidathendelse")
+
+        if (kandidathendelse.stillingsId == null) {
+            log.info("Lagrer ikke kandidatutfall fordi stillingsId er null")
+        } else if (!kanStolePåDatakvaliteten(kandidathendelse)) {
+            log.info("Lagrer ikke  kandidatutfall pga meldingsdato er for gammel")
         } else {
-            log.info("Lagrer ikke kandidatutfall fordi vi ikke stoler på kvaliteten i meldingen")
+            val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
+            log.info("Lagrer kandidatutfall")
+            repo.lagreUtfallIdempotent(opprettKandidatutfall)
         }
     }
 
@@ -53,7 +57,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
         val organisasjonsnummer: String,
         val kandidatlisteId: String,
         val tidspunkt: ZonedDateTime,
-        val stillingsId: String,
+        val stillingsId: String?,
         val utførtAvNavIdent: String,
         val utførtAvNavKontorKode: String,
         val synligKandidat: Boolean,
@@ -68,7 +72,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
                 navIdent = utførtAvNavIdent,
                 navKontor = utførtAvNavKontorKode,
                 kandidatlisteId = kandidatlisteId,
-                stillingsId = stillingsId,
+                stillingsId = stillingsId!!,
                 synligKandidat = synligKandidat,
                 harHullICv = harHullICv,
                 alder = alder,
