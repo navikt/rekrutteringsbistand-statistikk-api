@@ -14,9 +14,7 @@ import javax.sql.DataSource
 
 class KandidatutfallRepository(private val dataSource: DataSource) {
 
-    fun lagreUtfallIdempotent(kandidatutfall: OpprettKandidatutfall) {
-
-        if (kandidatutfallAlleredeLagret(kandidatutfall)) return
+    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
 
         dataSource.connection.use {
             it.prepareStatement(
@@ -44,22 +42,27 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setTimestamp(8, Timestamp.valueOf(kandidatutfall.tidspunktForHendelsen.toLocalDateTime()))
                 if (kandidatutfall.harHullICv != null) setBoolean(9, kandidatutfall.harHullICv) else setNull(9, 0)
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
-                setString(11, kandidatutfall.tilretteleggingsbehov.joinToString(separator = tilretteleggingsbehovdelimiter))
+                setString(
+                    11,
+                    kandidatutfall.tilretteleggingsbehov.joinToString(separator = tilretteleggingsbehovdelimiter)
+                )
                 executeUpdate()
             }
         }
     }
 
-    private fun kandidatutfallAlleredeLagret(kandidatutfall: OpprettKandidatutfall): Boolean {
+    fun kandidatutfallAlleredeLagret(kandidatutfall: OpprettKandidatutfall): Boolean {
         dataSource.connection.use {
-            it.prepareStatement("""
+            it.prepareStatement(
+                """
                 select 1 from $kandidatutfallTabell 
                 where $aktørId = ?
                     and $kandidatlisteid = ?
                     and $utfall = ?
                     and $tidspunkt = ?
                     and $navident = ?
-            """.trimIndent()).apply {
+            """.trimIndent()
+            ).apply {
                 setString(1, kandidatutfall.aktørId)
                 setString(2, kandidatutfall.kandidatlisteId)
                 setString(3, kandidatutfall.utfall.toString())
@@ -68,6 +71,27 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 val resultSet = executeQuery()
                 return resultSet.next()
             }
+        }
+    }
+
+    fun hentSisteUtfallForKandidatIKandidatliste(kandidatutfall: OpprettKandidatutfall): Utfall? {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """
+                select utfall from $kandidatutfallTabell 
+                where $aktørId = ?
+                    and $kandidatlisteid = ?
+                    ORDER BY $dbId DESC limit 1
+            """.trimIndent()
+            ).apply {
+                setString(1, kandidatutfall.aktørId)
+                setString(2, kandidatutfall.kandidatlisteId)
+                val resultSet = executeQuery()
+
+                return if (resultSet.next()) Utfall.valueOf(resultSet.getString("utfall"))
+                else null
+            }
+
         }
     }
 
@@ -169,13 +193,21 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    class UtfallElement(val harHull: Boolean?, val alder: Int?, val tidspunkt: LocalDateTime, val tilretteleggingsbehov: List<String>, val synligKandidat: Boolean)
+    class UtfallElement(
+        val harHull: Boolean?,
+        val alder: Int?,
+        val tidspunkt: LocalDateTime,
+        val tilretteleggingsbehov: List<String>,
+        val synligKandidat: Boolean
+    )
 
     private fun ResultSet.toUtfallElement() = UtfallElement(
-        harHull = if(getObject(1) == null) null else getBoolean(1),
-        alder = if(getObject(2) == null) null else getInt(2),
+        harHull = if (getObject(1) == null) null else getBoolean(1),
+        alder = if (getObject(2) == null) null else getInt(2),
         tidspunkt = getTimestamp(3).toLocalDateTime(),
-        tilretteleggingsbehov = if(getObject(4) == null || getString(4).isBlank()) emptyList() else getString(4).split(tilretteleggingsbehovdelimiter),
+        tilretteleggingsbehov = if (getObject(4) == null || getString(4).isBlank()) emptyList() else getString(4).split(
+            tilretteleggingsbehovdelimiter
+        ),
         synligKandidat = if (getObject(5) == null) false else getBoolean(5)
     )
 
@@ -212,8 +244,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             }.executeQuery()
             val utfallElementer = mutableListOf<UtfallElement>()
 
-            while (resultSet.next()){
-                utfallElementer+=resultSet.toUtfallElement()
+            while (resultSet.next()) {
+                utfallElementer += resultSet.toUtfallElement()
             }
             return utfallElementer
         }
@@ -244,8 +276,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             }.executeQuery()
             val utfallElementer = mutableListOf<UtfallElement>()
 
-            while (resultSet.next()){
-                utfallElementer+=resultSet.toUtfallElement()
+            while (resultSet.next()) {
+                utfallElementer += resultSet.toUtfallElement()
             }
             return utfallElementer
         }
@@ -279,14 +311,18 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 navKontor = resultSet.getString(navkontor),
                 kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteid)),
                 stillingsId = UUID.fromString(resultSet.getString(stillingsid)),
-                synligKandidat = if (resultSet.getObject(synligKandidat) == null) null else resultSet.getBoolean(synligKandidat),
-                hullICv = if(resultSet.getObject(hullICv) == null)  null  else resultSet.getBoolean(hullICv),
+                synligKandidat = if (resultSet.getObject(synligKandidat) == null) null else resultSet.getBoolean(
+                    synligKandidat
+                ),
+                hullICv = if (resultSet.getObject(hullICv) == null) null else resultSet.getBoolean(hullICv),
                 tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime(),
                 antallSendtForsøk = resultSet.getInt(antallSendtForsøk),
                 sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
-                alder = if(resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
-                tilretteleggingsbehov = if (resultSet.getString(tilretteleggingsbehov).isBlank()) emptyList() else resultSet.getString(tilretteleggingsbehov).split(tilretteleggingsbehovdelimiter)
+                alder = if (resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
+                tilretteleggingsbehov = if (resultSet.getString(tilretteleggingsbehov)
+                        .isBlank()
+                ) emptyList() else resultSet.getString(tilretteleggingsbehov).split(tilretteleggingsbehovdelimiter)
             )
     }
 }

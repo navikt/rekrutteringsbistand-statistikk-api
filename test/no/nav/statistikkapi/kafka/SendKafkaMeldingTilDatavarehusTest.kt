@@ -57,8 +57,8 @@ class SendKafkaMeldingTilDatavarehusTest {
     fun `Feilsending med Kafka skal oppdatere antallSendtForsøk og sisteSendtForsøk`() {
         every { elasticSearchKlientMock.hentStilling(etKandidatutfall.stillingsId) } returns enElasticSearchStilling()
         assertThat(etKandidatutfall.stillingsId).isEqualTo(enElasticSearchStilling().uuid)
-        utfallRepo.lagreUtfallIdempotent(etKandidatutfall.copy(tidspunktForHendelsen = nowOslo()))
-        utfallRepo.lagreUtfallIdempotent(etKandidatutfall.copy(aktørId = "10000254879659", tidspunktForHendelsen = nowOslo()))
+        utfallRepo.lagreUtfall(etKandidatutfall.copy(tidspunktForHendelsen = nowOslo()))
+        utfallRepo.lagreUtfall(etKandidatutfall.copy(aktørId = "10000254879659", tidspunktForHendelsen = nowOslo()))
         assertThat(testRepository.hentAntallStillinger()).isZero()
 
         hentUsendteUtfallOgSendPåKafka(utfallRepo, producerSomFeilerEtterFørsteKall, stillingService).run()
@@ -80,7 +80,7 @@ class SendKafkaMeldingTilDatavarehusTest {
     fun `Sending med Kafka skal oppdatere stilling-tabellen`() {
         every { elasticSearchKlientMock.hentStilling(etKandidatutfall.stillingsId) } returns enElasticSearchStilling()
         assertThat(etKandidatutfall.stillingsId).isEqualTo(enElasticSearchStilling().uuid)
-        utfallRepo.lagreUtfallIdempotent(etKandidatutfall.copy(tidspunktForHendelsen = nowOslo()))
+        utfallRepo.lagreUtfall(etKandidatutfall.copy(tidspunktForHendelsen = nowOslo()))
         assertThat(testRepository.hentAntallStillinger()).isZero()
 
         hentUsendteUtfallOgSendPåKafka(utfallRepo, producerSomFeilerEtterFørsteKall, stillingService).run()

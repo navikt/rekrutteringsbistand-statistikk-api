@@ -5,8 +5,6 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.statistikkapi.*
-import no.nav.statistikkapi.Cluster.DEV_FSS
-import no.nav.statistikkapi.Cluster.LOKAL
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -37,8 +35,13 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
             log.info("Lagrer ikke  kandidatutfall pga meldingsdato er for gammel")
         } else {
             val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
-            log.info("Lagrer kandidatutfall")
-            repo.lagreUtfallIdempotent(opprettKandidatutfall)
+            val sisteUtfall = repo.hentSisteUtfallForKandidatIKandidatliste(opprettKandidatutfall)
+            if(sisteUtfall != opprettKandidatutfall.utfall) {
+                log.info("Lagrer kandidatutfall")
+                repo.lagreUtfall(opprettKandidatutfall)
+            } else {
+                log.info("Lagrer ikke kandidatutfall fordi det finnes duplikat i databasen")
+            }
         }
     }
 

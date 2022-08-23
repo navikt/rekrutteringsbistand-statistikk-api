@@ -163,7 +163,7 @@ class LagreStatistikkTest {
 
         val alleUtfall = testRepository.hentUtfall()
         assertThat(alleUtfall).hasSize(1)
-        assertThat(alleUtfall.first().tidspunkt).isEqualTo(enMelding)
+        assertThat(alleUtfall.first().tidspunkt).isEqualTo(etTidspunkt.toLocalDateTime())
     }
 
     @Test
@@ -179,6 +179,21 @@ class LagreStatistikkTest {
         val alleUtfall = testRepository.hentUtfall()
         assertThat(alleUtfall).hasSize(3)
         assertThat(alleUtfall.map { it.utfall }).containsExactlyInAnyOrder(Utfall.PRESENTERT, Utfall.PRESENTERT, Utfall.FATT_JOBBEN)
+    }
+
+    @Test
+    fun `Vi skal ikke lagre duplikat`() {
+        val enPresentertMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
+        val enFåttJobbenMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(1).toString(), type = Type.REGISTER_FÅTT_JOBBEN)
+        val lestPåNytt = kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
+
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enPresentertMelding))
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enFåttJobbenMelding))
+        rapid.sendTestMessage(objectMapper.writeValueAsString(lestPåNytt))
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(2)
+        assertThat(alleUtfall.map { it.utfall }).containsExactlyInAnyOrder(Utfall.PRESENTERT, Utfall.FATT_JOBBEN)
     }
 
     @Test

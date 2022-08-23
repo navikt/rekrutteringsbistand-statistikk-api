@@ -40,8 +40,13 @@ fun Route.kandidatutfall(
                 }
 
             kandidatutfall.forEach {
-                kandidatutfallRepository.lagreUtfallIdempotent(it)
-                Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall.name).increment()
+                if (!kandidatutfallRepository.kandidatutfallAlleredeLagret(it)) {
+                    kandidatutfallRepository.lagreUtfall(it)
+                    Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall.name)
+                        .increment()
+                } else {
+                    log.info("Ikke lagret fordi det finnes duplikat i databasen")
+                }
             }
             sendStatistikk.kjørEnGangAsync()
             call.respond(HttpStatusCode.Created)
