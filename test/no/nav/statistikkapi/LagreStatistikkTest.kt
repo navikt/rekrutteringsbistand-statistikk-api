@@ -101,7 +101,7 @@ class LagreStatistikkTest {
     @Test
     fun `en melding om REGISTER_FÅTT_JOBBEN lagres i databasen`() {
         val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.REGISTER_FÅTT_JOBBEN)
+            kandidathendelseMap(type = Type.REGISTRER_FÅTT_JOBBEN)
 
         val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
 
@@ -168,7 +168,7 @@ class LagreStatistikkTest {
     @Test
     fun `Skal ikke lagre duplikat`() {
         val enPresentertMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
-        val enFåttJobbenMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(1).toString(), type = Type.REGISTER_FÅTT_JOBBEN)
+        val enFåttJobbenMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(1).toString(), type = Type.REGISTRER_FÅTT_JOBBEN)
         val duplikat = enPresentertMelding
 
         rapid.sendTestMessage(objectMapper.writeValueAsString(enPresentertMelding))
