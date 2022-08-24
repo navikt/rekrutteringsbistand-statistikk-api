@@ -91,7 +91,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
     enum class Type(val eventName: String) {
         REGISTRER_CV_DELT("registrer-cv-delt"),
         CV_DELT_VIA_REKRUTTERINGSBISTAND("cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"),
-        REGISTER_FÅTT_JOBBEN("registrer-fått-jobben"),
+        REGISTRER_FÅTT_JOBBEN("registrer-fått-jobben"),
         FJERN_REGISTRERING_AV_CV_DELT("fjern-registrering-av-cv-delt"),
         FJERN_REGISTRERING_FÅTT_JOBBEN("fjern-registrering-fått-jobben");
 
@@ -99,7 +99,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
             when (this) {
                 REGISTRER_CV_DELT -> Utfall.PRESENTERT
                 CV_DELT_VIA_REKRUTTERINGSBISTAND -> Utfall.PRESENTERT
-                REGISTER_FÅTT_JOBBEN -> Utfall.FATT_JOBBEN
+                REGISTRER_FÅTT_JOBBEN -> Utfall.FATT_JOBBEN
                 FJERN_REGISTRERING_AV_CV_DELT -> Utfall.IKKE_PRESENTERT
                 FJERN_REGISTRERING_FÅTT_JOBBEN -> Utfall.PRESENTERT
             }
