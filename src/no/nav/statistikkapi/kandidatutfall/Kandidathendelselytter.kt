@@ -46,6 +46,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
             log.info("Lagrer ikke fordi siste kandidatutfall for samme kandidat og kandidatliste har likt utfall")
         } else {
             repo.lagreUtfall(opprettKandidatutfall)
+            log.info("Lagrer kandidathendelse som kandidatutfall")
 
             Metrics.counter(
                 "rekrutteringsbistand.statistikk.utfall.lagret",
