@@ -150,6 +150,19 @@ class LagreStatistikkTest {
         assertThat(alleUtfall).hasSize(0)
     }
 
+    // Dette vil gjelde for meldinger for usynlige kandidater
+    @Test
+    fun `en melding skal lagres selv når alder og hullICv er null`() {
+        val enMelding = kandidathendelseMap(alder = null, hullICv = null)
+
+        rapid.sendTestMessage(objectMapper.writeValueAsString(enMelding))
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(1)
+        assertThat(alleUtfall.first().hullICv).isNull()
+        assertThat(alleUtfall.first().alder).isNull()
+    }
+
     @Test
     fun `En melding skal ikke lagres dersom utfall er lik som på siste melding for samme kandidat og kandidatliste`() {
         val etTidspunkt = nowOslo().minusHours(2)
@@ -217,7 +230,9 @@ class LagreStatistikkTest {
     fun kandidathendelseMap(
         tidspunkt: String = "2022-09-18T10:33:02.5+02:00",
         type: Type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND,
-        stillingsId: String? = "b3c925af-ebf4-50d1-aeee-efc9259107a4"
+        stillingsId: String? = "b3c925af-ebf4-50d1-aeee-efc9259107a4",
+        alder: Int? = 62,
+        hullICv: Boolean? = true,
     ) = mapOf(
         "@event_name" to "kandidat.${type.eventName}",
         "kandidathendelse" to mapOf(
@@ -230,8 +245,8 @@ class LagreStatistikkTest {
             "utførtAvNavIdent" to "Z994632",
             "utførtAvNavKontorKode" to "0313",
             "synligKandidat" to true,
-            "harHullICv" to true,
-            "alder" to 62,
+            "harHullICv" to hullICv,
+            "alder" to alder,
             "tilretteleggingsbehov" to listOf("arbeidstid")
         )
     )

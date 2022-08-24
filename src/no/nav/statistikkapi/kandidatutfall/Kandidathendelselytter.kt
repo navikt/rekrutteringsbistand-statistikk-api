@@ -75,8 +75,8 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
         val utførtAvNavIdent: String,
         val utførtAvNavKontorKode: String,
         val synligKandidat: Boolean,
-        val harHullICv: Boolean,
-        val alder: Int,
+        val harHullICv: Boolean?,
+        val alder: Int?,
         val tilretteleggingsbehov: List<String>,
     ) {
         fun toOpprettKandidatutfall(): OpprettKandidatutfall =
