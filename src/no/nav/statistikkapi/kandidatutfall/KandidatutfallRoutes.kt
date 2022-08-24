@@ -47,10 +47,10 @@ fun Route.kandidatutfall(
                 } else {
                     repo.lagreUtfall(it)
                     Metrics.counter("rekrutteringsbistand.statistikk.utfall.lagret", "utfall", it.utfall.name)
-                        .increment() // TODO: Flytt til kandidatlytter
+                        .increment()
                 }
             }
-            sendStatistikk.kjørEnGangAsync() // TODO: Flytt til kandidatlytter
+            sendStatistikk.kjørEnGangAsync()
             call.respond(HttpStatusCode.Created)
         }
     }

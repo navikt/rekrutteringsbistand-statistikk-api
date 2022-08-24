@@ -1,11 +1,11 @@
 package no.nav.statistikkapi.kandidatutfall
 
+import io.micrometer.core.instrument.Metrics
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.statistikkapi.*
-import no.nav.statistikkapi.stillinger.InkluderingTag.Companion.erGyldig
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -46,6 +46,12 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
             log.info("Lagrer ikke fordi siste kandidatutfall for samme kandidat og kandidatliste har likt utfall")
         } else {
             repo.lagreUtfall(opprettKandidatutfall)
+
+            Metrics.counter(
+                "rekrutteringsbistand.statistikk.utfall.lagret",
+                "utfall",
+                opprettKandidatutfall.utfall.name
+            ).increment()
         }
     }
 
