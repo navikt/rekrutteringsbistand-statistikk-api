@@ -20,7 +20,6 @@ import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.kandidatutfall.kandidatutfall
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
 import no.nav.statistikkapi.stillinger.StillingRepository
@@ -65,9 +64,9 @@ fun main() {
     RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
     ).withKtorModule {
-        settOppKtor(this, tokenValidationConfig, database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
+        settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
-        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource))
+        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
         start()
     }
 }
@@ -83,9 +82,7 @@ fun defaultProperties(objectMapper: ObjectMapper) = objectMapper.apply {
 fun settOppKtor(
     application: Application,
     tokenValidationConfig: AuthenticationConfig.() -> Unit,
-    dataSource: DataSource,
-    elasticSearchKlient: ElasticSearchKlient,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer
+    dataSource: DataSource
 ) {
     application.apply {
         install(CallLogging)
@@ -96,20 +93,13 @@ fun settOppKtor(
         }
         install(Authentication, tokenValidationConfig)
 
-        val stillingRepository = StillingRepository(dataSource)
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
-        val stillingService = StillingService(elasticSearchKlient, stillingRepository)
-        val sendKafkaMelding: Runnable =
-            hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
-        val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
-                kandidatutfall(kandidatutfallRepository, datavarehusScheduler)
                 hentStatistikk(kandidatutfallRepository)
             }
         }
-        datavarehusScheduler.kjørPeriodisk()
 
         log.info("Ktor satt opp i miljø: ${Cluster.current}")
     }

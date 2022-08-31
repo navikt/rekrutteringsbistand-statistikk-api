@@ -1,16 +1,32 @@
 package no.nav.statistikkapi.kandidatutfall
 
+import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Metrics
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.statistikkapi.*
+import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
+import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
+import no.nav.statistikkapi.kafka.hentUsendteUtfallOgSendPåKafka
+import no.nav.statistikkapi.stillinger.ElasticSearchKlient
+import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.stillinger.StillingService
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import javax.sql.DataSource
 
-class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val repo: KandidatutfallRepository) :
+class Kandidathendelselytter(
+    rapidsConnection: RapidsConnection,
+    private val repo: KandidatutfallRepository,
+    dataSource: DataSource,
+    elasticSearchKlient: ElasticSearchKlient,
+    datavarehusKafkaProducer: DatavarehusKafkaProducer
+) :
     River.PacketListener {
+
+    private val kjørSchedulerAsync: () -> Unit
 
     init {
         River(rapidsConnection).apply {
@@ -22,6 +38,17 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
                 it.interestedIn("kandidathendelse")
             }
         }.register(this)
+
+        val stillingRepository = StillingRepository(dataSource)
+        val kandidatutfallRepository = KandidatutfallRepository(dataSource)
+        val stillingService = StillingService(elasticSearchKlient, stillingRepository)
+        val sendKafkaMelding: Runnable =
+            hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
+        val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
+
+        datavarehusScheduler.kjørPeriodisk()
+
+        kjørSchedulerAsync = { datavarehusScheduler.kjørEnGangAsync() }
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
@@ -54,6 +81,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
                 opprettKandidatutfall.utfall.name
             ).increment()
         }
+        kjørSchedulerAsync()
     }
 
     fun kanStolePåDatakvaliteten(kandidathendelse: Kandidathendelse): Boolean {
@@ -114,3 +142,17 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
             }
     }
 }
+
+data class OpprettKandidatutfall(
+    val aktørId: String,
+    val utfall: Utfall,
+    val navIdent: String,
+    val navKontor: String,
+    val kandidatlisteId: String,
+    val stillingsId: String,
+    val synligKandidat: Boolean,
+    val harHullICv: Boolean?,
+    val alder: Int?,
+    val tilretteleggingsbehov: List<String>,
+    val tidspunktForHendelsen: ZonedDateTime,
+)
