@@ -100,7 +100,8 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
         CV_DELT_VIA_REKRUTTERINGSBISTAND("cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"),
         REGISTRER_FÅTT_JOBBEN("registrer-fått-jobben"),
         FJERN_REGISTRERING_AV_CV_DELT("fjern-registrering-av-cv-delt"),
-        FJERN_REGISTRERING_FÅTT_JOBBEN("fjern-registrering-fått-jobben");
+        FJERN_REGISTRERING_FÅTT_JOBBEN("fjern-registrering-fått-jobben"),
+        ANNULERT("annullert");
 
         fun toUtfall(): Utfall =
             when (this) {
@@ -109,6 +110,7 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
                 REGISTRER_FÅTT_JOBBEN -> Utfall.FATT_JOBBEN
                 FJERN_REGISTRERING_AV_CV_DELT -> Utfall.IKKE_PRESENTERT
                 FJERN_REGISTRERING_FÅTT_JOBBEN -> Utfall.PRESENTERT
+                ANNULERT -> Utfall.IKKE_PRESENTERT
             }
     }
 }
