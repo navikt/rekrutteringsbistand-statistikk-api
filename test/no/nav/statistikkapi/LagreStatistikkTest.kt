@@ -143,7 +143,7 @@ class LagreStatistikkTest {
     @Test
     fun `en melding om ANNULERT lagres i databasen`() {
         val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.ANNULERT)
+            kandidathendelseMap(type = Type.ANNULLERT)
 
         val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
 
@@ -179,7 +179,7 @@ class LagreStatistikkTest {
 
     @Test
     fun `en melding skal lagres selv når navKontorKode er tom streng`() {
-        val enMelding = kandidathendelseMap(type = Type.ANNULERT, utførtAvNavKontorKode = "")
+        val enMelding = kandidathendelseMap(type = Type.ANNULLERT, utførtAvNavKontorKode = "")
 
         rapid.sendTestMessage(objectMapper.writeValueAsString(enMelding))
 
