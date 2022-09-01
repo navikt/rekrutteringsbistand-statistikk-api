@@ -81,7 +81,6 @@ class Kandidathendelselytter(
                 opprettKandidatutfall.utfall.name
             ).increment()
         }
-        kjørSchedulerAsync()
     }
 
     fun kanStolePåDatakvaliteten(kandidathendelse: Kandidathendelse): Boolean {
