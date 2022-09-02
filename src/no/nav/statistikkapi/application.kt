@@ -24,18 +24,18 @@ import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
+import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.ZoneId.of
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit.MILLIS
+import java.util.*
 import javax.sql.DataSource
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
 
 fun main() {
-    val database = Database(Cluster.current)
-
     val tokenSupportConfig = TokenSupportConfig(
         IssuerConfig(
             name = "azuread",
@@ -44,12 +44,6 @@ fun main() {
             cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
         )
     )
-    val tokenValidationConfig: AuthenticationConfig.() -> Unit = {
-        tokenValidationSupport(config = tokenSupportConfig)
-    }
-
-    val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
-
     val stillingssokProxyAccessTokenClient = AccessTokenProvider(
         config = AccessTokenProvider.Config(
             azureClientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
@@ -60,6 +54,19 @@ fun main() {
     )
     val elasticSearchKlient =
         ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
+    val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaProducer(KafkaConfig.producerConfig()))
+    startApp(Database(Cluster.current), tokenSupportConfig, datavarehusKafkaProducer, elasticSearchKlient)
+}
+
+fun startApp(
+    database: Database,
+    tokenSupportConfig: TokenSupportConfig,
+    datavarehusKafkaProducer: DatavarehusKafkaProducer,
+    elasticSearchKlient: ElasticSearchKlient
+) {
+    val tokenValidationConfig: AuthenticationConfig.() -> Unit = {
+        tokenValidationSupport(config = tokenSupportConfig)
+    }
 
     startDatavarehusScheduler(database, elasticSearchKlient, datavarehusKafkaProducer)
 
@@ -75,8 +82,8 @@ fun main() {
 
 private fun startDatavarehusScheduler(
     database: Database,
-    elasticSearchKlient: ElasticSearchKlientImpl,
-    datavarehusKafkaProducer: DatavarehusKafkaProducerImpl
+    elasticSearchKlient: ElasticSearchKlient,
+    datavarehusKafkaProducer: DatavarehusKafkaProducer
 ) {
     val stillingRepository = StillingRepository(database.dataSource)
     val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)

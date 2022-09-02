@@ -4,7 +4,7 @@ import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
-import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
 
@@ -12,10 +12,8 @@ interface DatavarehusKafkaProducer {
     fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori)
 }
 
-class DatavarehusKafkaProducerImpl(config: Properties) :
+class DatavarehusKafkaProducerImpl(private val producer: Producer<String, AvroKandidatutfall>) :
     DatavarehusKafkaProducer {
-
-    private val producer: KafkaProducer<String, AvroKandidatutfall> = KafkaProducer(config)
 
     companion object {
         const val topic = "toi.kandidatutfall"

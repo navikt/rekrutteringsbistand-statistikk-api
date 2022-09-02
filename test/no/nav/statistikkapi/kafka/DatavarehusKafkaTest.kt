@@ -5,27 +5,22 @@ import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import io.ktor.client.request.*
-import no.nav.statistikkapi.db.TestDatabase
-import no.nav.statistikkapi.db.TestRepository
 import kotlinx.coroutines.runBlocking
-import no.nav.common.KafkaEnvironment
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.Test
 import no.nav.statistikkapi.*
+import no.nav.statistikkapi.db.TestDatabase
+import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.*
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchStilling
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
-import java.time.Duration
+import org.apache.kafka.clients.producer.MockProducer
+import org.junit.After
+import org.junit.Test
 import java.time.LocalDateTime
-import kotlin.test.Ignore
 
 class DatavarehusKafkaTest {
 
@@ -39,7 +34,7 @@ class DatavarehusKafkaTest {
 
         testHentUsendteUtfallOgSendPåKafka.run()
 
-        val actuals: List<AvroKandidatutfall> = consumeKafka()
+        val actuals: List<AvroKandidatutfall> = mockProducer.history().map { it.value() }
 
         assertThat(actuals.count()).isEqualTo(2)
         actuals.forEachIndexed { index, actual ->
@@ -95,8 +90,6 @@ class DatavarehusKafkaTest {
 
         testHentUsendteUtfallOgSendPåKafka.run()
 
-        consumeKafka() // Vent
-
         val now = LocalDateTime.now()
         val actuals: List<Kandidatutfall> = repository.hentUtfall()
 
@@ -120,11 +113,9 @@ class DatavarehusKafkaTest {
         private val database = TestDatabase()
         private val repository = TestRepository(database.dataSource)
         private val port = randomPort()
-        private val lokalKafka = KafkaEnvironment(withSchemaRegistry = true)
         private val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
-        private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(
-            producerConfig(lokalKafka.brokersURL, lokalKafka.schemaRegistry!!.url)
-        )
+        private val mockProducer = MockProducer<String, AvroKandidatutfall>(true, null, null)
+        private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(mockProducer)
         private val elasticSearchKlient = object : ElasticSearchKlient {
             override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
         }
@@ -135,32 +126,10 @@ class DatavarehusKafkaTest {
                 StillingService(elasticSearchKlient, StillingRepository(database.dataSource))
             )
         private val mockOAuth2Server = MockOAuth2Server()
-        private val client = httpKlientMedBearerToken(mockOAuth2Server)
-        private val basePath = basePath(port)
         val rapid = TestRapid()
-
-        private fun consumeKafka(): List<AvroKandidatutfall> {
-            val consumer = KafkaConsumer<String, AvroKandidatutfall>(
-                consumerConfig(
-                    lokalKafka.brokersURL,
-                    lokalKafka.schemaRegistry!!.url
-                )
-            )
-            consumer.subscribe(listOf(DatavarehusKafkaProducerImpl.topic))
-            val records = consumer.poll(Duration.ofSeconds(5))
-            return records.map { it.value() }
-        }
 
         init {
             start(database, port, datavarehusKafkaProducer, mockOAuth2Server, rapid)
-            lokalKafka.start()
         }
-
-        @AfterClass
-        @JvmStatic
-        fun afterClassCleanup() {
-            lokalKafka.tearDown()
-        }
-
     }
 }
