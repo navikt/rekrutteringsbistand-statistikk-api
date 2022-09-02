@@ -61,14 +61,31 @@ fun main() {
     val elasticSearchKlient =
         ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
 
+    startDatavarehusScheduler(database, elasticSearchKlient, datavarehusKafkaProducer)
+
     RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
     ).withKtorModule {
         settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
-        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
+        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource))
         start()
     }
+}
+
+private fun startDatavarehusScheduler(
+    database: Database,
+    elasticSearchKlient: ElasticSearchKlientImpl,
+    datavarehusKafkaProducer: DatavarehusKafkaProducerImpl
+) {
+    val stillingRepository = StillingRepository(database.dataSource)
+    val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
+    val stillingService = StillingService(elasticSearchKlient, stillingRepository)
+    val sendKafkaMelding: Runnable =
+        hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
+    val datavarehusScheduler = KafkaTilDataverehusScheduler(database.dataSource, sendKafkaMelding)
+
+    datavarehusScheduler.kjørPeriodisk()
 }
 
 val objectMapper = defaultProperties(jacksonObjectMapper())

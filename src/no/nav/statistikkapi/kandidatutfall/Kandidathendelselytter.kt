@@ -1,32 +1,21 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Metrics
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
-import no.nav.statistikkapi.*
-import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
-import no.nav.statistikkapi.kafka.KafkaTilDataverehusScheduler
-import no.nav.statistikkapi.kafka.hentUsendteUtfallOgSendPåKafka
-import no.nav.statistikkapi.stillinger.ElasticSearchKlient
-import no.nav.statistikkapi.stillinger.StillingRepository
-import no.nav.statistikkapi.stillinger.StillingService
+import no.nav.statistikkapi.log
+import no.nav.statistikkapi.objectMapper
+import no.nav.statistikkapi.toOslo
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import javax.sql.DataSource
 
 class Kandidathendelselytter(
     rapidsConnection: RapidsConnection,
-    private val repo: KandidatutfallRepository,
-    dataSource: DataSource,
-    elasticSearchKlient: ElasticSearchKlient,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer
+    private val repo: KandidatutfallRepository
 ) :
     River.PacketListener {
-
-    private val kjørSchedulerAsync: () -> Unit
 
     init {
         River(rapidsConnection).apply {
@@ -38,17 +27,6 @@ class Kandidathendelselytter(
                 it.interestedIn("kandidathendelse")
             }
         }.register(this)
-
-        val stillingRepository = StillingRepository(dataSource)
-        val kandidatutfallRepository = KandidatutfallRepository(dataSource)
-        val stillingService = StillingService(elasticSearchKlient, stillingRepository)
-        val sendKafkaMelding: Runnable =
-            hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
-        val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
-
-        datavarehusScheduler.kjørPeriodisk()
-
-        kjørSchedulerAsync = { datavarehusScheduler.kjørEnGangAsync() }
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {

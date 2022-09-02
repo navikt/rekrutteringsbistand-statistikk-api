@@ -47,7 +47,7 @@ fun start(
     val elasticSearchKlient = object : ElasticSearchKlient {
         override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
     }
-    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource), database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
+    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource))
 
     val ktorServer = embeddedServer(CIO, port = port) {}
     val ktorApplication = ktorServer.application
