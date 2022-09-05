@@ -18,8 +18,7 @@ val assertkVersion = "0.25"
 val micrometerPrometheusVersion = "1.7.4"
 val kafkaClientsVersion = "3.1.0"
 val mockkVersion = "1.12.0"
-val kafkaEmbeddedEnvironmentVersion = "2.8.0"
-val kafkaAvroSerializerVersion = "6.2.4"
+val kafkaAvroSerializerVersion = "6.0.1"
 val shedlockVersion = "4.28.0"
 val pitestVersion = "1.7.0"
 val elasticSearchClientVersion = "7.10.1"
@@ -112,7 +111,6 @@ dependencies {
         exclude(group = "org.eclipse.jetty")
     }
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
-    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")

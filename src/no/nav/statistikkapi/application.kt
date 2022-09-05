@@ -20,23 +20,22 @@ import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.kandidatutfall.kandidatutfall
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
+import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.ZoneId.of
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit.MILLIS
+import java.util.*
 import javax.sql.DataSource
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
 
 fun main() {
-    val database = Database(Cluster.current)
-
     val tokenSupportConfig = TokenSupportConfig(
         IssuerConfig(
             name = "azuread",
@@ -45,12 +44,6 @@ fun main() {
             cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
         )
     )
-    val tokenValidationConfig: AuthenticationConfig.() -> Unit = {
-        tokenValidationSupport(config = tokenSupportConfig)
-    }
-
-    val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaConfig.producerConfig())
-
     val stillingssokProxyAccessTokenClient = AccessTokenProvider(
         config = AccessTokenProvider.Config(
             azureClientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
@@ -61,15 +54,45 @@ fun main() {
     )
     val elasticSearchKlient =
         ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
+    val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaProducer(KafkaConfig.producerConfig()))
+    startApp(Database(Cluster.current), tokenSupportConfig, datavarehusKafkaProducer, elasticSearchKlient)
+}
+
+fun startApp(
+    database: Database,
+    tokenSupportConfig: TokenSupportConfig,
+    datavarehusKafkaProducer: DatavarehusKafkaProducer,
+    elasticSearchKlient: ElasticSearchKlient
+) {
+    val tokenValidationConfig: AuthenticationConfig.() -> Unit = {
+        tokenValidationSupport(config = tokenSupportConfig)
+    }
+
+    startDatavarehusScheduler(database, elasticSearchKlient, datavarehusKafkaProducer)
 
     RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
     ).withKtorModule {
-        settOppKtor(this, tokenValidationConfig, database.dataSource, elasticSearchKlient, datavarehusKafkaProducer)
+        settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
         Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource))
         start()
     }
+}
+
+private fun startDatavarehusScheduler(
+    database: Database,
+    elasticSearchKlient: ElasticSearchKlient,
+    datavarehusKafkaProducer: DatavarehusKafkaProducer
+) {
+    val stillingRepository = StillingRepository(database.dataSource)
+    val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
+    val stillingService = StillingService(elasticSearchKlient, stillingRepository)
+    val sendKafkaMelding: Runnable =
+        hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
+    val datavarehusScheduler = KafkaTilDataverehusScheduler(database.dataSource, sendKafkaMelding)
+
+    datavarehusScheduler.kjørPeriodisk()
 }
 
 val objectMapper = defaultProperties(jacksonObjectMapper())
@@ -83,9 +106,7 @@ fun defaultProperties(objectMapper: ObjectMapper) = objectMapper.apply {
 fun settOppKtor(
     application: Application,
     tokenValidationConfig: AuthenticationConfig.() -> Unit,
-    dataSource: DataSource,
-    elasticSearchKlient: ElasticSearchKlient,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer
+    dataSource: DataSource
 ) {
     application.apply {
         install(CallLogging)
@@ -96,20 +117,13 @@ fun settOppKtor(
         }
         install(Authentication, tokenValidationConfig)
 
-        val stillingRepository = StillingRepository(dataSource)
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
-        val stillingService = StillingService(elasticSearchKlient, stillingRepository)
-        val sendKafkaMelding: Runnable =
-            hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
-        val datavarehusScheduler = KafkaTilDataverehusScheduler(dataSource, sendKafkaMelding)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
-                kandidatutfall(kandidatutfallRepository, datavarehusScheduler)
                 hentStatistikk(kandidatutfallRepository)
             }
         }
-        datavarehusScheduler.kjørPeriodisk()
 
         log.info("Ktor satt opp i miljø: ${Cluster.current}")
     }

@@ -5,11 +5,16 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
-import no.nav.statistikkapi.*
+import no.nav.statistikkapi.log
+import no.nav.statistikkapi.objectMapper
+import no.nav.statistikkapi.toOslo
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val repo: KandidatutfallRepository) :
+class Kandidathendelselytter(
+    rapidsConnection: RapidsConnection,
+    private val repo: KandidatutfallRepository
+) :
     River.PacketListener {
 
     init {
@@ -114,3 +119,17 @@ class Kandidathendelselytter(rapidsConnection: RapidsConnection, private val rep
             }
     }
 }
+
+data class OpprettKandidatutfall(
+    val aktørId: String,
+    val utfall: Utfall,
+    val navIdent: String,
+    val navKontor: String,
+    val kandidatlisteId: String,
+    val stillingsId: String,
+    val synligKandidat: Boolean,
+    val harHullICv: Boolean?,
+    val alder: Int?,
+    val tilretteleggingsbehov: List<String>,
+    val tidspunktForHendelsen: ZonedDateTime,
+)
