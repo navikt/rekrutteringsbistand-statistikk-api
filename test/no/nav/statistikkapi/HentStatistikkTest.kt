@@ -161,7 +161,7 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Presentert og fått jobben på samme kandidat og samme kandidatliste skal telles som presentert og fått jobben`() {
+    fun `Presentert og fått jobben på samme kandidat, samme kandidatliste og samme tidspunkt skal telles som presentert og fått jobben`() {
         val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT)
         val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN)
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)

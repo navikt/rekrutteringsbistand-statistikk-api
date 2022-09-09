@@ -141,15 +141,16 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
-                
-                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
-                     WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktørId, $kandidatlisteid) as k2
-                     
-                WHERE k1.$navkontor = ? 
-                  AND k1.$dbId = k2.maksId
-                  AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+                SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
+                    SELECT DISTINCT k1.$aktørId, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
+                        (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
+                            WHERE k2.$tidspunkt BETWEEN ? AND ?
+                            GROUP BY $aktørId, $kandidatlisteid
+                        ) as k2
+                     WHERE k1.$navkontor = ? 
+                      AND k1.$tidspunkt = k2.maksTidspunkt
+                      AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+                ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
             ).apply {
                 setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
@@ -171,12 +172,12 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 """
                 SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
                 
-                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
+                  (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktørId, $kandidatlisteid) as k2
                      
                 WHERE k1.$navkontor = ?
-                  AND k1.$dbId = k2.maksId
+                  AND k1.$tidspunkt = k2.maksTidspunkt
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
             """.trimIndent()
             ).apply {
