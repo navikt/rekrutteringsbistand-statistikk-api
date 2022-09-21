@@ -241,17 +241,6 @@ class LagreStatistikkTest {
         assertThat(alleUtfall.size).isEqualTo(1)
     }
 
-    @Test
-    fun `en kandidathendelsemelding skal ikke lagres om hendelsestidspunkt er lik spesifisert tidspunkt`() {
-        val kandidathendelsemelding = kandidathendelseMap(tidspunkt = "2022-08-19T11:00:00+02:00")
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).isEmpty()
-    }
-
     fun kandidathendelseMap(
         tidspunkt: String = "2022-09-18T10:33:02.5+02:00",
         type: Type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND,

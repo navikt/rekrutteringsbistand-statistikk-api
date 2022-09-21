@@ -38,9 +38,6 @@ class Kandidathendelselytter(
         if (kandidathendelse.stillingsId == null) {
             log.info("Behandler ikke melding fordi den er uten stilingsId")
             return
-        } else if (!kanStolePåDatakvaliteten(kandidathendelse)) {
-            log.info("Behandler ikke melding fordi vi ikke kan stole på datakvaliteten")
-            return
         }
 
         val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
@@ -59,15 +56,6 @@ class Kandidathendelselytter(
                 opprettKandidatutfall.utfall.name
             ).increment()
         }
-    }
-
-    fun kanStolePåDatakvaliteten(kandidathendelse: Kandidathendelse): Boolean {
-        val kunMeldingerEtter: ZonedDateTime = ZonedDateTime.of(
-            2022, 8, 19, 11,
-            0, 0, 0,
-            ZoneId.of("Europe/Oslo")
-        )
-        return kandidathendelse.tidspunkt.isAfter(kunMeldingerEtter)
     }
 
     data class Kandidathendelse(
