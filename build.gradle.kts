@@ -3,7 +3,7 @@ For å se hvilken versjon det er, kjør "./gradlew --version".
 Kotlin-versjonen oppgraderes slik: https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:upgrading_wrapper
  */
 val kotlinCodeStyle = "official"
-val logbackVersion = "1.4.3"
+val logbackVersion = "1.4.4"
 val ktorVersion = "2.1.2"
 val ktorLesserVersion = "1.6.8"
 val h2Version = "2.1.214"
@@ -15,7 +15,7 @@ val postgresVersion = "42.5.0"
 val tokenValidationVersion = "2.1.6"
 val jacksonVersion = "2.13.4"
 val assertkVersion = "0.25"
-val micrometerPrometheusVersion = "1.9.4"
+val micrometerPrometheusVersion = "1.9.5"
 val kafkaClientsVersion = "3.3.1"
 val mockkVersion = "1.13.2"
 val kafkaAvroSerializerVersion = "6.0.1"
@@ -30,10 +30,10 @@ val mockOAuth2ServerVersion = "0.5.4"
 plugins {
     application
     kotlin("jvm") version embeddedKotlinVersion // Kotlinversjon styres av gradlew, se https://blog.nishtahir.com/how-to-properly-update-the-gradle-wrapper/
-    id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("com.github.ben-manes.versions") version "0.39.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.ben-manes.versions") version "0.43.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.2.1"
-    id("info.solidsoft.pitest") version "1.7.0"
+    id("info.solidsoft.pitest") version "1.9.0"
     idea
 }
 
@@ -76,7 +76,7 @@ repositories {
 dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.github.navikt:rapids-and-rivers:2022061809451655538329.d6deccc62862")
+    implementation("com.github.navikt:rapids-and-rivers:2022100711511665136276.49acbaae4ed4")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
