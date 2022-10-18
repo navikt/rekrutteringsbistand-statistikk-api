@@ -7,13 +7,16 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.objectMapper
+import no.nav.statistikkapi.stillinger.ElasticSearchKlient
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import no.nav.statistikkapi.toOslo
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class Kandidathendelselytter(
     rapidsConnection: RapidsConnection,
-    private val repo: KandidatutfallRepository
+    private val repo: KandidatutfallRepository,
+    private val elasticSearchKlient: ElasticSearchKlient
 ) :
     River.PacketListener {
 
@@ -32,6 +35,8 @@ class Kandidathendelselytter(
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val kandidathendelse: Kandidathendelse =
             objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
+
+        sammenlignStillinger(objectMapper.treeToValue(packet["stilling"], StillingsinfoIHendelse::class.java))
 
         log.info("Har mottatt kandidathendelse")
 
@@ -57,6 +62,26 @@ class Kandidathendelselytter(
             ).increment()
         }
     }
+
+    private fun sammenlignStillinger(stillingFraHendelse: StillingsinfoIHendelse) {
+        val stillingFraES = elasticSearchKlient.hentStilling(stillingFraHendelse.stillingsid)
+        if(stillingFraES==null)
+            log.warn("Fant ikke stilling fra elasticsearch")
+        else if(stillingFraES.stillingskategori!=stillingFraHendelse.stillingskategori)
+            log.warn("Stillinger har forskjellig stillingskategori: ES: ${stillingFraES.stillingskategori} Hendelse: ${stillingFraHendelse.stillingskategori}")
+        else
+            log.info("Stillinger har samme stillingskategori: ${stillingFraES.stillingskategori}")
+    }
+
+    private data class StillingsinfoIHendelse(
+        val stillingsinfoid: String,
+        val stillingsid: String,
+        val eier: Eier?,
+        val notat: String?,
+        val stillingskategori: Stillingskategori?
+    )
+
+    private data class Eier(val navident: String?, val navn: String?)
 
     data class Kandidathendelse(
         val type: Type,
