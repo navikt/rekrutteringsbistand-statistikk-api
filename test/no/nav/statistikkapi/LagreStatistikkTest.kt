@@ -5,13 +5,16 @@ import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
+import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter.Type
 import no.nav.statistikkapi.kandidatutfall.SendtStatus
 import no.nav.statistikkapi.kandidatutfall.Utfall
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.ZonedDateTime
+import java.util.*
 
 class LagreStatistikkTest {
 
@@ -205,8 +208,10 @@ class LagreStatistikkTest {
 
     @Test
     fun `Skal ikke lagre duplikat`() {
-        val enPresentertMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
-        val enFåttJobbenMelding = kandidathendelseMap(tidspunkt = nowOslo().minusDays(1).toString(), type = Type.REGISTRER_FÅTT_JOBBEN)
+        val enPresentertMelding =
+            kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
+        val enFåttJobbenMelding =
+            kandidathendelseMap(tidspunkt = nowOslo().minusDays(1).toString(), type = Type.REGISTRER_FÅTT_JOBBEN)
         val duplikat = enPresentertMelding
 
         rapid.sendTestMessage(objectMapper.writeValueAsString(enPresentertMelding))
@@ -264,5 +269,17 @@ class LagreStatistikkTest {
             "alder" to alder,
             "tilretteleggingsbehov" to listOf("arbeidstid")
         )
-    )
+    ) +
+            if (stillingsId == null) emptyArray() else
+                arrayOf(
+                    "stilling" to mapOf(
+                        "stillingsinfoid" to UUID.randomUUID().toString(),
+                        "stillingsid" to stillingsId,
+                        "eier" to mapOf(
+                            "navident" to "A123456",
+                            "navn" to "Navnesen"
+                        ),
+                        "stillingskategori" to "STILLING"
+                    )
+                )
 }

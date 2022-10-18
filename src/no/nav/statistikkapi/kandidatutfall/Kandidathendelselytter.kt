@@ -1,10 +1,7 @@
 package no.nav.statistikkapi.kandidatutfall
 
 import io.micrometer.core.instrument.Metrics
-import no.nav.helse.rapids_rivers.JsonMessage
-import no.nav.helse.rapids_rivers.MessageContext
-import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.helse.rapids_rivers.River
+import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.objectMapper
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
@@ -27,7 +24,8 @@ class Kandidathendelselytter(
                     key = "@event_name",
                     values = Type.values().map { "kandidat.${it.eventName}" }
                 )
-                it.interestedIn("kandidathendelse")
+                it.requireKey("kandidathendelse")
+                it.demandKey("stilling")
             }
         }.register(this)
     }
@@ -61,6 +59,10 @@ class Kandidathendelselytter(
                 opprettKandidatutfall.utfall.name
             ).increment()
         }
+    }
+
+    override fun onError(problems: MessageProblems, context: MessageContext) {
+        log.error(problems.toExtendedReport())
     }
 
     private fun sammenlignStillinger(stillingFraHendelse: StillingsinfoIHendelse) {
