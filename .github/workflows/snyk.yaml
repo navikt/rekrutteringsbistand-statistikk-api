@@ -1,7 +1,8 @@
 name: Vulnerabilities scanning of dependencies using Snyk
 on:
   push:
-    branches: master
+    branches:
+      - master
 jobs:
   app-dependencies-vulnerabilities-scanning:
     name: Monitor dependencies with Snyk
