@@ -1,10 +1,10 @@
-name: Vulnerabilities scanning of dependencies using Snyk
+name: Snyk monitor
 on:
   push:
     branches:
       - master
 jobs:
-  app-dependencies-vulnerabilities-scanning:
+  snyk-monitor:
     name: Monitor dependencies with Snyk
     runs-on: ubuntu-latest
     steps:
