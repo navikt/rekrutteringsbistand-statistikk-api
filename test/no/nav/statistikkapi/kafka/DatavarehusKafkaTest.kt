@@ -21,6 +21,7 @@ import org.apache.kafka.clients.producer.MockProducer
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
+import java.util.*
 
 class DatavarehusKafkaTest {
 
@@ -73,6 +74,15 @@ class DatavarehusKafkaTest {
                 "harHullICv" to opprettKandidatutfall.harHullICv,
                 "alder" to opprettKandidatutfall.alder,
                 "tilretteleggingsbehov" to opprettKandidatutfall.tilretteleggingsbehov
+            ),
+            "stilling" to mapOf(
+                "stillingsinfoid" to UUID.randomUUID().toString(),
+                "stillingsid" to opprettKandidatutfall.stillingsId,
+                "eier" to mapOf(
+                    "navident" to "A123456",
+                    "navn" to "Navnesen"
+                ),
+                "stillingskategori" to "STILLING"
             )
         )
     }
