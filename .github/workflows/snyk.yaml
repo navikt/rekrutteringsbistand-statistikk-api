@@ -1,0 +1,18 @@
+name: Snyk monitor
+on:
+  push:
+    branches:
+      - master
+jobs:
+  snyk-monitor:
+    name: Monitor dependencies with Snyk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/gradle@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          args: --org=toi --project-name=${{ github.repository }} --remote-repo-url=https://github.com/${{ github.repository }}.git
