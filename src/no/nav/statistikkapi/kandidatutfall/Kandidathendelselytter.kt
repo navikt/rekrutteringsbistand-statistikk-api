@@ -68,11 +68,11 @@ class Kandidathendelselytter(
     private fun sammenlignStillinger(stillingFraHendelse: StillingsinfoIHendelse) {
         val stillingFraES = elasticSearchKlient.hentStilling(stillingFraHendelse.stillingsid)
         if(stillingFraES==null)
-            log.warn("Fant ikke stilling fra elasticsearch")
+            log.warn("Fant ikke stilling fra elasticsearch: ${stillingFraHendelse.stillingsid}")
         else if(stillingFraES.stillingskategori!=stillingFraHendelse.stillingskategori)
-            log.warn("Stillinger har forskjellig stillingskategori: ES: ${stillingFraES.stillingskategori} Hendelse: ${stillingFraHendelse.stillingskategori}")
+            log.warn("Stillinger har forskjellig stillingskategori (${stillingFraHendelse.stillingsid}): ES: ${stillingFraES.stillingskategori} Hendelse: ${stillingFraHendelse.stillingskategori}")
         else
-            log.info("Stillinger har samme stillingskategori: ${stillingFraES.stillingskategori}")
+            log.info("Stillinger har samme stillingskategori (${stillingFraHendelse.stillingsid}): ${stillingFraES.stillingskategori}")
     }
 
     private data class StillingsinfoIHendelse(
