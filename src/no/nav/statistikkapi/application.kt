@@ -119,6 +119,7 @@ fun settOppKtor(
                     "metrics"
                 ).contains(call.request.document())
             }
+            disableDefaultColors()
         }
         install(ContentNegotiation) {
             jackson {
