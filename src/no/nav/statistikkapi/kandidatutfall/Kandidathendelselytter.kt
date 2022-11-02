@@ -41,7 +41,7 @@ class Kandidathendelselytter(
             return
         }
 
-        val stillingsinfo = if (!packet["stilling"].isEmpty) {
+        val stillingsinfo = if (!packet["stilling"].isMissingOrNull()) {
             packet["stilling"]
         } else {
             packet["stillingsinfo"]
