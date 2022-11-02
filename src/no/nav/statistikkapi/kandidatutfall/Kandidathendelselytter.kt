@@ -7,7 +7,6 @@ import no.nav.statistikkapi.objectMapper
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import no.nav.statistikkapi.toOslo
-import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class Kandidathendelselytter(
@@ -25,7 +24,8 @@ class Kandidathendelselytter(
                     values = Type.values().map { "kandidat.${it.eventName}" }
                 )
                 it.requireKey("kandidathendelse")
-                it.demandKey("stilling")
+                // Kan require kun "stillingsinfo" etter 17.11.2022
+                it.interestedIn("stilling", "stillingsinfo")
             }
         }.register(this)
     }
@@ -34,14 +34,19 @@ class Kandidathendelselytter(
         val kandidathendelse: Kandidathendelse =
             objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
 
-        sammenlignStillinger(objectMapper.treeToValue(packet["stilling"], StillingsinfoIHendelse::class.java))
-
         log.info("Har mottatt kandidathendelse")
 
         if (kandidathendelse.stillingsId == null) {
             log.info("Behandler ikke melding fordi den er uten stilingsId")
             return
         }
+
+        val stillingsinfo = if (!packet["stilling"].isEmpty) {
+            packet["stilling"]
+        } else {
+            packet["stillingsinfo"]
+        }
+        sammenlignStillinger(objectMapper.treeToValue(stillingsinfo, StillingsinfoIHendelse::class.java))
 
         val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
 

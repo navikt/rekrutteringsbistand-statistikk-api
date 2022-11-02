@@ -75,7 +75,7 @@ class DatavarehusKafkaTest {
                 "alder" to opprettKandidatutfall.alder,
                 "tilretteleggingsbehov" to opprettKandidatutfall.tilretteleggingsbehov
             ),
-            "stilling" to mapOf(
+            "stillingsinfo" to mapOf(
                 "stillingsinfoid" to UUID.randomUUID().toString(),
                 "stillingsid" to opprettKandidatutfall.stillingsId,
                 "eier" to mapOf(

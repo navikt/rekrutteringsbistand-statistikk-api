@@ -246,6 +246,29 @@ class LagreStatistikkTest {
         assertThat(alleUtfall.size).isEqualTo(1)
     }
 
+    // Kan slettes to uker 17.11.2022
+    @Test
+    fun `Skal behandle en melding der stillingsinfo ligger under felt med navn "stilling"`() {
+        val kandidathendelsemelding = kandidathendelseMapMedStillingsinfoUnderFeltMedNavnStilling()
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall.size).isEqualTo(1)
+    }
+
+    @Test
+    fun `Skal behandle en melding der stillingsinfo ligger under felt med navn "stillingsinfo"`() {
+        val kandidathendelsemelding = kandidathendelseMap(tidspunkt = "2022-08-19T11:00:01+02:00")
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall.size).isEqualTo(1)
+    }
+
     fun kandidathendelseMap(
         tidspunkt: String = "2022-09-18T10:33:02.5+02:00",
         type: Type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND,
@@ -272,7 +295,7 @@ class LagreStatistikkTest {
     ) +
             if (stillingsId == null) emptyArray() else
                 arrayOf(
-                    "stilling" to mapOf(
+                    "stillingsinfo" to mapOf(
                         "stillingsinfoid" to UUID.randomUUID().toString(),
                         "stillingsid" to stillingsId,
                         "eier" to mapOf(
@@ -282,4 +305,11 @@ class LagreStatistikkTest {
                         "stillingskategori" to "STILLING"
                     )
                 )
+
+    fun kandidathendelseMapMedStillingsinfoUnderFeltMedNavnStilling(): MutableMap<String, Any> {
+        val kandidathendelsemelding = kandidathendelseMap().toMutableMap()
+        kandidathendelsemelding["stilling"] = kandidathendelsemelding["stillingsinfo"] as Any
+        kandidathendelsemelding.remove("stillingsinfo")
+        return kandidathendelsemelding
+    }
 }
