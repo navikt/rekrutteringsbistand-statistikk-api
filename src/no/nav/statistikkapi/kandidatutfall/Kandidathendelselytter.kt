@@ -43,8 +43,10 @@ class Kandidathendelselytter(
 
         val stillingsinfo = if (!packet["stilling"].isMissingOrNull()) {
             packet["stilling"]
-        } else {
+        } else if (!packet["stillingsinfo"].isMissingOrNull()) {
             packet["stillingsinfo"]
+        } else {
+            return
         }
         sammenlignStillinger(objectMapper.treeToValue(stillingsinfo, StillingsinfoIHendelse::class.java))
 

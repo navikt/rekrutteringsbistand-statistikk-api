@@ -246,6 +246,17 @@ class LagreStatistikkTest {
         assertThat(alleUtfall.size).isEqualTo(1)
     }
 
+    @Test
+    fun `en kandidathendelsemelding skal ikke lagres om det ikke finnes noe stillingsinfo- eller stillings-objekt`() {
+        val kandidathendelsemelding = kandidathendelseMap(tomStilling = true, tidspunkt = "2022-08-19T11:00:01+02:00")
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall.size).isEqualTo(0)
+    }
+
     // Kan slettes to uker 17.11.2022
     @Test
     fun `Skal behandle en melding der stillingsinfo ligger under felt med navn "stilling"`() {
@@ -275,7 +286,8 @@ class LagreStatistikkTest {
         stillingsId: String? = "b3c925af-ebf4-50d1-aeee-efc9259107a4",
         alder: Int? = 62,
         hullICv: Boolean? = true,
-        utførtAvNavKontorKode: String = "0313"
+        utførtAvNavKontorKode: String = "0313",
+        tomStilling: Boolean = stillingsId == null
     ) = mapOf(
         "@event_name" to "kandidat.${type.eventName}",
         "kandidathendelse" to mapOf(
@@ -293,7 +305,7 @@ class LagreStatistikkTest {
             "tilretteleggingsbehov" to listOf("arbeidstid")
         )
     ) +
-            if (stillingsId == null) emptyArray() else
+            if (tomStilling) emptyArray() else
                 arrayOf(
                     "stillingsinfo" to mapOf(
                         "stillingsinfoid" to UUID.randomUUID().toString(),
