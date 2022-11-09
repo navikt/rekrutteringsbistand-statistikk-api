@@ -5,6 +5,8 @@ import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import io.confluent.kafka.serializers.KafkaAvroSerializer
+import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
@@ -18,6 +20,8 @@ import no.nav.statistikkapi.stillinger.ElasticSearchStilling
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
 import org.apache.kafka.clients.producer.MockProducer
+import org.apache.kafka.common.serialization.Serializer
+import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
@@ -124,7 +128,8 @@ class DatavarehusKafkaTest {
         private val repository = TestRepository(database.dataSource)
         private val port = randomPort()
         private val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
-        private val mockProducer = MockProducer<String, AvroKandidatutfall>(true, null, null)
+        private val dummyAvroKandidatutfallSerializer = { _: String, _: AvroKandidatutfall -> ByteArray(0) }
+        private val mockProducer = MockProducer(true, StringSerializer(), dummyAvroKandidatutfallSerializer)
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(mockProducer)
         private val elasticSearchKlient = object : ElasticSearchKlient {
             override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
