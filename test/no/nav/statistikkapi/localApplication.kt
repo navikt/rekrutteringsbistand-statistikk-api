@@ -25,7 +25,6 @@ fun main() {
 fun start(
     database: TestDatabase = TestDatabase(),
     port: Int = 8111,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer = DatavarehusKafkaProducerStub(),
     mockOAuth2Server: MockOAuth2Server = MockOAuth2Server(),
     rapid: RapidsConnection = TestRapid()
 ) {
@@ -44,10 +43,7 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    val elasticSearchKlient = object : ElasticSearchKlient {
-        override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
-    }
-    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource), elasticSearchKlient)
+    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource))
 
     val ktorServer = embeddedServer(CIO, port = port) {}
     val ktorApplication = ktorServer.application

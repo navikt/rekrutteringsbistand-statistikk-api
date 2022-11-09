@@ -11,8 +11,7 @@ import java.time.ZonedDateTime
 
 class Kandidathendelselytter(
     rapidsConnection: RapidsConnection,
-    private val repo: KandidatutfallRepository,
-    private val elasticSearchKlient: ElasticSearchKlient
+    private val repo: KandidatutfallRepository
 ) :
     River.PacketListener {
 
@@ -24,8 +23,6 @@ class Kandidathendelselytter(
                     values = Type.values().map { "kandidat.${it.eventName}" }
                 )
                 it.requireKey("kandidathendelse")
-                // Kan require kun "stillingsinfo" etter 17.11.2022
-                it.interestedIn("stilling", "stillingsinfo")
             }
         }.register(this)
     }
@@ -40,15 +37,6 @@ class Kandidathendelselytter(
             log.info("Behandler ikke melding fordi den er uten stilingsId")
             return
         }
-
-        val stillingsinfo = if (!packet["stilling"].isMissingOrNull()) {
-            packet["stilling"]
-        } else if (!packet["stillingsinfo"].isMissingOrNull()) {
-            packet["stillingsinfo"]
-        } else {
-            return
-        }
-        sammenlignStillinger(objectMapper.treeToValue(stillingsinfo, StillingsinfoIHendelse::class.java))
 
         val opprettKandidatutfall: OpprettKandidatutfall = kandidathendelse.toOpprettKandidatutfall()
 
@@ -71,26 +59,6 @@ class Kandidathendelselytter(
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error(problems.toExtendedReport())
     }
-
-    private fun sammenlignStillinger(stillingFraHendelse: StillingsinfoIHendelse) {
-        val stillingFraES = elasticSearchKlient.hentStilling(stillingFraHendelse.stillingsid)
-        if(stillingFraES==null)
-            log.warn("Fant ikke stilling fra elasticsearch: ${stillingFraHendelse.stillingsid}")
-        else if(stillingFraES.stillingskategori!=stillingFraHendelse.stillingskategori)
-            log.warn("Stillinger har forskjellig stillingskategori (${stillingFraHendelse.stillingsid}): ES: ${stillingFraES.stillingskategori} Hendelse: ${stillingFraHendelse.stillingskategori}")
-        else
-            log.info("Stillinger har samme stillingskategori (${stillingFraHendelse.stillingsid}): ${stillingFraES.stillingskategori}")
-    }
-
-    private data class StillingsinfoIHendelse(
-        val stillingsinfoid: String,
-        val stillingsid: String,
-        val eier: Eier?,
-        val notat: String?,
-        val stillingskategori: Stillingskategori?
-    )
-
-    private data class Eier(val navident: String?, val navn: String?)
 
     data class Kandidathendelse(
         val type: Type,

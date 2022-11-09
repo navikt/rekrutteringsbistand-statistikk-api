@@ -76,7 +76,7 @@ fun startApp(
     ).withKtorModule {
         settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
-        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), elasticSearchKlient)
+        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource))
         start()
     }
 }
