@@ -139,7 +139,7 @@ class DatavarehusKafkaTest {
         val rapid = TestRapid()
 
         init {
-            start(database, port, datavarehusKafkaProducer, mockOAuth2Server, rapid)
+            start(database, port, mockOAuth2Server, rapid)
         }
     }
 }
