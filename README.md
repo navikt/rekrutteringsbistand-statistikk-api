@@ -58,6 +58,13 @@ Datapakke-id ble opprettet ved å kalle kjøre: curl -X 'POST' -d @datapakke.jso
 med innehold i datapakke.json: {"title":"Hull i cv","description":"Vise hull i cv","views":[],"resources":[]}
 (Id genereres basert på verdien av title)
 
+# Testing av applikasjonen i Rekrutteringsbistand
+- Del stilling med kandidat
+- Gå inn i aktivitetsplanen og svar ja/nei på deling av CV
+- Sjekk forsiden av Rekrutteringsbistand for å se om tellingen har blitt oppdatert som forventet
+- Gå inn i databasen og sjekk at radene som er lagret blir markert med som sendt til datavarehus
+- Hvis man gir jobben til kandidat, og så sjekke i databasen at PRESENTERT og FIKK_JOBBEN ble lagret og at de ble sendt til datavarehus
+
 # Henvendelser
 
 ## For Nav-ansatte
