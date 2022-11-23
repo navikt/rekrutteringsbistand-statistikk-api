@@ -25,7 +25,7 @@ class Kandidathendelselytter(
                     values = Type.values().map { "kandidat.${it.eventName}" }
                 )
                 it.requireKey("kandidathendelse")
-                it.demandKey("stilling")
+                it.interestedIn("stillingsinfo")
             }
         }.register(this)
     }
@@ -34,7 +34,8 @@ class Kandidathendelselytter(
         val kandidathendelse: Kandidathendelse =
             objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
 
-        sammenlignStillinger(objectMapper.treeToValue(packet["stilling"], StillingsinfoIHendelse::class.java))
+        val stillingsinfo = packet["stillingsinfo"]
+        sammenlignStillinger(if(stillingsinfo.isMissingOrNull()) null else objectMapper.treeToValue(stillingsinfo, StillingsinfoIHendelse::class.java))
 
         log.info("Har mottatt kandidathendelse")
 
@@ -65,14 +66,22 @@ class Kandidathendelselytter(
         log.error(problems.toExtendedReport())
     }
 
-    private fun sammenlignStillinger(stillingFraHendelse: StillingsinfoIHendelse) {
-        val stillingFraES = elasticSearchKlient.hentStilling(stillingFraHendelse.stillingsid)
-        if(stillingFraES==null)
-            log.warn("Fant ikke stilling fra elasticsearch: ${stillingFraHendelse.stillingsid}")
-        else if(stillingFraES.stillingskategori!=stillingFraHendelse.stillingskategori)
-            log.warn("Stillinger har forskjellig stillingskategori (${stillingFraHendelse.stillingsid}): ES: ${stillingFraES.stillingskategori} Hendelse: ${stillingFraHendelse.stillingskategori}")
-        else
-            log.info("Stillinger har samme stillingskategori (${stillingFraHendelse.stillingsid}): ${stillingFraES.stillingskategori}")
+    private fun sammenlignStillinger(stillingFraHendelse: StillingsinfoIHendelse?) {
+        try {
+            if (stillingFraHendelse == null) {
+                log.warn("Hendelse inneholder ikke stillingsinfo")
+                return
+            }
+            val stillingFraES = elasticSearchKlient.hentStilling(stillingFraHendelse.stillingsid)
+            if (stillingFraES == null)
+                log.warn("Fant ikke stilling fra elasticsearch: ${stillingFraHendelse.stillingsid}")
+            else if (stillingFraES.stillingskategori != stillingFraHendelse.stillingskategori)
+                log.warn("Stillinger har forskjellig stillingskategori (${stillingFraHendelse.stillingsid}): ES: ${stillingFraES.stillingskategori} Hendelse: ${stillingFraHendelse.stillingskategori}")
+            else
+                log.info("Stillinger har samme stillingskategori (${stillingFraHendelse.stillingsid}): ${stillingFraES.stillingskategori}")
+        } catch (e: Exception) {
+            log.error(e.message, e)
+        }
     }
 
     private data class StillingsinfoIHendelse(
