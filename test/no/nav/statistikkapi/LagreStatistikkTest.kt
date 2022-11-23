@@ -252,7 +252,8 @@ class LagreStatistikkTest {
         stillingsId: String? = "b3c925af-ebf4-50d1-aeee-efc9259107a4",
         alder: Int? = 62,
         hullICv: Boolean? = true,
-        utførtAvNavKontorKode: String = "0313"
+        utførtAvNavKontorKode: String = "0313",
+        tomStilling: Boolean = stillingsId == null
     ) = mapOf(
         "@event_name" to "kandidat.${type.eventName}",
         "kandidathendelse" to mapOf(
@@ -270,9 +271,9 @@ class LagreStatistikkTest {
             "tilretteleggingsbehov" to listOf("arbeidstid")
         )
     ) +
-            if (stillingsId == null) emptyArray() else
+            if (tomStilling) emptyArray() else
                 arrayOf(
-                    "stilling" to mapOf(
+                    "stillingsinfo" to mapOf(
                         "stillingsinfoid" to UUID.randomUUID().toString(),
                         "stillingsid" to stillingsId,
                         "eier" to mapOf(
@@ -282,4 +283,11 @@ class LagreStatistikkTest {
                         "stillingskategori" to "STILLING"
                     )
                 )
+
+    fun kandidathendelseMapMedStillingsinfoUnderFeltMedNavnStilling(): MutableMap<String, Any> {
+        val kandidathendelsemelding = kandidathendelseMap().toMutableMap()
+        kandidathendelsemelding["stilling"] = kandidathendelsemelding["stillingsinfo"] as Any
+        kandidathendelsemelding.remove("stillingsinfo")
+        return kandidathendelsemelding
+    }
 }

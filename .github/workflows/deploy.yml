@@ -3,15 +3,15 @@ name: Build & deploy
 on: [ push ]
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/rekrutteringsbistand-statistikk-api:${{ github.sha }}
+  IMAGE: ghcr.io/${{ github.repository }}/rekrutteringsbistand-statistikk-api:${{ github.sha }}
 
 jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -25,6 +25,15 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Run tests
         run: ./gradlew --no-daemon check --info
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
+      - name: Test dependencies with Snyk
+        run: snyk test --org=toi --fail-on=all --severity-threshold=medium
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ## Ved fix av prodfeil, sett continue-on-error=true, slik at workflow fortsetter selvom snyk finner sårbarheter
+        continue-on-error: false
 
   deploy-to-dev:
     name: Deploy to dev
@@ -32,11 +41,11 @@ jobs:
     #########################
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stilling-fra-hendelse'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/oppdatere-dependencies-2)'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -55,7 +64,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker build --tag ${IMAGE} .
-          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${GITHUB_REPOSITORY} --password-stdin
           docker push ${IMAGE}
       - uses: nais/deploy/actions/deploy@v1
         env:
@@ -70,10 +79,35 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
           VAR: version=${{ env.IMAGE }}
           RESOURCE: nais/nais-prod.yaml,nais/alerts.yml
+
+  snyk-monitor:
+    name: Monitor dependencies with Snyk
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Java v17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
+      - name: Monitor dependencies with Snyk
+        run: >
+          snyk monitor
+          --org=toi
+          --project-name=${{ github.repository }}
+          --remote-repo-url=https://github.com/${{ github.repository }}.git
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

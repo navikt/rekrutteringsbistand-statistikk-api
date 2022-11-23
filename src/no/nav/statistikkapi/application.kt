@@ -11,6 +11,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.security.token.support.v2.IssuerConfig
@@ -27,10 +28,10 @@ import no.nav.statistikkapi.stillinger.StillingService
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.slf4j.event.Level
 import java.time.ZoneId.of
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit.MILLIS
-import java.util.*
 import javax.sql.DataSource
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
@@ -75,7 +76,7 @@ fun startApp(
     ).withKtorModule {
         settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
-        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), elasticSearchKlient)
+        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource))
         start()
     }
 }
@@ -109,7 +110,17 @@ fun settOppKtor(
     dataSource: DataSource
 ) {
     application.apply {
-        install(CallLogging)
+        install(CallLogging) {
+            level = Level.DEBUG
+            filter { call ->
+                !setOf(
+                    "isalive",
+                    "isready",
+                    "metrics"
+                ).contains(call.request.document())
+            }
+            disableDefaultColors()
+        }
         install(ContentNegotiation) {
             jackson {
                 defaultProperties(this)
