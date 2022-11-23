@@ -69,16 +69,16 @@ class Kandidathendelselytter(
     private fun sammenlignStillinger(stillingFraHendelse: StillingsinfoIHendelse?) {
         try {
             if (stillingFraHendelse == null) {
-                log.warn("Hendelse inneholder ikke stillingsinfo")
+                log.warn("Stillings-kategori-sammenlinging: Hendelse inneholder ikke stillingsinfo")
                 return
             }
             val stillingFraES = elasticSearchKlient.hentStilling(stillingFraHendelse.stillingsid)
             if (stillingFraES == null)
-                log.warn("Fant ikke stilling fra elasticsearch: ${stillingFraHendelse.stillingsid}")
+                log.warn("Stillings-kategori-sammenlinging: Fant ikke stilling fra elasticsearch: ${stillingFraHendelse.stillingsid}")
             else if (stillingFraES.stillingskategori != stillingFraHendelse.stillingskategori)
-                log.warn("Stillinger har forskjellig stillingskategori (${stillingFraHendelse.stillingsid}): ES: ${stillingFraES.stillingskategori} Hendelse: ${stillingFraHendelse.stillingskategori}")
+                log.warn("Stillings-kategori-sammenlinging: Stillinger har forskjellig stillingskategori (${stillingFraHendelse.stillingsid}): ES: ${stillingFraES.stillingskategori} Hendelse: ${stillingFraHendelse.stillingskategori}")
             else
-                log.info("Stillinger har samme stillingskategori (${stillingFraHendelse.stillingsid}): ${stillingFraES.stillingskategori}")
+                log.info("Stillings-kategori-sammenlinging: Stillinger har samme stillingskategori (${stillingFraHendelse.stillingsid}): ${stillingFraES.stillingskategori}")
         } catch (e: Exception) {
             log.error(e.message, e)
         }
