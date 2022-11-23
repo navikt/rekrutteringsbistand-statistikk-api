@@ -43,7 +43,10 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource))
+    val elasticSearchKlient = object : ElasticSearchKlient {
+        override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
+    }
+    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource), elasticSearchKlient)
 
     val ktorServer = embeddedServer(CIO, port = port) {}
     val ktorApplication = ktorServer.application
