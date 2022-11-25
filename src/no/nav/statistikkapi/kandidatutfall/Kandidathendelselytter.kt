@@ -7,11 +7,13 @@ import no.nav.statistikkapi.objectMapper
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import no.nav.statistikkapi.toOslo
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class Kandidathendelselytter(
     rapidsConnection: RapidsConnection,
-    private val repo: KandidatutfallRepository
+    private val repo: KandidatutfallRepository,
+    private val elasticSearchKlient: ElasticSearchKlient
 ) :
     River.PacketListener {
 
@@ -23,6 +25,7 @@ class Kandidathendelselytter(
                     values = Type.values().map { "kandidat.${it.eventName}" }
                 )
                 it.requireKey("kandidathendelse")
+                it.interestedIn("stillingsinfo")
             }
         }.register(this)
     }
@@ -30,6 +33,9 @@ class Kandidathendelselytter(
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val kandidathendelse: Kandidathendelse =
             objectMapper.treeToValue(packet["kandidathendelse"], Kandidathendelse::class.java)
+
+        val stillingsinfo = packet["stillingsinfo"]
+        sammenlignStillinger(if(stillingsinfo.isMissingOrNull()) null else objectMapper.treeToValue(stillingsinfo, StillingsinfoIHendelse::class.java))
 
         log.info("Har mottatt kandidathendelse")
 
@@ -59,6 +65,34 @@ class Kandidathendelselytter(
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error(problems.toExtendedReport())
     }
+
+    private fun sammenlignStillinger(stillingFraHendelse: StillingsinfoIHendelse?) {
+        try {
+            if (stillingFraHendelse == null) {
+                log.warn("Stillings-kategori-sammenlinging: Hendelse inneholder ikke stillingsinfo")
+                return
+            }
+            val stillingFraES = elasticSearchKlient.hentStilling(stillingFraHendelse.stillingsid)
+            if (stillingFraES == null)
+                log.warn("Stillings-kategori-sammenlinging: Fant ikke stilling fra elasticsearch: ${stillingFraHendelse.stillingsid}")
+            else if (stillingFraES.stillingskategori != stillingFraHendelse.stillingskategori)
+                log.warn("Stillings-kategori-sammenlinging: Stillinger har forskjellig stillingskategori (${stillingFraHendelse.stillingsid}): ES: ${stillingFraES.stillingskategori} Hendelse: ${stillingFraHendelse.stillingskategori}")
+            else
+                log.info("Stillings-kategori-sammenlinging: Stillinger har samme stillingskategori (${stillingFraHendelse.stillingsid}): ${stillingFraES.stillingskategori}")
+        } catch (e: Exception) {
+            log.error(e.message, e)
+        }
+    }
+
+    private data class StillingsinfoIHendelse(
+        val stillingsinfoid: String,
+        val stillingsid: String,
+        val eier: Eier?,
+        val notat: String?,
+        val stillingskategori: Stillingskategori?
+    )
+
+    private data class Eier(val navident: String?, val navn: String?)
 
     data class Kandidathendelse(
         val type: Type,

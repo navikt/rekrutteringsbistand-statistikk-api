@@ -41,7 +41,7 @@ jobs:
     #########################
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/oppdatere-dependencies-2)'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/stilling-fra-hendelse'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
