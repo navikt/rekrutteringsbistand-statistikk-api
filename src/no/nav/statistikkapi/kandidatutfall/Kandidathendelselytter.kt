@@ -69,7 +69,7 @@ class Kandidathendelselytter(
     private fun sammenlignStillinger(stillingFraHendelse: StillingsinfoIHendelse?) {
         try {
             if (stillingFraHendelse == null) {
-                log.warn("Stillings-kategori-sammenlinging: Hendelse inneholder ikke stillingsinfo")
+                log.info("Stillings-kategori-sammenlinging: Hendelse inneholder ikke stillingsinfo")
                 return
             }
             val stillingFraES = elasticSearchKlient.hentStilling(stillingFraHendelse.stillingsid)
