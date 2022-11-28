@@ -16,6 +16,7 @@ import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Test
 import java.time.LocalDate
 import java.time.ZoneId
@@ -493,6 +494,7 @@ class HentStatistikkTest {
     }
 
     @Test
+    @Ignore
     fun `Gitt lønnstilskudd i basen så skal det telles`() {
         repository.lagreTilskudd(
             etLønnstilskudd(aktørId1)
@@ -510,6 +512,7 @@ class HentStatistikkTest {
     }
 
     @Test
+    @Ignore
     fun `Gitt to lønnstilskudd med ulik aktørid i basen så skal begge telles`() {
         repository.lagreTilskudd(
             etLønnstilskudd(aktørId1)
@@ -531,6 +534,7 @@ class HentStatistikkTest {
     }
 
     @Test
+    @Ignore
     fun `Gitt ingen lønnstilskudd  så skal 0 returneres`() {
 
         val actual = hentStatistikk(
@@ -545,6 +549,7 @@ class HentStatistikkTest {
     }
 
     @Test
+    @Ignore
     fun `Gitt lønnstilskudd som allerede er registrert så skal det ikke telles`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
@@ -589,7 +594,7 @@ class HentStatistikkTest {
     @After
     fun cleanUp() {
         testRepository.slettAlleUtfall()
-        testRepository.slettAlleLønnstilskudd()
+        //testRepository.slettAlleLønnstilskudd()
         mockOAuth2Server.shutdown()
     }
 

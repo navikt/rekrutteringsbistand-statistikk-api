@@ -49,7 +49,7 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
 
                 val antallPresentert = kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
                 val fåttJobben = kandidatutfallRepository.hentAktoridFåttJobben(hentStatistikk).distinct()
-                val fåttJobbenTiltak =  kandidatutfallRepository.hentAktøridFåttJobbenTiltak(hentStatistikk).distinct()
+                val fåttJobbenTiltak: List<String> = emptyList() // TODO: kandidatutfallRepository.hentAktøridFåttJobbenTiltak(hentStatistikk).distinct()
 
                 val unikeInnslagTiltak: List<String> = fåttJobbenTiltak-fåttJobben
 

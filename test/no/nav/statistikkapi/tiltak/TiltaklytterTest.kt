@@ -17,7 +17,7 @@ class TiltaklytterTest {
         @BeforeClass
         @JvmStatic
         fun beforeClass() {
-            start(database = database, rapid = rapid)
+            start(database = database, rapid = rapid, port = 8444)
         }
     }
 
