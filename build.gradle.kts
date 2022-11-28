@@ -3,37 +3,38 @@ For å se hvilken versjon det er, kjør "./gradlew --version".
 Kotlin-versjonen oppgraderes slik: https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:upgrading_wrapper
  */
 val kotlinCodeStyle = "official"
-val logbackVersion = "1.2.6"
-val ktorVersion = "1.6.4"
-val h2Version = "1.4.200"
-val flywayVersion = "8.0.0"
-val hikariVersion = "5.0.0"
-val logstashEncoderVersion = "6.6"
-val vaultJdbcVersion = "1.3.7"
-val postgresVersion = "42.2.24"
-val tokenValidationVersion = "2.0.12"
-val jacksonVersion = "2.13.0"
+val logbackVersion = "1.4.4"
+val ktorVersion = "2.1.3"
+val ktorLesserVersion = "1.6.8"
+val h2Version = "2.1.214"
+val flywayVersion = "9.7.0"
+val hikariVersion = "5.0.1"
+val logstashEncoderVersion = "7.2"
+val vaultJdbcVersion = "1.3.10"
+val postgresVersion = "42.5.0"
+val tokenValidationVersion = "2.1.7"
+val jacksonVersion = "2.14.0"
 val assertkVersion = "0.25"
-val micrometerPrometheusVersion = "1.7.4"
-val kafkaClientsVersion = "2.8.0"
-val mockkVersion = "1.12.0"
-val kafkaEmbeddedEnvironmentVersion = "2.8.0"
-val kafkaAvroSerializerVersion = "6.2.1"
-val shedlockVersion = "4.28.0"
-val pitestVersion = "1.7.0"
+val micrometerPrometheusVersion = "1.10.0"
+val kafkaClientsVersion = "3.3.1"
+val mockkVersion = "1.13.2"
+val kafkaAvroSerializerVersion = "7.3.0"
+val shedlockVersion = "4.42.0"
+val pitestVersion = "1.9.0"
 val elasticSearchClientVersion = "7.10.1"
 val kotlinLoggingVersion = "2.0.11"
-val jsonassertVersion = "1.5.0"
-val mockOAuth2ServerVersion = "0.4.3"
+val jsonassertVersion = "1.5.1"
+val mockOAuth2ServerVersion = "0.5.6"
+val avroVersion = "1.11.1"
 
 
 plugins {
     application
     kotlin("jvm") version embeddedKotlinVersion // Kotlinversjon styres av gradlew, se https://blog.nishtahir.com/how-to-properly-update-the-gradle-wrapper/
-    id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("com.github.ben-manes.versions") version "0.39.0"
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.2.1"
-    id("info.solidsoft.pitest") version "1.7.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.ben-manes.versions") version "0.43.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
+    id("info.solidsoft.pitest") version "1.9.0"
     idea
 }
 
@@ -49,10 +50,10 @@ java {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "16"
+        kotlinOptions.jvmTarget = "17"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "16"
+        kotlinOptions.jvmTarget = "17"
     }
 }
 
@@ -76,25 +77,31 @@ repositories {
 dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
+    implementation("com.github.navikt:rapids-and-rivers:2022110411121667556720.8a951a765583")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
-    implementation("io.ktor:ktor-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-jackson:$ktorLesserVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
-    implementation("io.ktor:ktor-auth:$ktorVersion")
-    implementation("no.nav.security:token-validation-ktor:$tokenValidationVersion") {
+    implementation("io.ktor:ktor-auth:$ktorLesserVersion")
+    implementation("no.nav.security:token-validation-ktor-v2:$tokenValidationVersion") {
         exclude(group = "io.ktor", module = "ktor-auth")
     }
-    implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerPrometheusVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
+    implementation("org.apache.avro:avro:$avroVersion")
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
@@ -106,7 +113,6 @@ dependencies {
         exclude(group = "org.eclipse.jetty")
     }
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
-    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvironmentVersion")
     testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")

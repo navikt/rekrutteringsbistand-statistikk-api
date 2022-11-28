@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.*
-import io.ktor.client.features.json.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 
@@ -36,7 +37,7 @@ class AccessTokenProvider(private val config: Config, private val httpKlient: Ht
                 append("scope", config.scope)
             }
         )
-        val accessToken = jacksonObjectMapper().readValue(response.readText(), AccessToken::class.java)
+        val accessToken = jacksonObjectMapper().readValue(response.bodyAsText(), AccessToken::class.java)
         BearerToken(accessToken.access_token, LocalDateTime.now().plusSeconds(accessToken.expires_in.toLong()))
     }
 
@@ -56,8 +57,8 @@ class AccessTokenProvider(private val config: Config, private val httpKlient: Ht
 
     companion object {
         private fun lagHttpKlient() = HttpClient {
-            install(JsonFeature) {
-                serializer = JacksonSerializer {
+            install(ContentNegotiation) {
+                jackson {
                     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 }

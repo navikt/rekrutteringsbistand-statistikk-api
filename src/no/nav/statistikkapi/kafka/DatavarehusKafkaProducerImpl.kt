@@ -4,7 +4,7 @@ import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
-import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
 
@@ -12,13 +12,11 @@ interface DatavarehusKafkaProducer {
     fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori)
 }
 
-class DatavarehusKafkaProducerImpl(config: Properties) :
+class DatavarehusKafkaProducerImpl(private val producer: Producer<String, AvroKandidatutfall>) :
     DatavarehusKafkaProducer {
 
-    private val producer: KafkaProducer<String, AvroKandidatutfall> = KafkaProducer(config)
-
     companion object {
-        const val TOPIC = "aapen-formidlingsutfallEndret-v1"
+        const val topic = "toi.kandidatutfall"
     }
 
     override fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori) {
@@ -34,13 +32,13 @@ class DatavarehusKafkaProducerImpl(config: Properties) :
             stillingskategori.tilAvro()
         )
         val kafkaId = UUID.randomUUID().toString()
-        producer.send(ProducerRecord(TOPIC, kafkaId, melding)) { metadata, exception ->
+        producer.send(ProducerRecord(topic, kafkaId, melding)) { metadata, exception ->
             if (exception != null) {
                 val msg =
-                    "Forsøkte å sende Kafka-melding til Datavarehus. Kanidatutfallets dbId: ${kandidatutfall.dbId}"
+                    "Forsøkte å sende melding til Datavarehus på topic [$topic]. Kanidatutfallets dbId: ${kandidatutfall.dbId}"
                 log.error(msg, exception)
             } else {
-                log.info("Sendte melding på Kafka. Kandidatutfallets dbId: ${kandidatutfall.dbId},kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
+                log.info("Sendte melding på Kafka-topic [$topic]. Kandidatutfallets dbId: ${kandidatutfall.dbId},kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
             }
         }
     }

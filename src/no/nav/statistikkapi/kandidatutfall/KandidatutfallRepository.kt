@@ -14,7 +14,8 @@ import javax.sql.DataSource
 
 class KandidatutfallRepository(private val dataSource: DataSource) {
 
-    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall, registrertTidspunkt: LocalDateTime) {
+    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
+
         dataSource.connection.use {
             it.prepareStatement(
                 """INSERT INTO $kandidatutfallTabell (
@@ -38,7 +39,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setString(5, kandidatutfall.kandidatlisteId)
                 setString(6, kandidatutfall.stillingsId)
                 setBoolean(7, kandidatutfall.synligKandidat)
-                setTimestamp(8, Timestamp.valueOf(registrertTidspunkt))
+                setTimestamp(8, Timestamp.valueOf(kandidatutfall.tidspunktForHendelsen.toLocalDateTime()))
                 if (kandidatutfall.harHullICv != null) setBoolean(9, kandidatutfall.harHullICv) else setNull(9, 0)
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
                 setString(
@@ -72,6 +73,50 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setString(3, lonnstilskudd.navkontor)
                 setTimestamp(4, Timestamp.valueOf(lonnstilskudd.tidspunkt))
             }.executeUpdate()
+        }
+    }
+
+    fun kandidatutfallAlleredeLagret(kandidatutfall: OpprettKandidatutfall): Boolean {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """
+                select 1 from $kandidatutfallTabell 
+                where $aktørId = ?
+                    and $kandidatlisteid = ?
+                    and $utfall = ?
+                    and $tidspunkt = ?
+                    and $navident = ?
+            """.trimIndent()
+            ).apply {
+                setString(1, kandidatutfall.aktørId)
+                setString(2, kandidatutfall.kandidatlisteId)
+                setString(3, kandidatutfall.utfall.toString())
+                setTimestamp(4, Timestamp.valueOf(kandidatutfall.tidspunktForHendelsen.toLocalDateTime()))
+                setString(5, kandidatutfall.navIdent)
+                val resultSet = executeQuery()
+                return resultSet.next()
+            }
+        }
+    }
+
+    fun hentSisteUtfallForKandidatIKandidatliste(kandidatutfall: OpprettKandidatutfall): Utfall? {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """
+                select utfall from $kandidatutfallTabell 
+                where $aktørId = ?
+                    and $kandidatlisteid = ?
+                    ORDER BY $dbId DESC limit 1
+            """.trimIndent()
+            ).apply {
+                setString(1, kandidatutfall.aktørId)
+                setString(2, kandidatutfall.kandidatlisteId)
+                val resultSet = executeQuery()
+
+                return if (resultSet.next()) Utfall.valueOf(resultSet.getString("utfall"))
+                else null
+            }
+
         }
     }
 
@@ -121,15 +166,16 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
-                
-                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
-                     WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktørId, $kandidatlisteid) as k2
-                     
-                WHERE k1.$navkontor = ? 
-                  AND k1.$dbId = k2.maksId
-                  AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+                SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
+                    SELECT DISTINCT k1.$aktørId, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
+                        (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
+                            WHERE k2.$tidspunkt BETWEEN ? AND ?
+                            GROUP BY $aktørId, $kandidatlisteid
+                        ) as k2
+                     WHERE k1.$navkontor = ? 
+                      AND k1.$tidspunkt = k2.maksTidspunkt
+                      AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+                ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
             ).apply {
                 setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
@@ -151,12 +197,12 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 """
                 SELECT k1.* FROM $kandidatutfallTabell k1,
                 
-                  (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell k2
+                  (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktørId, $kandidatlisteid) as k2
                      
                 WHERE k1.$navkontor = ?
-                  AND k1.$dbId = k2.maksId
+                  AND k1.$tidspunkt = k2.maksTidspunkt
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
             """.trimIndent()
             ).apply {
