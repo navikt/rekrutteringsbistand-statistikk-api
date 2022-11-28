@@ -15,6 +15,7 @@ class Tiltaklytter(
                 it.demandKey("tiltakstype")
                 it.requireKey("deltakerFnr")
                 it.requireKey("opprettetTidspunkt")
+                it.requireKey("enhetsnavnOppfolging")
 
             }
         }.register(this)
@@ -23,8 +24,11 @@ class Tiltaklytter(
         val tiltakstype = packet["tiltakstype"].asText()
         val deltakerFnr = packet["deltakerFnr"].asText()
         val opprettetTidspunkt = packet["opprettetTidspunkt"].asText()
+        val enhetsnavnOppfolging = packet["enhetsnavnOppfolging"].asText()
 
-        log.info("Tiltaksmelding mottatt tiltakstype:$tiltakstype, deltakerFnr: $deltakerFnr, opprettetTidspunkt: $opprettetTidspunkt")
+        log.info("Tiltaksmelding mottatt tiltakstype:$tiltakstype, " +
+                "deltakerFnr: $deltakerFnr, opprettetTidspunkt: $opprettetTidspunkt" +
+                " enhetsnavnOppfolging: $enhetsnavnOppfolging")
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
