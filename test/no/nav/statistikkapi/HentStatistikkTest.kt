@@ -551,8 +551,7 @@ class HentStatistikkTest {
                 utfall = FATT_JOBBEN,
                 aktørId = aktørId1,
                 navKontor = etLønnstilskudd(aktørId1).navkontor
-            ),
-            LocalDate.of(2022, 5, 3).atStartOfDay()
+            )
         )
 
         repository.lagreTilskudd(
