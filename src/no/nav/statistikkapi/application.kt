@@ -25,6 +25,7 @@ import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
+import no.nav.statistikkapi.tiltak.Tiltaklytter
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -77,6 +78,7 @@ fun startApp(
         settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
         Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), elasticSearchKlient)
+        Tiltaklytter(this, StillingRepository(database.dataSource))
         start()
     }
 }
