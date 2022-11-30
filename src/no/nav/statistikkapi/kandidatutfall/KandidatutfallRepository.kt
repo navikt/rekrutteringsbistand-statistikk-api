@@ -4,6 +4,9 @@ import no.nav.statistikkapi.HentStatistikk
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
+import no.nav.statistikkapi.tiltak.Tiltakstilfelle
+import no.nav.statistikkapi.tiltak.Tiltakstype
+import no.nav.statistikkapi.tiltak.tilTiltakstype
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -55,6 +58,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         val aktørId: String,
         val fnr: String,
         val navkontor: String,
+        val tiltakstype: String,
         val tidspunkt: LocalDateTime
     )
 
@@ -65,13 +69,15 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                                $aktørId,
                                $fnr,
                                $navkontor,
+                               $tiltakstype,
                                $tidspunkt
                 ) VALUES (?, ?, ?, ?)"""
             ).apply {
                 setString(1, lonnstilskudd.aktørId)
                 setString(2, lonnstilskudd.fnr)
                 setString(3, lonnstilskudd.navkontor)
-                setTimestamp(4, Timestamp.valueOf(lonnstilskudd.tidspunkt))
+                setString(4, lonnstilskudd.tiltakstype)
+                setTimestamp(5, Timestamp.valueOf(lonnstilskudd.tidspunkt))
             }.executeUpdate()
         }
     }
@@ -219,11 +225,11 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAktøridFåttJobbenTiltak(hentStatistikk: HentStatistikk): List<String> {
+    fun hentAktøridFåttJobbenTiltak(hentStatistikk: HentStatistikk): List<Tiltakstilfelle> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT $aktørId FROM $lønnstilskuddTabell
+                SELECT $aktørId, $tiltakstype FROM $lønnstilskuddTabell
                   WHERE $navkontor = ? 
                   AND $tidspunkt BETWEEN ? AND ? 
                 """.trimIndent()
@@ -237,7 +243,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
 
             return generateSequence {
                 if (!resultSet.next()) null
-                else resultSet.getString(aktørId)
+                else Tiltakstilfelle(resultSet.getString(aktørId), resultSet.getString(tiltakstype).tilTiltakstype())
             }.toList()
         }
     }
@@ -353,6 +359,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val tilretteleggingsbehov = "tilretteleggingsbehov"
         const val tilretteleggingsbehovdelimiter = ";"
         const val lønnstilskuddTabell = "lonnstilskudd"
+        const val tiltakstype = "tiltakstype"
 
 
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =

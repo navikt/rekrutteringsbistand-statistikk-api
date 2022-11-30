@@ -62,6 +62,7 @@ fun etLønnstilskudd(aktørid: String) = KandidatutfallRepository.OpprettLønnst
     aktørId = aktørid,
     fnr = "12121212121",
     navkontor = "NAV SKI",
+    tiltakstype = "ARBEIDSTRENING",
     tidspunkt = LocalDateTime.of(2022, 5, 3,0,0,0)
 )
 
