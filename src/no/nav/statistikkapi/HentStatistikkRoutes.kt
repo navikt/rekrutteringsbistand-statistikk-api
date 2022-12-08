@@ -35,7 +35,7 @@ data class TiltakStatistikkDto(
     val antallFåttJobbenArbeidstrening: Int,
     val antallFåttJobbenLønnstilskudd: Int,
     val antallFåttJobbenMentorordning: Int,
-    val antallFåttJobbenAndre: Int,
+    val antallFåttJobbenAndreTiltak: Int,
 )
 
 fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
@@ -73,7 +73,7 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                             antallFåttJobbenArbeidstrening = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.ARBEIDSTRENING }.size,
                             antallFåttJobbenLønnstilskudd = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.LØNNSTILSKUDD }.size,
                             antallFåttJobbenMentorordning = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.MENTORORDNING }.size,
-                            antallFåttJobbenAndre = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.ANNET }
+                            antallFåttJobbenAndreTiltak = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.ANNET }
                                 .map(Tiltakstilfelle::aktørId).distinct().size,
                         )
                     )
