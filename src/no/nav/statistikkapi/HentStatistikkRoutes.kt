@@ -27,11 +27,15 @@ class StatistikkParametere {
 data class StatistikkOutboundDto(
     val antallPresentert: Int,
     val antallFåttJobben: Int,
-    val antallFåttJobbenTiltak: Int,
-    val antallFåttJobbenTiltakArbeidstrening: Int,
-    val antallFåttJobbenTiltakLønnstilskudd: Int,
-    val antallFåttJobbenTiltakMentorordning: Int,
-    val antallFåttJobbenTiltakAndre: Int,
+    val tiltakstatistikk: TiltakStatistikkDto
+)
+
+data class TiltakStatistikkDto(
+    val antallFåttJobben: Int,
+    val antallFåttJobbenArbeidstrening: Int,
+    val antallFåttJobbenLønnstilskudd: Int,
+    val antallFåttJobbenMentorordning: Int,
+    val antallFåttJobbenAndre: Int,
 )
 
 fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
@@ -55,7 +59,8 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
 
                 val antallPresentert = kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
                 val fåttJobben = kandidatutfallRepository.hentAktoridFåttJobben(hentStatistikk).distinct()
-                val fåttJobbenTiltak: List<Tiltakstilfelle> = emptyList() // TODO: kandidatutfallRepository.hentAktøridFåttJobbenTiltak(hentStatistikk).distinct()
+                val fåttJobbenTiltak: List<Tiltakstilfelle> =
+                    emptyList() // TODO: kandidatutfallRepository.hentAktøridFåttJobbenTiltak(hentStatistikk).distinct()
 
                 val unikeInnslagTiltak: List<String> = fåttJobbenTiltak.map(Tiltakstilfelle::aktørId) - fåttJobben
 
@@ -63,11 +68,14 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                     StatistikkOutboundDto(
                         antallPresentert,
                         fåttJobben.size,
-                        unikeInnslagTiltak.size,
-                        fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.ARBEIDSTRENING }.size,
-                        fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.LØNNSTILSKUDD }.size,
-                        fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.MENTORORDNING }.size,
-                        fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.ANNET }.map(Tiltakstilfelle::aktørId).distinct().size,
+                        TiltakStatistikkDto(
+                            antallFåttJobben = unikeInnslagTiltak.size,
+                            antallFåttJobbenArbeidstrening = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.ARBEIDSTRENING }.size,
+                            antallFåttJobbenLønnstilskudd = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.LØNNSTILSKUDD }.size,
+                            antallFåttJobbenMentorordning = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.MENTORORDNING }.size,
+                            antallFåttJobbenAndre = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.ANNET }
+                                .map(Tiltakstilfelle::aktørId).distinct().size,
+                        )
                     )
                 )
             }

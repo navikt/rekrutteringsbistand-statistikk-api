@@ -506,7 +506,7 @@ class HentStatistikkTest {
             navKontor = etLønnstilskudd(aktørId1).navkontor
         )
 
-        assertThat(actual.antallFåttJobbenTiltak).isEqualTo(1)
+        assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(1)
         assertThat(actual.antallPresentert).isZero()
         assertThat(actual.antallFåttJobben).isZero()
     }
@@ -528,7 +528,7 @@ class HentStatistikkTest {
             navKontor = etLønnstilskudd(aktørId1).navkontor
         )
 
-        assertThat(actual.antallFåttJobbenTiltak).isEqualTo(2)
+        assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(2)
         assertThat(actual.antallPresentert).isZero()
         assertThat(actual.antallFåttJobben).isZero()
     }
@@ -543,7 +543,7 @@ class HentStatistikkTest {
             navKontor = etLønnstilskudd(aktørId1).navkontor
         )
 
-        assertThat(actual.antallFåttJobbenTiltak).isZero()
+        assertThat(actual.tiltakstatistikk.antallFåttJobben).isZero()
         assertThat(actual.antallPresentert).isZero()
         assertThat(actual.antallFåttJobben).isZero()
     }
@@ -569,7 +569,7 @@ class HentStatistikkTest {
             navKontor = etLønnstilskudd(aktørId1).navkontor
         )
 
-        assertThat(actual.antallFåttJobbenTiltak).isEqualTo(0)
+        assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(0)
         assertThat(actual.antallPresentert).isEqualTo(1)
         assertThat(actual.antallFåttJobben).isEqualTo(1)
     }
