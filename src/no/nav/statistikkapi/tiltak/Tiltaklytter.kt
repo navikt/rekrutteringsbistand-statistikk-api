@@ -13,10 +13,10 @@ class Tiltaklytter(
         River(rapidsConnection).apply {
             validate {
                 it.demandKey("tiltakstype")
+                it.demandKey("avtaleInngått")
                 it.requireKey("deltakerFnr")
                 it.requireKey("opprettetTidspunkt")
                 it.requireKey("enhetOppfolging")
-
             }
         }.register(this)
     }
