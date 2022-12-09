@@ -4,6 +4,7 @@ import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
 import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.tiltak.TiltaksRepository
 import javax.sql.DataSource
 
 class TestRepository(private val dataSource: DataSource) {
@@ -16,7 +17,7 @@ class TestRepository(private val dataSource: DataSource) {
 
     fun slettAlleLønnstilskudd() {
         dataSource.connection.use {
-            it.prepareStatement("DELETE FROM ${KandidatutfallRepository.lønnstilskuddTabell}").execute()
+            it.prepareStatement("DELETE FROM ${TiltaksRepository.tiltaksTabell}").execute()
         }
     }
 

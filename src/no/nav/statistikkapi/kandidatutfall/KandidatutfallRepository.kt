@@ -54,34 +54,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    data class OpprettLønnstilskudd (
-        val aktørId: String,
-        val fnr: String,
-        val navkontor: String,
-        val tiltakstype: String,
-        val tidspunkt: LocalDateTime
-    )
-
-    fun lagreTilskudd(lonnstilskudd: OpprettLønnstilskudd) {
-        dataSource.connection.use {
-            it.prepareStatement(
-                """INSERT INTO $lønnstilskuddTabell (
-                               $aktørId,
-                               $fnr,
-                               $navkontor,
-                               $tiltakstype,
-                               $tidspunkt
-                ) VALUES (?, ?, ?, ?)"""
-            ).apply {
-                setString(1, lonnstilskudd.aktørId)
-                setString(2, lonnstilskudd.fnr)
-                setString(3, lonnstilskudd.navkontor)
-                setString(4, lonnstilskudd.tiltakstype)
-                setTimestamp(5, Timestamp.valueOf(lonnstilskudd.tidspunkt))
-            }.executeUpdate()
-        }
-    }
-
     fun kandidatutfallAlleredeLagret(kandidatutfall: OpprettKandidatutfall): Boolean {
         dataSource.connection.use {
             it.prepareStatement(
@@ -225,30 +197,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAktøridFåttJobbenTiltak(hentStatistikk: HentStatistikk): List<Tiltakstilfelle> {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT $aktørId, $tiltakstype FROM $lønnstilskuddTabell
-                  WHERE $navkontor = ? 
-                  AND $tidspunkt BETWEEN ? AND ? 
-                """.trimIndent()
-            )
-                .apply {
-                    setString(1, hentStatistikk.navKontor)
-                    setDate(2, Date.valueOf(hentStatistikk.fraOgMed))
-                    setDate(3, Date.valueOf(hentStatistikk.tilOgMed))
-
-                }.executeQuery()
-
-            return generateSequence {
-                if (!resultSet.next()) null
-                else Tiltakstilfelle(resultSet.getString(aktørId), resultSet.getString(tiltakstype).tilTiltakstype())
-            }.toList()
-        }
-    }
-
-
     class UtfallElement(
         val harHull: Boolean?,
         val alder: Int?,
@@ -358,8 +306,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val alder = "alder"
         const val tilretteleggingsbehov = "tilretteleggingsbehov"
         const val tilretteleggingsbehovdelimiter = ";"
-        const val lønnstilskuddTabell = "lonnstilskudd"
-        const val tiltakstype = "tiltakstype"
 
 
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =

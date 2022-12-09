@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.tiltak.TiltaksRepository
 import no.nav.statistikkapi.tiltak.Tiltakstilfelle
 import no.nav.statistikkapi.tiltak.Tiltakstype
 import java.time.LocalDate
@@ -38,7 +39,7 @@ data class TiltakStatistikkDto(
     val antallFåttJobbenAndreTiltak: Int,
 )
 
-fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
+fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository, tiltaksRepository: TiltaksRepository) {
 
     authenticate {
         get("/statistikk") {
@@ -60,7 +61,7 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                 val antallPresentert = kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
                 val fåttJobben = kandidatutfallRepository.hentAktoridFåttJobben(hentStatistikk).distinct()
                 val fåttJobbenTiltak: List<Tiltakstilfelle> =
-                    emptyList() // TODO: kandidatutfallRepository.hentAktøridFåttJobbenTiltak(hentStatistikk).distinct()
+                    tiltaksRepository.hentAktøridFåttJobbenTiltak(hentStatistikk).distinct()
 
                 val unikeInnslagTiltak: List<String> = fåttJobbenTiltak.map(Tiltakstilfelle::aktørId) - fåttJobben
 

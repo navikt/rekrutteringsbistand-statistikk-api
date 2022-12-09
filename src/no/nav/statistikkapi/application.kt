@@ -26,6 +26,7 @@ import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
 import no.nav.statistikkapi.tiltak.Tiltaklytter
+import no.nav.statistikkapi.tiltak.TiltaksRepository
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -131,10 +132,11 @@ fun settOppKtor(
         install(Authentication, tokenValidationConfig)
 
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
+        val tiltaksRepository = TiltaksRepository(dataSource)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
-                hentStatistikk(kandidatutfallRepository)
+                hentStatistikk(kandidatutfallRepository, tiltaksRepository)
             }
         }
 

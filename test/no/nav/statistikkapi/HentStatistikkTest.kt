@@ -15,6 +15,7 @@ import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
+import no.nav.statistikkapi.tiltak.TiltaksRepository
 import org.junit.After
 import org.junit.Ignore
 import org.junit.Test
@@ -32,6 +33,7 @@ class HentStatistikkTest {
         private val basePath = basePath(port)
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
+        private val tiltaksRepository = TiltaksRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
 
         init {
@@ -494,16 +496,15 @@ class HentStatistikkTest {
     }
 
     @Test
-    @Ignore
-    fun `Gitt lønnstilskudd i basen så skal det telles`() {
-        repository.lagreTilskudd(
-            etLønnstilskudd(aktørId1)
+    fun `Gitt arbeidstrening-tiltak i basen så skal det telles`() {
+        tiltaksRepository.lagreTiltak(
+            etArbeidstreningTiltak(aktørId1)
         )
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
             tilOgMed = LocalDate.of(2022, 12, 31),
-            navKontor = etLønnstilskudd(aktørId1).navkontor
+            navKontor = etArbeidstreningTiltak(aktørId1).navkontor
         )
 
         assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(1)
@@ -512,20 +513,19 @@ class HentStatistikkTest {
     }
 
     @Test
-    @Ignore
     fun `Gitt to lønnstilskudd med ulik aktørid i basen så skal begge telles`() {
-        repository.lagreTilskudd(
-            etLønnstilskudd(aktørId1)
+        tiltaksRepository.lagreTiltak(
+            etArbeidstreningTiltak(aktørId1)
         )
 
-        repository.lagreTilskudd(
-            etLønnstilskudd(aktørId2)
+        tiltaksRepository.lagreTiltak(
+            etArbeidstreningTiltak(aktørId2)
         )
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
             tilOgMed = LocalDate.of(2022, 12, 31),
-            navKontor = etLønnstilskudd(aktørId1).navkontor
+            navKontor = etArbeidstreningTiltak(aktørId1).navkontor
         )
 
         assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(2)
@@ -534,13 +534,12 @@ class HentStatistikkTest {
     }
 
     @Test
-    @Ignore
     fun `Gitt ingen lønnstilskudd  så skal 0 returneres`() {
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
             tilOgMed = LocalDate.of(2022, 12, 31),
-            navKontor = etLønnstilskudd(aktørId1).navkontor
+            navKontor = etArbeidstreningTiltak(aktørId1).navkontor
         )
 
         assertThat(actual.tiltakstatistikk.antallFåttJobben).isZero()
@@ -549,24 +548,23 @@ class HentStatistikkTest {
     }
 
     @Test
-    @Ignore
     fun `Gitt lønnstilskudd som allerede er registrert så skal det ikke telles`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
                 utfall = FATT_JOBBEN,
                 aktørId = aktørId1,
-                navKontor = etLønnstilskudd(aktørId1).navkontor
+                navKontor = etArbeidstreningTiltak(aktørId1).navkontor
             )
         )
 
-        repository.lagreTilskudd(
-            etLønnstilskudd(aktørId1)
+        tiltaksRepository.lagreTiltak(
+            etArbeidstreningTiltak(aktørId1)
         )
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
             tilOgMed = LocalDate.of(2022, 12, 31),
-            navKontor = etLønnstilskudd(aktørId1).navkontor
+            navKontor = etArbeidstreningTiltak(aktørId1).navkontor
         )
 
         assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(0)
@@ -594,7 +592,7 @@ class HentStatistikkTest {
     @After
     fun cleanUp() {
         testRepository.slettAlleUtfall()
-        //testRepository.slettAlleLønnstilskudd()
+        testRepository.slettAlleLønnstilskudd()
         mockOAuth2Server.shutdown()
     }
 
