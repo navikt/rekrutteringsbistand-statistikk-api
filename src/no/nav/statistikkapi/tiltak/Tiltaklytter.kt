@@ -18,6 +18,7 @@ class Tiltaklytter(
                 it.demandKey("aktørId")
                 it.requireKey("deltakerFnr")
                 it.requireKey("enhetOppfolging")
+                it.requireKey("avtaleId")
             }
         }.register(this)
     }

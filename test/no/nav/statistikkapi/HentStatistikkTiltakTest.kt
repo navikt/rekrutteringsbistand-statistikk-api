@@ -6,22 +6,21 @@ import assertk.assertions.isZero
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
+import no.nav.statistikkapi.tiltak.Tiltaklytter
 import no.nav.statistikkapi.tiltak.TiltaksRepository
-import org.junit.After
-import org.junit.Test
+import org.junit.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
 
 class HentStatistikkTiltakTest {
-
-
     companion object {
         private val port = randomPort()
         private val mockOAuth2Server = MockOAuth2Server()
@@ -29,23 +28,25 @@ class HentStatistikkTiltakTest {
         private val basePath = basePath(port)
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
-        private val tiltaksRepository = TiltaksRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
+        private val rapid = TestRapid().apply { Tiltaklytter(this, TiltaksRepository(database.dataSource)) }
 
-        init {
-            start(
-                database = database,
-                port = port,
-                mockOAuth2Server = mockOAuth2Server
-            )
+        @BeforeClass
+        @JvmStatic
+        fun beforeClass() {
+            start(database = database, rapid = rapid, port = port, mockOAuth2Server = mockOAuth2Server)
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun tearDown() {
+            mockOAuth2Server.shutdown()
         }
     }
 
     @Test
     fun `Gitt arbeidstrening-tiltak i basen så skal det telles`() {
-        tiltaksRepository.lagreTiltak(
-            etArbeidstreningTiltak(aktørId1)
-        )
+        rapid.sendTestMessage(etArbeidstreningTiltak(aktørId1).tilRapidMelding())
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -60,13 +61,9 @@ class HentStatistikkTiltakTest {
 
     @Test
     fun `Gitt to lønnstilskudd med ulik aktørid i basen så skal begge telles`() {
-        tiltaksRepository.lagreTiltak(
-            etArbeidstreningTiltak(aktørId1)
-        )
+        rapid.sendTestMessage(etArbeidstreningTiltak(aktørId1).tilRapidMelding())
 
-        tiltaksRepository.lagreTiltak(
-            etArbeidstreningTiltak(aktørId2)
-        )
+        rapid.sendTestMessage(etArbeidstreningTiltak(aktørId2).tilRapidMelding())
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -103,9 +100,7 @@ class HentStatistikkTiltakTest {
             )
         )
 
-        tiltaksRepository.lagreTiltak(
-            etArbeidstreningTiltak(aktørId1)
-        )
+        rapid.sendTestMessage(etArbeidstreningTiltak(aktørId1).tilRapidMelding())
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -121,8 +116,8 @@ class HentStatistikkTiltakTest {
     @Test
     fun `Gitt lønnstilskudd som lagres to ganger, så skal bare ett telles`() {
         val tiltak = etArbeidstreningTiltak(aktørId1)
-        tiltaksRepository.lagreTiltak(tiltak)
-        tiltaksRepository.lagreTiltak(tiltak)
+        rapid.sendTestMessage(tiltak.tilRapidMelding())
+        rapid.sendTestMessage(tiltak.tilRapidMelding())
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -154,7 +149,7 @@ class HentStatistikkTiltakTest {
     fun cleanUp() {
         testRepository.slettAlleUtfall()
         testRepository.slettAlleLønnstilskudd()
-        mockOAuth2Server.shutdown()
+        rapid.reset()
     }
 
     private fun leggTilQueryParametere(httpRequestBuilder: HttpRequestBuilder, hentStatistikk: HentStatistikk) {
@@ -173,4 +168,14 @@ class HentStatistikkTiltakTest {
         tiltakstype = "ARBEIDSTRENING",
         avtaleInngått = LocalDateTime.of(2022, 5, 3,0,0,0).atZone(ZoneId.of("Europe/Oslo"))
     )
+    private fun TiltaksRepository.OpprettTiltak.tilRapidMelding() = """
+        {
+          "tiltakstype":"$tiltakstype",
+          "deltakerFnr": "$deltakerFnr",
+          "aktørId": "$deltakerAktørId",
+          "avtaleId":"$avtaleId",
+          "enhetOppfolging":"$enhetOppfolging",
+          "avtaleInngått": "${LocalDateTime.now()}"
+        }
+        """.trimIndent()
 }
