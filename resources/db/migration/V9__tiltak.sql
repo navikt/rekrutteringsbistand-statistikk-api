@@ -1,10 +1,10 @@
 CREATE TABLE tiltak (
     id            SERIAL PRIMARY KEY,
-    avtaleid      TEXT UNIQUE,
-    aktorid       TEXT,
-    fnr           TEXT,
-    navkontor     TEXT,
+    avtaleId      TEXT UNIQUE,
+    deltakerAktørId TEXT,
+    deltakerFnr   TEXT,
+    enhetOppfolging     TEXT,
     tiltakstype    TEXT,
-    avtaleInngått timestamp
+    avtaleInngått timestamp with time zone
 );
 

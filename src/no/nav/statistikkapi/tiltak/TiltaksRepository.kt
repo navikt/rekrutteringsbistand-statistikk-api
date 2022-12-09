@@ -3,48 +3,51 @@ package no.nav.statistikkapi.tiltak
 import no.nav.statistikkapi.HentStatistikk
 import java.sql.Date
 import java.sql.Timestamp
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.*
 import javax.sql.DataSource
 
 class TiltaksRepository(private val dataSource: DataSource) {
 
     companion object {
-        const val tiltaksTabell = "tiltak"
-        const val avtaleId = "avtaleid"
-        const val tiltakstype = "tiltakstype"
-        const val aktørId = "aktorid"
-        const val fnr = "fnr"
-        const val navkontor = "navkontor"
-        const val avtaleInngått = "avtaleInngått"
+        const val tiltaksTabellLabel = "tiltak"
+        const val avtaleIdLabel = "avtaleId"
+        const val deltakerAktørIdLabel = "deltakerAktørId"
+        const val deltakerFnrLabel = "deltakerFnr"
+        const val enhetOppfolgingLabel = "enhetOppfolging"
+        const val tiltakstypeLabel = "tiltakstype"
+        const val avtaleInngåttLabel = "avtaleInngått"
     }
-    data class OpprettTiltak (
+
+    data class OpprettTiltak(
         val avtaleId: UUID,
-        val aktørId: String,
-        val fnr: String,
-        val navkontor: String,
+        val deltakerAktørId: String,
+        val deltakerFnr: String,
+        val enhetOppfolging: String,
         val tiltakstype: String,
-        val avtaleInngått: LocalDateTime
+        val avtaleInngått: ZonedDateTime
     )
 
     fun lagreTiltak(tiltak: OpprettTiltak) {
+        if (avtaleIdFinnes(tiltak)) return
+
         dataSource.connection.use {
             it.prepareStatement(
-                """INSERT INTO ${tiltaksTabell} (
-                               ${avtaleId},
-                               ${aktørId},
-                               ${fnr},
-                               ${navkontor},
-                               ${tiltakstype},
-                               ${avtaleInngått}
+                """INSERT INTO ${tiltaksTabellLabel} (
+                               ${avtaleIdLabel},
+                               ${deltakerAktørIdLabel},
+                               ${deltakerFnrLabel},
+                               ${enhetOppfolgingLabel},
+                               ${tiltakstypeLabel},
+                               ${avtaleInngåttLabel}
                 ) VALUES (?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, tiltak.avtaleId.toString())
-                setString(2, tiltak.aktørId)
-                setString(3, tiltak.fnr)
-                setString(4, tiltak.navkontor)
+                setString(2, tiltak.deltakerAktørId)
+                setString(3, tiltak.deltakerFnr)
+                setString(4, tiltak.enhetOppfolging)
                 setString(5, tiltak.tiltakstype)
-                setTimestamp(6, Timestamp.valueOf(tiltak.avtaleInngått))
+                setTimestamp(6, Timestamp(tiltak.avtaleInngått.toInstant().toEpochMilli()))
             }.executeUpdate()
         }
     }
@@ -53,9 +56,9 @@ class TiltaksRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT ${aktørId}, ${tiltakstype} FROM ${tiltaksTabell}
-                  WHERE ${navkontor} = ? 
-                  AND ${avtaleInngått} BETWEEN ? AND ? 
+                SELECT ${deltakerAktørIdLabel}, ${tiltakstypeLabel} FROM ${tiltaksTabellLabel}
+                  WHERE ${enhetOppfolgingLabel} = ? 
+                  AND ${avtaleInngåttLabel} BETWEEN ? AND ? 
                 """.trimIndent()
             )
                 .apply {
@@ -67,8 +70,29 @@ class TiltaksRepository(private val dataSource: DataSource) {
 
             return generateSequence {
                 if (!resultSet.next()) null
-                else Tiltakstilfelle(resultSet.getString(aktørId), resultSet.getString(tiltakstype).tilTiltakstype())
+                else {
+                    Tiltakstilfelle(
+                        resultSet.getString(deltakerAktørIdLabel),
+                        resultSet.getString(tiltakstypeLabel).tilTiltakstype()
+                    )
+                }
             }.toList()
+        }
+    }
+
+    fun avtaleIdFinnes(tiltak: OpprettTiltak): Boolean {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT 1 FROM ${tiltaksTabellLabel}
+                  WHERE ${avtaleIdLabel} = ? 
+                """.trimIndent()
+            )
+                .apply {
+                    setString(1, tiltak.avtaleId.toString())
+                }.executeQuery()
+
+            return resultSet.next()
         }
     }
 }

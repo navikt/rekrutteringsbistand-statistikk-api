@@ -79,7 +79,7 @@ fun startApp(
         settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
         Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), elasticSearchKlient)
-        Tiltaklytter(this, StillingRepository(database.dataSource))
+        Tiltaklytter(this, TiltaksRepository(database.dataSource))
         start()
     }
 }

@@ -3,12 +3,8 @@ package no.nav.statistikkapi
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isZero
-import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
@@ -17,11 +13,11 @@ import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
 import no.nav.statistikkapi.tiltak.TiltaksRepository
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Test
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.util.*
 
 class HentStatistikkTiltakTest {
 
@@ -54,7 +50,7 @@ class HentStatistikkTiltakTest {
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
             tilOgMed = LocalDate.of(2022, 12, 31),
-            navKontor = etArbeidstreningTiltak(aktørId1).navkontor
+            navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging
         )
 
         assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(1)
@@ -75,7 +71,7 @@ class HentStatistikkTiltakTest {
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
             tilOgMed = LocalDate.of(2022, 12, 31),
-            navKontor = etArbeidstreningTiltak(aktørId1).navkontor
+            navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging
         )
 
         assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(2)
@@ -89,7 +85,7 @@ class HentStatistikkTiltakTest {
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
             tilOgMed = LocalDate.of(2022, 12, 31),
-            navKontor = etArbeidstreningTiltak(aktørId1).navkontor
+            navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging
         )
 
         assertThat(actual.tiltakstatistikk.antallFåttJobben).isZero()
@@ -98,12 +94,12 @@ class HentStatistikkTiltakTest {
     }
 
     @Test
-    fun `Gitt lønnstilskudd som allerede er registrert så skal det ikke telles`() {
+    fun `Gitt lønnstilskudd og formidling  som allerede er registrert så skal kun tiltak telles`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
                 utfall = FATT_JOBBEN,
                 aktørId = aktørId1,
-                navKontor = etArbeidstreningTiltak(aktørId1).navkontor
+                navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging
             )
         )
 
@@ -114,12 +110,27 @@ class HentStatistikkTiltakTest {
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
             tilOgMed = LocalDate.of(2022, 12, 31),
-            navKontor = etArbeidstreningTiltak(aktørId1).navkontor
+            navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging
         )
 
-        assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(0)
-        assertThat(actual.antallPresentert).isEqualTo(1)
-        assertThat(actual.antallFåttJobben).isEqualTo(1)
+        assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(1)
+        assertThat(actual.antallPresentert).isEqualTo(0)
+        assertThat(actual.antallFåttJobben).isEqualTo(0)
+    }
+
+    @Test
+    fun `Gitt lønnstilskudd som lagres to ganger, så skal bare ett telles`() {
+        val tiltak = etArbeidstreningTiltak(aktørId1)
+        tiltaksRepository.lagreTiltak(tiltak)
+        tiltaksRepository.lagreTiltak(tiltak)
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2022, 1, 1),
+            tilOgMed = LocalDate.of(2022, 12, 31),
+            navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging
+        )
+
+        assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(1)
     }
 
     private fun hentStatistikk(
@@ -153,4 +164,13 @@ class HentStatistikkTiltakTest {
             append(StatistikkParametere.navKontor, hentStatistikk.navKontor)
         }
     }
+
+    fun etArbeidstreningTiltak(deltakerAktørId: String) = TiltaksRepository.OpprettTiltak(
+        avtaleId = UUID.randomUUID(),
+        deltakerAktørId = deltakerAktørId,
+        deltakerFnr = "12121212121",
+        enhetOppfolging = "NAV SKI",
+        tiltakstype = "ARBEIDSTRENING",
+        avtaleInngått = LocalDateTime.of(2022, 5, 3,0,0,0).atZone(ZoneId.of("Europe/Oslo"))
+    )
 }

@@ -17,7 +17,7 @@ class TestRepository(private val dataSource: DataSource) {
 
     fun slettAlleLønnstilskudd() {
         dataSource.connection.use {
-            it.prepareStatement("DELETE FROM ${TiltaksRepository.tiltaksTabell}").execute()
+            it.prepareStatement("DELETE FROM ${TiltaksRepository.tiltaksTabellLabel}").execute()
         }
     }
 
