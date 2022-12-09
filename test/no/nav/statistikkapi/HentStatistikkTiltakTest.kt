@@ -94,7 +94,7 @@ class HentStatistikkTiltakTest {
     }
 
     @Test
-    fun `Gitt lønnstilskudd og formidling  som allerede er registrert så skal kun tiltak telles`() {
+    fun `Gitt lønnstilskudd og formidling som allerede er registrert så skal kun tiltak telles`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
                 utfall = FATT_JOBBEN,
@@ -114,8 +114,8 @@ class HentStatistikkTiltakTest {
         )
 
         assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(1)
-        assertThat(actual.antallPresentert).isEqualTo(0)
-        assertThat(actual.antallFåttJobben).isEqualTo(0)
+        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallFåttJobben).isEqualTo(1)
     }
 
     @Test

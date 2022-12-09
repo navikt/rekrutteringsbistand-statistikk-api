@@ -59,18 +59,15 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository, til
                 )
 
                 val antallPresentert = kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
-                val fåttJobben = kandidatutfallRepository.hentAktoridFåttJobben(hentStatistikk).distinct()
-                val fåttJobbenTiltak: List<Tiltakstilfelle> =
-                    tiltaksRepository.hentAktøridFåttJobbenTiltak(hentStatistikk).distinct()
-
-                val unikeInnslagTiltak: List<String> = fåttJobbenTiltak.map(Tiltakstilfelle::aktørId) - fåttJobben
+                val fåttJobben = kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk)
+                val fåttJobbenTiltak = tiltaksRepository.hentAktøridFåttJobbenTiltak(hentStatistikk)
 
                 call.respond(
                     StatistikkOutboundDto(
                         antallPresentert,
                         fåttJobben.size,
                         TiltakStatistikkDto(
-                            antallFåttJobben = unikeInnslagTiltak.size,
+                            antallFåttJobben = fåttJobbenTiltak.size,
                             antallFåttJobbenArbeidstrening = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.ARBEIDSTRENING }.size,
                             antallFåttJobbenLønnstilskudd = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.LØNNSTILSKUDD }.size,
                             antallFåttJobbenMentorordning = fåttJobbenTiltak.filter { it.tiltakstype == Tiltakstype.MENTORORDNING }.size,

@@ -169,7 +169,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAktoridFåttJobben(hentStatistikk: HentStatistikk): List<String> {
+    fun hentAktoriderForFåttJobben(hentStatistikk: HentStatistikk): List<String> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
