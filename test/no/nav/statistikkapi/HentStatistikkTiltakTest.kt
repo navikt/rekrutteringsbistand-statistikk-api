@@ -12,7 +12,6 @@ import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
-import no.nav.statistikkapi.tiltak.Tiltaklytter
 import no.nav.statistikkapi.tiltak.TiltaksRepository
 import org.junit.*
 import java.time.LocalDate
@@ -166,8 +165,9 @@ class HentStatistikkTiltakTest {
         deltakerFnr = "12121212121",
         enhetOppfolging = "NAV SKI",
         tiltakstype = "ARBEIDSTRENING",
-        avtaleInngått = LocalDateTime.of(2022, 5, 3,0,0,0).atZone(ZoneId.of("Europe/Oslo"))
+        avtaleInngått = LocalDateTime.of(2022, 5, 3, 0, 0, 0).atZone(ZoneId.of("Europe/Oslo"))
     )
+
     private fun TiltaksRepository.OpprettTiltak.tilRapidMelding() = """
         {
           "tiltakstype":"$tiltakstype",
