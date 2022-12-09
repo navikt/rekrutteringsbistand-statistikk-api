@@ -29,7 +29,7 @@ class HentStatistikkTiltakTest {
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
-        private val rapid = TestRapid().apply { Tiltaklytter(this, TiltaksRepository(database.dataSource)) }
+        private val rapid = TestRapid()
 
         @BeforeClass
         @JvmStatic

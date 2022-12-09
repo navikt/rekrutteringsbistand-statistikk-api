@@ -17,6 +17,7 @@ import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchStilling
 import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
 import no.nav.statistikkapi.tiltak.TiltaksRepository
 import java.net.InetAddress
@@ -51,6 +52,8 @@ fun start(
     }
     Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource), elasticSearchKlient)
     Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
+    TiltakManglerAktørIdLytter(rapid)
+    
 
     val ktorServer = embeddedServer(CIO, port = port) {}
     val ktorApplication = ktorServer.application
