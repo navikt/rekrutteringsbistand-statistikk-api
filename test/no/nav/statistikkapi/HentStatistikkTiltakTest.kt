@@ -13,14 +13,15 @@ import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
 import no.nav.statistikkapi.tiltak.TiltaksRepository
-import no.nav.statistikkapi.tiltak.Tiltakstype
 import org.junit.*
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.*
 
+@RunWith(value = Parameterized::class)
 class HentStatistikkTiltakTest {
     companion object {
         private val port = randomPort()
@@ -31,10 +32,12 @@ class HentStatistikkTiltakTest {
         private val repository = KandidatutfallRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
         private val rapid = TestRapid()
+        private lateinit var defaultTimeZone: TimeZone
 
         @BeforeClass
         @JvmStatic
         fun beforeClass() {
+            defaultTimeZone = TimeZone.getDefault()
             start(database = database, rapid = rapid, port = port, mockOAuth2Server = mockOAuth2Server)
         }
 
@@ -43,7 +46,20 @@ class HentStatistikkTiltakTest {
         fun tearDown() {
             mockOAuth2Server.shutdown()
         }
+
+        @Parameterized.Parameters(name = "{index}: timezone{0} - {2}")
+        @JvmStatic
+        fun data(): Collection<TimeZone> {
+            return listOf(
+                    TimeZone.getDefault(),
+                    TimeZone.getTimeZone(ZoneId.of("Europe/Oslo")),
+                    TimeZone.getTimeZone(ZoneId.of("UTC"))
+            )
+        }
     }
+
+    @Parameterized.Parameter
+    lateinit var timezone: TimeZone
 
     @Test
     fun `Gitt arbeidstrening-tiltak i basen så skal det telles`() {
@@ -179,11 +195,17 @@ class HentStatistikkTiltakTest {
         }.body()
     }
 
+    @Before
+    fun setUp() {
+        TimeZone.setDefault(timezone)
+    }
+
     @After
     fun cleanUp() {
         testRepository.slettAlleUtfall()
         testRepository.slettAlleLønnstilskudd()
         rapid.reset()
+        TimeZone.setDefault(defaultTimeZone)
     }
 
     private fun leggTilQueryParametere(httpRequestBuilder: HttpRequestBuilder, hentStatistikk: HentStatistikk) {
