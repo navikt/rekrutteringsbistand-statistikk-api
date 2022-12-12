@@ -47,7 +47,7 @@ class HentStatistikkTiltakTest {
 
     @Test
     fun `Gitt arbeidstrening-tiltak i basen så skal det telles`() {
-        rapid.sendTestMessage(etArbeidstreningTiltak(aktørId1).tilRapidMelding())
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1))
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -62,9 +62,9 @@ class HentStatistikkTiltakTest {
 
     @Test
     fun `Gitt to lønnstilskudd med ulik aktørid i basen så skal begge telles`() {
-        rapid.sendTestMessage(etArbeidstreningTiltak(aktørId1).tilRapidMelding())
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1))
 
-        rapid.sendTestMessage(etArbeidstreningTiltak(aktørId2).tilRapidMelding())
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId2))
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -101,7 +101,7 @@ class HentStatistikkTiltakTest {
             )
         )
 
-        rapid.sendTestMessage(etArbeidstreningTiltak(aktørId1).tilRapidMelding())
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1))
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -116,12 +116,12 @@ class HentStatistikkTiltakTest {
 
     @Test
     fun `Gitt tiltak som lagres to ganger, nyeste sendes sist, så skal bare nyeste telles`() {
-        val tid1 =  ZonedDateTime.of(LocalDate.of(2022, 1, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
-        val tid2 =  ZonedDateTime.of(LocalDate.of(2022, 2, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
+        val tid1 = LocalDate.of(2022, 1, 1).atStartOfDay()
+        val tid2 =  LocalDate.of(2022, 2, 1).atStartOfDay()
+        val avtaleId = UUID.randomUUID()
 
-        val tiltak = etArbeidstreningTiltak(aktørId1)
-        rapid.sendTestMessage(tiltak.copy(tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid1).tilRapidMelding())
-        rapid.sendTestMessage(tiltak.copy(tiltakstype = "ARBEIDSTRENING", sistEndret = tid2).tilRapidMelding())
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid1))
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "ARBEIDSTRENING", sistEndret = tid2))
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -136,12 +136,12 @@ class HentStatistikkTiltakTest {
 
     @Test
     fun `Gitt tiltak som lagres to ganger, nyeste sendes først,  så skal bare nyeste telles`() {
-        val tid1 =  ZonedDateTime.of(LocalDate.of(2022, 1, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
-        val tid2 =  ZonedDateTime.of(LocalDate.of(2022, 2, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
+        val tid1 =  LocalDate.of(2022, 1, 1).atStartOfDay()
+        val tid2 =  LocalDate.of(2022, 2, 1).atStartOfDay()
+        val avtaleId = UUID.randomUUID()
 
-        val tiltak = etArbeidstreningTiltak(aktørId1)
-        rapid.sendTestMessage(tiltak.copy(tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid2).tilRapidMelding())
-        rapid.sendTestMessage(tiltak.copy(tiltakstype = "ARBEIDSTRENING", sistEndret = tid1).tilRapidMelding())
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid2))
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "ARBEIDSTRENING", sistEndret = tid1))
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -196,15 +196,23 @@ class HentStatistikkTiltakTest {
         sistEndret = LocalDateTime.of(2022, 5, 2, 0, 0, 0).atZone(ZoneId.of("Europe/Oslo")),
     )
 
-    private fun TiltaksRepository.OpprettTiltak.tilRapidMelding() = """
+    private fun tiltakRapidMelding(
+        deltakerAktørId: String,
+        avtaleId: UUID = UUID.randomUUID(),
+        deltakerFnr: String = "12121212121",
+        enhetOppfolging: String = "NAV SKI",
+        tiltakstype: String = "ARBEIDSTRENING",
+        avtaleInngått: LocalDateTime = LocalDateTime.of(2022, 5, 3, 0, 0, 0),
+        sistEndret: LocalDateTime = LocalDateTime.of(2022, 5, 2, 0, 0, 0),
+    ) = """
         {
           "tiltakstype":"$tiltakstype",
           "deltakerFnr": "$deltakerFnr",
           "aktørId": "$deltakerAktørId",
           "avtaleId":"$avtaleId",
           "enhetOppfolging":"$enhetOppfolging",
-          "avtaleInngått": "${avtaleInngått.toLocalDateTime()}",
-          "sistEndret": "${sistEndret.toLocalDateTime()}"
+          "avtaleInngått": "$avtaleInngått",
+          "sistEndret": "$sistEndret"
         }
-        """.trimIndent()
+    """.trimIndent()
 }
