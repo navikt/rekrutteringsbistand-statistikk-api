@@ -5,6 +5,10 @@ import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltaksRepository
+import no.nav.statistikkapi.tiltak.Tiltakstype
+import no.nav.statistikkapi.tiltak.tilTiltakstype
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import javax.sql.DataSource
 
 class TestRepository(private val dataSource: DataSource) {
@@ -45,5 +49,15 @@ class TestRepository(private val dataSource: DataSource) {
             it.prepareStatement("DELETE FROM ${StillingRepository.stillingtabell}").execute()
         }
     }
+
+    fun hentTiltak() = dataSource.connection.use {
+        it.prepareStatement("SELECT ${TiltaksRepository.sistEndretLabel}, ${TiltaksRepository.tiltakstypeLabel} FROM ${TiltaksRepository.tiltaksTabellLabel}").executeQuery().run {
+            next()
+            TiltakRad(
+                getTimestamp(TiltaksRepository.sistEndretLabel).toLocalDateTime().atZone(ZoneId.of("Europe/Oslo")),
+                getString(TiltaksRepository.tiltakstypeLabel))
+        }
+    }
+    class TiltakRad(val sistEndret: ZonedDateTime, val tiltakstype: String)
 
 }

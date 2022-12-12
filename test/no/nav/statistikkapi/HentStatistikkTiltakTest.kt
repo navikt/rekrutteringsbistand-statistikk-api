@@ -123,6 +123,10 @@ class HentStatistikkTiltakTest {
         rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid1))
         rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "ARBEIDSTRENING", sistEndret = tid2))
 
+        val tiltaksrad = testRepository.hentTiltak()
+        assertThat(tiltaksrad.tiltakstype).isEqualTo("ARBEIDSTRENING")
+        assertThat(tiltaksrad.sistEndret).isEqualTo(tid2.atZone(ZoneId.of("Europe/Oslo")))
+
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
             tilOgMed = LocalDate.of(2022, 12, 31),
@@ -142,6 +146,10 @@ class HentStatistikkTiltakTest {
 
         rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid2))
         rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "ARBEIDSTRENING", sistEndret = tid1))
+
+        val tiltaksrad = testRepository.hentTiltak()
+        assertThat(tiltaksrad.tiltakstype).isEqualTo("MIDLERTIDIG_LONNSTILSKUDD")
+        assertThat(tiltaksrad.sistEndret).isEqualTo(tid2.atZone(ZoneId.of("Europe/Oslo")))
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
