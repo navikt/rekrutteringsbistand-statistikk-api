@@ -133,12 +133,14 @@ class HentStatistikkTiltakTest {
         val tid1 =  ZonedDateTime.of(2022, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant()
         val tid2 =  ZonedDateTime.of(2022, 2, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant()
         val avtaleId = UUID.randomUUID()
+        val avtaleInngått = LocalDateTime.of(2022, 6, 3, 0, 0, 0)
 
-        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid1))
-        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "ARBEIDSTRENING", sistEndret = tid2))
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleInngått = avtaleInngått, avtaleId = avtaleId, tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid1))
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleInngått = avtaleInngått, avtaleId = avtaleId, tiltakstype = "ARBEIDSTRENING", sistEndret = tid2))
 
         val tiltaksrad = testRepository.hentTiltak()
         assertThat(tiltaksrad.tiltakstype).isEqualTo("ARBEIDSTRENING")
+        assertThat(tiltaksrad.avtaleInngått).isEqualTo(avtaleInngått.atOslo())
         assertThat(tiltaksrad.sistEndret).isEqualTo(tid2.atOslo())
 
         val actual = hentStatistikk(
@@ -157,12 +159,14 @@ class HentStatistikkTiltakTest {
         val tid1 =  ZonedDateTime.of(2022, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant()
         val tid2 =  ZonedDateTime.of(2022, 2, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant()
         val avtaleId = UUID.randomUUID()
+        val avtaleInngått = LocalDateTime.of(2022, 6, 3, 0, 0, 0)
 
-        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid2))
-        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "ARBEIDSTRENING", sistEndret = tid1))
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleInngått = avtaleInngått, avtaleId = avtaleId, tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid2))
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleInngått = avtaleInngått, avtaleId = avtaleId, tiltakstype = "ARBEIDSTRENING", sistEndret = tid1))
 
         val tiltaksrad = testRepository.hentTiltak()
         assertThat(tiltaksrad.tiltakstype).isEqualTo("MIDLERTIDIG_LONNSTILSKUDD")
+        assertThat(tiltaksrad.avtaleInngått).isEqualTo(avtaleInngått.atOslo())
         assertThat(tiltaksrad.sistEndret).isEqualTo(tid2.atOslo())
 
         val actual = hentStatistikk(

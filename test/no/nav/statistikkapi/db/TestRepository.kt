@@ -52,13 +52,15 @@ class TestRepository(private val dataSource: DataSource) {
     }
 
     fun hentTiltak() = dataSource.connection.use {
-        it.prepareStatement("SELECT ${TiltaksRepository.sistEndretLabel}, ${TiltaksRepository.tiltakstypeLabel} FROM ${TiltaksRepository.tiltaksTabellLabel}").executeQuery().run {
+        it.prepareStatement("SELECT ${TiltaksRepository.sistEndretLabel}, ${TiltaksRepository.tiltakstypeLabel}, ${TiltaksRepository.avtaleInngåttLabel}" +
+                " FROM ${TiltaksRepository.tiltaksTabellLabel}").executeQuery().run {
             next()
             TiltakRad(
                 getTimestamp(TiltaksRepository.sistEndretLabel).toInstant().atOslo(),
+                getTimestamp(TiltaksRepository.avtaleInngåttLabel).toInstant().atOslo(),
                 getString(TiltaksRepository.tiltakstypeLabel))
         }
     }
-    class TiltakRad(val sistEndret: ZonedDateTime, val tiltakstype: String)
+    class TiltakRad(val sistEndret: ZonedDateTime, val avtaleInngått: ZonedDateTime, val tiltakstype: String)
 
 }

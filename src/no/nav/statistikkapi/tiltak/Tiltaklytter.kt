@@ -31,7 +31,7 @@ class Tiltaklytter(
         val deltakerFnr = packet["deltakerFnr"].asText()
         val enhetOppfolging = packet["enhetOppfolging"].asText()
         val tiltakstype = packet["tiltakstype"].asText()
-        val avtaleInngått = ZonedDateTime.of(packet["avtaleInngått"].asLocalDateTime(), ZoneId.of("Europe/Oslo"))
+        val avtaleInngått = packet["avtaleInngått"].asLocalDateTime().atOslo()
         val sistEndret = ZonedDateTime.parse(packet["sistEndret"].asText())
 
 
