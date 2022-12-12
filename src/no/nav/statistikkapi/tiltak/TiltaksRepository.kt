@@ -1,6 +1,7 @@
 package no.nav.statistikkapi.tiltak
 
 import no.nav.statistikkapi.HentStatistikk
+import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.log
 import java.sql.Date
 import java.sql.Timestamp
@@ -132,7 +133,7 @@ class TiltaksRepository(private val dataSource: DataSource) {
             if (resultSet.next() == false) return null
 
             return resultSet.getTimestamp(sistEndretLabel)
-                .toLocalDateTime().atZone(ZoneId.of("Europe/Oslo"))
+                .toLocalDateTime().atOslo()
         }
     }
 }

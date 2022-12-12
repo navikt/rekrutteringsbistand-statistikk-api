@@ -125,7 +125,7 @@ class HentStatistikkTiltakTest {
 
         val tiltaksrad = testRepository.hentTiltak()
         assertThat(tiltaksrad.tiltakstype).isEqualTo("ARBEIDSTRENING")
-        assertThat(tiltaksrad.sistEndret).isEqualTo(tid2.atZone(ZoneId.of("Europe/Oslo")))
+        assertThat(tiltaksrad.sistEndret).isEqualTo(tid2.atOslo())
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -149,7 +149,7 @@ class HentStatistikkTiltakTest {
 
         val tiltaksrad = testRepository.hentTiltak()
         assertThat(tiltaksrad.tiltakstype).isEqualTo("MIDLERTIDIG_LONNSTILSKUDD")
-        assertThat(tiltaksrad.sistEndret).isEqualTo(tid2.atZone(ZoneId.of("Europe/Oslo")))
+        assertThat(tiltaksrad.sistEndret).isEqualTo(tid2.atOslo())
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -200,8 +200,8 @@ class HentStatistikkTiltakTest {
         deltakerFnr = "12121212121",
         enhetOppfolging = "NAV SKI",
         tiltakstype = "ARBEIDSTRENING",
-        avtaleInngått = LocalDateTime.of(2022, 5, 3, 0, 0, 0).atZone(ZoneId.of("Europe/Oslo")),
-        sistEndret = LocalDateTime.of(2022, 5, 2, 0, 0, 0).atZone(ZoneId.of("Europe/Oslo")),
+        avtaleInngått = LocalDateTime.of(2022, 5, 3, 0, 0, 0).atOslo(),
+        sistEndret = LocalDateTime.of(2022, 5, 2, 0, 0, 0).atOslo(),
     )
 
     private fun tiltakRapidMelding(

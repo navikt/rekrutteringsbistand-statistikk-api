@@ -46,7 +46,7 @@ class HentStatistikkTest {
     }
 
     fun lagTidspunkt(year: Int, month: Int, day: Int) =
-        ZonedDateTime.of(LocalDate.of(year, month, day).atStartOfDay(), ZoneId.of("Europe/Oslo"))
+        LocalDate.of(year, month, day).atStartOfDay().atOslo()
 
     @Test
     fun `Siste registrerte presentering på en kandidat og kandidatliste skal telles`() {

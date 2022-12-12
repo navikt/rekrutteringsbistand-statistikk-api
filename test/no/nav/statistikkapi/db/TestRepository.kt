@@ -1,5 +1,6 @@
 package no.nav.statistikkapi.db
 
+import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
@@ -54,7 +55,7 @@ class TestRepository(private val dataSource: DataSource) {
         it.prepareStatement("SELECT ${TiltaksRepository.sistEndretLabel}, ${TiltaksRepository.tiltakstypeLabel} FROM ${TiltaksRepository.tiltaksTabellLabel}").executeQuery().run {
             next()
             TiltakRad(
-                getTimestamp(TiltaksRepository.sistEndretLabel).toLocalDateTime().atZone(ZoneId.of("Europe/Oslo")),
+                getTimestamp(TiltaksRepository.sistEndretLabel).toLocalDateTime().atOslo(),
                 getString(TiltaksRepository.tiltakstypeLabel))
         }
     }
