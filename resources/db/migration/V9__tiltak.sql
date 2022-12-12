@@ -6,6 +6,7 @@ CREATE TABLE tiltak
     deltakerFnr     TEXT,
     enhetOppfolging TEXT,
     tiltakstype     TEXT,
-    avtaleInngått   timestamp with time zone
+    avtaleInngått   timestamp with time zone,
+    sistEndret  timestamp with time zone
 );
 
