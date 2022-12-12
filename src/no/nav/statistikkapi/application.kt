@@ -153,4 +153,7 @@ fun settOppKtor(
 fun nowOslo(): ZonedDateTime = ZonedDateTime.now().toOslo()
 
 fun ZonedDateTime.toOslo(): ZonedDateTime = this.truncatedTo(MILLIS).withZoneSameInstant(of("Europe/Oslo"))
+
+fun ZonedDateTime.toOsloSameLocal(): ZonedDateTime = this.truncatedTo(MILLIS).withZoneSameLocal(of("Europe/Oslo"))
+
 fun LocalDateTime.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))

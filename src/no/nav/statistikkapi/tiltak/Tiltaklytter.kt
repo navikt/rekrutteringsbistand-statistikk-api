@@ -5,6 +5,7 @@ import no.nav.helse.rapids_rivers.River.PacketListener
 import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.log
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.UUID
 
 class Tiltaklytter(
@@ -30,8 +31,8 @@ class Tiltaklytter(
         val deltakerFnr = packet["deltakerFnr"].asText()
         val enhetOppfolging = packet["enhetOppfolging"].asText()
         val tiltakstype = packet["tiltakstype"].asText()
-        val avtaleInngått = packet["avtaleInngått"].asLocalDateTime().atOslo()
-        val sistEndret = packet["sistEndret"].asLocalDateTime().atOslo()
+        val avtaleInngått = ZonedDateTime.of(packet["avtaleInngått"].asLocalDateTime(), ZoneId.of("Europe/Oslo"))
+        val sistEndret =  ZonedDateTime.of(packet["sistEndret"].asLocalDateTime(), ZoneId.of("Europe/Oslo"))
 
 
         log.info("Tiltaksmelding mottatt tiltakstype: avtaleId: ${avtaleId}")
