@@ -13,10 +13,12 @@ import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
 import no.nav.statistikkapi.tiltak.TiltaksRepository
+import no.nav.statistikkapi.tiltak.Tiltakstype
 import org.junit.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.*
 
 class HentStatistikkTiltakTest {
@@ -113,10 +115,13 @@ class HentStatistikkTiltakTest {
     }
 
     @Test
-    fun `Gitt lønnstilskudd som lagres to ganger, så skal bare ett telles`() {
+    fun `Gitt tiltak som lagres to ganger, nyeste sendes sist, så skal bare nyeste telles`() {
+        val tid1 =  ZonedDateTime.of(LocalDate.of(2022, 1, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
+        val tid2 =  ZonedDateTime.of(LocalDate.of(2022, 2, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
+
         val tiltak = etArbeidstreningTiltak(aktørId1)
-        rapid.sendTestMessage(tiltak.tilRapidMelding())
-        rapid.sendTestMessage(tiltak.tilRapidMelding())
+        rapid.sendTestMessage(tiltak.copy(tiltakstype = Tiltakstype.LØNNSTILSKUDD.name, sistEndret = tid1).tilRapidMelding())
+        rapid.sendTestMessage(tiltak.copy(tiltakstype = Tiltakstype.ARBEIDSTRENING.name, sistEndret = tid2).tilRapidMelding())
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -125,6 +130,28 @@ class HentStatistikkTiltakTest {
         )
 
         assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(1)
+        assertThat(actual.tiltakstatistikk.antallFåttJobbenArbeidstrening).isEqualTo(1)
+        assertThat(actual.tiltakstatistikk.antallFåttJobbenLønnstilskudd).isEqualTo(0)
+    }
+
+    @Test
+    fun `Gitt tiltak som lagres to ganger, nyeste sendes først,  så skal bare nyeste telles`() {
+        val tid1 =  ZonedDateTime.of(LocalDate.of(2022, 1, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
+        val tid2 =  ZonedDateTime.of(LocalDate.of(2022, 2, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
+
+        val tiltak = etArbeidstreningTiltak(aktørId1)
+        rapid.sendTestMessage(tiltak.copy(tiltakstype = Tiltakstype.LØNNSTILSKUDD.name, sistEndret = tid2).tilRapidMelding())
+        rapid.sendTestMessage(tiltak.copy(tiltakstype = Tiltakstype.ARBEIDSTRENING.name, sistEndret = tid1).tilRapidMelding())
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2022, 1, 1),
+            tilOgMed = LocalDate.of(2022, 12, 31),
+            navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging
+        )
+
+        assertThat(actual.tiltakstatistikk.antallFåttJobben).isEqualTo(1)
+        assertThat(actual.tiltakstatistikk.antallFåttJobbenArbeidstrening).isEqualTo(0)
+        assertThat(actual.tiltakstatistikk.antallFåttJobbenLønnstilskudd).isEqualTo(1)
     }
 
     private fun hentStatistikk(
@@ -165,7 +192,8 @@ class HentStatistikkTiltakTest {
         deltakerFnr = "12121212121",
         enhetOppfolging = "NAV SKI",
         tiltakstype = "ARBEIDSTRENING",
-        avtaleInngått = LocalDateTime.of(2022, 5, 3, 0, 0, 0).atZone(ZoneId.of("Europe/Oslo"))
+        avtaleInngått = LocalDateTime.of(2022, 5, 3, 0, 0, 0).atZone(ZoneId.of("Europe/Oslo")),
+        sistEndret = LocalDateTime.of(2022, 5, 2, 0, 0, 0).atZone(ZoneId.of("Europe/Oslo")),
     )
 
     private fun TiltaksRepository.OpprettTiltak.tilRapidMelding() = """
@@ -175,7 +203,8 @@ class HentStatistikkTiltakTest {
           "aktørId": "$deltakerAktørId",
           "avtaleId":"$avtaleId",
           "enhetOppfolging":"$enhetOppfolging",
-          "avtaleInngått": "${LocalDateTime.now()}"
+          "avtaleInngått": "${avtaleInngått.toLocalDateTime()}",
+          "sistEndret": "${sistEndret.toLocalDateTime()}"
         }
         """.trimIndent()
 }

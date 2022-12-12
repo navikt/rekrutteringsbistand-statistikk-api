@@ -19,6 +19,7 @@ class Tiltaklytter(
                 it.requireKey("deltakerFnr")
                 it.requireKey("enhetOppfolging")
                 it.requireKey("avtaleId")
+                it.requireKey("sistEndret")
             }
         }.register(this)
     }
@@ -29,6 +30,7 @@ class Tiltaklytter(
         val enhetOppfolging = packet["enhetOppfolging"].asText()
         val tiltakstype = packet["tiltakstype"].asText()
         val avtaleInngått = packet["avtaleInngått"].asLocalDateTime().atZone(ZoneId.of("Europe/Oslo"))
+        val sistEndret = packet["sistEndret"].asLocalDateTime().atZone(ZoneId.of("Europe/Oslo"))
 
 
         log.info("Tiltaksmelding mottatt tiltakstype: avtaleId: ${avtaleId}")
@@ -40,7 +42,8 @@ class Tiltaklytter(
             deltakerFnr = deltakerFnr,
             enhetOppfolging = enhetOppfolging,
             tiltakstype = tiltakstype,
-            avtaleInngått = avtaleInngått
+            avtaleInngått = avtaleInngått,
+            sistEndret = sistEndret
         )
         repo.lagreTiltak(tiltak)
     }

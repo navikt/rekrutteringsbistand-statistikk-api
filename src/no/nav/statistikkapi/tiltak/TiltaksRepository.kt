@@ -25,7 +25,8 @@ class TiltaksRepository(private val dataSource: DataSource) {
         val deltakerFnr: String,
         val enhetOppfolging: String,
         val tiltakstype: String,
-        val avtaleInngått: ZonedDateTime
+        val avtaleInngått: ZonedDateTime,
+        val sistEndret: ZonedDateTime
     )
 
     fun lagreTiltak(tiltak: OpprettTiltak) {
