@@ -120,8 +120,8 @@ class HentStatistikkTiltakTest {
         val tid2 =  ZonedDateTime.of(LocalDate.of(2022, 2, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
 
         val tiltak = etArbeidstreningTiltak(aktørId1)
-        rapid.sendTestMessage(tiltak.copy(tiltakstype = Tiltakstype.LØNNSTILSKUDD.name, sistEndret = tid1).tilRapidMelding())
-        rapid.sendTestMessage(tiltak.copy(tiltakstype = Tiltakstype.ARBEIDSTRENING.name, sistEndret = tid2).tilRapidMelding())
+        rapid.sendTestMessage(tiltak.copy(tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid1).tilRapidMelding())
+        rapid.sendTestMessage(tiltak.copy(tiltakstype = "ARBEIDSTRENING", sistEndret = tid2).tilRapidMelding())
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
@@ -140,8 +140,8 @@ class HentStatistikkTiltakTest {
         val tid2 =  ZonedDateTime.of(LocalDate.of(2022, 2, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
 
         val tiltak = etArbeidstreningTiltak(aktørId1)
-        rapid.sendTestMessage(tiltak.copy(tiltakstype = Tiltakstype.LØNNSTILSKUDD.name, sistEndret = tid2).tilRapidMelding())
-        rapid.sendTestMessage(tiltak.copy(tiltakstype = Tiltakstype.ARBEIDSTRENING.name, sistEndret = tid1).tilRapidMelding())
+        rapid.sendTestMessage(tiltak.copy(tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid2).tilRapidMelding())
+        rapid.sendTestMessage(tiltak.copy(tiltakstype = "ARBEIDSTRENING", sistEndret = tid1).tilRapidMelding())
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2022, 1, 1),
