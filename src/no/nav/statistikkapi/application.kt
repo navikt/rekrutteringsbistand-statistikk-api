@@ -32,6 +32,7 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId.of
 import java.time.ZonedDateTime
@@ -157,3 +158,4 @@ fun ZonedDateTime.toOslo(): ZonedDateTime = this.truncatedTo(MILLIS).withZoneSam
 fun ZonedDateTime.toOsloSameLocal(): ZonedDateTime = this.truncatedTo(MILLIS).withZoneSameLocal(of("Europe/Oslo"))
 
 fun LocalDateTime.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))
+fun Instant.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))

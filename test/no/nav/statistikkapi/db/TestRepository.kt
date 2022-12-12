@@ -55,7 +55,7 @@ class TestRepository(private val dataSource: DataSource) {
         it.prepareStatement("SELECT ${TiltaksRepository.sistEndretLabel}, ${TiltaksRepository.tiltakstypeLabel} FROM ${TiltaksRepository.tiltaksTabellLabel}").executeQuery().run {
             next()
             TiltakRad(
-                getTimestamp(TiltaksRepository.sistEndretLabel).toLocalDateTime().atOslo(),
+                getTimestamp(TiltaksRepository.sistEndretLabel).toInstant().atOslo(),
                 getString(TiltaksRepository.tiltakstypeLabel))
         }
     }

@@ -16,9 +16,7 @@ import no.nav.statistikkapi.tiltak.TiltaksRepository
 import org.junit.*
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.*
 import java.util.*
 
 @RunWith(value = Parameterized::class)
@@ -132,8 +130,8 @@ class HentStatistikkTiltakTest {
 
     @Test
     fun `Gitt tiltak som lagres to ganger, nyeste sendes sist, så skal bare nyeste telles`() {
-        val tid1 = LocalDate.of(2022, 1, 1).atStartOfDay()
-        val tid2 =  LocalDate.of(2022, 2, 1).atStartOfDay()
+        val tid1 =  ZonedDateTime.of(2022, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant()
+        val tid2 =  ZonedDateTime.of(2022, 2, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant()
         val avtaleId = UUID.randomUUID()
 
         rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid1))
@@ -156,8 +154,8 @@ class HentStatistikkTiltakTest {
 
     @Test
     fun `Gitt tiltak som lagres to ganger, nyeste sendes først,  så skal bare nyeste telles`() {
-        val tid1 =  LocalDate.of(2022, 1, 1).atStartOfDay()
-        val tid2 =  LocalDate.of(2022, 2, 1).atStartOfDay()
+        val tid1 =  ZonedDateTime.of(2022, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant()
+        val tid2 =  ZonedDateTime.of(2022, 2, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant()
         val avtaleId = UUID.randomUUID()
 
         rapid.sendTestMessage(tiltakRapidMelding(aktørId1, avtaleId = avtaleId, tiltakstype = "MIDLERTIDIG_LONNSTILSKUDD", sistEndret = tid2))
@@ -233,7 +231,7 @@ class HentStatistikkTiltakTest {
         enhetOppfolging: String = "NAV SKI",
         tiltakstype: String = "ARBEIDSTRENING",
         avtaleInngått: LocalDateTime = LocalDateTime.of(2022, 5, 3, 0, 0, 0),
-        sistEndret: LocalDateTime = LocalDateTime.of(2022, 5, 2, 0, 0, 0),
+        sistEndret: Instant = ZonedDateTime.of(2022, 5, 2, 0, 0, 0,0,ZoneId.of("UTC")).toInstant(),
     ) = """
         {
           "tiltakstype":"$tiltakstype",

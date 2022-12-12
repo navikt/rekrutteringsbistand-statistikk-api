@@ -32,7 +32,7 @@ class Tiltaklytter(
         val enhetOppfolging = packet["enhetOppfolging"].asText()
         val tiltakstype = packet["tiltakstype"].asText()
         val avtaleInngått = ZonedDateTime.of(packet["avtaleInngått"].asLocalDateTime(), ZoneId.of("Europe/Oslo"))
-        val sistEndret =  ZonedDateTime.of(packet["sistEndret"].asLocalDateTime(), ZoneId.of("Europe/Oslo"))
+        val sistEndret = ZonedDateTime.parse(packet["sistEndret"].asText())
 
 
         log.info("Tiltaksmelding mottatt tiltakstype: avtaleId: ${avtaleId}")

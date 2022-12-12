@@ -132,8 +132,7 @@ class TiltaksRepository(private val dataSource: DataSource) {
 
             if (resultSet.next() == false) return null
 
-            return resultSet.getTimestamp(sistEndretLabel)
-                .toLocalDateTime().atOslo()
+            return resultSet.getTimestamp(sistEndretLabel).toInstant().atOslo()
         }
     }
 }
