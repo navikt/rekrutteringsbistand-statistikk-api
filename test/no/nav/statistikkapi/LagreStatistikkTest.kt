@@ -5,10 +5,10 @@ import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter.Type
 import no.nav.statistikkapi.kandidatutfall.SendtStatus
 import no.nav.statistikkapi.kandidatutfall.Utfall
+import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.junit.After
 import org.junit.BeforeClass
@@ -33,6 +33,7 @@ class LagreStatistikkTest {
     @After
     fun afterEach() {
         testRepository.slettAlleUtfall()
+        testRepository.slettAlleStillinger()
         rapid.reset()
     }
 
@@ -246,19 +247,55 @@ class LagreStatistikkTest {
         assertThat(alleUtfall.size).isEqualTo(1)
     }
 
+    @Test
+    fun `en kandidathendelsemelding med stillingsinfo skal lagres i stilling-tabellen`() {
+        val stillingsUUID = UUID.randomUUID()
+        val kandidathendelsemelding = kandidathendelseMap(tidspunkt = "2022-08-19T11:00:01+02:00", stillingsId = stillingsUUID.toString())
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        assertThat(StillingRepository(database.dataSource).hentStilling(stillingsUUID)?.stillingskategori).isEqualTo(Stillingskategori.JOBBMESSE)
+    }
+
+    @Test
+    fun `to kandidathendelsemelding med samme stillingsid i stillingsinfo skal lagres en gang i stilling-tabellen`() {
+        val kandidathendelsemelding = kandidathendelseMap(aktørId = "en aktørid", tidspunkt = "2022-08-19T11:00:01+02:00")
+        val kandidathendelsemelding2 = kandidathendelseMap(aktørId = "en annen aktørid", tidspunkt = "2022-08-19T11:00:01+02:00")
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+        val kandidathendelsesmeldingJson2 = objectMapper.writeValueAsString(kandidathendelsemelding2)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+        rapid.sendTestMessage(kandidathendelsesmeldingJson2)
+
+        assertThat(testRepository.hentAntallStillinger()).isEqualTo(1)
+    }
+
+    @Test
+    fun `en kandidathendelsemelding uten stillingsinfo skal skal ikke lagres i database`() {
+        val kandidathendelsemelding = kandidathendelseMap(tidspunkt = "2022-08-19T11:00:01+02:00", tomStilling = true)
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        assertThat(testRepository.hentUtfall()).isEmpty()
+        assertThat(testRepository.hentAntallStillinger()).isZero()
+    }
+
     fun kandidathendelseMap(
         tidspunkt: String = "2022-09-18T10:33:02.5+02:00",
         type: Type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND,
         stillingsId: String? = "b3c925af-ebf4-50d1-aeee-efc9259107a4",
         alder: Int? = 62,
         hullICv: Boolean? = true,
+        aktørId: String = "dummyAktørid",
         utførtAvNavKontorKode: String = "0313",
         tomStilling: Boolean = stillingsId == null
     ) = mapOf(
         "@event_name" to "kandidat.${type.eventName}",
         "kandidathendelse" to mapOf(
             "type" to "${type.name}",
-            "aktørId" to "dummyAktørid",
+            "aktørId" to aktørId,
             "organisasjonsnummer" to "123456789",
             "kandidatlisteId" to "24e81692-37ef-4fda-9b55-e17588f65061",
             "tidspunkt" to "$tidspunkt",
@@ -274,13 +311,8 @@ class LagreStatistikkTest {
             if (tomStilling) emptyArray() else
                 arrayOf(
                     "stillingsinfo" to mapOf(
-                        "stillingsinfoid" to UUID.randomUUID().toString(),
                         "stillingsid" to stillingsId,
-                        "eier" to mapOf(
-                            "navident" to "A123456",
-                            "navn" to "Navnesen"
-                        ),
-                        "stillingskategori" to "STILLING"
+                        "stillingskategori" to "JOBBMESSE"
                     )
                 )
 
