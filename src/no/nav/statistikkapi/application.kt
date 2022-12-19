@@ -25,10 +25,15 @@ import no.nav.statistikkapi.stillinger.ElasticSearchKlient
 import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.StillingService
+import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
+import no.nav.statistikkapi.tiltak.Tiltaklytter
+import no.nav.statistikkapi.tiltak.TiltaksRepository
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
+import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId.of
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit.MILLIS
@@ -77,6 +82,8 @@ fun startApp(
         settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
         Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), elasticSearchKlient)
+        Tiltaklytter(this, TiltaksRepository(database.dataSource))
+        TiltakManglerAktørIdLytter(this)
         start()
     }
 }
@@ -129,10 +136,11 @@ fun settOppKtor(
         install(Authentication, tokenValidationConfig)
 
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
+        val tiltaksRepository = TiltaksRepository(dataSource)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
-                hentStatistikk(kandidatutfallRepository)
+                hentStatistikk(kandidatutfallRepository, tiltaksRepository)
             }
         }
 
@@ -146,3 +154,8 @@ fun settOppKtor(
 fun nowOslo(): ZonedDateTime = ZonedDateTime.now().toOslo()
 
 fun ZonedDateTime.toOslo(): ZonedDateTime = this.truncatedTo(MILLIS).withZoneSameInstant(of("Europe/Oslo"))
+
+fun ZonedDateTime.toOsloSameLocal(): ZonedDateTime = this.truncatedTo(MILLIS).withZoneSameLocal(of("Europe/Oslo"))
+
+fun LocalDateTime.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))
+fun Instant.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))

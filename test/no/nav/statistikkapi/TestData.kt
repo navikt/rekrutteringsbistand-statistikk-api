@@ -3,7 +3,10 @@ package no.nav.statistikkapi
 import no.nav.statistikkapi.kandidatutfall.OpprettKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Utfall
 import no.nav.statistikkapi.stillinger.*
+import no.nav.statistikkapi.tiltak.TiltaksRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 const val enNavIdent = "X123456"
@@ -14,16 +17,6 @@ const val etKontor2 = "2000"
 
 val enStillingsId = UUID.fromString("24f0074a-a99a-4b9a-aeaa-860fe6a7dbe2")
 
-data class OpprettKandidatutfallMedFærreFelt(
-    val aktørId: String,
-    val utfall: Utfall,
-    val navIdent: String,
-    val navKontor: String,
-    val kandidatlisteId: String,
-    val stillingsId: String,
-    val harHullICv: Boolean?,
-    val alder: Int?
-)
 
 val etKandidatutfall = OpprettKandidatutfall(
     aktørId = "10000254879658",
@@ -52,6 +45,9 @@ val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(
     tilretteleggingsbehov = emptyList(),
     tidspunktForHendelsen = nowOslo()
 )
+
+val aktørId1 = "100000000001"
+val aktørId2 = "100000000002"
 
 fun enElasticSearchStilling() = ElasticSearchStilling(
     uuid = enStillingsId.toString(),

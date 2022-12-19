@@ -50,6 +50,6 @@ spec:
     - name: KAFKA_CONSUMER_GROUP_ID
       value: "rekrutteringsbistand-statistikk-api-rapidconsumer-1"
     - name: KAFKA_RESET_POLICY
-      value: "latest"
+      value: "earliest"
     - name: HTTP_PORT
       value: "8111"
