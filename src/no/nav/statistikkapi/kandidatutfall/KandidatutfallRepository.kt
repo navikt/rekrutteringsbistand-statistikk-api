@@ -4,6 +4,9 @@ import no.nav.statistikkapi.HentStatistikk
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
+import no.nav.statistikkapi.tiltak.Tiltakstilfelle
+import no.nav.statistikkapi.tiltak.Tiltakstype
+import no.nav.statistikkapi.tiltak.tilTiltakstype
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -166,11 +169,11 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallFåttJobben(hentStatistikk: HentStatistikk): Int {
+    fun hentAktoriderForFåttJobben(hentStatistikk: HentStatistikk): List<String> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT COUNT(k1.*) FROM $kandidatutfallTabell k1,
+                SELECT k1.* FROM $kandidatutfallTabell k1,
                 
                   (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
@@ -186,11 +189,11 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setString(3, hentStatistikk.navKontor)
             }.executeQuery()
 
-            if (resultSet.next()) {
-                return resultSet.getInt(1)
-            } else {
-                throw RuntimeException("Prøvde å hente antall kandidater som har fått jobben fra databasen")
-            }
+            return generateSequence {
+                if (!resultSet.next()) null
+                else resultSet.getString(aktørId)
+            }.toList()
+
         }
     }
 
@@ -288,6 +291,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val dbId = "id"
         const val kandidatutfallTabell = "kandidatutfall"
         const val aktørId = "aktorid"
+        const val fnr = "fnr"
         const val utfall = "utfall"
         const val navident = "navident"
         const val navkontor = "navkontor"
@@ -302,6 +306,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val alder = "alder"
         const val tilretteleggingsbehov = "tilretteleggingsbehov"
         const val tilretteleggingsbehovdelimiter = ";"
+
 
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
             Kandidatutfall(

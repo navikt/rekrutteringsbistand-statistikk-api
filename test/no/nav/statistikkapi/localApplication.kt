@@ -13,6 +13,9 @@ import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
+import no.nav.statistikkapi.tiltak.Tiltaklytter
+import no.nav.statistikkapi.tiltak.TiltaksRepository
 import java.net.InetAddress
 
 fun main() {
@@ -41,6 +44,9 @@ fun start(
     }
 
     Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource), StillingRepository(database.dataSource))
+    Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
+    TiltakManglerAktørIdLytter(rapid)
+
 
     val ktorServer = embeddedServer(CIO, port = port) {}
     val ktorApplication = ktorServer.application

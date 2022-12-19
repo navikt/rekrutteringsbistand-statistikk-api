@@ -49,8 +49,10 @@ spec:
     - name: KAFKA_RAPID_TOPIC
       value: toi.rapid-1
     - name: KAFKA_CONSUMER_GROUP_ID
-      value: "rekrutteringsbistand-statistikk-api-rapidconsumer-1"
+      value: "rekrutteringsbistand-statistikk-api-rapidconsumer-4"
+    - name: KAFKA_EXTRA_TOPIC
+      value: arbeidsgiver.tiltak-avtale-hendelse
     - name: KAFKA_RESET_POLICY
-      value: "latest"
+      value: "earliest"
     - name: HTTP_PORT
       value: "8111"

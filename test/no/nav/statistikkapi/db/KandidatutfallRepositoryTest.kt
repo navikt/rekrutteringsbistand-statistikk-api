@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
+import no.nav.statistikkapi.atOslo
 import org.junit.After
 import org.junit.Test
 import no.nav.statistikkapi.etKandidatutfall
@@ -27,15 +28,19 @@ class KandidatutfallRepositoryTest {
     fun `gitt en fått-jobben med ukjent hull men presentert med hull tell hentAntallFåttJobben som om cv har hull`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
-                utfall = Utfall.PRESENTERT, navKontor = etKontor1, harHullICv = true, tidspunktForHendelsen =
-                ZonedDateTime.of(LocalDate.of(2020, 1, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
+                utfall = Utfall.PRESENTERT,
+                navKontor = etKontor1,
+                harHullICv = true,
+                tidspunktForHendelsen = LocalDate.of(2020, 1, 1).atStartOfDay().atOslo()
             )
         )
 
         repository.lagreUtfall(
             etKandidatutfall.copy(
-                utfall = Utfall.FATT_JOBBEN, navKontor = etKontor1, harHullICv = null, tidspunktForHendelsen =
-                ZonedDateTime.of(LocalDate.of(2020, 3, 4).atTime(20, 59), ZoneId.of("Europe/Oslo"))
+                utfall = Utfall.FATT_JOBBEN,
+                navKontor = etKontor1,
+                harHullICv = null,
+                tidspunktForHendelsen = LocalDate.of(2020, 3, 4).atTime(20, 59).atOslo()
             )
         )
 
@@ -54,14 +59,18 @@ class KandidatutfallRepositoryTest {
     fun `gitt en presentert med kjent hull men senere med ukjent hull tell hentAntallPresentert som om cv har ukjent hull`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
-                utfall = Utfall.PRESENTERT, navKontor = etKontor1, harHullICv = true, tidspunktForHendelsen =
-                ZonedDateTime.of(LocalDate.of(2020, 1, 1).atStartOfDay(), ZoneId.of("Europe/Oslo"))
+                utfall = Utfall.PRESENTERT,
+                navKontor = etKontor1,
+                harHullICv = true,
+                tidspunktForHendelsen = LocalDate.of(2020, 1, 1).atStartOfDay().atOslo()
             )
         )
         repository.lagreUtfall(
             etKandidatutfall.copy(
-                utfall = Utfall.FATT_JOBBEN, navKontor = etKontor1, harHullICv = null, tidspunktForHendelsen =
-                ZonedDateTime.of(LocalDate.of(2020, 3, 4).atTime(20, 59), ZoneId.of("Europe/Oslo"))
+                utfall = Utfall.FATT_JOBBEN,
+                navKontor = etKontor1,
+                harHullICv = null,
+                tidspunktForHendelsen = LocalDate.of(2020, 3, 4).atTime(20, 59).atOslo()
             )
         )
 
@@ -84,9 +93,7 @@ class KandidatutfallRepositoryTest {
                 utfall = Utfall.PRESENTERT,
                 synligKandidat = true,
                 tilretteleggingsbehov = presenterteTilretteleggingsbehov,
-                tidspunktForHendelsen = ZonedDateTime.of(
-                    LocalDate.of(2020, 1, 1).atStartOfDay(), ZoneId.of("Europe/Oslo")
-                )
+                tidspunktForHendelsen = LocalDate.of(2020, 1, 1).atStartOfDay().atOslo()
             )
         )
         repository.lagreUtfall(
@@ -94,9 +101,7 @@ class KandidatutfallRepositoryTest {
                 utfall = Utfall.FATT_JOBBEN,
                 synligKandidat = false,
                 tilretteleggingsbehov = listOf(),
-                tidspunktForHendelsen = ZonedDateTime.of(
-                    LocalDate.of(2020, 3, 4).atTime(20, 59), ZoneId.of("Europe/Oslo")
-                ),
+                tidspunktForHendelsen = LocalDate.of(2020, 3, 4).atTime(20, 59).atOslo()
             )
         )
 
@@ -114,15 +119,12 @@ class KandidatutfallRepositoryTest {
                 utfall = Utfall.PRESENTERT,
                 navKontor = etKontor1,
                 harHullICv = null,
-                tidspunktForHendelsen = ZonedDateTime.of(
-                    LocalDate.of(2020, 3, 4).atTime(20, 59), ZoneId.of("Europe/Oslo")
-                )
+                tidspunktForHendelsen = LocalDate.of(2020, 3, 4).atTime(20, 59).atOslo()
             )
         )
 
         val antallUtfallMedUkjentHull =
-            repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1))
-                .count { it.harHull == null }
+            repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1)).count { it.harHull == null }
 
         assertThat(antallUtfallMedUkjentHull).isEqualTo(1)
     }
@@ -134,15 +136,12 @@ class KandidatutfallRepositoryTest {
                 utfall = Utfall.FATT_JOBBEN,
                 navKontor = etKontor1,
                 harHullICv = null,
-                tidspunktForHendelsen = ZonedDateTime.of(
-                    LocalDate.of(2020, 3, 4).atTime(20, 59), ZoneId.of("Europe/Oslo")
-                )
+                tidspunktForHendelsen = LocalDate.of(2020, 3, 4).atTime(20, 59).atOslo()
             )
         )
 
         val antallUtfallMedUkjentHull =
-            repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1))
-                .count { it.harHull == null }
+            repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1)).count { it.harHull == null }
 
         assertThat(antallUtfallMedUkjentHull).isEqualTo(1)
     }
@@ -151,25 +150,25 @@ class KandidatutfallRepositoryTest {
     fun `gitt en fått-jobben med aldersgruppe 30-49 men presentert med aldersgruppe under 30 hentAntallFåttJobben som om aldersgruppe er under 30`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
-                utfall = Utfall.PRESENTERT, navKontor = etKontor1, harHullICv = true, alder = 29,
-                tidspunktForHendelsen = ZonedDateTime.of(
-                    LocalDate.of(2020, 1, 1).atTime(19, 29),
-                    ZoneId.of("Europe/Oslo")
-                )
+                utfall = Utfall.PRESENTERT,
+                navKontor = etKontor1,
+                harHullICv = true,
+                alder = 29,
+                tidspunktForHendelsen = LocalDate.of(2020, 1, 1).atTime(19, 29).atOslo()
             )
         )
         repository.lagreUtfall(
             etKandidatutfall.copy(
-                utfall = Utfall.FATT_JOBBEN, navKontor = etKontor1, harHullICv = null, alder = 30,
-                tidspunktForHendelsen = ZonedDateTime.of(
-                    LocalDate.of(2020, 3, 4).atTime(20, 30),
-                    ZoneId.of("Europe/Oslo")
-                )
+                utfall = Utfall.FATT_JOBBEN,
+                navKontor = etKontor1,
+                harHullICv = null,
+                alder = 30,
+                tidspunktForHendelsen = LocalDate.of(2020, 3, 4).atTime(20, 30).atOslo()
             )
         )
 
-        val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1))
-            .mapNotNull { it.alder }
+        val utfallFåttJobben =
+            repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1)).mapNotNull { it.alder }
 
         val antallUtfallUnder30 = utfallFåttJobben.count { it < 30 }
         val antallUtfallOver50 = utfallFåttJobben.count { it > 50 }
@@ -183,16 +182,10 @@ class KandidatutfallRepositoryTest {
     @Test
     fun `fått jobben skal ikke telles hvis det ikke er nyeste registrering`() {
         val fåttJobbenUtfall = etKandidatutfall.copy(
-            utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 1).atStartOfDay(),
-                ZoneId.of("Europe/Oslo")
-            )
+            utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = LocalDate.of(2020, 3, 1).atStartOfDay().atOslo()
         )
         val presentertUtfall = etKandidatutfall.copy(
-            utfall = Utfall.PRESENTERT, tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 2).atStartOfDay(),
-                ZoneId.of("Europe/Oslo")
-            )
+            utfall = Utfall.PRESENTERT, tidspunktForHendelsen = LocalDate.of(2020, 3, 2).atStartOfDay().atOslo()
         )
         repository.lagreUtfall(fåttJobbenUtfall)
         repository.lagreUtfall(presentertUtfall)
@@ -209,10 +202,7 @@ class KandidatutfallRepositoryTest {
                 utfall = Utfall.PRESENTERT,
                 navKontor = etKontor1,
                 harHullICv = true,
-                tidspunktForHendelsen = ZonedDateTime.of(
-                    LocalDate.of(2020, 3, 3).atTime(20, 59),
-                    ZoneId.of("Europe/Oslo")
-                )
+                tidspunktForHendelsen = LocalDate.of(2020, 3, 3).atTime(20, 59).atOslo()
             )
         )
 
@@ -224,16 +214,10 @@ class KandidatutfallRepositoryTest {
     @Test
     fun `kan telle en kandidat som presentert selv om kandidaten senere fikk jobben`() {
         val presentertUtfall = etKandidatutfall.copy(
-            utfall = Utfall.PRESENTERT, tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 3).atTime(20, 59),
-                ZoneId.of("Europe/Oslo")
-            )
+            utfall = Utfall.PRESENTERT, tidspunktForHendelsen = LocalDate.of(2020, 3, 3).atTime(20, 59).atOslo()
         )
         val fåttJobbenUtfall = etKandidatutfall.copy(
-            utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 8).atTime(20, 59),
-                ZoneId.of("Europe/Oslo")
-            )
+            utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = LocalDate.of(2020, 3, 8).atTime(20, 59).atOslo()
         )
         repository.lagreUtfall(presentertUtfall)
         repository.lagreUtfall(fåttJobbenUtfall)
@@ -246,10 +230,7 @@ class KandidatutfallRepositoryTest {
     @Test
     fun `en kandidat som ble satt rett til fått jobben skal også telle som presentert`() {
         val fåttJobbenUtfall = etKandidatutfall.copy(
-            utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 8).atTime(20, 59),
-                ZoneId.of("Europe/Oslo")
-            )
+            utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = LocalDate.of(2020, 3, 8).atTime(20, 59).atOslo()
         )
         repository.lagreUtfall(fåttJobbenUtfall)
 
@@ -262,18 +243,16 @@ class KandidatutfallRepositoryTest {
     @Test
     fun `skal kunne telle en kandidat som ble presentert og en annen kandidat som ble satt rett til fått jobben`() {
         val presentertUtfallKandidat1 = etKandidatutfall.copy(
-            aktørId = "kandidat1", utfall = Utfall.PRESENTERT, tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 3).atTime(20, 59),
-                ZoneId.of("Europe/Oslo")
-            )
+            aktørId = "kandidat1",
+            utfall = Utfall.PRESENTERT,
+            tidspunktForHendelsen = LocalDate.of(2020, 3, 3).atTime(20, 59).atOslo()
         )
         val fåttJobbenUtfallKandidat2 = etKandidatutfall.copy(
-            aktørId = "kandidat2", utfall = Utfall.FATT_JOBBEN,
-            tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 9).atTime(20, 59),
-                ZoneId.of("Europe/Oslo")
-            )
+            aktørId = "kandidat2",
+            utfall = Utfall.FATT_JOBBEN,
+            tidspunktForHendelsen = LocalDate.of(2020, 3, 9).atTime(20, 59).atOslo()
         )
+
         repository.lagreUtfall(presentertUtfallKandidat1)
         repository.lagreUtfall(fåttJobbenUtfallKandidat2)
 
@@ -285,24 +264,22 @@ class KandidatutfallRepositoryTest {
     @Test
     fun `skal kunne telle en kandidat som ble presentert og senere fikk jobben og en annen kandidat som ble satt rett til fått jobben`() {
         val presentertUtfallKandidat1 = etKandidatutfall.copy(
-            aktørId = "kandidat1", utfall = Utfall.PRESENTERT,
-            tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 3).atTime(20, 59),
-                ZoneId.of("Europe/Oslo")
-            )
+            aktørId = "kandidat1",
+            utfall = Utfall.PRESENTERT,
+            tidspunktForHendelsen = LocalDate.of(2020, 3, 3).atTime(20, 59).atOslo()
         )
         val fåttJobbenUtfallKandidat1 = etKandidatutfall.copy(
-            aktørId = "kandidat1", utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 8).atTime(20, 59),
-                ZoneId.of("Europe/Oslo")
-            )
+            aktørId = "kandidat1",
+            utfall = Utfall.FATT_JOBBEN,
+            tidspunktForHendelsen = LocalDate.of(2020, 3, 8).atTime(20, 59).atOslo()
         )
+
         val fåttJobbenUtfallKandidat2 = etKandidatutfall.copy(
-            aktørId = "kandidat2", utfall = Utfall.FATT_JOBBEN, tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 9).atTime(20, 59),
-                ZoneId.of("Europe/Oslo")
-            )
+            aktørId = "kandidat2",
+            utfall = Utfall.FATT_JOBBEN,
+            tidspunktForHendelsen = LocalDate.of(2020, 3, 9).atTime(20, 59).atOslo()
         )
+
         repository.lagreUtfall(presentertUtfallKandidat1)
         repository.lagreUtfall(fåttJobbenUtfallKandidat1)
         repository.lagreUtfall(fåttJobbenUtfallKandidat2)
@@ -315,17 +292,13 @@ class KandidatutfallRepositoryTest {
     @Test
     fun `to presentert-utfall på samme kandidat og samme kandidatliste skal kun telles en gang`() {
         val førstePresentertUtfall = etKandidatutfall.copy(
-            utfall = Utfall.PRESENTERT, tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 3).atTime(20, 49),
-                ZoneId.of("Europe/Oslo")
-            )
+            utfall = Utfall.PRESENTERT, tidspunktForHendelsen = LocalDate.of(2020, 3, 3).atTime(20, 49).atOslo()
         )
+
         val andrePresentertUtfall = etKandidatutfall.copy(
-            utfall = Utfall.PRESENTERT, tidspunktForHendelsen = ZonedDateTime.of(
-                LocalDate.of(2020, 3, 3).atTime(20, 59),
-                ZoneId.of("Europe/Oslo")
-            )
+            utfall = Utfall.PRESENTERT, tidspunktForHendelsen = LocalDate.of(2020, 3, 3).atTime(20, 59).atOslo()
         )
+
         repository.lagreUtfall(førstePresentertUtfall)
         repository.lagreUtfall(andrePresentertUtfall)
 
@@ -338,10 +311,9 @@ class KandidatutfallRepositoryTest {
     fun `test lagring og uthenting av kandidat uten tilretteleggingsbehov`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
-                utfall = Utfall.PRESENTERT, tilretteleggingsbehov = listOf(), tidspunktForHendelsen = ZonedDateTime.of(
-                    LocalDate.of(2020, 3, 2).atTime(20, 49),
-                    ZoneId.of("Europe/Oslo")
-                )
+                utfall = Utfall.PRESENTERT,
+                tilretteleggingsbehov = listOf(),
+                tidspunktForHendelsen = LocalDate.of(2020, 3, 2).atTime(20, 49).atOslo()
             )
         )
 

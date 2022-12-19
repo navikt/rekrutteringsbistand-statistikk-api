@@ -26,7 +26,7 @@ class LagreStatistikkTest {
         @BeforeClass
         @JvmStatic
         fun beforeClass() {
-            start(database = database, rapid = rapid)
+            start(database = database, rapid = rapid, port = randomPort())
         }
     }
 
