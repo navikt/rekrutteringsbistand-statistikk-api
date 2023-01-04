@@ -111,7 +111,8 @@ class HentStatistikkTiltakTest {
             etKandidatutfall.copy(
                 utfall = FATT_JOBBEN,
                 aktørId = aktørId1,
-                navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging
+                navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging,
+                tidspunktForHendelsen = LocalDate.of(2022, 12, 19).atStartOfDay().atZone(timezone.toZoneId())
             )
         )
 
