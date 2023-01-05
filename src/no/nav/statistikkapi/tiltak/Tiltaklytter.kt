@@ -4,7 +4,6 @@ import no.nav.helse.rapids_rivers.*
 import no.nav.helse.rapids_rivers.River.PacketListener
 import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.log
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -18,6 +17,7 @@ class Tiltaklytter(
                 it.demandKey("tiltakstype")
                 it.demandKey("avtaleInngått")
                 it.demandKey("aktørId")
+                it.rejectValue("@slutt_av_hendelseskjede", true)
                 it.requireKey("deltakerFnr")
                 it.requireKey("enhetOppfolging")
                 it.requireKey("avtaleId")
@@ -48,6 +48,8 @@ class Tiltaklytter(
             sistEndret = sistEndret
         )
         repo.lagreTiltak(tiltak)
+        packet["@slutt_av_hendelseskjede"] = true
+        context.publish(packet.toJson())
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
