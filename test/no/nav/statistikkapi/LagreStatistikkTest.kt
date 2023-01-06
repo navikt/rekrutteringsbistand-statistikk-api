@@ -88,6 +88,34 @@ class LagreStatistikkTest {
     }
 
     @Test
+    fun `en melding med slutt_av_hendelseskjede satt til true skal ikke lagres i databasen`() {
+        val kandidathendelsemelding =
+            kandidathendelseMap(type = Type.REGISTRER_CV_DELT)
+
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding + ("@slutt_av_hendelseskjede" to true))
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall).hasSize(0)
+        assertThat(rapid.inspektør.size).isZero()
+    }
+
+    @Test
+    fun `en kandidathendelsemelding skal populeres med slutt_av_hendelseskjede satt til true`() {
+        val kandidathendelsemelding =
+            kandidathendelseMap(type = Type.REGISTRER_CV_DELT)
+
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        assertThat(rapid.inspektør.size).isEqualTo(1)
+        val hendelse = rapid.inspektør.message(0)
+        assertThat(hendelse["@slutt_av_hendelseskjede"].asBoolean()).isTrue()
+    }
+
+    @Test
     fun `en melding om CV_DELT_VIA_REKRUTTERINGSBISTAND lagres i databasen`() {
         val kandidathendelsemelding =
             kandidathendelseMap(type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND)
