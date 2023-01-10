@@ -10,12 +10,8 @@ import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.TestDatabase
-import no.nav.statistikkapi.kafka.DatavarehusKafkaProducer
-import no.nav.statistikkapi.kafka.DatavarehusKafkaProducerStub
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.stillinger.ElasticSearchKlient
-import no.nav.statistikkapi.stillinger.ElasticSearchStilling
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
@@ -47,13 +43,10 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    val elasticSearchKlient = object : ElasticSearchKlient {
-        override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
-    }
-    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource), elasticSearchKlient)
+    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource), StillingRepository(database.dataSource))
     Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
     TiltakManglerAktørIdLytter(rapid)
-    
+
 
     val ktorServer = embeddedServer(CIO, port = port) {}
     val ktorApplication = ktorServer.application

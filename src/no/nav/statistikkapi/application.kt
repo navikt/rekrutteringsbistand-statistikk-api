@@ -21,10 +21,7 @@ import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.stillinger.ElasticSearchKlient
-import no.nav.statistikkapi.stillinger.ElasticSearchKlientImpl
 import no.nav.statistikkapi.stillinger.StillingRepository
-import no.nav.statistikkapi.stillinger.StillingService
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
 import no.nav.statistikkapi.tiltak.TiltaksRepository
@@ -50,38 +47,27 @@ fun main() {
             cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
         )
     )
-    val stillingssokProxyAccessTokenClient = AccessTokenProvider(
-        config = AccessTokenProvider.Config(
-            azureClientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
-            azureClientId = System.getenv("AZURE_APP_CLIENT_ID"),
-            tokenEndpoint = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
-            scope = ElasticSearchKlientImpl.stillingssokProxyScope
-        )
-    )
-    val elasticSearchKlient =
-        ElasticSearchKlientImpl(tokenProvider = stillingssokProxyAccessTokenClient::getBearerToken)
     val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaProducer(KafkaConfig.producerConfig()))
-    startApp(Database(Cluster.current), tokenSupportConfig, datavarehusKafkaProducer, elasticSearchKlient)
+    startApp(Database(Cluster.current), tokenSupportConfig, datavarehusKafkaProducer)
 }
 
 fun startApp(
     database: Database,
     tokenSupportConfig: TokenSupportConfig,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer,
-    elasticSearchKlient: ElasticSearchKlient
+    datavarehusKafkaProducer: DatavarehusKafkaProducer
 ) {
     val tokenValidationConfig: AuthenticationConfig.() -> Unit = {
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    startDatavarehusScheduler(database, elasticSearchKlient, datavarehusKafkaProducer)
+    startDatavarehusScheduler(database, datavarehusKafkaProducer)
 
     RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
     ).withKtorModule {
         settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
-        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), elasticSearchKlient)
+        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), StillingRepository(database.dataSource))
         Tiltaklytter(this, TiltaksRepository(database.dataSource))
         TiltakManglerAktørIdLytter(this)
         start()
@@ -90,14 +76,12 @@ fun startApp(
 
 private fun startDatavarehusScheduler(
     database: Database,
-    elasticSearchKlient: ElasticSearchKlient,
     datavarehusKafkaProducer: DatavarehusKafkaProducer
 ) {
     val stillingRepository = StillingRepository(database.dataSource)
     val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
-    val stillingService = StillingService(elasticSearchKlient, stillingRepository)
     val sendKafkaMelding: Runnable =
-        hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingService)
+        hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingRepository)
     val datavarehusScheduler = KafkaTilDataverehusScheduler(database.dataSource, sendKafkaMelding)
 
     datavarehusScheduler.kjørPeriodisk()

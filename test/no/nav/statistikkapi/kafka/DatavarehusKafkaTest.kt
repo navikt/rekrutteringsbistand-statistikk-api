@@ -5,8 +5,6 @@ import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import io.confluent.kafka.serializers.KafkaAvroSerializer
-import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
@@ -15,12 +13,9 @@ import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.*
-import no.nav.statistikkapi.stillinger.ElasticSearchKlient
-import no.nav.statistikkapi.stillinger.ElasticSearchStilling
 import no.nav.statistikkapi.stillinger.StillingRepository
-import no.nav.statistikkapi.stillinger.StillingService
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.apache.kafka.clients.producer.MockProducer
-import org.apache.kafka.common.serialization.Serializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.After
 import org.junit.Test
@@ -94,6 +89,7 @@ class DatavarehusKafkaTest {
     @Test
     fun `Sending på Kafka-topic skal endre status fra IKKE_SENDT til SENDT`() = runBlocking {
         kandidatutfallRepository.lagreUtfall(etKandidatutfall)
+        stillingRepository.lagreStilling(enStillingsId.toString(), Stillingskategori.STILLING)
         val oppsett: List<Kandidatutfall> = repository.hentUtfall()
         assertThat(oppsett.count()).isEqualTo(1)
         oppsett.forEach {
@@ -128,17 +124,15 @@ class DatavarehusKafkaTest {
         private val repository = TestRepository(database.dataSource)
         private val port = randomPort()
         private val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
+        private val stillingRepository = StillingRepository(database.dataSource)
         private val dummyAvroKandidatutfallSerializer = { _: String, _: AvroKandidatutfall -> ByteArray(0) }
         private val mockProducer = MockProducer(true, StringSerializer(), dummyAvroKandidatutfallSerializer)
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(mockProducer)
-        private val elasticSearchKlient = object : ElasticSearchKlient {
-            override fun hentStilling(stillingUuid: String): ElasticSearchStilling = enElasticSearchStilling()
-        }
         private val testHentUsendteUtfallOgSendPåKafka =
             hentUsendteUtfallOgSendPåKafka(
                 kandidatutfallRepository,
                 datavarehusKafkaProducer,
-                StillingService(elasticSearchKlient, StillingRepository(database.dataSource))
+                StillingRepository(database.dataSource)
             )
         private val mockOAuth2Server = MockOAuth2Server()
         val rapid = TestRapid()
