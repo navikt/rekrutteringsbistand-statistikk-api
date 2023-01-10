@@ -48,6 +48,23 @@ class StillingRepositoryTest {
         assertThat(databaseStilling.stillingskategori).isEqualTo(Stillingskategori.STILLING)
     }
 
+    @Test
+    fun `skal ignorere duplikate stillinger om den lagres på nytt`() {
+        val stillingsuuid = UUID.randomUUID().toString()
+        repository.lagreStilling(
+            stillingsuuid = stillingsuuid,
+            stillingskategori = null
+        )
+        repository.lagreStilling(
+            stillingsuuid = stillingsuuid,
+            stillingskategori = Stillingskategori.JOBBMESSE
+        )
+        val databaseStilling = repository.hentStilling(UUID.fromString(stillingsuuid))
+            ?: throw IllegalStateException("Ingen stilling funnet i databasen med den UUID´en")
+
+        assertThat(databaseStilling.stillingskategori).isEqualTo(Stillingskategori.STILLING)
+    }
+
     @After
     fun cleanUp() {
         slettAlleUtfall()

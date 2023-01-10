@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import net.minidev.json.JSONArray
 import no.nav.statistikkapi.log
+import org.postgresql.util.PSQLException
 import java.sql.ResultSet
 import java.sql.SQLIntegrityConstraintViolationException
 import java.sql.Timestamp
@@ -28,7 +29,14 @@ class StillingRepository(private val dataSource: DataSource) {
                     executeUpdate()
                 }
             }
-        }catch (e: SQLIntegrityConstraintViolationException) { }
+        }catch (e: SQLIntegrityConstraintViolationException) {
+            // TODO: Brukes bare for test på grunn av H2/PSQL
+        }
+        catch (e: PSQLException) {
+            if(e.message?.contains("ERROR: duplicate key value violates unique constraint \"stilling_pkey\"") != true){
+                throw e
+            }
+        }
     }
 
     fun hentStilling(stillingsId: UUID): Stilling? = hentStilling(stillingsId.toString())
