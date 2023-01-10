@@ -1,10 +1,7 @@
 package no.nav.statistikkapi.stillinger
 
 import assertk.assertThat
-import assertk.assertions.isBetween
-import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
-import assertk.assertions.isNotNull
+import assertk.assertions.*
 import no.nav.statistikkapi.db.TestDatabase
 import org.junit.After
 import org.junit.Test
@@ -36,6 +33,19 @@ class StillingRepositoryTest {
             ?: throw IllegalStateException("Ingen stilling funnet i databasen med den UUID´en")
 
         assertThat(databaseStilling.stillingskategori).isEqualTo(Stillingskategori.JOBBMESSE)
+    }
+
+    @Test
+    fun `test når stillingskategori er null skal den hentes opp igjen som stillingskategori STILLING`() {
+        val stillingsuuid = UUID.randomUUID().toString()
+        repository.lagreStilling(
+            stillingsuuid = stillingsuuid,
+            stillingskategori = null
+        )
+        val databaseStilling = repository.hentStilling(UUID.fromString(stillingsuuid))
+            ?: throw IllegalStateException("Ingen stilling funnet i databasen med den UUID´en")
+
+        assertThat(databaseStilling.stillingskategori).isEqualTo(Stillingskategori.STILLING)
     }
 
     @After
