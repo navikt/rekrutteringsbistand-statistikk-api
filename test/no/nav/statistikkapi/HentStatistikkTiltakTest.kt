@@ -73,6 +73,20 @@ class HentStatistikkTiltakTest {
         assertThat(actual.antallPresentert).isZero()
         assertThat(actual.antallFåttJobben).isZero()
     }
+    @Test
+    fun `Gitt tiltak med slutt_av_hendelseskjede satt til true skal det ikke lagres i database`() {
+        rapid.sendTestMessage(tiltakRapidMelding(aktørId1, sluttAvHendelseskjede = true))
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2022, 1, 1),
+            tilOgMed = LocalDate.of(2022, 12, 31),
+            navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging
+        )
+
+        assertThat(actual.tiltakstatistikk.antallFåttJobben).isZero()
+        assertThat(actual.antallPresentert).isZero()
+        assertThat(actual.antallFåttJobben).isZero()
+    }
 
     @Test
     fun `Gitt to lønnstilskudd med ulik aktørid i basen så skal begge telles`() {
@@ -111,7 +125,8 @@ class HentStatistikkTiltakTest {
             etKandidatutfall.copy(
                 utfall = FATT_JOBBEN,
                 aktørId = aktørId1,
-                navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging
+                navKontor = etArbeidstreningTiltak(aktørId1).enhetOppfolging,
+                tidspunktForHendelsen = LocalDate.of(2022, 12, 19).atStartOfDay().atZone(timezone.toZoneId())
             )
         )
 
@@ -236,6 +251,7 @@ class HentStatistikkTiltakTest {
         tiltakstype: String = "ARBEIDSTRENING",
         avtaleInngått: LocalDateTime = LocalDateTime.of(2022, 5, 3, 0, 0, 0),
         sistEndret: Instant = ZonedDateTime.of(2022, 5, 2, 0, 0, 0,0,ZoneId.of("UTC")).toInstant(),
+        sluttAvHendelseskjede: Boolean? = null
     ) = """
         {
           "tiltakstype":"$tiltakstype",
@@ -245,6 +261,7 @@ class HentStatistikkTiltakTest {
           "enhetOppfolging":"$enhetOppfolging",
           "avtaleInngått": "$avtaleInngått",
           "sistEndret": "$sistEndret"
+          ${if(sluttAvHendelseskjede == null) "" else """, "@slutt_av_hendelseskjede": $sluttAvHendelseskjede """}
         }
     """.trimIndent()
 }

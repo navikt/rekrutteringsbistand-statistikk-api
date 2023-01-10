@@ -2,10 +2,14 @@ package no.nav.statistikkapi.tiltak
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isTrue
+import assertk.assertions.isZero
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.randomPort
 import no.nav.statistikkapi.start
+import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
@@ -22,6 +26,11 @@ class TiltakManglerAktørIdLytterTest {
             start(rapid = rapid, port = randomPort())
         }
 
+    }
+
+    @Before
+    fun before() {
+        rapid.reset()
     }
 
     @Test
@@ -50,5 +59,45 @@ class TiltakManglerAktørIdLytterTest {
         assertThat(meldingPåRapid["fnr"].asText()).isEqualTo("123")
     }
 
+    @Test
+    fun `Tiltaksmelding med aktørId skal lede til kvitteringsmelding`() {
+        val avtaleInngått = LocalDateTime.of(2000, 1, 1, 0, 0)
+        val melding = """
+                    {
+                      "tiltakstype":"En tiltakstype",
+                      "deltakerFnr": "123",
+                      "avtaleId":"${UUID.randomUUID()}",
+                      "enhetOppfolging":"0123",
+                      "avtaleInngått": "$avtaleInngått",
+                      "sistEndret": "${avtaleInngått.atOslo()}",
+                      "aktørId":"12344"
+                    }
+        """.trimIndent()
 
+        rapid.sendTestMessage(melding)
+
+        assertThat(rapid.inspektør.size).isEqualTo(1)
+        assertThat(rapid.inspektør.message(0)["@slutt_av_hendelseskjede"].asBoolean()).isTrue()
+    }
+
+    @Test
+    fun `Tiltaksmelding med slutt_av_hendelseskjede true skal ikke føre til flere meldinger`() {
+        val avtaleInngått = LocalDateTime.of(2000, 1, 1, 0, 0)
+        val melding = """
+                    {
+                      "tiltakstype":"En tiltakstype",
+                      "deltakerFnr": "123",
+                      "avtaleId":"${UUID.randomUUID()}",
+                      "enhetOppfolging":"0123",
+                      "avtaleInngått": "$avtaleInngått",
+"                     "sistEndret": "${avtaleInngått.atOslo()}",
+                      "aktørId":"12344",
+                      "@slutt_av_hendelseskjede":true
+                    }
+        """.trimIndent()
+
+        rapid.sendTestMessage(melding)
+
+        assertThat(rapid.inspektør.size).isZero()
+    }
 }

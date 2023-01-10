@@ -23,6 +23,7 @@ class Kandidathendelselytter(
                     key = "@event_name",
                     values = Type.values().map { "kandidat.${it.eventName}" }
                 )
+                it.rejectValue("@slutt_av_hendelseskjede", true)
                 it.requireKey("kandidathendelse")
                 it.demandKey("stillingsinfo")
                 it.requireKey("stillingsinfo.stillingsid")
@@ -61,6 +62,8 @@ class Kandidathendelselytter(
                 opprettKandidatutfall.utfall.name
             ).increment()
         }
+        packet["@slutt_av_hendelseskjede"] = true
+        context.publish(packet.toJson())
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
