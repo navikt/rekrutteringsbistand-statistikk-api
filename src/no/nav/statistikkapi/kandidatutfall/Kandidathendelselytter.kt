@@ -27,7 +27,6 @@ class Kandidathendelselytter(
                 it.requireKey("kandidathendelse")
                 it.demandKey("stillingsinfo")
                 it.requireKey("stillingsinfo.stillingsid")
-                it.requireKey("stillingsinfo.stillingskategori")
             }
         }.register(this)
     }

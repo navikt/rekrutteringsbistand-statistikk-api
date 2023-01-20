@@ -75,6 +75,37 @@ class LagreStatistikkTest {
     }
 
     @Test
+    fun `en kandidathendelsemelding skal lagres som kandidatutfall i databasen om stillingskategori er null`() {
+        val kandidathendelsemelding = kandidathendelseMap(stillingskategori = null)
+        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
+
+        rapid.sendTestMessage(kandidathendelsesmeldingJson)
+
+        val alleUtfall = testRepository.hentUtfall()
+        assertThat(alleUtfall.size).isEqualTo(1)
+
+        val actual = alleUtfall.first()
+        val kandidathendelse = kandidathendelsemelding["kandidathendelse"] as Map<*, *>
+        assertThat(actual.dbId).isNotNull()
+        assertThat(actual.aktorId).isEqualTo(kandidathendelse["aktørId"])
+        assertThat(actual.alder).isEqualTo(kandidathendelse["alder"])
+        val expectedTidspunkt = ZonedDateTime.parse(kandidathendelse["tidspunkt"].toString()).toLocalDateTime()
+        assertThat(actual.tidspunkt).isEqualTo(expectedTidspunkt)
+        assertThat(actual.hullICv).isEqualTo(kandidathendelse["harHullICv"])
+        assertThat(actual.kandidatlisteId.toString()).isEqualTo(kandidathendelse["kandidatlisteId"])
+        assertThat(actual.stillingsId.toString()).isEqualTo(kandidathendelse["stillingsId"])
+        assertThat(actual.navIdent).isEqualTo(kandidathendelse["utførtAvNavIdent"])
+        assertThat(actual.navKontor).isEqualTo(kandidathendelse["utførtAvNavKontorKode"])
+        assertThat(actual.tilretteleggingsbehov).isEqualTo(kandidathendelse["tilretteleggingsbehov"])
+        assertThat(actual.synligKandidat).isEqualTo(kandidathendelse["synligKandidat"])
+        val expectedUtfall = Type.valueOf(kandidathendelse["type"].toString()).toUtfall()
+        assertThat(actual.utfall).isEqualTo(expectedUtfall)
+        assertThat(actual.antallSendtForsøk).isEqualTo(0)
+        assertThat(actual.sendtStatus).isEqualTo(SendtStatus.IKKE_SENDT)
+        assertThat(actual.sisteSendtForsøk).isNull()
+    }
+
+    @Test
     fun `en melding om REGISTRER_CV_DELT lagres i databasen`() {
         val kandidathendelsemelding =
             kandidathendelseMap(type = Type.REGISTRER_CV_DELT)
@@ -318,7 +349,8 @@ class LagreStatistikkTest {
         hullICv: Boolean? = true,
         aktørId: String = "dummyAktørid",
         utførtAvNavKontorKode: String = "0313",
-        tomStilling: Boolean = stillingsId == null
+        tomStilling: Boolean = stillingsId == null,
+        stillingskategori: String? = "JOBBMESSE"
     ) = mapOf(
         "@event_name" to "kandidat.${type.eventName}",
         "kandidathendelse" to mapOf(
@@ -340,7 +372,7 @@ class LagreStatistikkTest {
                 arrayOf(
                     "stillingsinfo" to mapOf(
                         "stillingsid" to stillingsId,
-                        "stillingskategori" to "JOBBMESSE"
+                        "stillingskategori" to stillingskategori
                     )
                 )
 
