@@ -66,7 +66,7 @@ class Kandidathendelselytter(
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        log.error(problems.toExtendedReport())
+        log.error(problems.toString())
     }
 
     private data class StillingsinfoIHendelse(

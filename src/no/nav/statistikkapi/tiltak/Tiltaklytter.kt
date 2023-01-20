@@ -53,6 +53,6 @@ class Tiltaklytter(
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        log.error("Mangler oblligatorisk felt ${problems.toExtendedReport()}")
+        log.error("Mangler oblligatorisk felt $problems")
     }
 }

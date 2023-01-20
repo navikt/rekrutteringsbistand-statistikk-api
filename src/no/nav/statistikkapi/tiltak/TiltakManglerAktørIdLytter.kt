@@ -27,7 +27,7 @@ class TiltakManglerAktørIdLytter(
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        log.error("Mangler oblligatorisk felt ${problems.toExtendedReport()}")
+        log.error("Mangler obligatorisk felt $problems")
     }
 
 }
