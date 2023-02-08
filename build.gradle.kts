@@ -105,8 +105,6 @@ dependencies {
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
-    implementation("io.ktor:ktor-server-core-jvm:2.1.3")
-    implementation("io.ktor:ktor-server-metrics-micrometer-jvm:2.1.3")
 
     testImplementation(kotlin("test"))
     testImplementation("com.h2database:h2:$h2Version")
