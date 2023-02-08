@@ -9,10 +9,13 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.*
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.security.token.support.v2.IssuerConfig
@@ -63,12 +66,9 @@ fun startApp(
 
     startDatavarehusScheduler(database, datavarehusKafkaProducer)
 
-    val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-
     RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
-    ).withCollectorRegistry(prometheusRegistry.prometheusRegistry)
-        .withKtorModule {
+    ).withKtorModule {
         settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
         Kandidathendelselytter(
@@ -127,12 +127,21 @@ fun settOppKtor(
         }
         install(Authentication, tokenValidationConfig)
 
+        val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+        install(MicrometerMetrics) {
+            registry = prometheusMeterRegistry
+        }
+        Metrics.addRegistry(prometheusMeterRegistry)
+
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
         val tiltaksRepository = TiltaksRepository(dataSource)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 hentStatistikk(kandidatutfallRepository, tiltaksRepository)
+                get("/metrics") {
+                    call.respond(prometheusMeterRegistry.scrape())
+                }
             }
         }
 
