@@ -9,10 +9,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.micrometer.core.instrument.Metrics
+import io.micrometer.prometheus.*
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
@@ -62,12 +66,18 @@ fun startApp(
 
     startDatavarehusScheduler(database, datavarehusKafkaProducer)
 
+    val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+
     RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
     ).withKtorModule {
-        settOppKtor(this, tokenValidationConfig, database.dataSource)
+        settOppKtor(this, tokenValidationConfig, database.dataSource, prometheusRegistry)
     }.build().apply {
-        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), StillingRepository(database.dataSource))
+        Kandidathendelselytter(
+            this,
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        )
         Tiltaklytter(this, TiltaksRepository(database.dataSource))
         TiltakManglerAktørIdLytter(this)
         start()
@@ -98,7 +108,8 @@ fun defaultProperties(objectMapper: ObjectMapper) = objectMapper.apply {
 fun settOppKtor(
     application: Application,
     tokenValidationConfig: AuthenticationConfig.() -> Unit,
-    dataSource: DataSource
+    dataSource: DataSource,
+    prometheusRegistry: PrometheusMeterRegistry
 ) {
     application.apply {
         install(CallLogging) {
@@ -118,6 +129,11 @@ fun settOppKtor(
             }
         }
         install(Authentication, tokenValidationConfig)
+        install(MicrometerMetrics) {
+            registry = prometheusRegistry
+        }
+
+        Metrics.addRegistry(prometheusRegistry)
 
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
         val tiltaksRepository = TiltaksRepository(dataSource)
@@ -125,6 +141,10 @@ fun settOppKtor(
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 hentStatistikk(kandidatutfallRepository, tiltaksRepository)
+
+                get("/metrics") {
+                    call.respond(prometheusRegistry.scrape())
+                }
             }
         }
 

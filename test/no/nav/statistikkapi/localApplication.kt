@@ -54,7 +54,8 @@ fun start(
     settOppKtor(
         ktorApplication,
         tokenValidationConfig,
-        database.dataSource
+        database.dataSource,
+        prometheusRegistry
     )
 
     ktorServer.start()
