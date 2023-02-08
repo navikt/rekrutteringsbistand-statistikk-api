@@ -21,6 +21,7 @@ import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.kandidatutfall.PresenterteKandidaterLytter
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
@@ -68,6 +69,7 @@ fun startApp(
         settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
         Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), StillingRepository(database.dataSource))
+        PresenterteKandidaterLytter(this, KandidatutfallRepository(database.dataSource), StillingRepository(database.dataSource))
         Tiltaklytter(this, TiltaksRepository(database.dataSource))
         TiltakManglerAktørIdLytter(this)
         start()
