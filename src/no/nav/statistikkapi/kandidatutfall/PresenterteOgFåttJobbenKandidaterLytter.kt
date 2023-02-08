@@ -2,22 +2,22 @@ package no.nav.statistikkapi.kandidatutfall
 
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.rapids_rivers.*
-import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.secureLog
 import no.nav.statistikkapi.stillinger.StillingRepository
 
-class PresenterteKandidaterLytter(
+class PresenterteOgFåttJobbenKandidaterLytter(
     rapidsConnection: RapidsConnection,
     private val kandidatRepository: KandidatutfallRepository,
-    private val stillingRepository: StillingRepository
+    private val stillingRepository: StillingRepository,
+    private val eventNamePostfix: String
 ) :
     River.PacketListener {
         init {
             River(rapidsConnection).apply {
                 validate {
                     it.rejectValue("@slutt_av_hendelseskjede", true)
-                    it.demandValue("@event_name", "kandidat_v2.RegistrertDeltCv")
+                    it.demandValue("@event_name", "kandidat_v2.$eventNamePostfix")
                     it.demandKey("stillingsinfo")
                     it.demandKey("stilling")
                     it.requireKey("stillingsinfo.stillingsid")
@@ -52,9 +52,9 @@ class PresenterteKandidaterLytter(
         val tilretteleggingsbehov = packet["inkludering.tilretteleggingsbehov"].map(JsonNode::asText)
         val innsatsbehov = packet["inkludering.innsatsbehov"].asText()
         val hovedmål = packet["inkludering.hovedmål"].asText()
+        val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
 
         secureLog.info("""
-            RegistrertDeltCv-hendelse:
             aktørId: $aktørId
             organisasjonsnummer: $organisasjonsnummer
             kandidatlisteId: $kandidatlisteId
@@ -68,6 +68,7 @@ class PresenterteKandidaterLytter(
             tilretteleggingsbehov: $tilretteleggingsbehov
             innsatsbehov: $innsatsbehov
             hovedmål: $hovedmål
+            utfall: $utfall
             """.trimIndent())
     }
 
