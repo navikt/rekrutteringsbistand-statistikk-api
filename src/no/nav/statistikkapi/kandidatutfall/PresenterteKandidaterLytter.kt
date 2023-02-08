@@ -1,13 +1,16 @@
 package no.nav.statistikkapi.kandidatutfall
 
+import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.log
+import no.nav.statistikkapi.secureLog
 import no.nav.statistikkapi.stillinger.StillingRepository
 
 class PresenterteKandidaterLytter(
     rapidsConnection: RapidsConnection,
-    kandidatutfallRepository: KandidatutfallRepository,
-    stillingRepository: StillingRepository
+    private val kandidatRepository: KandidatutfallRepository,
+    private val stillingRepository: StillingRepository
 ) :
     River.PacketListener {
         init {
@@ -19,6 +22,18 @@ class PresenterteKandidaterLytter(
                     it.demandKey("stilling")
                     it.requireKey("stillingsinfo.stillingsid")
                     it.requireKey("aktørId")
+                    it.requireKey("organisasjonsnummer")
+                    it.requireKey("kandidatlisteId")
+                    it.requireKey("tidspunkt")
+                    it.interestedIn("stillingsId")
+                    it.requireKey("utførtAvNavIdent")
+                    it.requireKey("utførtAvNavKontorKode")
+                    it.requireKey("synligKandidat")
+                    it.interestedIn("inkludering.harHullICv")
+                    it.interestedIn("inkludering.alder")
+                    it.interestedIn("inkludering.tilretteleggingsbehov")
+                    it.interestedIn("inkludering.innsatsbehov")
+                    it.interestedIn("inkludering.hovedmål")
                 }
             }.register(this)
         }
@@ -26,27 +41,37 @@ class PresenterteKandidaterLytter(
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val aktørId = packet["aktørId"].asText()
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
-        val kandidatlisteId  = packet["kandidatlisteId"].asText()
-        val tidspunkt  = packet["tidspunkt"].asLocalDate()
-        val stillingsId  = packet["stillingsId"].asText()
-        val utførtAvNavIdent  = packet["utførtAvNavIdent"].asText()
-        val utførtAvNavKontorKode  = packet["utførtAvNavKontorKode"].asText()
-        val synligKandidat  = packet["synligKandidat"].asBoolean()
-        val harHullICv  = packet["inkludering.harHullICv"].asBoolean()
-        val alder  = packet["inkludering.alder"].asInt()
-        val tilretteleggingsbehov  = packet["inkludering.tilretteleggingsbehov"].
-        val harHullICv  = packet["inkludering.harHullICv"]
-        val harHullICv  = packet["inkludering.harHullICv"]
+        val kandidatlisteId = packet["kandidatlisteId"].asText()
+        val tidspunkt = packet["tidspunkt"].asLocalDate()
+        val stillingsId = packet["stillingsId"].asText()
+        val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
+        val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
+        val synligKandidat = packet["synligKandidat"].asBoolean()
+        val harHullICv = packet["inkludering.harHullICv"].asBoolean()
+        val alder = packet["inkludering.alder"].asInt()
+        val tilretteleggingsbehov = packet["inkludering.tilretteleggingsbehov"].map(JsonNode::asText)
+        val innsatsbehov = packet["inkludering.innsatsbehov"].asText()
+        val hovedmål = packet["inkludering.hovedmål"].asText()
 
-
-
-        /*
-    val harHullICv: Boolean,
-    val alder: Int,
-    val tilretteleggingsbehov: List<String>,
-    val innsatsbehov: String,
-    val hovedmål: String
+        secureLog.info("""
+            RegistrertDeltCv-hendelse:
+            aktørId: $aktørId
+            organisasjonsnummer: $organisasjonsnummer
+            kandidatlisteId: $kandidatlisteId
+            tidspunkt: $tidspunkt
+            stillingsId: $stillingsId
+            utførtAvNavIdent: $utførtAvNavIdent
+            utførtAvNavKontorKode: $utførtAvNavKontorKode
+            synligKandidat: $synligKandidat
+            harHullICv: $harHullICv
+            alder: $alder
+            tilretteleggingsbehov: $tilretteleggingsbehov
+            innsatsbehov: $innsatsbehov
+            hovedmål: $hovedmål
+            """.trimIndent())
     }
 
-
+    override fun onError(problems: MessageProblems, context: MessageContext) {
+        log.error("Feil ved lesing av melding\n$problems")
+    }
 }
