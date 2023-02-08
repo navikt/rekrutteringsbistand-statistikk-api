@@ -9,13 +9,10 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.metrics.micrometer.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.*
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.security.token.support.v2.IssuerConfig
@@ -70,8 +67,9 @@ fun startApp(
 
     RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
-    ).withKtorModule {
-        settOppKtor(this, tokenValidationConfig, database.dataSource, prometheusRegistry)
+    ).withCollectorRegistry(prometheusRegistry.prometheusRegistry)
+        .withKtorModule {
+        settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
         Kandidathendelselytter(
             this,
@@ -108,8 +106,7 @@ fun defaultProperties(objectMapper: ObjectMapper) = objectMapper.apply {
 fun settOppKtor(
     application: Application,
     tokenValidationConfig: AuthenticationConfig.() -> Unit,
-    dataSource: DataSource,
-    prometheusRegistry: PrometheusMeterRegistry
+    dataSource: DataSource
 ) {
     application.apply {
         install(CallLogging) {
@@ -129,11 +126,6 @@ fun settOppKtor(
             }
         }
         install(Authentication, tokenValidationConfig)
-        install(MicrometerMetrics) {
-            registry = prometheusRegistry
-        }
-
-        Metrics.addRegistry(prometheusRegistry)
 
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
         val tiltaksRepository = TiltaksRepository(dataSource)
@@ -141,10 +133,6 @@ fun settOppKtor(
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 hentStatistikk(kandidatutfallRepository, tiltaksRepository)
-
-                get("/metrics") {
-                    call.respond(prometheusRegistry.scrape())
-                }
             }
         }
 
