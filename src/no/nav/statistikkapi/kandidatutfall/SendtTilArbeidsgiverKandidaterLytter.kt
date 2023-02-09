@@ -12,24 +12,26 @@ class SendtTilArbeidsgiverKandidaterLytter(
     private val stillingRepository: StillingRepository
 ) :
     River.PacketListener {
-        init {
-            River(rapidsConnection).apply {
-                validate {
-                    it.rejectValue("@slutt_av_hendelseskjede", true)
-                    it.demandValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
-                    it.requireKey("stillingsId")
-                    it.requireKey("stillingstittel")
-                    it.requireKey("organisasjonsnummer")
-                    it.requireKey("kandidatlisteId")
-                    it.requireKey("tidspunkt")
-                    it.requireKey("utførtAvNavIdent")
-                    it.requireKey("utførtAvNavKontorKode")
-                    it.requireKey("arbeidsgiversEpostadresser")
-                    it.requireKey("meldingTilArbeidsgiver")
-                    it.requireKey("kandidater")
-                }
-            }.register(this)
-        }
+    init {
+        River(rapidsConnection).apply {
+            validate {
+                it.rejectValue("@slutt_av_hendelseskjede", true)
+                it.demandValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
+                it.requireKey(
+                    "stillingsId",
+                    "stillingstittel",
+                    "organisasjonsnummer",
+                    "kandidatlisteId",
+                    "tidspunkt",
+                    "utførtAvNavIdent",
+                    "utførtAvNavKontorKode",
+                    "arbeidsgiversEpostadresser",
+                    "meldingTilArbeidsgiver",
+                    "kandidater"
+                )
+            }
+        }.register(this)
+    }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val stillingsId = packet["stillingsId"].asText()
@@ -43,7 +45,8 @@ class SendtTilArbeidsgiverKandidaterLytter(
         val meldingTilArbeidsgiver = packet["meldingTilArbeidsgiver"].asText()
         val kandidater = packet["kandidater"] // TODO: til map
 
-        secureLog.info("""
+        secureLog.info(
+            """
             stillingsId: $stillingsId
             stillingstittel: $stillingstittel
             organisasjonsnummer: $organisasjonsnummer
@@ -55,7 +58,8 @@ class SendtTilArbeidsgiverKandidaterLytter(
             arbeidsgiversEpostadresser: $arbeidsgiversEpostadresser
             meldingTilArbeidsgiver: $meldingTilArbeidsgiver
             kandidater: $kandidater
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {

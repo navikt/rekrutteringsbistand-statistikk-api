@@ -13,30 +13,37 @@ class PresenterteOgFåttJobbenKandidaterLytter(
     private val eventNamePostfix: String
 ) :
     River.PacketListener {
-        init {
-            River(rapidsConnection).apply {
-                validate {
-                    it.rejectValue("@slutt_av_hendelseskjede", true)
-                    it.demandValue("@event_name", "kandidat_v2.$eventNamePostfix")
-                    it.demandKey("stillingsinfo")
-                    it.demandKey("stilling")
-                    it.requireKey("stillingsinfo.stillingsid")
-                    it.requireKey("aktørId")
-                    it.requireKey("organisasjonsnummer")
-                    it.requireKey("kandidatlisteId")
-                    it.requireKey("tidspunkt")
-                    it.interestedIn("stillingsId")
-                    it.requireKey("utførtAvNavIdent")
-                    it.requireKey("utførtAvNavKontorKode")
-                    it.requireKey("synligKandidat")
-                    it.interestedIn("inkludering.harHullICv")
-                    it.interestedIn("inkludering.alder")
-                    it.interestedIn("inkludering.tilretteleggingsbehov")
-                    it.interestedIn("inkludering.innsatsbehov")
-                    it.interestedIn("inkludering.hovedmål")
-                }
-            }.register(this)
-        }
+    init {
+        River(rapidsConnection).apply {
+            validate {
+                it.rejectValue("@slutt_av_hendelseskjede", true)
+
+                it.demandKey("stillingsinfo")
+                it.demandKey("stilling")
+                it.demandValue("@event_name", "kandidat_v2.$eventNamePostfix")
+
+                it.requireKey(
+                    "tidspunkt",
+                    "stillingsinfo.stillingsid",
+                    "aktørId",
+                    "synligKandidat",
+                    "utførtAvNavKontorKode",
+                    "utførtAvNavIdent",
+                    "kandidatlisteId",
+                    "organisasjonsnummer"
+                )
+
+                it.interestedIn(
+                    "stillingsId",
+                    "inkludering.harHullICv",
+                    "inkludering.alder",
+                    "inkludering.tilretteleggingsbehov",
+                    "inkludering.innsatsbehov",
+                    "inkludering.hovedmål"
+                )
+            }
+        }.register(this)
+    }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val aktørId = packet["aktørId"].asText()
@@ -54,7 +61,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val hovedmål = packet["inkludering.hovedmål"].asText()
         val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
 
-        secureLog.info("""
+        secureLog.info(
+            """
             aktørId: $aktørId
             organisasjonsnummer: $organisasjonsnummer
             kandidatlisteId: $kandidatlisteId
@@ -69,7 +77,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             innsatsbehov: $innsatsbehov
             hovedmål: $hovedmål
             utfall: $utfall
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
