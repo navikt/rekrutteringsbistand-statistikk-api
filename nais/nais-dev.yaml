@@ -18,7 +18,7 @@ spec:
     path: /isready
   prometheus:
     enabled: true
-    path: /metrics
+    path: /rekrutteringsbistand-statistikk-api/metrics
   vault:
     enabled: true
     paths:
