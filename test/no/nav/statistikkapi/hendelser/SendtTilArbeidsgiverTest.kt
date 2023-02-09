@@ -58,6 +58,13 @@ class SendtTilArbeidsgiverTest {
               "tilretteleggingsbehov": [],
               "innsatsbehov": "BFORM",
               "hovedmål": "TODO: Dette må vi mappe fra ES"
+            },
+            "2452127907123": {
+              "harHullICv": true,
+              "alder": 24,
+              "tilretteleggingsbehov": ["arbeidstid"],
+              "innsatsbehov": "BFORM",
+              "hovedmål": "TODO: Dette må vi mappe fra ES"
             }
           },
           "@event_name": "kandidat_v2.DelCvMedArbeidsgiver",
