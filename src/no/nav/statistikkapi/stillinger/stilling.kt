@@ -17,6 +17,6 @@ enum class Stillingskategori {
     }
 
     companion object {
-        fun fraDatabase(s: String?) = if (s == null) STILLING else valueOf(s)
+        fun fraNavn(s: String?) = if (s == null) STILLING else valueOf(s)
     }
 }

@@ -1,13 +1,9 @@
 package no.nav.statistikkapi.stillinger
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
-import net.minidev.json.JSONArray
 import no.nav.statistikkapi.log
 import org.postgresql.util.PSQLException
 import java.sql.ResultSet
 import java.sql.SQLIntegrityConstraintViolationException
-import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
 import javax.sql.DataSource
@@ -58,7 +54,7 @@ class StillingRepository(private val dataSource: DataSource) {
 
     fun ResultSet.konverterTilStilling() = Stilling(
         uuid = getString(uuidLabel),
-        stillingskategori = Stillingskategori.fraDatabase(getString(stillingskategoriLabel).also {
+        stillingskategori = Stillingskategori.fraNavn(getString(stillingskategoriLabel).also {
             if (it == null) log.info("Stillingskategori var null i databasen for stillingsID $uuidLabel. Tolker det som at dette er en vanlig stilling og bruker verdien ${Stillingskategori.STILLING} videre istedenfor null")
         })
     )

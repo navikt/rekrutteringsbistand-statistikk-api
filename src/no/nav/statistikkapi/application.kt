@@ -19,10 +19,7 @@ import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.*
-import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
-import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.kandidatutfall.PresenterteOgFåttJobbenKandidaterLytter
-import no.nav.statistikkapi.kandidatutfall.SendtTilArbeidsgiverKandidaterLytter
+import no.nav.statistikkapi.kandidatutfall.*
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
@@ -69,27 +66,33 @@ fun startApp(
     ).withKtorModule {
         settOppKtor(this, tokenValidationConfig, database.dataSource)
     }.build().apply {
-        Kandidathendelselytter(
+        /*Kandidathendelselytter(
             this,
             KandidatutfallRepository(database.dataSource),
             StillingRepository(database.dataSource)
-        )
+        )*/
         PresenterteOgFåttJobbenKandidaterLytter(
             this,
-            KandidatutfallRepository(database.dataSource),
-            StillingRepository(database.dataSource),
+            LagreUtfallOgStilling(
+                KandidatutfallRepository(database.dataSource),
+                StillingRepository(database.dataSource)
+            ),
             "RegistrertDeltCv"
         )
         PresenterteOgFåttJobbenKandidaterLytter(
             this,
-            KandidatutfallRepository(database.dataSource),
-            StillingRepository(database.dataSource),
+            LagreUtfallOgStilling(
+                KandidatutfallRepository(database.dataSource),
+                StillingRepository(database.dataSource)
+            ),
             "RegistrertFåttJobben"
         )
         SendtTilArbeidsgiverKandidaterLytter(
             this,
-            KandidatutfallRepository(database.dataSource),
-            StillingRepository(database.dataSource)
+            LagreUtfallOgStilling(
+                KandidatutfallRepository(database.dataSource),
+                StillingRepository(database.dataSource)
+            )
         )
         Tiltaklytter(this, TiltaksRepository(database.dataSource))
         TiltakManglerAktørIdLytter(this)

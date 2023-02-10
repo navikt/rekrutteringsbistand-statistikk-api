@@ -2,15 +2,15 @@ package no.nav.statistikkapi.kandidatutfall
 
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.rapids_rivers.*
+import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.secureLog
-import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.stillinger.Stillingskategori
 
 class PresenterteOgFåttJobbenKandidaterLytter(
     rapidsConnection: RapidsConnection,
-    private val kandidatRepository: KandidatutfallRepository,
-    private val stillingRepository: StillingRepository,
-    private val eventNamePostfix: String
+    private val lagreUtfallOgStilling: LagreUtfallOgStilling,
+    private val eventNamePostfix: String,
 ) :
     River.PacketListener {
     init {
@@ -18,13 +18,10 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             validate {
                 it.rejectValue("@slutt_av_hendelseskjede", true)
 
-                it.demandKey("stillingsinfo")
-                it.demandKey("stilling")
                 it.demandValue("@event_name", "kandidat_v2.$eventNamePostfix")
 
                 it.requireKey(
                     "tidspunkt",
-                    "stillingsinfo.stillingsid",
                     "aktørId",
                     "synligKandidat",
                     "utførtAvNavKontorKode",
@@ -34,7 +31,10 @@ class PresenterteOgFåttJobbenKandidaterLytter(
                 )
 
                 it.interestedIn(
+                    "stillingsinfo",
+                    "stilling",
                     "stillingsId",
+                    "stillingsinfo.stillingskategori",
                     "inkludering.harHullICv",
                     "inkludering.alder",
                     "inkludering.tilretteleggingsbehov",
@@ -46,11 +46,15 @@ class PresenterteOgFåttJobbenKandidaterLytter(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
+
+        if (!erEntenKomplettStillingEllerIngenStilling(packet)) return
+
         val aktørId = packet["aktørId"].asText()
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
-        val tidspunkt = packet["tidspunkt"].asLocalDate()
+        val tidspunkt = packet["tidspunkt"].asLocalDateTime().atOslo()
         val stillingsId = packet["stillingsId"].asText()
+        val stillingskategori = packet["stillingsinfo.stillingskategori"].asText()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
         val synligKandidat = packet["synligKandidat"].asBoolean()
@@ -68,6 +72,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             kandidatlisteId: $kandidatlisteId
             tidspunkt: $tidspunkt
             stillingsId: $stillingsId
+            stillingskategori: $stillingskategori
             utførtAvNavIdent: $utførtAvNavIdent
             utførtAvNavKontorKode: $utførtAvNavKontorKode
             synligKandidat: $synligKandidat
@@ -79,9 +84,38 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             utfall: $utfall
             """.trimIndent()
         )
+
+        val opprettKandidatutfall = OpprettKandidatutfall(
+            aktørId = aktørId,
+            utfall = utfall,
+            navIdent = utførtAvNavIdent,
+            navKontor = utførtAvNavKontorKode,
+            kandidatlisteId = kandidatlisteId,
+            stillingsId = stillingsId,
+            synligKandidat = synligKandidat,
+            harHullICv = harHullICv,
+            alder = alder,
+            tilretteleggingsbehov = tilretteleggingsbehov,
+            tidspunktForHendelsen = tidspunkt
+        )
+
+        lagreUtfallOgStilling.lagreUtfallOgStilling(
+            kandidatutfall = opprettKandidatutfall,
+            stillingsid = stillingsId,
+            stillingskategori = Stillingskategori.fraNavn(stillingskategori)
+        )
+
+        packet["@slutt_av_hendelseskjede"] = true
+        context.publish(packet.toJson())
     }
+
+    private fun erEntenKomplettStillingEllerIngenStilling(packet: JsonMessage): Boolean =
+        packet["stillingsId"].isMissingOrNull() ||
+                (packet["stilling"].exists() && packet["stillingsinfo"].exists())
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error("Feil ved lesing av melding\n$problems")
     }
 }
+
+fun JsonNode.exists() = !isMissingOrNull()
