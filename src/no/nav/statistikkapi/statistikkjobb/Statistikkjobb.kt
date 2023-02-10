@@ -20,7 +20,7 @@ class Statistikkjobb(
         executor.scheduleWithFixedDelay({ hentStatistikk() }, 5L, 20L, TimeUnit.SECONDS)
     }
 
-    fun hentStatistikk() {
+    private fun hentStatistikk() {
         antallPresenterteKandidater.getAndSet(
             kandidatutfallRepository.hentAntallPresentert(
                 HentStatistikk(
