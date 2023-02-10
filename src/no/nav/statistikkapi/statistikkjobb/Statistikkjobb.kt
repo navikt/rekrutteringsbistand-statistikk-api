@@ -3,8 +3,9 @@ package no.nav.statistikkapi.statistikkjobb
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.statistikkapi.HentStatistikk
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.log
 import java.time.LocalDate
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 class Statistikkjobb(
@@ -13,8 +14,10 @@ class Statistikkjobb(
 ) {
     private val antallPresenterteKandidater = meterRegistry.gauge("antall_presenterte_kandidater", AtomicLong(0))
 
+    val executor = Executors.newScheduledThreadPool(1)
+
     fun start() {
-        log.info("Starter statistikkjobb")
+        executor.scheduleWithFixedDelay({ hentStatistikk() }, 5L, 20L, TimeUnit.SECONDS)
     }
 
     fun hentStatistikk() {

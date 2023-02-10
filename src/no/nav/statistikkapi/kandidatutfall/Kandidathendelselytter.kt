@@ -1,7 +1,5 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import io.micrometer.core.instrument.Counter
-import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.log
