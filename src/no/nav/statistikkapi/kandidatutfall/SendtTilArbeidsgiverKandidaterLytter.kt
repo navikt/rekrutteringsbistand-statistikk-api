@@ -88,7 +88,9 @@ class SendtTilArbeidsgiverKandidaterLytter(
                 harHullICv = harHullICv,
                 alder = alder,
                 tilretteleggingsbehov = tilretteleggingsbehov,
-                tidspunktForHendelsen = tidspunkt
+                tidspunktForHendelsen = tidspunkt,
+                innsatsbehov = innsatsbehov,
+                hovedmål = hovedmål
             )
 
             lagreUtfallOgStilling.lagreUtfallOgStilling(
@@ -105,6 +107,10 @@ class SendtTilArbeidsgiverKandidaterLytter(
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error("Feil ved lesing av melding\n$problems")
+    }
+
+    override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {
+        super.onSevere(error, context)
     }
 }
 

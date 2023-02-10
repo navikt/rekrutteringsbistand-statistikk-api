@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.Metrics
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.Stillingskategori
+import java.time.ZonedDateTime
 
 class LagreUtfallOgStilling(
     private val kandidatutfallRepository: KandidatutfallRepository,
@@ -33,3 +34,19 @@ class LagreUtfallOgStilling(
         }
     }
 }
+
+data class OpprettKandidatutfall(
+    val aktørId: String,
+    val utfall: Utfall,
+    val navIdent: String,
+    val navKontor: String,
+    val kandidatlisteId: String,
+    val stillingsId: String,
+    val synligKandidat: Boolean,
+    val harHullICv: Boolean?,
+    val innsatsbehov: String,
+    val hovedmål: String,
+    val alder: Int?,
+    val tilretteleggingsbehov: List<String>,
+    val tidspunktForHendelsen: ZonedDateTime,
+)

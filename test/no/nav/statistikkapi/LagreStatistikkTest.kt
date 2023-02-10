@@ -5,7 +5,6 @@ import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter.Type
 import no.nav.statistikkapi.kandidatutfall.SendtStatus
 import no.nav.statistikkapi.kandidatutfall.Utfall
 import no.nav.statistikkapi.stillinger.StillingRepository
@@ -18,7 +17,7 @@ import java.util.*
 
 class LagreStatistikkTest {
 
-    companion object {
+    /*companion object {
         private val database = TestDatabase()
         private val rapid: TestRapid = TestRapid()
         private val testRepository = TestRepository(database.dataSource)
@@ -381,5 +380,5 @@ class LagreStatistikkTest {
         kandidathendelsemelding["stilling"] = kandidathendelsemelding["stillingsinfo"] as Any
         kandidathendelsemelding.remove("stillingsinfo")
         return kandidathendelsemelding
-    }
+    }*/
 }

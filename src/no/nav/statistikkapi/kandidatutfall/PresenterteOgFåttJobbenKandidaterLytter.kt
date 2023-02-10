@@ -96,7 +96,9 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             harHullICv = harHullICv,
             alder = alder,
             tilretteleggingsbehov = tilretteleggingsbehov,
-            tidspunktForHendelsen = tidspunkt
+            tidspunktForHendelsen = tidspunkt,
+            innsatsbehov = innsatsbehov,
+            hovedmål = hovedmål
         )
 
         lagreUtfallOgStilling.lagreUtfallOgStilling(

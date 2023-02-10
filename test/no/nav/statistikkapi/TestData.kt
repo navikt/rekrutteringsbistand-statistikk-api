@@ -29,7 +29,9 @@ val etKandidatutfall = OpprettKandidatutfall(
     harHullICv = true,
     alder = 54,
     tilretteleggingsbehov = listOf("permittert", "arbeidstid"),
-    tidspunktForHendelsen = nowOslo()
+    tidspunktForHendelsen = nowOslo(),
+    innsatsbehov = "BFORM",
+    hovedmål = "SKAFFERA"
 )
 
 val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(
@@ -43,7 +45,9 @@ val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(
     harHullICv = null,
     alder = null,
     tilretteleggingsbehov = emptyList(),
-    tidspunktForHendelsen = nowOslo()
+    tidspunktForHendelsen = nowOslo(),
+    innsatsbehov = "BFORM",
+    hovedmål = "SKAFFERA"
 )
 
 val aktørId1 = "100000000001"

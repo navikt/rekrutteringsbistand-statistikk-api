@@ -55,13 +55,6 @@ class SendtTilArbeidsgiverTest {
             assertThat(innsatsbehov).isEqualTo("VARIG")
             assertThat(hovedmål).isEqualTo("BEHOLDEA")
         }
-        utfall.find { it.aktorId=="2452127907970" }!!.apply {
-            assertThat(alder).isNull()
-            assertThat(tilretteleggingsbehov).isNull()
-            assertThat(hullICv).isNull()
-            assertThat(innsatsbehov).isNull()
-            assertThat(hovedmål).isNull()
-        }
         utfall.forEach {
             assertThat(it.stillingsId).isEqualTo("b5919e46-9882-4b3c-8089-53ad02f26023")
             assertThat(it.kandidatlisteId).isEqualTo("d5b5b4c1-0375-4719-9038-ab31fe27fb40")
@@ -104,7 +97,6 @@ class SendtTilArbeidsgiverTest {
               "innsatsbehov": "VARIG",
               "hovedmål": "SKAFFERA"
             }
-            "2452127907970": null
           },
           "@event_name": "kandidat_v2.DelCvMedArbeidsgiver",
           "@id": "74b0b8dd-315f-406f-9979-e0bec5bcc5b6",

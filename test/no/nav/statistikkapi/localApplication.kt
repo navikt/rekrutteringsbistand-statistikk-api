@@ -42,14 +42,9 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource), StillingRepository(database.dataSource))
     Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
     TiltakManglerAktørIdLytter(rapid)
-    /*Kandidathendelselytter(
-            this,
-            KandidatutfallRepository(database.dataSource),
-            StillingRepository(database.dataSource)
-        )*/
+
     PresenterteOgFåttJobbenKandidaterLytter(
         rapid,
         LagreUtfallOgStilling(
@@ -65,6 +60,13 @@ fun start(
             StillingRepository(database.dataSource)
         ),
         "RegistrertFåttJobben"
+    )
+    SendtTilArbeidsgiverKandidaterLytter(
+        rapid,
+        LagreUtfallOgStilling(
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        )
     )
 
 

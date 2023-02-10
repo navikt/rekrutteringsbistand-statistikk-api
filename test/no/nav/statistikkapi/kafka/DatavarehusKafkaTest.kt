@@ -5,6 +5,7 @@ import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.fail
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
@@ -25,10 +26,13 @@ import java.util.*
 class DatavarehusKafkaTest {
 
     @Test
-    fun `POST til kandidatutfall skal produsere melding på Kafka-topic`() = runBlocking {
+    fun `Kandidatutfall hendelse skal produsere melding på Kafka-topic`() = runBlocking {
         val utfall1 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo(), utfall = Utfall.PRESENTERT)
         val utfall2 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo().plusDays(1), utfall = Utfall.FATT_JOBBEN)
-        val expected = listOf(utfall1, utfall2)
+        TODO("Bruk presentert og fått jobben melding på nytt format")
+        Unit
+
+        /*val expected = listOf(utfall1, utfall2)
         expected.map(this@DatavarehusKafkaTest::tilKandidathendelseMap).map(objectMapper::writeValueAsString)
             .forEach(rapid::sendTestMessage)
 
@@ -49,11 +53,11 @@ class DatavarehusKafkaTest {
             assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(
                 expectedTidspunkt.toLocalDateTime().minusSeconds(10), expectedTidspunkt.toLocalDateTime()
             )
-        }
+        }*/
     }
 
 
-    fun tilKandidathendelseMap(opprettKandidatutfall: OpprettKandidatutfall) = when (opprettKandidatutfall.utfall) {
+    /*fun tilKandidathendelseMap(opprettKandidatutfall: OpprettKandidatutfall) = when (opprettKandidatutfall.utfall) {
         Utfall.FATT_JOBBEN -> Kandidathendelselytter.Type.REGISTRER_FÅTT_JOBBEN
         Utfall.IKKE_PRESENTERT -> Kandidathendelselytter.Type.ANNULLERT
         Utfall.PRESENTERT -> Kandidathendelselytter.Type.REGISTRER_CV_DELT
@@ -84,7 +88,7 @@ class DatavarehusKafkaTest {
                 "stillingskategori" to "STILLING"
             )
         )
-    }
+    }*/
 
     @Test
     fun `Sending på Kafka-topic skal endre status fra IKKE_SENDT til SENDT`() = runBlocking {
