@@ -14,7 +14,7 @@ import java.time.LocalDate
 data class HentStatistikk(
     val fraOgMed: LocalDate,
     val tilOgMed: LocalDate,
-    val navKontor: String
+    val navKontor: String?
 )
 
 class StatistikkParametere {

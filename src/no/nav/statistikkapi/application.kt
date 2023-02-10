@@ -89,7 +89,7 @@ fun startApp(
             Tiltaklytter(this, TiltaksRepository(database.dataSource))
             TiltakManglerAktørIdLytter(this)
     }
-    
+
     statistikkjobb.start();
     rapid.start()
 }
