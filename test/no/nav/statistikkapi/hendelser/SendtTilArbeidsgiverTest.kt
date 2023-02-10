@@ -13,6 +13,7 @@ import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
+import java.util.*
 
 class SendtTilArbeidsgiverTest {
 
@@ -34,33 +35,42 @@ class SendtTilArbeidsgiverTest {
         testRepository.slettAlleStillinger()
         rapid.reset()
     }
-    
+
+    @Test
+    fun `mottak av kandidatutfall skal være idempotent`() {
+        rapid.sendTestMessage(melding)
+        rapid.sendTestMessage(melding)
+
+        val utfall = testRepository.hentUtfall()
+        assertThat(utfall).size().isEqualTo(2)
+    }
+
     @Test
     fun `Kan opprette kandidatutfall av DelCvMedArbeidsgiver-melding`() {
         rapid.sendTestMessage(melding)
 
         val utfall = testRepository.hentUtfall()
-        assertThat(utfall).size().isEqualTo(3)
+        assertThat(utfall).size().isEqualTo(2)
         utfall.find { it.aktorId=="2452127907551" }!!.apply {
             assertThat(alder).isEqualTo(51)
             assertThat(tilretteleggingsbehov).isEmpty()
             assertThat(hullICv!!).isFalse()
             assertThat(innsatsbehov).isEqualTo("BFORM")
-            assertThat(hovedmål).isEqualTo("SKAFFERA")
+            assertThat(hovedmål).isEqualTo("BEHOLDEA")
         }
         utfall.find { it.aktorId=="2452127907123" }!!.apply {
             assertThat(alder).isEqualTo(24)
             assertThat(tilretteleggingsbehov).containsExactly("arbeidstid")
             assertThat(hullICv!!).isTrue()
             assertThat(innsatsbehov).isEqualTo("VARIG")
-            assertThat(hovedmål).isEqualTo("BEHOLDEA")
+            assertThat(hovedmål).isEqualTo("SKAFFERA")
         }
         utfall.forEach {
-            assertThat(it.stillingsId).isEqualTo("b5919e46-9882-4b3c-8089-53ad02f26023")
-            assertThat(it.kandidatlisteId).isEqualTo("d5b5b4c1-0375-4719-9038-ab31fe27fb40")
+            assertThat(it.stillingsId).isEqualTo(UUID.fromString("b5919e46-9882-4b3c-8089-53ad02f26023"))
+            assertThat(it.kandidatlisteId).isEqualTo(UUID.fromString("d5b5b4c1-0375-4719-9038-ab31fe27fb40"))
             assertThat(it.navIdent).isEqualTo("Z994633")
             assertThat(it.navKontor).isEqualTo("0313")
-            assertThat(it.tidspunkt).isEqualTo(LocalDateTime.of(2023, 2, 9, 9, 45, 53,649))
+            assertThat(it.tidspunkt).isEqualTo(LocalDateTime.of(2023, 2, 9, 9, 45, 53,649_000_000))
             assertThat(it.utfall).isEqualTo(Utfall.PRESENTERT)
             assertThat(it.synligKandidat!!).isTrue()
         }

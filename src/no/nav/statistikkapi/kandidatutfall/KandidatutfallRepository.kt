@@ -34,8 +34,10 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                                $tidspunkt,
                                $hullICv,
                                $alder,
-                               $tilretteleggingsbehov
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                               $tilretteleggingsbehov,
+                               $innsatsbehov,
+                               $hovedmål
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, kandidatutfall.aktørId)
                 setString(2, kandidatutfall.utfall.name)
@@ -51,6 +53,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                     11,
                     kandidatutfall.tilretteleggingsbehov.joinToString(separator = tilretteleggingsbehovdelimiter)
                 )
+                setString(12, kandidatutfall.innsatsbehov)
+                setString(13, kandidatutfall.hovedmål)
                 executeUpdate()
             }
         }
