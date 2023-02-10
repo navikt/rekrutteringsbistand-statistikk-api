@@ -188,6 +188,25 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentAntallFåttJobbenForAlleNavKontor(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
+                    SELECT DISTINCT $aktørId, $kandidatlisteid FROM $kandidatutfallTabell
+                      WHERE ($utfall = '${FATT_JOBBEN.name}')
+                ) as unike_presenteringer_per_person_og_liste
+            """.trimIndent()
+            ).executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall presenterte kandidater fra databasen")
+            }
+        }
+    }
+
     fun hentAktoriderForFåttJobben(hentStatistikk: HentStatistikk): List<String> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(

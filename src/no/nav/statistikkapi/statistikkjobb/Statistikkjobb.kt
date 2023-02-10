@@ -8,9 +8,10 @@ import java.util.concurrent.atomic.AtomicLong
 
 class Statistikkjobb(
     private val kandidatutfallRepository: KandidatutfallRepository,
-    private val meterRegistry: PrometheusMeterRegistry
+    private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) {
-    private val antallPresenterteKandidater = meterRegistry.gauge("antall_presenterte_kandidater", AtomicLong(0))
+    private val antallPresenterteKandidater = prometheusMeterRegistry.gauge("antall_presenterte_kandidater", AtomicLong(0))
+    private val antallFåttJobben = prometheusMeterRegistry.gauge("antall_fått_jobben", AtomicLong(0))
 
     val executor = Executors.newScheduledThreadPool(1)
 
@@ -19,8 +20,7 @@ class Statistikkjobb(
     }
 
     private fun hentStatistikk() {
-        antallPresenterteKandidater.getAndSet(
-            kandidatutfallRepository.hentAntallPresentertForAlleNavKontor().toLong()
-        )
+        antallPresenterteKandidater.getAndSet(kandidatutfallRepository.hentAntallPresentertForAlleNavKontor().toLong())
+        antallFåttJobben.getAndSet(kandidatutfallRepository.hentAntallFåttJobbenForAlleNavKontor().toLong())
     }
 }
