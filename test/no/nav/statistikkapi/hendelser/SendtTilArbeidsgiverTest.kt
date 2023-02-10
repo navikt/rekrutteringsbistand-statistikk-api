@@ -1,13 +1,18 @@
 package no.nav.statistikkapi.hendelser
 
+import assertk.assertThat
+import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
+import no.nav.statistikkapi.kandidatutfall.Utfall
 import no.nav.statistikkapi.randomPort
 import no.nav.statistikkapi.start
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
+import java.time.LocalDateTime
 
 class SendtTilArbeidsgiverTest {
 
@@ -33,6 +38,39 @@ class SendtTilArbeidsgiverTest {
     @Test
     fun `Kan opprette kandidatutfall av DelCvMedArbeidsgiver-melding`() {
         rapid.sendTestMessage(melding)
+
+        val utfall = testRepository.hentUtfall()
+        assertThat(utfall).size().isEqualTo(3)
+        utfall.find { it.aktorId=="2452127907551" }!!.apply {
+            assertThat(alder).isEqualTo(51)
+            assertThat(tilretteleggingsbehov).isEmpty()
+            assertThat(hullICv!!).isFalse()
+            assertThat(innsatsbehov).isEqualTo("BFORM")
+            assertThat(hovedmål).isEqualTo("SKAFFERA")
+        }
+        utfall.find { it.aktorId=="2452127907123" }!!.apply {
+            assertThat(alder).isEqualTo(24)
+            assertThat(tilretteleggingsbehov).containsExactly("arbeidstid")
+            assertThat(hullICv!!).isTrue()
+            assertThat(innsatsbehov).isEqualTo("VARIG")
+            assertThat(hovedmål).isEqualTo("BEHOLDEA")
+        }
+        utfall.find { it.aktorId=="2452127907970" }!!.apply {
+            assertThat(alder).isNull()
+            assertThat(tilretteleggingsbehov).isNull()
+            assertThat(hullICv).isNull()
+            assertThat(innsatsbehov).isNull()
+            assertThat(hovedmål).isNull()
+        }
+        utfall.forEach {
+            assertThat(it.stillingsId).isEqualTo("b5919e46-9882-4b3c-8089-53ad02f26023")
+            assertThat(it.kandidatlisteId).isEqualTo("d5b5b4c1-0375-4719-9038-ab31fe27fb40")
+            assertThat(it.navIdent).isEqualTo("Z994633")
+            assertThat(it.navKontor).isEqualTo("0313")
+            assertThat(it.tidspunkt).isEqualTo(LocalDateTime.of(2023, 2, 9, 9, 45, 53,649))
+            assertThat(it.utfall).isEqualTo(Utfall.PRESENTERT)
+            assertThat(it.synligKandidat!!).isTrue()
+        }
     }
 
     private val melding = """
@@ -57,15 +95,16 @@ class SendtTilArbeidsgiverTest {
               "alder": 51,
               "tilretteleggingsbehov": [],
               "innsatsbehov": "BFORM",
-              "hovedmål": "TODO: Dette må vi mappe fra ES"
+              "hovedmål": "BEHOLDEA"
             },
             "2452127907123": {
               "harHullICv": true,
               "alder": 24,
               "tilretteleggingsbehov": ["arbeidstid"],
-              "innsatsbehov": "BFORM",
-              "hovedmål": "TODO: Dette må vi mappe fra ES"
+              "innsatsbehov": "VARIG",
+              "hovedmål": "SKAFFERA"
             }
+            "2452127907970": null
           },
           "@event_name": "kandidat_v2.DelCvMedArbeidsgiver",
           "@id": "74b0b8dd-315f-406f-9979-e0bec5bcc5b6",

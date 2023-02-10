@@ -10,10 +10,7 @@ import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.TestDatabase
-import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
-import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.kandidatutfall.PresenterteOgFåttJobbenKandidaterLytter
-import no.nav.statistikkapi.kandidatutfall.SendtTilArbeidsgiverKandidaterLytter
+import no.nav.statistikkapi.kandidatutfall.*
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
@@ -48,22 +45,26 @@ fun start(
     Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource), StillingRepository(database.dataSource))
     Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
     TiltakManglerAktørIdLytter(rapid)
+    /*Kandidathendelselytter(
+            this,
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        )*/
     PresenterteOgFåttJobbenKandidaterLytter(
         rapid,
-        KandidatutfallRepository(database.dataSource),
-        StillingRepository(database.dataSource),
+        LagreUtfallOgStilling(
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        ),
         "RegistrertDeltCv"
     )
     PresenterteOgFåttJobbenKandidaterLytter(
         rapid,
-        KandidatutfallRepository(database.dataSource),
-        StillingRepository(database.dataSource),
+        LagreUtfallOgStilling(
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        ),
         "RegistrertFåttJobben"
-    )
-    SendtTilArbeidsgiverKandidaterLytter(
-        rapid,
-        KandidatutfallRepository(database.dataSource),
-        StillingRepository(database.dataSource)
     )
 
 

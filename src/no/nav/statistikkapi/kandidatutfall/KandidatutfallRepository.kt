@@ -302,6 +302,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val synligKandidat = "synlig_kandidat"
         const val tidspunkt = "tidspunkt"
         const val hullICv = "hull_i_cv"
+        const val innsatsbehov = "innsatsbehov"
+        const val hovedmål = "hovedmaal"
         const val sendtStatus = "sendt_status"
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
@@ -323,6 +325,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                     synligKandidat
                 ),
                 hullICv = if (resultSet.getObject(hullICv) == null) null else resultSet.getBoolean(hullICv),
+                innsatsbehov = resultSet.getString(innsatsbehov),
+                hovedmål = resultSet.getString(hovedmål),
                 tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime(),
                 antallSendtForsøk = resultSet.getInt(antallSendtForsøk),
                 sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
