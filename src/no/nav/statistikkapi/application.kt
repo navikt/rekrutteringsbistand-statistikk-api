@@ -73,7 +73,7 @@ fun startApp(
 
     val statistikkjobb = Statistikkjobb(kandidatutfallRepository, prometheusMeterRegistry)
 
-    RapidApplication.Builder(
+    val rapid = RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(
             System.getenv()
         )
@@ -85,14 +85,13 @@ fun startApp(
             prometheusMeterRegistry
         )
     }.build().apply {
-        Kandidathendelselytter(this, kandidatutfallRepository, stillingRepository)
-        Tiltaklytter(this, TiltaksRepository(database.dataSource))
-        TiltakManglerAktørIdLytter(this)
-
-        start()
+            Kandidathendelselytter(this, kandidatutfallRepository, stillingRepository)
+            Tiltaklytter(this, TiltaksRepository(database.dataSource))
+            TiltakManglerAktørIdLytter(this)
     }
-
+    
     statistikkjobb.start();
+    rapid.start()
 }
 
 private fun startDatavarehusScheduler(
