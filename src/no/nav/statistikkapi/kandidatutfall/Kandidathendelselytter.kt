@@ -58,11 +58,11 @@ class Kandidathendelselytter(
             repo.lagreUtfall(opprettKandidatutfall)
             log.info("Lagrer kandidathendelse som kandidatutfall")
 
-            Counter
-                .builder("rekrutteringsbistand.statistikk.utfall.lagret")
-                .tag("utfall", opprettKandidatutfall.utfall.name)
-                .register(prometheusMeterRegistry)
-                .increment()
+            prometheusMeterRegistry
+                .counter(
+                    "rekrutteringsbistand.statistikk.utfall.lagret",
+                    "utfall", opprettKandidatutfall.utfall.name
+                ).increment()
         }
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())
