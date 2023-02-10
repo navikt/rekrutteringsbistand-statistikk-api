@@ -1,6 +1,7 @@
 package no.nav.statistikkapi
 
 
+import no.nav.statistikkapi.statistikkjobb.Statistikkjobb
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -14,6 +15,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheus.*
 import no.nav.helse.rapids_rivers.RapidApplication
@@ -65,20 +67,32 @@ fun startApp(
 
     startDatavarehusScheduler(database, datavarehusKafkaProducer)
 
+    val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
+    val stillingRepository = StillingRepository(database.dataSource)
+    val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+
+    val statistikkjobb = Statistikkjobb(kandidatutfallRepository, prometheusMeterRegistry)
+
     RapidApplication.Builder(
-        RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
-    ).withKtorModule {
-        settOppKtor(this, tokenValidationConfig, database.dataSource)
-    }.build().apply {
-        Kandidathendelselytter(
-            this,
-            KandidatutfallRepository(database.dataSource),
-            StillingRepository(database.dataSource)
+        RapidApplication.RapidApplicationConfig.fromEnv(
+            System.getenv()
         )
+    ).withKtorModule {
+        settOppKtor(
+            this,
+            tokenValidationConfig,
+            database.dataSource,
+            prometheusMeterRegistry
+        )
+    }.build().apply {
+        Kandidathendelselytter(this, kandidatutfallRepository, stillingRepository)
         Tiltaklytter(this, TiltaksRepository(database.dataSource))
         TiltakManglerAktørIdLytter(this)
+
         start()
     }
+
+    statistikkjobb.start();
 }
 
 private fun startDatavarehusScheduler(
@@ -105,7 +119,8 @@ fun defaultProperties(objectMapper: ObjectMapper) = objectMapper.apply {
 fun settOppKtor(
     application: Application,
     tokenValidationConfig: AuthenticationConfig.() -> Unit,
-    dataSource: DataSource
+    dataSource: DataSource,
+    prometheusMeterRegistry: PrometheusMeterRegistry
 ) {
     application.apply {
         install(CallLogging) {
@@ -126,7 +141,6 @@ fun settOppKtor(
         }
         install(Authentication, tokenValidationConfig)
 
-        val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
         Metrics.addRegistry(prometheusMeterRegistry)
 
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)

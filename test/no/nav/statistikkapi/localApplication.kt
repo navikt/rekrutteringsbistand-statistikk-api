@@ -3,6 +3,8 @@ package no.nav.statistikkapi
 import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -54,7 +56,8 @@ fun start(
     settOppKtor(
         ktorApplication,
         tokenValidationConfig,
-        database.dataSource
+        database.dataSource,
+        PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     )
 
     ktorServer.start()
