@@ -45,7 +45,15 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    Kandidathendelselytter(rapid, KandidatutfallRepository(database.dataSource), StillingRepository(database.dataSource))
+    val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+
+    Kandidathendelselytter(
+        rapid,
+        KandidatutfallRepository(database.dataSource),
+        StillingRepository(database.dataSource),
+        prometheusMeterRegistry
+    )
+
     Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
     TiltakManglerAktørIdLytter(rapid)
 
@@ -57,7 +65,7 @@ fun start(
         ktorApplication,
         tokenValidationConfig,
         database.dataSource,
-        PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+        prometheusMeterRegistry
     )
 
     ktorServer.start()

@@ -79,13 +79,19 @@ fun startApp(
         )
     ).withKtorModule {
         settOppKtor(
-            this,
-            tokenValidationConfig,
-            database.dataSource,
-            prometheusMeterRegistry
+            application = this,
+            tokenValidationConfig = tokenValidationConfig,
+            dataSource = database.dataSource,
+            prometheusMeterRegistry = prometheusMeterRegistry
         )
     }.build().apply {
-            Kandidathendelselytter(this, kandidatutfallRepository, stillingRepository)
+            Kandidathendelselytter(
+                rapidsConnection = this,
+                repo = kandidatutfallRepository,
+                stillingRepository = stillingRepository,
+                prometheusMeterRegistry = prometheusMeterRegistry
+            )
+
             Tiltaklytter(this, TiltaksRepository(database.dataSource))
             TiltakManglerAktørIdLytter(this)
     }
