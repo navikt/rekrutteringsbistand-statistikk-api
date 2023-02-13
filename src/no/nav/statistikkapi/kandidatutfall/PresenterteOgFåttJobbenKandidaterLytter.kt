@@ -2,7 +2,6 @@ package no.nav.statistikkapi.kandidatutfall
 
 import com.fasterxml.jackson.databind.JsonNode
 import no.nav.helse.rapids_rivers.*
-import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.secureLog
 import no.nav.statistikkapi.stillinger.Stillingskategori

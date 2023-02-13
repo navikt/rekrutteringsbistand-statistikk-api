@@ -51,6 +51,7 @@ class SendKafkaMeldingTilDatavarehusTest {
 
     @Test
     fun `Feilsending med Kafka skal oppdatere antallSendtForsøk og sisteSendtForsøk`() {
+
         utfallRepo.lagreUtfall(etKandidatutfall.copy(tidspunktForHendelsen = nowOslo()))
         utfallRepo.lagreUtfall(etKandidatutfall.copy(aktørId = "10000254879659", tidspunktForHendelsen = nowOslo()))
         stillingRepo.lagreStilling(enStillingsId.toString(), Stillingskategori.STILLING)

@@ -5,7 +5,6 @@ import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
-import assertk.fail
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
@@ -13,7 +12,10 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.kandidatutfall.*
+import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.kandidatutfall.SendtStatus
+import no.nav.statistikkapi.kandidatutfall.Utfall
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.apache.kafka.clients.producer.MockProducer
@@ -21,7 +23,6 @@ import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDateTime
-import java.util.*
 
 class DatavarehusKafkaTest {
 
@@ -33,7 +34,7 @@ class DatavarehusKafkaTest {
 
         val expected = listOf(utfall1, utfall2)
 
-        expected.forEach{
+        expected.forEach {
             stillingRepository.lagreStilling(it.stillingsId, Stillingskategori.STILLING)
             kandidatutfallRepository.lagreUtfall(it)
         }
@@ -57,40 +58,6 @@ class DatavarehusKafkaTest {
             )
         }
     }
-
-
-    /*fun tilKandidathendelseMap(opprettKandidatutfall: OpprettKandidatutfall) = when (opprettKandidatutfall.utfall) {
-        Utfall.FATT_JOBBEN -> Kandidathendelselytter.Type.REGISTRER_FÅTT_JOBBEN
-        Utfall.IKKE_PRESENTERT -> Kandidathendelselytter.Type.ANNULLERT
-        Utfall.PRESENTERT -> Kandidathendelselytter.Type.REGISTRER_CV_DELT
-    }.let { type ->
-        mapOf(
-            "@event_name" to "kandidat.${type.eventName}",
-            "kandidathendelse" to mapOf(
-                "type" to "${type.name}",
-                "aktørId" to opprettKandidatutfall.aktørId,
-                "organisasjonsnummer" to "123456789",
-                "kandidatlisteId" to opprettKandidatutfall.kandidatlisteId,
-                "tidspunkt" to "${opprettKandidatutfall.tidspunktForHendelsen}",
-                "stillingsId" to opprettKandidatutfall.stillingsId,
-                "utførtAvNavIdent" to opprettKandidatutfall.navIdent,
-                "utførtAvNavKontorKode" to opprettKandidatutfall.navKontor,
-                "synligKandidat" to true,
-                "harHullICv" to opprettKandidatutfall.harHullICv,
-                "alder" to opprettKandidatutfall.alder,
-                "tilretteleggingsbehov" to opprettKandidatutfall.tilretteleggingsbehov
-            ),
-            "stillingsinfo" to mapOf(
-                "stillingsinfoid" to UUID.randomUUID().toString(),
-                "stillingsid" to opprettKandidatutfall.stillingsId,
-                "eier" to mapOf(
-                    "navident" to "A123456",
-                    "navn" to "Navnesen"
-                ),
-                "stillingskategori" to "STILLING"
-            )
-        )
-    }*/
 
     @Test
     fun `Sending på Kafka-topic skal endre status fra IKKE_SENDT til SENDT`() = runBlocking {
