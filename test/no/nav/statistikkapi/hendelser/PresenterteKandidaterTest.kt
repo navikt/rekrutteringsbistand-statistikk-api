@@ -76,5 +76,3 @@ private val melding = """
           TODO: Legg til medling of tilpass assertionene over
         }
     """.trimIndent()
-
-}
