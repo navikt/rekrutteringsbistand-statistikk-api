@@ -1,6 +1,7 @@
 package no.nav.statistikkapi
 
 
+import no.nav.statistikkapi.statistikkjobb.Statistikkjobb
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -12,7 +13,10 @@ import io.ktor.server.auth.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.micrometer.core.instrument.Metrics
+import io.micrometer.prometheus.*
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
@@ -62,16 +66,37 @@ fun startApp(
 
     startDatavarehusScheduler(database, datavarehusKafkaProducer)
 
-    RapidApplication.Builder(
-        RapidApplication.RapidApplicationConfig.fromEnv(System.getenv())
+    val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
+    val stillingRepository = StillingRepository(database.dataSource)
+    val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+
+    val statistikkjobb = Statistikkjobb(kandidatutfallRepository, prometheusMeterRegistry)
+
+    val rapid = RapidApplication.Builder(
+        RapidApplication.RapidApplicationConfig.fromEnv(
+            System.getenv()
+        )
     ).withKtorModule {
-        settOppKtor(this, tokenValidationConfig, database.dataSource)
+        settOppKtor(
+            application = this,
+            tokenValidationConfig = tokenValidationConfig,
+            dataSource = database.dataSource,
+            prometheusMeterRegistry = prometheusMeterRegistry
+        )
     }.build().apply {
-        Kandidathendelselytter(this, KandidatutfallRepository(database.dataSource), StillingRepository(database.dataSource))
-        Tiltaklytter(this, TiltaksRepository(database.dataSource))
-        TiltakManglerAktørIdLytter(this)
-        start()
+            Kandidathendelselytter(
+                rapidsConnection = this,
+                repo = kandidatutfallRepository,
+                stillingRepository = stillingRepository,
+                prometheusMeterRegistry = prometheusMeterRegistry
+            )
+
+            Tiltaklytter(this, TiltaksRepository(database.dataSource))
+            TiltakManglerAktørIdLytter(this)
     }
+
+    statistikkjobb.start();
+    rapid.start()
 }
 
 private fun startDatavarehusScheduler(
@@ -98,7 +123,8 @@ fun defaultProperties(objectMapper: ObjectMapper) = objectMapper.apply {
 fun settOppKtor(
     application: Application,
     tokenValidationConfig: AuthenticationConfig.() -> Unit,
-    dataSource: DataSource
+    dataSource: DataSource,
+    prometheusMeterRegistry: PrometheusMeterRegistry
 ) {
     application.apply {
         install(CallLogging) {
@@ -119,12 +145,17 @@ fun settOppKtor(
         }
         install(Authentication, tokenValidationConfig)
 
+        Metrics.addRegistry(prometheusMeterRegistry)
+
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
         val tiltaksRepository = TiltaksRepository(dataSource)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
                 hentStatistikk(kandidatutfallRepository, tiltaksRepository)
+                get("/metrics") {
+                    call.respond(prometheusMeterRegistry.scrape())
+                }
             }
         }
 
