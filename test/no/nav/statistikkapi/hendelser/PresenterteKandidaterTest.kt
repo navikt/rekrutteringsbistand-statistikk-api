@@ -11,7 +11,7 @@ import no.nav.statistikkapi.start
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.*
 
 class RegistrertDeltCvTest {
@@ -41,33 +41,71 @@ class RegistrertDeltCvTest {
         rapid.sendTestMessage(registrertDeltCvmelding)
 
         val utfall = testRepository.hentUtfall()
-        assertThat(utfall).size().isEqualTo(2)
+        assertThat(utfall).size().isEqualTo(1)
     }
 
     @Test
-    fun `Kan opprette kandidatutfall av RegistrertDeltCv melding`() {
+    fun `Kan opprette kandidatutfall av RegistrertDeltCv-melding`() {
         rapid.sendTestMessage(registrertDeltCvmelding)
 
-        val utfall = testRepository.hentUtfall()
-        assertThat(utfall).size().isEqualTo(2)
-        utfall[0].apply {
-            assertThat(stillingsId).isEqualTo(UUID.fromString("b5919e46-9882-4b3c-8089-53ad02f26023"))
-            assertThat(kandidatlisteId).isEqualTo(UUID.fromString("d5b5b4c1-0375-4719-9038-ab31fe27fb40"))
-            assertThat(navIdent).isEqualTo("Z994633")
-            assertThat(navKontor).isEqualTo("0313")
-            assertThat(tidspunkt).isEqualTo(LocalDateTime.of(2023, 2, 9, 9, 45, 53, 649_000_000))
+        val utfallFraDb = testRepository.hentUtfall()
+        assertThat(utfallFraDb).hasSize(1)
+        utfallFraDb[0].apply {
+            assertThat(stillingsId).isEqualTo(UUID.fromString("b2d427a4-061c-4ba4-890b-b7b0e04fb000"))
+            assertThat(kandidatlisteId).isEqualTo(UUID.fromString("6e22ced0-241b-4889-8285-7ca268d91b8d"))
+            assertThat(navIdent).isEqualTo("Z990281")
+            assertThat(navKontor).isEqualTo("0314")
+            assertThat(tidspunkt).isEqualTo(ZonedDateTime.parse("2023-02-13T09:57:34.643+01:00").toLocalDateTime())
             assertThat(utfall).isEqualTo(Utfall.PRESENTERT)
-            assertThat(synligKandidat!!).isTrue()
+            assertThat(synligKandidat).isNotNull().isTrue()
 
-            assertThat(aktorId).isEqualTo("2452127907551")
-            assertThat(alder).isEqualTo(51)
+            assertThat(aktorId).isEqualTo("2133747575903")
+            assertThat(alder).isEqualTo(53)
             assertThat(tilretteleggingsbehov).isEmpty()
-            assertThat(hullICv!!).isFalse()
-            assertThat(innsatsbehov).isEqualTo("BFORM")
-            assertThat(hovedmål).isEqualTo("BEHOLDEA")
-
-
+            assertThat(hullICv!!).isTrue()
+            assertThat(innsatsbehov).isEqualTo("BATT")
+            assertThat(hovedmål).isEqualTo("SKAFFEA")
         }
+    }
+
+    @Test
+    fun `Vil ikke opprette kandidatutfall når RegistrertDeltCv-melding mangler stilling`() {
+        rapid.sendTestMessage(registrerDeltCVMeldingUtenStillingberikelse)
+
+        val utfallFraDb = testRepository.hentUtfall()
+        assertThat(utfallFraDb).isEmpty()
+    }
+
+    @Test
+    fun `Kan opprette kandidatutfall av RegistrertFåttJobben-melding`() {
+        rapid.sendTestMessage(registrertFåttJobbenMelding)
+
+        val utfallFraDb = testRepository.hentUtfall()
+        assertThat(utfallFraDb).hasSize(1)
+        utfallFraDb[0].apply {
+            assertThat(stillingsId).isEqualTo(UUID.fromString("b2d427a4-061c-4ba4-890b-b7b0e04fb000"))
+            assertThat(kandidatlisteId).isEqualTo(UUID.fromString("6e22ced0-241b-4889-8285-7ca268d91b8d"))
+            assertThat(navIdent).isEqualTo("Z990281")
+            assertThat(navKontor).isEqualTo("0314")
+            assertThat(tidspunkt).isEqualTo(ZonedDateTime.parse("2023-02-13T12:39:52.205+01:00").toLocalDateTime())
+            assertThat(utfall).isEqualTo(Utfall.FATT_JOBBEN)
+            assertThat(synligKandidat).isNotNull().isTrue()
+
+            assertThat(aktorId).isEqualTo("2133747575903")
+            assertThat(alder).isEqualTo(53)
+            assertThat(tilretteleggingsbehov).isEmpty()
+            assertThat(hullICv!!).isTrue()
+            assertThat(innsatsbehov).isEqualTo("BATT")
+            assertThat(hovedmål).isEqualTo("SKAFFEA")
+        }
+    }
+
+    @Test
+    fun `Vil ikke opprette kandidatutfall når RegistrertFåttJobben-melding mangler stilling`() {
+        rapid.sendTestMessage(registrertFåttJobbenMeldingUtenStillingberikelse)
+
+        val utfallFraDb = testRepository.hentUtfall()
+        assertThat(utfallFraDb).isEmpty()
     }
 }
 
@@ -126,7 +164,7 @@ private val registrertDeltCvmelding = """
         }
     """.trimIndent()
 
-private val RegistrerDeltCVMeldingUtenStillingberikelse = """
+private val registrerDeltCVMeldingUtenStillingberikelse = """
     {
       "aktørId": "2133747575903",
       "organisasjonsnummer": "894822082",
@@ -148,54 +186,41 @@ private val RegistrerDeltCVMeldingUtenStillingberikelse = """
 """.trimIndent()
 
 
-private val RegistrertFåttJobbenMelding = """
+private val registrertFåttJobbenMelding = """
     {
-      "@event_name": "kandidat.registrer-fått-jobben",
-      "kandidathendelse": {
-        "type": "REGISTRER_FÅTT_JOBBEN",
-        "aktørId": "2133747575903",
-        "organisasjonsnummer": "894822082",
-        "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
-        "tidspunkt": "2023-02-13T10:03:02.145+01:00",
-        "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-        "utførtAvNavIdent": "Z990281",
-        "utførtAvNavKontorKode": "0314",
-        "synligKandidat": true,
+      "aktørId": "2133747575903",
+      "organisasjonsnummer": "894822082",
+      "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
+      "tidspunkt": "2023-02-13T12:39:52.205+01:00",
+      "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+      "utførtAvNavIdent": "Z990281",
+      "utførtAvNavKontorKode": "0314",
+      "synligKandidat": true,
+      "inkludering": {
         "harHullICv": true,
         "alder": 53,
-        "tilretteleggingsbehov": []
+        "tilretteleggingsbehov": [],
+        "innsatsbehov": "BATT",
+        "hovedmål": "SKAFFEA"
       },
-      "@id": "afead715-1cfc-46dc-b69b-80ea00898a6b",
-      "@opprettet": "2023-02-13T10:04:02.013956448",
-      "system_read_count": 1,
+      "@event_name": "kandidat_v2.RegistrertFåttJobben",
+      "@id": "5f4531e7-f202-439b-88c0-68d14a05031f",
+      "@opprettet": "2023-02-13T12:40:02.161234100",
+      "system_read_count": 0,
       "system_participating_services": [
         {
-          "id": "a17fda4e-61bc-47c6-9f4a-57bff6005f5b",
-          "time": "2023-02-13T10:04:00.453680266",
+          "id": "506fbed0-a263-432b-8f74-c4aa96587c90",
+          "time": "2023-02-13T12:40:02.037858424",
           "service": "rekrutteringsbistand-stilling-api",
           "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
           "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
         },
         {
-          "id": "36d83c05-38e7-4ea0-ac91-e3f381b655a9",
-          "time": "2023-02-13T10:04:00.704140539",
+          "id": "5f4531e7-f202-439b-88c0-68d14a05031f",
+          "time": "2023-02-13T12:40:02.161234100",
           "service": "rekrutteringsbistand-stilling-api",
           "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
           "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
-        },
-        {
-          "id": "36d83c05-38e7-4ea0-ac91-e3f381b655a9",
-          "time": "2023-02-13T10:04:00.719440526",
-          "service": "rekrutteringsbistand-statistikk-api",
-          "instance": "rekrutteringsbistand-statistikk-api-7c56bd44fb-2h8zx",
-          "image": "ghcr.io/navikt/rekrutteringsbistand-statistikk-api/rekrutteringsbistand-statistikk-api:8f68a4297dc296971a136eab65a7c729df82991e"
-        },
-        {
-          "id": "afead715-1cfc-46dc-b69b-80ea00898a6b",
-          "time": "2023-02-13T10:04:02.013956448",
-          "service": "rekrutteringsbistand-statistikk-api",
-          "instance": "rekrutteringsbistand-statistikk-api-7c56bd44fb-2h8zx",
-          "image": "ghcr.io/navikt/rekrutteringsbistand-statistikk-api/rekrutteringsbistand-statistikk-api:8f68a4297dc296971a136eab65a7c729df82991e"
         }
       ],
       "stillingsinfo": {
@@ -209,15 +234,14 @@ private val RegistrertFåttJobbenMelding = """
         "stillingstittel": "Ny stilling"
       },
       "@forårsaket_av": {
-        "id": "36d83c05-38e7-4ea0-ac91-e3f381b655a9",
-        "opprettet": "2023-02-13T10:04:00.704140539",
-        "event_name": "kandidat.registrer-fått-jobben"
-      },
-      "@slutt_av_hendelseskjede": true
+        "id": "506fbed0-a263-432b-8f74-c4aa96587c90",
+        "opprettet": "2023-02-13T12:40:02.037858424",
+        "event_name": "kandidat_v2.RegistrertFåttJobben"
+      }
     }
 """.trimIndent()
 
-val RegistrertFåttJobbenMeldingUtenStilling = """
+val registrertFåttJobbenMeldingUtenStillingberikelse = """
     {
       "aktørId": "2133747575903",
       "organisasjonsnummer": "894822082",

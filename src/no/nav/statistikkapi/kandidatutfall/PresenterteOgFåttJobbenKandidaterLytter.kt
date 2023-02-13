@@ -6,6 +6,7 @@ import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.secureLog
 import no.nav.statistikkapi.stillinger.Stillingskategori
+import java.time.ZonedDateTime
 
 class PresenterteOgFåttJobbenKandidaterLytter(
     rapidsConnection: RapidsConnection,
@@ -52,7 +53,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val aktørId = packet["aktørId"].asText()
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
-        val tidspunkt = packet["tidspunkt"].asLocalDateTime().atOslo()
+        val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asText())
         val stillingsId = packet["stillingsId"].asText()
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asText()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
@@ -117,6 +118,10 @@ class PresenterteOgFåttJobbenKandidaterLytter(
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error("Feil ved lesing av melding\n$problems")
+    }
+
+    override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {
+        super.onSevere(error, context)
     }
 }
 
