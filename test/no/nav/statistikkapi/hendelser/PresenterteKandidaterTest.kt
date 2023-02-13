@@ -76,7 +76,37 @@ class RegistrertDeltCvTest {
     }
 
     @Test
-    fun `Kan opprette kandidatutfall av RegistrertDeltCv-melding med nullverdier`() {
+    fun `Kan opprette kandidatutfall av RegistrertDeltCv-melding uten inkludering`() {
+        rapid.sendTestMessage(registrertDeltCvmeldingUtenInkludering)
+
+        val utfallFraDb = testRepository.hentUtfall()
+        val stillingFraDb = testRepository.hentStilling()
+        assertThat(utfallFraDb).hasSize(1)
+        assertThat(stillingFraDb).hasSize(1)
+        utfallFraDb[0].apply {
+            assertThat(stillingsId).isEqualTo(UUID.fromString("b2d427a4-061c-4ba4-890b-b7b0e04fb000"))
+            assertThat(kandidatlisteId).isEqualTo(UUID.fromString("6e22ced0-241b-4889-8285-7ca268d91b8d"))
+            assertThat(navIdent).isEqualTo("Z990281")
+            assertThat(navKontor).isEqualTo("0314")
+            assertThat(tidspunkt).isEqualTo(ZonedDateTime.parse("2023-02-13T09:57:34.643+01:00").toLocalDateTime())
+            assertThat(utfall).isEqualTo(Utfall.PRESENTERT)
+            assertThat(synligKandidat).isNotNull().isTrue()
+
+            assertThat(aktorId).isEqualTo("2133747575903")
+            assertThat(alder).isNull()
+            assertThat(tilretteleggingsbehov).isNull()
+            assertThat(hullICv).isNull()
+            assertThat(innsatsbehov).isNull()
+            assertThat(hovedmål).isNull()
+        }
+        stillingFraDb[0].apply {
+            assertThat(uuid).isEqualTo("b2d427a4-061c-4ba4-890b-b7b0e04fb000")
+            assertThat(stillingskategori).isEqualTo(Stillingskategori.STILLING)
+        }
+    }
+
+    @Test
+    fun `Kan ikke opprette kandidatutfall av RegistrertDeltCv-melding med nullverdier for stilling`() {
         rapid.sendTestMessage(registrertDeltCvmeldingMedNullverdier)
 
         val utfallFraDb = testRepository.hentUtfall()
@@ -150,6 +180,55 @@ private val registrertDeltCvmelding = """
             "innsatsbehov": "BATT",
             "hovedmål": "SKAFFEA"
           },
+          "@event_name": "kandidat_v2.RegistrertDeltCv",
+          "@id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
+          "@opprettet": "2023-02-13T09:58:03.191128099",
+          "system_read_count": 0,
+          "system_participating_services": [
+            {
+              "id": "15379170-9d91-4670-bda1-94b4f4355131",
+              "time": "2023-02-13T09:58:01.055581269",
+              "service": "rekrutteringsbistand-stilling-api",
+              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
+            },
+            {
+              "id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
+              "time": "2023-02-13T09:58:03.191128099",
+              "service": "rekrutteringsbistand-stilling-api",
+              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
+            }
+          ],
+          "stillingsinfo": {
+            "stillingsinfoid": "0f5daf9c-e6c6-4001-86bb-f90f812e40e7",
+            "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+            "eier": null,
+            "notat": null,
+            "stillingskategori": "STILLING"
+          },
+          "stilling": {
+            "stillingstittel": "Ny stilling"
+          },
+          "@forårsaket_av": {
+            "id": "15379170-9d91-4670-bda1-94b4f4355131",
+            "opprettet": "2023-02-13T09:58:01.055581269",
+            "event_name": "kandidat_v2.RegistrertDeltCv"
+          }
+        }
+    """.trimIndent()
+
+private val registrertDeltCvmeldingUtenInkludering = """
+        {
+          "aktørId": "2133747575903",
+          "organisasjonsnummer": "894822082",
+          "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
+          "tidspunkt": "2023-02-13T09:57:34.643+01:00",
+          "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+          "utførtAvNavIdent": "Z990281",
+          "utførtAvNavKontorKode": "0314",
+          "synligKandidat": true,
+          "inkludering": null,
           "@event_name": "kandidat_v2.RegistrertDeltCv",
           "@id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
           "@opprettet": "2023-02-13T09:58:03.191128099",
