@@ -523,7 +523,7 @@ class HentStatistikkTest {
         httpRequestBuilder.url.parameters.apply {
             append(StatistikkParametere.fraOgMed, hentStatistikk.fraOgMed.toString())
             append(StatistikkParametere.tilOgMed, hentStatistikk.tilOgMed.toString())
-            append(StatistikkParametere.navKontor, hentStatistikk.navKontor ?: "")
+            append(StatistikkParametere.navKontor, hentStatistikk.navKontor)
         }
     }
 }
