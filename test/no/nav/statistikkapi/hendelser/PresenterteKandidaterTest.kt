@@ -76,6 +76,16 @@ class RegistrertDeltCvTest {
     }
 
     @Test
+    fun `Kan opprette kandidatutfall av RegistrertDeltCv-melding med nullverdier`() {
+        rapid.sendTestMessage(registrertDeltCvmeldingMedNullverdier)
+
+        val utfallFraDb = testRepository.hentUtfall()
+        val stillingFraDb = testRepository.hentStilling()
+        assertThat(utfallFraDb).isEmpty()
+        assertThat(stillingFraDb).isEmpty()
+    }
+
+    @Test
     fun `Vil ikke opprette kandidatutfall når RegistrertDeltCv-melding mangler stilling`() {
         rapid.sendTestMessage(registrerDeltCVMeldingUtenStillingberikelse)
 
@@ -170,6 +180,45 @@ private val registrertDeltCvmelding = """
           "stilling": {
             "stillingstittel": "Ny stilling"
           },
+          "@forårsaket_av": {
+            "id": "15379170-9d91-4670-bda1-94b4f4355131",
+            "opprettet": "2023-02-13T09:58:01.055581269",
+            "event_name": "kandidat_v2.RegistrertDeltCv"
+          }
+        }
+    """.trimIndent()
+
+private val registrertDeltCvmeldingMedNullverdier = """
+        {
+          "aktørId": "2133747575903",
+          "organisasjonsnummer": "894822082",
+          "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
+          "tidspunkt": "2023-02-13T09:57:34.643+01:00",
+          "stillingsId": null,
+          "utførtAvNavIdent": "Z990281",
+          "utførtAvNavKontorKode": "0314",
+          "synligKandidat": true,
+          "inkludering": null,
+          "@event_name": "kandidat_v2.RegistrertDeltCv",
+          "@id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
+          "@opprettet": "2023-02-13T09:58:03.191128099",
+          "system_read_count": 0,
+          "system_participating_services": [
+            {
+              "id": "15379170-9d91-4670-bda1-94b4f4355131",
+              "time": "2023-02-13T09:58:01.055581269",
+              "service": "rekrutteringsbistand-stilling-api",
+              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
+            },
+            {
+              "id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
+              "time": "2023-02-13T09:58:03.191128099",
+              "service": "rekrutteringsbistand-stilling-api",
+              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
+            }
+          ],
           "@forårsaket_av": {
             "id": "15379170-9d91-4670-bda1-94b4f4355131",
             "opprettet": "2023-02-13T09:58:01.055581269",

@@ -39,7 +39,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val stillingsId = packet["stillingsId"].asText()
         val stillingstittel = packet["stillingstittel"].asText()
-        val stillingskategori = packet["stillingsinfo.stillingskategori"].asText()
+        val stillingskategori = packet["stillingsinfo.stillingskategori"].asText(null)
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()

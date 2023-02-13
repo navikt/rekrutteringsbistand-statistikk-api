@@ -53,7 +53,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
         val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asText())
-        val stillingsId = packet["stillingsId"].asText()
+        val stillingsId = packet["stillingsId"].asText(null)
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asText()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
@@ -84,6 +84,11 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             utfall: $utfall
             """.trimIndent()
         )
+
+        if (stillingsId == null) {
+            log.info("Behandler ikke melding fordi den er uten stilingsId")
+            return
+        }
 
         val opprettKandidatutfall = OpprettKandidatutfall(
             aktørId = aktørId,

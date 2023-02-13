@@ -93,7 +93,7 @@ class SendtTilArbeidsgiverTest {
         val stillingFraDb = testRepository.hentStilling()
         assertThat(utfallFraDb).hasSize(2)
         assertThat(stillingFraDb).hasSize(1)
-        assertThat(stillingFraDb[0].stillingskategori).isNull()
+        assertThat(stillingFraDb[0].stillingskategori).isEqualTo(Stillingskategori.STILLING)
     }
 
     private val melding = """

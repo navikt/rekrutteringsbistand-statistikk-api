@@ -1,14 +1,9 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import io.micrometer.core.instrument.Metrics
 import no.nav.statistikkapi.HentStatistikk
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
-import no.nav.statistikkapi.log
-import no.nav.statistikkapi.tiltak.Tiltakstilfelle
-import no.nav.statistikkapi.tiltak.Tiltakstype
-import no.nav.statistikkapi.tiltak.tilTiltakstype
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
