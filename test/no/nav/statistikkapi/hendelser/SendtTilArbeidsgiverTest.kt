@@ -72,7 +72,7 @@ class SendtTilArbeidsgiverTest {
             assertThat(it.navKontor).isEqualTo("0313")
             assertThat(it.tidspunkt).isEqualTo(LocalDateTime.of(2023, 2, 9, 9, 45, 53,649_000_000))
             assertThat(it.utfall).isEqualTo(Utfall.PRESENTERT)
-            assertThat(it.synligKandidat!!).isTrue()
+            assertThat(it.synligKandidat).isNotNull().isTrue()
         }
     }
 
