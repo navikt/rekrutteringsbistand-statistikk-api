@@ -29,12 +29,14 @@ class DatavarehusKafkaTest {
     fun `Kandidatutfall hendelse skal produsere melding på Kafka-topic`() = runBlocking {
         val utfall1 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo(), utfall = Utfall.PRESENTERT)
         val utfall2 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo().plusDays(1), utfall = Utfall.FATT_JOBBEN)
-        TODO("Bruk presentert og fått jobben melding på nytt format")
-        Unit
 
-        /*val expected = listOf(utfall1, utfall2)
-        expected.map(this@DatavarehusKafkaTest::tilKandidathendelseMap).map(objectMapper::writeValueAsString)
-            .forEach(rapid::sendTestMessage)
+
+        val expected = listOf(utfall1, utfall2)
+
+        expected.forEach{
+            stillingRepository.lagreStilling(it.stillingsId, Stillingskategori.STILLING)
+            kandidatutfallRepository.lagreUtfall(it)
+        }
 
         testHentUsendteUtfallOgSendPåKafka.run()
 
@@ -53,7 +55,7 @@ class DatavarehusKafkaTest {
             assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(
                 expectedTidspunkt.toLocalDateTime().minusSeconds(10), expectedTidspunkt.toLocalDateTime()
             )
-        }*/
+        }
     }
 
 

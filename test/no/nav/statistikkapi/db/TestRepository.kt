@@ -4,7 +4,9 @@ import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
+import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.stillinger.konverterTilStilling
 import no.nav.statistikkapi.tiltak.TiltaksRepository
 import no.nav.statistikkapi.tiltak.Tiltakstype
 import no.nav.statistikkapi.tiltak.tilTiltakstype
@@ -33,6 +35,18 @@ class TestRepository(private val dataSource: DataSource) {
                     .executeQuery()
             return generateSequence {
                 if (resultSet.next()) konverterTilKandidatutfall(resultSet)
+                else null
+            }.toList()
+        }
+    }
+
+    fun hentStilling(): List<Stilling> {
+        dataSource.connection.use {
+            val resultSet =
+                it.prepareStatement("SELECT * FROM ${StillingRepository.stillingtabell} ORDER BY UUID ASC")
+                    .executeQuery()
+            return generateSequence {
+                if (resultSet.next()) konverterTilStilling(resultSet)
                 else null
             }.toList()
         }

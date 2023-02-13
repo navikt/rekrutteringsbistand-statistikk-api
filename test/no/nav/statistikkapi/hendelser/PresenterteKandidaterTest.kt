@@ -8,6 +8,7 @@ import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall
 import no.nav.statistikkapi.randomPort
 import no.nav.statistikkapi.start
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -49,7 +50,9 @@ class RegistrertDeltCvTest {
         rapid.sendTestMessage(registrertDeltCvmelding)
 
         val utfallFraDb = testRepository.hentUtfall()
+        val stillingFraDb = testRepository.hentStilling()
         assertThat(utfallFraDb).hasSize(1)
+        assertThat(stillingFraDb).hasSize(1)
         utfallFraDb[0].apply {
             assertThat(stillingsId).isEqualTo(UUID.fromString("b2d427a4-061c-4ba4-890b-b7b0e04fb000"))
             assertThat(kandidatlisteId).isEqualTo(UUID.fromString("6e22ced0-241b-4889-8285-7ca268d91b8d"))
@@ -66,6 +69,10 @@ class RegistrertDeltCvTest {
             assertThat(innsatsbehov).isEqualTo("BATT")
             assertThat(hovedmål).isEqualTo("SKAFFEA")
         }
+        stillingFraDb[0].apply {
+            assertThat(uuid).isEqualTo("b2d427a4-061c-4ba4-890b-b7b0e04fb000")
+            assertThat(stillingskategori).isEqualTo(Stillingskategori.STILLING)
+        }
     }
 
     @Test
@@ -81,7 +88,9 @@ class RegistrertDeltCvTest {
         rapid.sendTestMessage(registrertFåttJobbenMelding)
 
         val utfallFraDb = testRepository.hentUtfall()
+        val stillingFraDb = testRepository.hentStilling()
         assertThat(utfallFraDb).hasSize(1)
+        assertThat(stillingFraDb).hasSize(1)
         utfallFraDb[0].apply {
             assertThat(stillingsId).isEqualTo(UUID.fromString("b2d427a4-061c-4ba4-890b-b7b0e04fb000"))
             assertThat(kandidatlisteId).isEqualTo(UUID.fromString("6e22ced0-241b-4889-8285-7ca268d91b8d"))
@@ -97,6 +106,11 @@ class RegistrertDeltCvTest {
             assertThat(hullICv!!).isTrue()
             assertThat(innsatsbehov).isEqualTo("BATT")
             assertThat(hovedmål).isEqualTo("SKAFFEA")
+        }
+
+        stillingFraDb[0].apply {
+            assertThat(uuid).isEqualTo("b2d427a4-061c-4ba4-890b-b7b0e04fb000")
+            assertThat(stillingskategori).isEqualTo(Stillingskategori.STILLING)
         }
     }
 

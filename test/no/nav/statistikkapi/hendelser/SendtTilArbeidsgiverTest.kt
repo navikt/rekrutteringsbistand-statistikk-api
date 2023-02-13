@@ -3,12 +3,12 @@ package no.nav.statistikkapi.hendelser
 import assertk.assertThat
 import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
-import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall
 import no.nav.statistikkapi.randomPort
 import no.nav.statistikkapi.start
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -49,30 +49,39 @@ class SendtTilArbeidsgiverTest {
     fun `Kan opprette kandidatutfall av DelCvMedArbeidsgiver-melding`() {
         rapid.sendTestMessage(melding)
 
-        val utfall = testRepository.hentUtfall()
-        assertThat(utfall).size().isEqualTo(2)
-        utfall.find { it.aktorId=="2452127907551" }!!.apply {
+        val utfallFraDb = testRepository.hentUtfall()
+        val stillingFraDb = testRepository.hentStilling()
+        assertThat(utfallFraDb).hasSize(2)
+        assertThat(stillingFraDb).hasSize(1)
+        utfallFraDb.find { u -> u.aktorId == "2452127907551" }!!.apply {
             assertThat(alder).isEqualTo(51)
             assertThat(tilretteleggingsbehov).isEmpty()
             assertThat(hullICv!!).isFalse()
             assertThat(innsatsbehov).isEqualTo("BFORM")
             assertThat(hovedmål).isEqualTo("BEHOLDEA")
         }
-        utfall.find { it.aktorId=="2452127907123" }!!.apply {
+        utfallFraDb.find { it.aktorId == "2452127907123" }!!.apply {
             assertThat(alder).isEqualTo(24)
             assertThat(tilretteleggingsbehov).containsExactly("arbeidstid")
             assertThat(hullICv!!).isTrue()
             assertThat(innsatsbehov).isEqualTo("VARIG")
             assertThat(hovedmål).isEqualTo("SKAFFERA")
+
         }
-        utfall.forEach {
+        utfallFraDb.forEach {
             assertThat(it.stillingsId).isEqualTo(UUID.fromString("b5919e46-9882-4b3c-8089-53ad02f26023"))
             assertThat(it.kandidatlisteId).isEqualTo(UUID.fromString("d5b5b4c1-0375-4719-9038-ab31fe27fb40"))
             assertThat(it.navIdent).isEqualTo("Z994633")
             assertThat(it.navKontor).isEqualTo("0313")
-            assertThat(it.tidspunkt).isEqualTo(LocalDateTime.of(2023, 2, 9, 9, 45, 53,649_000_000))
+            assertThat(it.tidspunkt).isEqualTo(LocalDateTime.of(2023, 2, 9, 9, 45, 53, 649_000_000))
             assertThat(it.utfall).isEqualTo(Utfall.PRESENTERT)
             assertThat(it.synligKandidat).isNotNull().isTrue()
+        }
+
+        stillingFraDb[0].apply {
+            this!!
+            assertThat(uuid).isEqualTo("b5919e46-9882-4b3c-8089-53ad02f26023")
+            assertThat(stillingskategori).isEqualTo(Stillingskategori.STILLING)
         }
     }
 
