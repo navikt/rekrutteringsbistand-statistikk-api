@@ -53,16 +53,20 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
         val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asText())
-        val stillingsId = packet["stillingsId"].asText(null)
+        val stillingsId = packet["stillingsId"].asTextNullable()
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asText()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
         val synligKandidat = packet["synligKandidat"].asBoolean()
         val harHullICv = packet["inkludering.harHullICv"].asBoolean()
-        val alder = packet["inkludering.alder"].asInt()
-        val tilretteleggingsbehov = packet["inkludering.tilretteleggingsbehov"].map(JsonNode::asText)
-        val innsatsbehov = packet["inkludering.innsatsbehov"].asText()
-        val hovedmål = packet["inkludering.hovedmål"].asText()
+        val alder = packet["inkludering.alder"].asIntNullable()
+        val tilretteleggingsbehov = packet["inkludering.tilretteleggingsbehov"]
+            .run {
+                if (isMissingOrNull()) emptyList() else map(JsonNode::asText)
+            }
+
+        val innsatsbehov = packet["inkludering.innsatsbehov"].asTextNullable()
+        val hovedmål = packet["inkludering.hovedmål"].asTextNullable()
         val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
 
         secureLog.info(

@@ -94,7 +94,7 @@ class RegistrertDeltCvTest {
 
             assertThat(aktorId).isEqualTo("2133747575903")
             assertThat(alder).isNull()
-            assertThat(tilretteleggingsbehov).isNull()
+            assertThat(tilretteleggingsbehov).isEmpty()
             assertThat(hullICv).isNull()
             assertThat(innsatsbehov).isNull()
             assertThat(hovedmål).isNull()

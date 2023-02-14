@@ -37,9 +37,9 @@ class SendtTilArbeidsgiverKandidaterLytter(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val stillingsId = packet["stillingsId"].asText()
+        val stillingsId = packet["stillingsId"].asTextNullable()
         val stillingstittel = packet["stillingstittel"].asText()
-        val stillingskategori = packet["stillingsinfo.stillingskategori"].asText(null)
+        val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
@@ -113,6 +113,3 @@ class SendtTilArbeidsgiverKandidaterLytter(
         super.onSevere(error, context)
     }
 }
-
-private fun JsonNode.asZonedDateTime() =
-        asText().let ( ZonedDateTime::parse )
