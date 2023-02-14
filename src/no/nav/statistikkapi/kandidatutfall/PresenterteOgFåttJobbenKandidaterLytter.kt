@@ -1,6 +1,7 @@
 package no.nav.statistikkapi.kandidatutfall
 
 import com.fasterxml.jackson.databind.JsonNode
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.secureLog
@@ -11,6 +12,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
     rapidsConnection: RapidsConnection,
     private val lagreUtfallOgStilling: LagreUtfallOgStilling,
     private val eventNamePostfix: String,
+    private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) :
     River.PacketListener {
     init {
@@ -115,6 +117,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             stillingsid = stillingsId,
             stillingskategori = Stillingskategori.fraNavn(stillingskategori)
         )
+
+        prometheusMeterRegistry.incrementUtfallLagret(opprettKandidatutfall.utfall)
 
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())

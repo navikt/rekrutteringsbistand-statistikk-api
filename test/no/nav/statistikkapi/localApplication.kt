@@ -59,7 +59,8 @@ fun start(
             KandidatutfallRepository(database.dataSource),
             StillingRepository(database.dataSource)
         ),
-        "RegistrertDeltCv"
+        "RegistrertDeltCv",
+        prometheusMeterRegistry = prometheusMeterRegistry
     )
     PresenterteOgFåttJobbenKandidaterLytter(
         rapid,
@@ -67,14 +68,16 @@ fun start(
             KandidatutfallRepository(database.dataSource),
             StillingRepository(database.dataSource)
         ),
-        "RegistrertFåttJobben"
+        "RegistrertFåttJobben",
+        prometheusMeterRegistry = prometheusMeterRegistry
     )
     SendtTilArbeidsgiverKandidaterLytter(
         rapid,
         LagreUtfallOgStilling(
             KandidatutfallRepository(database.dataSource),
             StillingRepository(database.dataSource)
-        )
+        ),
+        prometheusMeterRegistry = prometheusMeterRegistry
     )
 
     Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
