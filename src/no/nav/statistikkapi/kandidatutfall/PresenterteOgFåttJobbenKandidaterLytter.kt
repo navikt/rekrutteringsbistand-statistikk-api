@@ -58,7 +58,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
         val synligKandidat = packet["synligKandidat"].asBoolean()
-        val harHullICv = packet["inkludering.harHullICv"].asBoolean()
+        val harHullICv = packet["inkludering.harHullICv"].asBooleanNullable()
         val alder = packet["inkludering.alder"].asIntNullable()
         val tilretteleggingsbehov = packet["inkludering.tilretteleggingsbehov"]
             .run {

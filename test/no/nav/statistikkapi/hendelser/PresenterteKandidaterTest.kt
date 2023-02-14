@@ -76,8 +76,8 @@ class RegistrertDeltCvTest {
     }
 
     @Test
-    fun `Kan opprette kandidatutfall av RegistrertDeltCv-melding uten inkludering`() {
-        rapid.sendTestMessage(registrertDeltCvmeldingUtenInkludering)
+    fun `Kan opprette kandidatutfall av RegistrertDeltCv-melding usynlig kandidat uten inkludering`() {
+        rapid.sendTestMessage(registrertDeltCvmeldingUsynligKandidatUtenInkludering)
 
         val utfallFraDb = testRepository.hentUtfall()
         val stillingFraDb = testRepository.hentStilling()
@@ -90,7 +90,7 @@ class RegistrertDeltCvTest {
             assertThat(navKontor).isEqualTo("0314")
             assertThat(tidspunkt).isEqualTo(ZonedDateTime.parse("2023-02-13T09:57:34.643+01:00").toLocalDateTime())
             assertThat(utfall).isEqualTo(Utfall.PRESENTERT)
-            assertThat(synligKandidat).isNotNull().isTrue()
+            assertThat(synligKandidat).isNotNull().isFalse()
 
             assertThat(aktorId).isEqualTo("2133747575903")
             assertThat(alder).isNull()
@@ -218,7 +218,7 @@ private val registrertDeltCvmelding = """
         }
     """.trimIndent()
 
-private val registrertDeltCvmeldingUtenInkludering = """
+private val registrertDeltCvmeldingUsynligKandidatUtenInkludering = """
         {
           "aktørId": "2133747575903",
           "organisasjonsnummer": "894822082",
@@ -227,7 +227,7 @@ private val registrertDeltCvmeldingUtenInkludering = """
           "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
           "utførtAvNavIdent": "Z990281",
           "utførtAvNavKontorKode": "0314",
-          "synligKandidat": true,
+          "synligKandidat": false,
           "inkludering": null,
           "@event_name": "kandidat_v2.RegistrertDeltCv",
           "@id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",

@@ -9,3 +9,5 @@ fun JsonNode.asZonedDateTime() =
 fun JsonNode.asTextNullable() = asText(null)
 
 fun JsonNode.asIntNullable() = asTextNullable()?.toInt()
+
+fun JsonNode.asBooleanNullable() = asTextNullable()?.toBoolean()
