@@ -55,7 +55,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
             val alder = node["alder"].asInt()
             val tilretteleggingsbehov = node["tilretteleggingsbehov"].map(JsonNode::asText)
             val innsatsbehov = node["innsatsbehov"].asText()
-            val hovedmål = node["hovedmål"].asText()
+            val hovedmål = node["hovedmål"].asTextNullable()
 
             secureLog.info(
                 """
