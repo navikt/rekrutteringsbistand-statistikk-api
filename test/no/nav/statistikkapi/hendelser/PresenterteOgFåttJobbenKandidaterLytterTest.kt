@@ -46,6 +46,15 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
     }
 
     @Test
+    fun `mottak av kandidatutfall skalregisterers når det utfall endres`() {
+        rapid.sendTestMessage(registrertDeltCvmelding)
+        rapid.sendTestMessage(registrertFåttJobbenMelding)
+
+        val utfall = testRepository.hentUtfall()
+        assertThat(utfall).size().isEqualTo(2)
+    }
+
+    @Test
     fun `Kan opprette kandidatutfall av RegistrertDeltCv-melding`() {
         rapid.sendTestMessage(registrertDeltCvmelding)
 
