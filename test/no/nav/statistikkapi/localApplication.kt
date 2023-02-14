@@ -3,6 +3,8 @@ package no.nav.statistikkapi
 import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -42,8 +44,14 @@ fun start(
         tokenValidationSupport(config = tokenSupportConfig)
     }
 
-    Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
-    TiltakManglerAktørIdLytter(rapid)
+    val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+
+    Kandidathendelselytter(
+        rapid,
+        KandidatutfallRepository(database.dataSource),
+        StillingRepository(database.dataSource),
+        prometheusMeterRegistry
+    )
 
     PresenterteOgFåttJobbenKandidaterLytter(
         rapid,
@@ -69,11 +77,8 @@ fun start(
         )
     )
 
-    Kandidathendelselytter(
-        rapid,
-        KandidatutfallRepository(database.dataSource),
-        StillingRepository(database.dataSource)
-    )
+    Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
+    TiltakManglerAktørIdLytter(rapid)
 
 
     val ktorServer = embeddedServer(CIO, port = port) {}
@@ -82,7 +87,8 @@ fun start(
     settOppKtor(
         ktorApplication,
         tokenValidationConfig,
-        database.dataSource
+        database.dataSource,
+        prometheusMeterRegistry
     )
 
     ktorServer.start()

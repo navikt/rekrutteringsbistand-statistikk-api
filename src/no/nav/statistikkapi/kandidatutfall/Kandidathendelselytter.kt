@@ -1,6 +1,6 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import io.micrometer.core.instrument.Metrics
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.objectMapper
@@ -12,7 +12,8 @@ import java.time.ZonedDateTime
 class Kandidathendelselytter(
     rapidsConnection: RapidsConnection,
     private val repo: KandidatutfallRepository,
-    private val stillingRepository: StillingRepository
+    private val stillingRepository: StillingRepository,
+    private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) :
     River.PacketListener {
 
@@ -55,11 +56,11 @@ class Kandidathendelselytter(
             repo.lagreUtfall(opprettKandidatutfall)
             log.info("Lagrer kandidathendelse som kandidatutfall")
 
-            Metrics.counter(
-                "rekrutteringsbistand.statistikk.utfall.lagret",
-                "utfall",
-                opprettKandidatutfall.utfall.name
-            ).increment()
+            prometheusMeterRegistry
+                .counter(
+                    "rekrutteringsbistand.statistikk.utfall.lagret",
+                    "utfall", opprettKandidatutfall.utfall.name
+                ).increment()
         }
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())
