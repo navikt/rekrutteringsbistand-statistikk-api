@@ -13,6 +13,8 @@ data class Kandidatutfall(
     val stillingsId: UUID,
     val synligKandidat: Boolean?,
     val hullICv: Boolean?,
+    val innsatsbehov: String?,
+    val hovedmål: String?,
     val tidspunkt: LocalDateTime,
     val sendtStatus: SendtStatus,
     val antallSendtForsøk: Int,
@@ -26,5 +28,14 @@ enum class SendtStatus {
 }
 
 enum class Utfall {
-    IKKE_PRESENTERT, PRESENTERT, FATT_JOBBEN
+    IKKE_PRESENTERT, PRESENTERT, FATT_JOBBEN;
+
+    companion object {
+        fun fraEventNamePostfix(eventNamePostfix: String) =
+            when (eventNamePostfix) {
+                "RegistrertDeltCv" -> PRESENTERT
+                "RegistrertFåttJobben" -> FATT_JOBBEN
+                else -> throw Exception("Uventet event $eventNamePostfix for lytter")
+            }
+    }
 }

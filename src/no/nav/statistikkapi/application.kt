@@ -1,7 +1,6 @@
 package no.nav.statistikkapi
 
 
-import no.nav.statistikkapi.statistikkjobb.Statistikkjobb
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -16,15 +15,16 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Metrics
-import io.micrometer.prometheus.*
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.*
-import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
-import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.kandidatutfall.*
+import no.nav.statistikkapi.statistikkjobb.Statistikkjobb
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
@@ -84,15 +84,42 @@ fun startApp(
             prometheusMeterRegistry = prometheusMeterRegistry
         )
     }.build().apply {
-            Kandidathendelselytter(
-                rapidsConnection = this,
-                repo = kandidatutfallRepository,
-                stillingRepository = stillingRepository,
-                prometheusMeterRegistry = prometheusMeterRegistry
-            )
+        Kandidathendelselytter(
+            rapidsConnection = this,
+            repo = kandidatutfallRepository,
+            stillingRepository = stillingRepository,
+            prometheusMeterRegistry = prometheusMeterRegistry
+        )
 
-            Tiltaklytter(this, TiltaksRepository(database.dataSource))
-            TiltakManglerAktørIdLytter(this)
+        PresenterteOgFåttJobbenKandidaterLytter(
+            this,
+            LagreUtfallOgStilling(
+                KandidatutfallRepository(database.dataSource),
+                StillingRepository(database.dataSource)
+            ),
+            "RegistrertDeltCv",
+            prometheusMeterRegistry = prometheusMeterRegistry
+        )
+        PresenterteOgFåttJobbenKandidaterLytter(
+            this,
+            LagreUtfallOgStilling(
+                KandidatutfallRepository(database.dataSource),
+                StillingRepository(database.dataSource)
+            ),
+            "RegistrertFåttJobben",
+            prometheusMeterRegistry = prometheusMeterRegistry
+        )
+        SendtTilArbeidsgiverKandidaterLytter(
+            this,
+            LagreUtfallOgStilling(
+                KandidatutfallRepository(database.dataSource),
+                StillingRepository(database.dataSource)
+            ),
+            prometheusMeterRegistry = prometheusMeterRegistry
+        )
+
+        Tiltaklytter(this, TiltaksRepository(database.dataSource))
+        TiltakManglerAktørIdLytter(this)
     }
 
     statistikkjobb.start();

@@ -106,25 +106,12 @@ class LagreStatistikkTest {
     }
 
     @Test
-    fun `en melding om REGISTRER_CV_DELT lagres i databasen`() {
-        val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.REGISTRER_CV_DELT)
-
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).hasSize(1)
-        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.PRESENTERT)
-    }
-
-    @Test
     fun `en melding med slutt_av_hendelseskjede satt til true skal ikke lagres i databasen`() {
         val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.REGISTRER_CV_DELT)
+            kandidathendelseMap(type = Type.FJERN_REGISTRERING_AV_CV_DELT)
 
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding + ("@slutt_av_hendelseskjede" to true))
+        val kandidathendelsesmeldingJson =
+            objectMapper.writeValueAsString(kandidathendelsemelding + ("@slutt_av_hendelseskjede" to true))
 
         rapid.sendTestMessage(kandidathendelsesmeldingJson)
 
@@ -136,7 +123,7 @@ class LagreStatistikkTest {
     @Test
     fun `en kandidathendelsemelding skal populeres med slutt_av_hendelseskjede satt til true`() {
         val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.REGISTRER_CV_DELT)
+            kandidathendelseMap(type = Type.FJERN_REGISTRERING_FÅTT_JOBBEN)
 
         val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
 
@@ -145,34 +132,6 @@ class LagreStatistikkTest {
         assertThat(rapid.inspektør.size).isEqualTo(1)
         val hendelse = rapid.inspektør.message(0)
         assertThat(hendelse["@slutt_av_hendelseskjede"].asBoolean()).isTrue()
-    }
-
-    @Test
-    fun `en melding om CV_DELT_VIA_REKRUTTERINGSBISTAND lagres i databasen`() {
-        val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND)
-
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).hasSize(1)
-        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.PRESENTERT)
-    }
-
-    @Test
-    fun `en melding om REGISTER_FÅTT_JOBBEN lagres i databasen`() {
-        val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.REGISTRER_FÅTT_JOBBEN)
-
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).hasSize(1)
-        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.FATT_JOBBEN)
     }
 
     @Test
@@ -266,7 +225,7 @@ class LagreStatistikkTest {
         assertThat(alleUtfall.first().tidspunkt).isEqualTo(etTidspunkt.toLocalDateTime())
     }
 
-    @Test
+    /*@Test
     fun `Skal ikke lagre duplikat`() {
         val enPresentertMelding =
             kandidathendelseMap(tidspunkt = nowOslo().minusDays(2).toString(), type = Type.REGISTRER_CV_DELT)
@@ -281,7 +240,7 @@ class LagreStatistikkTest {
         val alleUtfall = testRepository.hentUtfall()
         assertThat(alleUtfall).hasSize(2)
         assertThat(alleUtfall.map { it.utfall }).containsExactlyInAnyOrder(Utfall.PRESENTERT, Utfall.FATT_JOBBEN)
-    }
+    }*/
 
     @Test
     fun `en kandidathendelsemelding skal ikke lagres som kandidatutfall når samme utfall allerede er lagret`() {
@@ -309,18 +268,23 @@ class LagreStatistikkTest {
     @Test
     fun `en kandidathendelsemelding med stillingsinfo skal lagres i stilling-tabellen`() {
         val stillingsUUID = UUID.randomUUID()
-        val kandidathendelsemelding = kandidathendelseMap(tidspunkt = "2022-08-19T11:00:01+02:00", stillingsId = stillingsUUID.toString())
+        val kandidathendelsemelding =
+            kandidathendelseMap(tidspunkt = "2022-08-19T11:00:01+02:00", stillingsId = stillingsUUID.toString())
         val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
 
         rapid.sendTestMessage(kandidathendelsesmeldingJson)
 
-        assertThat(StillingRepository(database.dataSource).hentStilling(stillingsUUID)?.stillingskategori).isEqualTo(Stillingskategori.JOBBMESSE)
+        assertThat(StillingRepository(database.dataSource).hentStilling(stillingsUUID)?.stillingskategori).isEqualTo(
+            Stillingskategori.JOBBMESSE
+        )
     }
 
     @Test
     fun `to kandidathendelsemelding med samme stillingsid i stillingsinfo skal lagres en gang i stilling-tabellen`() {
-        val kandidathendelsemelding = kandidathendelseMap(aktørId = "en aktørid", tidspunkt = "2022-08-19T11:00:01+02:00")
-        val kandidathendelsemelding2 = kandidathendelseMap(aktørId = "en annen aktørid", tidspunkt = "2022-08-19T11:00:01+02:00")
+        val kandidathendelsemelding =
+            kandidathendelseMap(aktørId = "en aktørid", tidspunkt = "2022-08-19T11:00:01+02:00")
+        val kandidathendelsemelding2 =
+            kandidathendelseMap(aktørId = "en annen aktørid", tidspunkt = "2022-08-19T11:00:01+02:00")
         val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
         val kandidathendelsesmeldingJson2 = objectMapper.writeValueAsString(kandidathendelsemelding2)
 
@@ -343,7 +307,7 @@ class LagreStatistikkTest {
 
     fun kandidathendelseMap(
         tidspunkt: String = "2022-09-18T10:33:02.5+02:00",
-        type: Type = Type.CV_DELT_VIA_REKRUTTERINGSBISTAND,
+        type: Type = Type.ANNULLERT,
         stillingsId: String? = "b3c925af-ebf4-50d1-aeee-efc9259107a4",
         alder: Int? = 62,
         hullICv: Boolean? = true,
@@ -375,11 +339,4 @@ class LagreStatistikkTest {
                         "stillingskategori" to stillingskategori
                     )
                 )
-
-    fun kandidathendelseMapMedStillingsinfoUnderFeltMedNavnStilling(): MutableMap<String, Any> {
-        val kandidathendelsemelding = kandidathendelseMap().toMutableMap()
-        kandidathendelsemelding["stilling"] = kandidathendelsemelding["stillingsinfo"] as Any
-        kandidathendelsemelding.remove("stillingsinfo")
-        return kandidathendelsemelding
-    }
 }

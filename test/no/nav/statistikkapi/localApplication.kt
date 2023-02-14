@@ -12,8 +12,7 @@ import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.TestDatabase
-import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
-import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.kandidatutfall.*
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
@@ -52,6 +51,33 @@ fun start(
         KandidatutfallRepository(database.dataSource),
         StillingRepository(database.dataSource),
         prometheusMeterRegistry
+    )
+
+    PresenterteOgFåttJobbenKandidaterLytter(
+        rapid,
+        LagreUtfallOgStilling(
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        ),
+        "RegistrertDeltCv",
+        prometheusMeterRegistry = prometheusMeterRegistry
+    )
+    PresenterteOgFåttJobbenKandidaterLytter(
+        rapid,
+        LagreUtfallOgStilling(
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        ),
+        "RegistrertFåttJobben",
+        prometheusMeterRegistry = prometheusMeterRegistry
+    )
+    SendtTilArbeidsgiverKandidaterLytter(
+        rapid,
+        LagreUtfallOgStilling(
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        ),
+        prometheusMeterRegistry = prometheusMeterRegistry
     )
 
     Tiltaklytter(rapid, TiltaksRepository(database.dataSource))

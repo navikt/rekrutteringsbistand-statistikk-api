@@ -56,11 +56,7 @@ class Kandidathendelselytter(
             repo.lagreUtfall(opprettKandidatutfall)
             log.info("Lagrer kandidathendelse som kandidatutfall")
 
-            prometheusMeterRegistry
-                .counter(
-                    "rekrutteringsbistand.statistikk.utfall.lagret",
-                    "utfall", opprettKandidatutfall.utfall.name
-                ).increment()
+            prometheusMeterRegistry.incrementUtfallLagret(opprettKandidatutfall.utfall)
         }
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())
@@ -101,40 +97,22 @@ class Kandidathendelselytter(
                 harHullICv = harHullICv,
                 alder = alder,
                 tilretteleggingsbehov = tilretteleggingsbehov,
-                tidspunktForHendelsen = tidspunkt.toOslo() // Kan ha gamle eventer med tidspunkt i UTC
+                tidspunktForHendelsen = tidspunkt.toOslo(),
+                hovedmål = null,
+                innsatsbehov = null
             )
     }
 
     enum class Type(val eventName: String) {
-        REGISTRER_CV_DELT("registrer-cv-delt"),
-        CV_DELT_VIA_REKRUTTERINGSBISTAND("cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"),
-        REGISTRER_FÅTT_JOBBEN("registrer-fått-jobben"),
         FJERN_REGISTRERING_AV_CV_DELT("fjern-registrering-av-cv-delt"),
         FJERN_REGISTRERING_FÅTT_JOBBEN("fjern-registrering-fått-jobben"),
         ANNULLERT("annullert");
 
         fun toUtfall(): Utfall =
             when (this) {
-                REGISTRER_CV_DELT -> Utfall.PRESENTERT
-                CV_DELT_VIA_REKRUTTERINGSBISTAND -> Utfall.PRESENTERT
-                REGISTRER_FÅTT_JOBBEN -> Utfall.FATT_JOBBEN
                 FJERN_REGISTRERING_AV_CV_DELT -> Utfall.IKKE_PRESENTERT
                 FJERN_REGISTRERING_FÅTT_JOBBEN -> Utfall.PRESENTERT
                 ANNULLERT -> Utfall.IKKE_PRESENTERT
             }
     }
 }
-
-data class OpprettKandidatutfall(
-    val aktørId: String,
-    val utfall: Utfall,
-    val navIdent: String,
-    val navKontor: String,
-    val kandidatlisteId: String,
-    val stillingsId: String,
-    val synligKandidat: Boolean,
-    val harHullICv: Boolean?,
-    val alder: Int?,
-    val tilretteleggingsbehov: List<String>,
-    val tidspunktForHendelsen: ZonedDateTime,
-)
