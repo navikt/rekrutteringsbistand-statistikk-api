@@ -94,6 +94,11 @@ fun startApp(
                 StillingRepository(database.dataSource)
             )
         )
+        Kandidathendelselytter(
+            this,
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        )
         Tiltaklytter(this, TiltaksRepository(database.dataSource))
         TiltakManglerAktørIdLytter(this)
         start()

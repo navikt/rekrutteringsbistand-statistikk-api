@@ -69,6 +69,12 @@ fun start(
         )
     )
 
+    Kandidathendelselytter(
+        rapid,
+        KandidatutfallRepository(database.dataSource),
+        StillingRepository(database.dataSource)
+    )
+
 
     val ktorServer = embeddedServer(CIO, port = port) {}
     val ktorApplication = ktorServer.application

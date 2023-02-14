@@ -15,7 +15,7 @@ import org.junit.Test
 import java.time.ZonedDateTime
 import java.util.*
 
-class RegistrertDeltCvTest {
+class PresenterteOgFåttJobbenKandidaterLytterTest {
 
     companion object {
         private val database = TestDatabase()
