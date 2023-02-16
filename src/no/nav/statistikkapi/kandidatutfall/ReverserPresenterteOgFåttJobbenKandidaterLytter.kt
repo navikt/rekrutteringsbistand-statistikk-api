@@ -46,7 +46,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         val stillingsId = packet["stillingsId"].asTextNullable()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
-        val utfall = Utfall.IKKE_PRESENTERT
+        val utfall = if (eventNamePostfix == "FjernetRegistreringDeltCv") Utfall.IKKE_PRESENTERT else Utfall.PRESENTERT
 
         secureLog.info(
             """
@@ -67,11 +67,11 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         }
         val utfallFraDb = utfallRepository.hentSisteUtfallForKandidatIKandidatliste(aktørId, kandidatlisteId)
 
-        if(utfallFraDb == null) {
+        if (utfallFraDb == null) {
             log.warn("Finner ikke utfallrad i databasen for event: $eventNamePostfix")
             return
         }
-        if( !erForventetUtfall(eventNamePostfix, utfall)) {
+        if (!erForventetUtfall(eventNamePostfix, utfall)) {
             log.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}")
             return
         }
@@ -83,7 +83,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             navKontor = utførtAvNavKontorKode,
             kandidatlisteId = kandidatlisteId,
             stillingsId = utfallFraDb.stillingsId.toString(),
-            synligKandidat = utfallFraDb.synligKandidat?:false,
+            synligKandidat = utfallFraDb.synligKandidat ?: false,
             harHullICv = utfallFraDb.hullICv,
             alder = utfallFraDb.alder,
             tilretteleggingsbehov = utfallFraDb.tilretteleggingsbehov,
@@ -102,8 +102,9 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         context.publish(packet.toJson())
     }
 
-    private fun erForventetUtfall(eventNamePostfix: String, utfall: Utfall) = (eventNamePostfix == "FjernetRegistreringDeltCv" && utfall == Utfall.PRESENTERT ) ||
-            (eventNamePostfix == "FjernetRegistreringFåttJobben" && utfall == Utfall.FATT_JOBBEN )
+    private fun erForventetUtfall(eventNamePostfix: String, utfall: Utfall) =
+        (eventNamePostfix == "FjernetRegistreringDeltCv" && utfall == Utfall.PRESENTERT) ||
+                (eventNamePostfix == "FjernetRegistreringFåttJobben" && utfall == Utfall.FATT_JOBBEN)
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error("Feil ved lesing av melding\n$problems")
