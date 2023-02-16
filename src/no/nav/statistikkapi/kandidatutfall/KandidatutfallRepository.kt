@@ -82,7 +82,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             it.prepareStatement(
                 """
-                select utfall from $kandidatutfallTabell 
+                select * from $kandidatutfallTabell 
                 where $aktorid = ?
                     and $kandidatlisteid = ?
                     ORDER BY $dbId DESC limit 1
