@@ -19,7 +19,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             it.prepareStatement(
                 """INSERT INTO $kandidatutfallTabell (
-                               $aktørId,
+                               $aktorid,
                                $utfall,
                                $navident,
                                $navkontor,
@@ -60,7 +60,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             it.prepareStatement(
                 """
                 select 1 from $kandidatutfallTabell 
-                where $aktørId = ?
+                where $aktorid = ?
                     and $kandidatlisteid = ?
                     and $utfall = ?
                     and $tidspunkt = ?
@@ -78,26 +78,28 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentSisteUtfallForKandidatIKandidatliste(kandidatutfall: OpprettKandidatutfall): Utfall? {
+    fun hentSisteUtfallForKandidatIKandidatliste(aktørId: String, kandidatlisteId: String): Kandidatutfall? {
         dataSource.connection.use {
             it.prepareStatement(
                 """
                 select utfall from $kandidatutfallTabell 
-                where $aktørId = ?
+                where $aktorid = ?
                     and $kandidatlisteid = ?
                     ORDER BY $dbId DESC limit 1
             """.trimIndent()
             ).apply {
-                setString(1, kandidatutfall.aktørId)
-                setString(2, kandidatutfall.kandidatlisteId)
+                setString(1, aktørId)
+                setString(2, kandidatlisteId)
                 val resultSet = executeQuery()
-
-                return if (resultSet.next()) Utfall.valueOf(resultSet.getString("utfall"))
-                else null
+                return if (resultSet.next()) konverterTilKandidatutfall(resultSet)
+                    else null
             }
 
         }
     }
+
+    fun hentSisteUtfallForKandidatIKandidatliste(kandidatutfall: OpprettKandidatutfall): Utfall? =
+        hentSisteUtfallForKandidatIKandidatliste(kandidatutfall.aktørId, kandidatutfall.kandidatlisteId)?.utfall
 
     fun registrerSendtForsøk(utfall: Kandidatutfall) {
         dataSource.connection.use {
@@ -146,10 +148,10 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
-                    SELECT DISTINCT k1.$aktørId, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
+                    SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
                         (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
                             WHERE k2.$tidspunkt BETWEEN ? AND ?
-                            GROUP BY $aktørId, $kandidatlisteid
+                            GROUP BY $aktorid, $kandidatlisteid
                         ) as k2
                      WHERE k1.$navkontor = ? 
                       AND k1.$tidspunkt = k2.maksTidspunkt
@@ -175,7 +177,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
-                    SELECT DISTINCT $aktørId, $kandidatlisteid FROM $kandidatutfallTabell
+                    SELECT DISTINCT $aktorid, $kandidatlisteid FROM $kandidatutfallTabell
                       WHERE ($utfall = '${FATT_JOBBEN.name}' OR $utfall = '${PRESENTERT.name}')
                 ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
@@ -194,7 +196,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
-                    SELECT DISTINCT $aktørId, $kandidatlisteid FROM $kandidatutfallTabell
+                    SELECT DISTINCT $aktorid, $kandidatlisteid FROM $kandidatutfallTabell
                       WHERE ($utfall = '${FATT_JOBBEN.name}')
                 ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
@@ -216,7 +218,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 
                   (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktørId, $kandidatlisteid) as k2
+                     GROUP BY $aktorid, $kandidatlisteid) as k2
                      
                 WHERE k1.$navkontor = ?
                   AND k1.$tidspunkt = k2.maksTidspunkt
@@ -230,7 +232,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
 
             return generateSequence {
                 if (!resultSet.next()) null
-                else resultSet.getString(aktørId)
+                else resultSet.getString(aktorid)
             }.toList()
 
         }
@@ -262,7 +264,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                         SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov, $synligKandidat FROM $kandidatutfallTabell k1,
                             (SELECT MIN($dbId) as $dbId from $kandidatutfallTabell k2
                             WHERE k2.$tidspunkt >= ?
-                            GROUP BY $aktørId, $kandidatlisteid) as k2
+                            GROUP BY $aktorid, $kandidatlisteid) as k2
 
                         WHERE k1.$dbId = k2.$dbId
                         AND k1.$utfall = '${FATT_JOBBEN.name}'
@@ -272,7 +274,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                             (
                                 SELECT MAX($dbId) as maksId from $kandidatutfallTabell k2
                                 WHERE k2.$utfall = '${PRESENTERT}'
-                                GROUP BY $aktørId, $kandidatlisteid
+                                GROUP BY $aktorid, $kandidatlisteid
                             ) k2
                         WHERE $tidspunkt >= ?
                         AND $dbId = k2.maksId
@@ -301,17 +303,17 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$tidspunkt, telleliste.$tilretteleggingsbehov, telleliste.$synligKandidat FROM $kandidatutfallTabell telleliste,
                   (SELECT MIN($dbId) as minId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon,
                     (SELECT MAX($dbId) as maksId, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
-                      (SELECT senesteUtfallITidsromOgFåttJobben.$aktørId, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
+                      (SELECT senesteUtfallITidsromOgFåttJobben.$aktorid, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
                           (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
                           WHERE senesteUtfallITidsrom.$tidspunkt >= ?
-                          GROUP BY senesteUtfallITidsrom.$aktørId, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
+                          GROUP BY senesteUtfallITidsrom.$aktorid, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
                       WHERE senesteUtfallITidsromOgFåttJobben.$dbId = senesteUtfallITidsrom.maksId
                       AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben                  
-                    WHERE tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId = senesteUtfallITidsromOgFåttJobben.$aktørId
+                    WHERE tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktorid = senesteUtfallITidsromOgFåttJobben.$aktorid
                     AND tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid = senesteUtfallITidsromOgFåttJobben.$kandidatlisteid
-                    GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktørId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$utfall, senesteUtfallITidsromOgFåttJobben.$tidspunkt) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
+                    GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktorid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$utfall, senesteUtfallITidsromOgFåttJobben.$tidspunkt) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
                   WHERE tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$dbId = tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.maksId
-                  GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$aktørId, tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$kandidatlisteid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt) as tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon
+                  GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$aktorid, tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$kandidatlisteid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt) as tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon
                 WHERE  telleliste.$dbId = tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.minId
             """
             ).apply {
@@ -329,7 +331,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     companion object {
         const val dbId = "id"
         const val kandidatutfallTabell = "kandidatutfall"
-        const val aktørId = "aktorid"
+        const val aktorid = "aktorid"
         const val fnr = "fnr"
         const val utfall = "utfall"
         const val navident = "navident"
@@ -352,7 +354,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
             Kandidatutfall(
                 dbId = resultSet.getLong(dbId),
-                aktorId = resultSet.getString(aktørId),
+                aktorId = resultSet.getString(aktorid),
                 utfall = Utfall.valueOf(resultSet.getString(utfall)),
                 navIdent = resultSet.getString(navident),
                 navKontor = resultSet.getString(navkontor),
