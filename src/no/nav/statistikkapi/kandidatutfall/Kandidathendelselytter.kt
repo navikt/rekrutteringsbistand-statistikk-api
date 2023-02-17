@@ -104,14 +104,10 @@ class Kandidathendelselytter(
     }
 
     enum class Type(val eventName: String) {
-        FJERN_REGISTRERING_AV_CV_DELT("fjern-registrering-av-cv-delt"),
-        FJERN_REGISTRERING_FÅTT_JOBBEN("fjern-registrering-fått-jobben"),
         ANNULLERT("annullert");
 
         fun toUtfall(): Utfall =
             when (this) {
-                FJERN_REGISTRERING_AV_CV_DELT -> Utfall.IKKE_PRESENTERT
-                FJERN_REGISTRERING_FÅTT_JOBBEN -> Utfall.PRESENTERT
                 ANNULLERT -> Utfall.IKKE_PRESENTERT
             }
     }

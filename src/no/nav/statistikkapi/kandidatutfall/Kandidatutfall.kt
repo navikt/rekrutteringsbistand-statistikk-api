@@ -35,6 +35,7 @@ enum class Utfall {
             when (eventNamePostfix) {
                 "RegistrertDeltCv" -> PRESENTERT
                 "RegistrertFåttJobben" -> FATT_JOBBEN
+
                 else -> throw Exception("Uventet event $eventNamePostfix for lytter")
             }
     }

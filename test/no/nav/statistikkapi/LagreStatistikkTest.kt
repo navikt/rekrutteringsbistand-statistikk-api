@@ -106,63 +106,6 @@ class LagreStatistikkTest {
     }
 
     @Test
-    fun `en melding med slutt_av_hendelseskjede satt til true skal ikke lagres i databasen`() {
-        val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.FJERN_REGISTRERING_AV_CV_DELT)
-
-        val kandidathendelsesmeldingJson =
-            objectMapper.writeValueAsString(kandidathendelsemelding + ("@slutt_av_hendelseskjede" to true))
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).hasSize(0)
-        assertThat(rapid.inspektør.size).isZero()
-    }
-
-    @Test
-    fun `en kandidathendelsemelding skal populeres med slutt_av_hendelseskjede satt til true`() {
-        val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.FJERN_REGISTRERING_FÅTT_JOBBEN)
-
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        assertThat(rapid.inspektør.size).isEqualTo(1)
-        val hendelse = rapid.inspektør.message(0)
-        assertThat(hendelse["@slutt_av_hendelseskjede"].asBoolean()).isTrue()
-    }
-
-    @Test
-    fun `en melding om FJERN_REGISTRERING_AV_CV_DELT lagres i databasen`() {
-        val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.FJERN_REGISTRERING_AV_CV_DELT)
-
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).hasSize(1)
-        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.IKKE_PRESENTERT)
-    }
-
-    @Test
-    fun `en melding om FJERN_REGISTRERING_FÅTT_JOBBEN lagres i databasen`() {
-        val kandidathendelsemelding =
-            kandidathendelseMap(type = Type.FJERN_REGISTRERING_FÅTT_JOBBEN)
-
-        val kandidathendelsesmeldingJson = objectMapper.writeValueAsString(kandidathendelsemelding)
-
-        rapid.sendTestMessage(kandidathendelsesmeldingJson)
-
-        val alleUtfall = testRepository.hentUtfall()
-        assertThat(alleUtfall).hasSize(1)
-        assertThat(alleUtfall.first().utfall).isEqualTo(Utfall.PRESENTERT)
-    }
-
-    @Test
     fun `en melding om ANNULERT lagres i databasen`() {
         val kandidathendelsemelding =
             kandidathendelseMap(type = Type.ANNULLERT)
