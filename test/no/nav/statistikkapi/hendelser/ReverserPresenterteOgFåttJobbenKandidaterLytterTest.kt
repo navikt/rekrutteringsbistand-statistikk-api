@@ -122,7 +122,7 @@ private val fjernetRegistreringDeltCvMelding = """
       "stillingsId": "b5919e46-9882-4b3c-8089-53ad02f26023",
       "utførtAvNavIdent": "Z994633",
       "utførtAvNavKontorKode": "0313",
-      "@event_name": "kandidat_v2.FjernetRegistreringFåttJobben"
+      "@event_name": "kandidat_v2.FjernetRegistreringDeltCv"
     }
 """.trimIndent()
 

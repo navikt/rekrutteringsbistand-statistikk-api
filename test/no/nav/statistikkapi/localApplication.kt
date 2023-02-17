@@ -71,6 +71,26 @@ fun start(
         "RegistrertFåttJobben",
         prometheusMeterRegistry = prometheusMeterRegistry
     )
+    ReverserPresenterteOgFåttJobbenKandidaterLytter(
+        rapid,
+        LagreUtfallOgStilling(
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        ),
+        utfallRepository = KandidatutfallRepository(database.dataSource),
+        "FjernetRegistreringDeltCv",
+        prometheusMeterRegistry = prometheusMeterRegistry
+    )
+    ReverserPresenterteOgFåttJobbenKandidaterLytter(
+        rapid,
+        LagreUtfallOgStilling(
+            KandidatutfallRepository(database.dataSource),
+            StillingRepository(database.dataSource)
+        ),
+        utfallRepository = KandidatutfallRepository(database.dataSource),
+        "FjernetRegistreringFåttJobben",
+        prometheusMeterRegistry = prometheusMeterRegistry
+    )
     SendtTilArbeidsgiverKandidaterLytter(
         rapid,
         LagreUtfallOgStilling(
