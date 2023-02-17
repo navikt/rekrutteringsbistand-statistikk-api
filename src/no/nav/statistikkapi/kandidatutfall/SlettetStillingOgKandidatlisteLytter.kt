@@ -45,14 +45,33 @@ class SlettetStillingOgKandidatlisteLytter(
             """.trimIndent()
         )
 
-        val sisteUtfallForAlleKandidater: List<Kandidatutfall> = repository.hentSisteUtfallTilAlleKandidater(kandidatlisteId)
-        sisteUtfallForAlleKandidater.forEach {
-            val nyttUtfall = it.copy(utfall = Utfall.IKKE_PRESENTERT, tidspunkt = tidspunkt.toLocalDateTime(), navIdent = utførtAvNavIdent, navKontor = "")
-            repository.lagreUtfall(nyttUtfall) // TODO: Opprett, ikke bare kopier det som er hentet fra db
+        if(kandidatlisteId==null) {
+            log.info("lagrer ikke utfall pga at kandidatlisteid er null")
+            return
         }
 
-        // TODO: Gjøre i foreach
-        //prometheusMeterRegistry.incrementUtfallLagret(opprettKandidatutfall.utfall)
+        val sisteUtfallForAlleKandidater: List<Kandidatutfall> = repository.hentSisteUtfallTilAlleKandidater(kandidatlisteId)
+        sisteUtfallForAlleKandidater.forEach {
+            if(it.utfall == Utfall.PRESENTERT || it.utfall == Utfall.FATT_JOBBEN) {
+                val nyttUtfall =  OpprettKandidatutfall(
+                    utfall = Utfall.IKKE_PRESENTERT,
+                    aktørId = it.aktorId,
+                    navIdent = utførtAvNavIdent,
+                    navKontor = "",
+                    kandidatlisteId = it.kandidatlisteId.toString(),
+                    stillingsId = it.stillingsId.toString(),
+                    synligKandidat = it.synligKandidat?:false,
+                    harHullICv = null,
+                    innsatsbehov = null,
+                    hovedmål = null,
+                    alder = null,
+                    tilretteleggingsbehov = emptyList(),
+                    tidspunktForHendelsen = tidspunkt
+                )
+                repository.lagreUtfall(nyttUtfall)
+                prometheusMeterRegistry.incrementUtfallLagret(Utfall.IKKE_PRESENTERT)
+            }
+        }
 
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())
