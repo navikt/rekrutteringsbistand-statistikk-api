@@ -329,21 +329,19 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
     fun hentSisteUtfallTilAlleKandidater(kandidatlisteIdVerdi: String): List<Kandidatutfall> {
-        val resultSet =
-            dataSource.connection.prepareStatement("SELECT * FROM $kandidatutfallTabell WHERE $kandidatlisteid = ? ORDER BY $dbId ASC")
-                .apply {
-                    setString(1, kandidatlisteIdVerdi)
-                }.executeQuery()
+        dataSource.connection.use {
+            val resultSet =
+                it.prepareStatement("SELECT * FROM $kandidatutfallTabell WHERE $kandidatlisteid = ? ORDER BY $dbId DESC")
+                    .apply {
+                        setString(1, kandidatlisteIdVerdi)
+                    }
+                .executeQuery()
 
-        return generateSequence {
-            if (resultSet.next()) konverterTilKandidatutfall(resultSet)
-            else null
-        }.toList()
-            .map { aktorid }
-            .distinct()
-            .mapNotNull {
-                hentSisteUtfallForKandidatIKandidatliste(aktorid, kandidatlisteIdVerdi)
-            }
+            return generateSequence {
+                if (resultSet.next()) konverterTilKandidatutfall(resultSet)
+                else null
+            }.toList()
+        }
     }
 
     companion object {

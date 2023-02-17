@@ -1,12 +1,9 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import com.fasterxml.jackson.databind.JsonNode
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.secureLog
-import no.nav.statistikkapi.stillinger.Stillingskategori
-import no.nav.statistikkapi.toOslo
 import java.time.ZonedDateTime
 
 class SlettetStillingOgKandidatlisteLytter(
@@ -19,7 +16,7 @@ class SlettetStillingOgKandidatlisteLytter(
         River(rapidsConnection).apply {
             validate {
                 it.rejectValue("@slutt_av_hendelseskjede", true)
-                it.requireKey("stillingsinfo")
+                it.rejectKey("stillingsinfo")
                 it.demandValue("@event_name", "kandidat_v2.SlettetStillingOgKandidatliste")
 
                 it.requireKey(
@@ -51,6 +48,7 @@ class SlettetStillingOgKandidatlisteLytter(
         }
 
         val sisteUtfallForAlleKandidater: List<Kandidatutfall> = repository.hentSisteUtfallTilAlleKandidater(kandidatlisteId)
+
         sisteUtfallForAlleKandidater.forEach {
             if(it.utfall == Utfall.PRESENTERT || it.utfall == Utfall.FATT_JOBBEN) {
                 val nyttUtfall =  OpprettKandidatutfall(
@@ -59,7 +57,7 @@ class SlettetStillingOgKandidatlisteLytter(
                     navIdent = utførtAvNavIdent,
                     navKontor = "",
                     kandidatlisteId = it.kandidatlisteId.toString(),
-                    stillingsId = it.stillingsId.toString(),
+                    stillingsId = it.stillingsId?.toString(),
                     synligKandidat = it.synligKandidat?:false,
                     harHullICv = null,
                     innsatsbehov = null,
@@ -77,13 +75,7 @@ class SlettetStillingOgKandidatlisteLytter(
         context.publish(packet.toJson())
     }
 
-
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error("Feil ved lesing av melding\n$problems")
     }
-
-    override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {
-        super.onSevere(error, context)
-    }
-
 }
