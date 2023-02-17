@@ -137,6 +137,11 @@ fun startApp(
             ),
             prometheusMeterRegistry = prometheusMeterRegistry
         )
+        SlettetStillingOgKandidatlisteLytter(
+            rapidsConnection = this,
+            repository =  KandidatutfallRepository(database.dataSource),
+            prometheusMeterRegistry = prometheusMeterRegistry
+        )
 
         Tiltaklytter(this, TiltaksRepository(database.dataSource))
         TiltakManglerAktørIdLytter(this)
