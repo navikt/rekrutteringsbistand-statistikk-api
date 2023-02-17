@@ -71,7 +71,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             log.warn("Finner ikke utfallrad i databasen for event: $eventNamePostfix")
             return
         }
-        if (!erForventetUtfall(eventNamePostfix, utfall)) {
+        if (!erForventetUtfall(eventNamePostfix, utfallFraDb.utfall)) {
             log.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}")
             return
         }
