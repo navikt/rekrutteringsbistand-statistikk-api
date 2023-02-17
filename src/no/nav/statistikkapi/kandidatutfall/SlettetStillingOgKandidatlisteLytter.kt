@@ -82,4 +82,8 @@ class SlettetStillingOgKandidatlisteLytter(
         log.error("Feil ved lesing av melding\n$problems")
     }
 
+    override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {
+        super.onSevere(error, context)
+    }
+
 }
