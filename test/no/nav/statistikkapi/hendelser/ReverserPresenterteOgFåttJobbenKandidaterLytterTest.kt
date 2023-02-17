@@ -3,13 +3,12 @@ package no.nav.statistikkapi.hendelser
 import assertk.assertThat
 import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.etKandidatutfall
+import no.nav.statistikkapi.kandidatutfall.Kandidathendelselytter
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall
-import no.nav.statistikkapi.randomPort
-import no.nav.statistikkapi.start
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
