@@ -71,7 +71,7 @@ class SlettetStillingOgKandidatlisteLytterTest {
     }
 
     @Test
-    fun `Skal ikke lagre nytt utfall hvis siste utfall for en kandidat er IKKE_PRESENTERT`() {
+    fun `Skal ikke lagre nytt utfall hvis siste utfall for en kandidat som er IKKE_PRESENTERT`() {
         val utfallPresentert = etKandidatutfall.copy(utfall = PRESENTERT, aktørId = aktørId1)
         val utfallIkkePresentert = utfallPresentert.copy(utfall = Utfall.IKKE_PRESENTERT, aktørId = aktørId2)
         repository.lagreUtfall(utfallPresentert)
