@@ -1,16 +1,17 @@
 package no.nav.statistikkapi.db
 
 import no.nav.statistikkapi.atOslo
+import no.nav.statistikkapi.kandidatlisteutfall.Kandidatlisteutfall
+import no.nav.statistikkapi.kandidatlisteutfall.KandidatlisteutfallRepository
+import no.nav.statistikkapi.kandidatlisteutfall.KandidatlisteutfallRepository.Companion.konverterTilKandidatlisteutfall
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
+import no.nav.statistikkapi.kandidatlisteutfall.KandidatlisteutfallRepository.Companion.kandidatlisteutfallTabell
 import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.konverterTilStilling
 import no.nav.statistikkapi.tiltak.TiltaksRepository
-import no.nav.statistikkapi.tiltak.Tiltakstype
-import no.nav.statistikkapi.tiltak.tilTiltakstype
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.sql.DataSource
 
@@ -37,6 +38,24 @@ class TestRepository(private val dataSource: DataSource) {
                 if (resultSet.next()) konverterTilKandidatutfall(resultSet)
                 else null
             }.toList()
+        }
+    }
+
+    fun hentKandidatlisteutfall(): List<Kandidatlisteutfall> {
+        dataSource.connection.use {
+            val resultSet =
+                it.prepareStatement("SELECT * FROM ${kandidatlisteutfallTabell} ORDER BY id ASC")
+                    .executeQuery()
+            return generateSequence {
+                if (resultSet.next()) konverterTilKandidatlisteutfall(resultSet)
+                else null
+            }.toList()
+        }
+    }
+
+    fun slettAlleKandidatlisteutfall() {
+        dataSource.connection.use {
+            it.prepareStatement("delete from ${kandidatlisteutfallTabell}").execute()
         }
     }
 
