@@ -9,6 +9,7 @@ import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall
+import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
 import org.junit.After
 import org.junit.BeforeClass
@@ -102,6 +103,19 @@ class SlettetStillingOgKandidatlisteLytterTest {
         assertThat(nyttUtfall.kandidatlisteId.toString()).isEqualTo(utfallPresentert.kandidatlisteId)
         assertThat(nyttUtfall.aktorId).isEqualTo(utfallPresentert.aktørId)
         assertThat(nyttUtfall.utfall).isEqualTo(Utfall.IKKE_PRESENTERT)
+    }
+
+    @Test
+    fun `Skal bare lagre ett nytt kandidatutfall for kandidat som har blitt presentert, så fått jobben`() {
+        val utfallPresentert = etKandidatutfall.copy(utfall = PRESENTERT, aktørId = aktørId1)
+        val utfallFåttJobben = utfallPresentert.copy(utfall = FATT_JOBBEN)
+        repository.lagreUtfall(utfallPresentert)
+        repository.lagreUtfall(utfallFåttJobben)
+
+        rapid.sendTestMessage(slettetStillingOgKandidatlisteMelding(utfallPresentert.kandidatlisteId))
+
+        val utfallFraDatabase = testRepository.hentUtfall()
+        assertThat(utfallFraDatabase).hasSize(3)
     }
 
     private fun slettetStillingOgKandidatlisteMelding(kandidatlisteId: String) = """

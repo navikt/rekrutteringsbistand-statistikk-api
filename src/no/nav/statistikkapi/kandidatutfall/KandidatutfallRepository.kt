@@ -328,7 +328,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentSisteUtfallTilAlleKandidater(kandidatlisteIdVerdi: String): List<Kandidatutfall> {
+    fun hentAlleUtfallTilhørendeKandidatliste(kandidatlisteIdVerdi: String): List<Kandidatutfall> {
         dataSource.connection.use {
             val resultSet =
                 it.prepareStatement("SELECT * FROM $kandidatutfallTabell WHERE $kandidatlisteid = ? ORDER BY $dbId DESC")

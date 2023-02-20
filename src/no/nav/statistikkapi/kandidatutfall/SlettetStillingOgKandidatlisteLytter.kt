@@ -47,9 +47,11 @@ class SlettetStillingOgKandidatlisteLytter(
             return
         }
 
-        val sisteUtfallForAlleKandidater: List<Kandidatutfall> = repository.hentSisteUtfallTilAlleKandidater(kandidatlisteId)
+        val kandidatutfall: List<Kandidatutfall> = repository.hentAlleUtfallTilhørendeKandidatliste(kandidatlisteId)
+            .groupBy(Kandidatutfall::aktorId)
+            .map { it.value.maxByOrNull(Kandidatutfall::tidspunkt)!! }
 
-        sisteUtfallForAlleKandidater.forEach {
+        kandidatutfall.forEach {
             if(it.utfall == Utfall.PRESENTERT || it.utfall == Utfall.FATT_JOBBEN) {
                 val nyttUtfall =  OpprettKandidatutfall(
                     utfall = Utfall.IKKE_PRESENTERT,
