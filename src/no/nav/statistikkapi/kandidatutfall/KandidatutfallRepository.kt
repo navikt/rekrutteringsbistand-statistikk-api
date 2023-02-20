@@ -92,7 +92,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setString(2, kandidatlisteId)
                 val resultSet = executeQuery()
                 return if (resultSet.next()) konverterTilKandidatutfall(resultSet)
-                    else null
+                else null
             }
 
         }
@@ -325,6 +325,22 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 utfallElementer += resultSet.toUtfallElement()
             }
             return utfallElementer
+        }
+    }
+
+    fun hentAlleUtfallTilhørendeKandidatliste(kandidatlisteIdVerdi: String): List<Kandidatutfall> {
+        dataSource.connection.use {
+            val resultSet =
+                it.prepareStatement("SELECT * FROM $kandidatutfallTabell WHERE $kandidatlisteid = ? ORDER BY $dbId DESC")
+                    .apply {
+                        setString(1, kandidatlisteIdVerdi)
+                    }
+                .executeQuery()
+
+            return generateSequence {
+                if (resultSet.next()) konverterTilKandidatutfall(resultSet)
+                else null
+            }.toList()
         }
     }
 

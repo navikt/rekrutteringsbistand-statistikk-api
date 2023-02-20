@@ -3,16 +3,17 @@ package no.nav.statistikkapi.hendelser
 import assertk.assertThat
 import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall
-import no.nav.statistikkapi.randomPort
-import no.nav.statistikkapi.start
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.*
 
 class SendtTilArbeidsgiverTest {
@@ -38,16 +39,29 @@ class SendtTilArbeidsgiverTest {
 
     @Test
     fun `mottak av kandidatutfall skal være idempotent`() {
-        rapid.sendTestMessage(melding)
-        rapid.sendTestMessage(melding)
+        val tidspunkt = nowOslo()
+        rapid.sendTestMessage(melding(tidspunkt))
+        rapid.sendTestMessage(melding(tidspunkt))
 
         val utfall = testRepository.hentUtfall()
         assertThat(utfall).size().isEqualTo(2)
     }
 
     @Test
+    fun `En melding skal ikke lagres dersom utfall er lik som på siste melding for samme kandidat og kandidatliste`() {
+        val enMelding = melding(nowOslo().minusHours(2))
+        val enLikMeldingMenMedSenereTidspunkt = melding(nowOslo())
+
+        rapid.sendTestMessage(enMelding)
+        assertThat(testRepository.hentUtfall()).hasSize(2)
+
+        rapid.sendTestMessage(enLikMeldingMenMedSenereTidspunkt)
+        assertThat(testRepository.hentUtfall()).hasSize(2)
+    }
+
+    @Test
     fun `Kan opprette kandidatutfall av DelCvMedArbeidsgiver-melding`() {
-        rapid.sendTestMessage(melding)
+        rapid.sendTestMessage(melding())
 
         val utfallFraDb = testRepository.hentUtfall()
         val stillingFraDb = testRepository.hentStilling()
@@ -96,12 +110,12 @@ class SendtTilArbeidsgiverTest {
         assertThat(stillingFraDb[0].stillingskategori).isEqualTo(Stillingskategori.STILLING)
     }
 
-    private val melding = """
+    private fun melding(tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-09T09:45:53.649+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
         {
           "stillingstittel": "En fantastisk stilling",
           "organisasjonsnummer": "312113341",
           "kandidatlisteId": "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
-          "tidspunkt": "2023-02-09T09:45:53.649+01:00",
+          "tidspunkt": "$tidspunkt",
           "stillingsId": "b5919e46-9882-4b3c-8089-53ad02f26023",
           "utførtAvNavIdent": "Z994633",
           "utførtAvNavKontorKode": "0313",

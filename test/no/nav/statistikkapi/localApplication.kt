@@ -46,13 +46,6 @@ fun start(
 
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
-    Kandidathendelselytter(
-        rapid,
-        KandidatutfallRepository(database.dataSource),
-        StillingRepository(database.dataSource),
-        prometheusMeterRegistry
-    )
-
     PresenterteOgFåttJobbenKandidaterLytter(
         rapid,
         LagreUtfallOgStilling(
@@ -97,6 +90,11 @@ fun start(
             KandidatutfallRepository(database.dataSource),
             StillingRepository(database.dataSource)
         ),
+        prometheusMeterRegistry = prometheusMeterRegistry
+    )
+    SlettetStillingOgKandidatlisteLytter(
+        rapidsConnection = rapid,
+        repository =  KandidatutfallRepository(database.dataSource),
         prometheusMeterRegistry = prometheusMeterRegistry
     )
 

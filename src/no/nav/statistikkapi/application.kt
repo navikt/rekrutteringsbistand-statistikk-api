@@ -84,12 +84,6 @@ fun startApp(
             prometheusMeterRegistry = prometheusMeterRegistry
         )
     }.build().apply {
-        Kandidathendelselytter(
-            rapidsConnection = this,
-            repo = kandidatutfallRepository,
-            stillingRepository = stillingRepository,
-            prometheusMeterRegistry = prometheusMeterRegistry
-        )
 
         PresenterteOgFåttJobbenKandidaterLytter(
             this,
@@ -135,6 +129,11 @@ fun startApp(
                 KandidatutfallRepository(database.dataSource),
                 StillingRepository(database.dataSource)
             ),
+            prometheusMeterRegistry = prometheusMeterRegistry
+        )
+        SlettetStillingOgKandidatlisteLytter(
+            rapidsConnection = this,
+            repository =  KandidatutfallRepository(database.dataSource),
             prometheusMeterRegistry = prometheusMeterRegistry
         )
 

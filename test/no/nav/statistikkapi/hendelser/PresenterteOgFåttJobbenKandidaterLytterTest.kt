@@ -6,12 +6,14 @@ import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall
+import no.nav.statistikkapi.nowOslo
 import no.nav.statistikkapi.randomPort
 import no.nav.statistikkapi.start
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -38,16 +40,28 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
 
     @Test
     fun `mottak av kandidatutfall skal være idempotent`() {
-        rapid.sendTestMessage(registrertDeltCvmelding)
-        rapid.sendTestMessage(registrertDeltCvmelding)
+        rapid.sendTestMessage(registrertDeltCvmelding())
+        rapid.sendTestMessage(registrertDeltCvmelding())
 
         val utfall = testRepository.hentUtfall()
         assertThat(utfall).size().isEqualTo(1)
     }
 
     @Test
+    fun `En melding skal ikke lagres dersom utfall er lik som på siste melding for samme kandidat og kandidatliste`() {
+        val enMelding = registrertDeltCvmelding(nowOslo().minusHours(2))
+        val enLikMeldingMenMedSenereTidspunkt = registrertDeltCvmelding(nowOslo())
+
+        rapid.sendTestMessage(enMelding)
+        assertThat(testRepository.hentUtfall()).hasSize(1)
+
+        rapid.sendTestMessage(enLikMeldingMenMedSenereTidspunkt)
+        assertThat(testRepository.hentUtfall()).hasSize(1)
+    }
+
+    @Test
     fun `mottak av kandidatutfall skalregisterers når det utfall endres`() {
-        rapid.sendTestMessage(registrertDeltCvmelding)
+        rapid.sendTestMessage(registrertDeltCvmelding())
         rapid.sendTestMessage(registrertFåttJobbenMelding)
 
         val utfall = testRepository.hentUtfall()
@@ -56,7 +70,7 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
 
     @Test
     fun `Kan opprette kandidatutfall av RegistrertDeltCv-melding`() {
-        rapid.sendTestMessage(registrertDeltCvmelding)
+        rapid.sendTestMessage(registrertDeltCvmelding())
 
         val utfallFraDb = testRepository.hentUtfall()
         val stillingFraDb = testRepository.hentStilling()
@@ -172,12 +186,12 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
     }
 }
 
-private val registrertDeltCvmelding = """
+private fun registrertDeltCvmelding(tidspunkt: ZonedDateTime = ZonedDateTime.parse( "2023-02-13T09:57:34.643+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
         {
           "aktørId": "2133747575903",
           "organisasjonsnummer": "894822082",
           "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
-          "tidspunkt": "2023-02-13T09:57:34.643+01:00",
+          "tidspunkt": "$tidspunkt",
           "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
           "utførtAvNavIdent": "Z990281",
           "utførtAvNavKontorKode": "0314",
