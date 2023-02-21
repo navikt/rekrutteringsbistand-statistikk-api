@@ -1,6 +1,5 @@
 package no.nav.statistikkapi.kandidatliste
 
-import no.nav.statistikkapi.kandidatutfall.SendtStatus
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.util.*
@@ -34,23 +33,39 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun kandidatlisteAlleredeLagret(kandidatliste: OpprettKandidatliste): Boolean {
+    fun kandidatlisteFinnesIDB(kandidatlisteId: String): Boolean {
         dataSource.connection.use {
             it.prepareStatement(
                 """
                     select 1 from $kandidatlisteTabell
-                    where $stillingsid = ?
-                        and $navident = ?
-                        and $kandidatlisteid = ?
-                        and $tidspunkt = ?
+                    where $kandidatlisteId = ?
                 """.trimIndent()
-            ).apply {
-                setString(1, kandidatliste.stillingsId)
-                setString(2, kandidatliste.navIdent)
-                setString(3, kandidatliste.kandidatlisteId)
-                setTimestamp(4, Timestamp.valueOf(kandidatliste.tidspunktForHendelsen.toLocalDateTime()))
+            ). apply {
+                setString(1, kandidatlisteId)
                 val resultSet = executeQuery()
                 return resultSet.next()
+            }
+        }
+    }
+
+    fun oppdaterKandidatliste(kandidatliste: OpprettKandidatliste) {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """
+                    update $kandidatlisteTabell
+                    set $navident = ?
+                        and $tidspunkt = ?
+                        and $antall_stillinger = ?
+                    where $stillingsid = ?
+                        and $kandidatlisteid = ?
+                """.trimIndent()
+            ).apply {
+                setString(1, kandidatliste.navIdent)
+                setTimestamp(2, Timestamp.valueOf(kandidatliste.tidspunktForHendelsen.toLocalDateTime()))
+                setInt(3, kandidatliste.antallStillinger)
+                setString(4, kandidatliste.stillingsId)
+                setString(5, kandidatliste.kandidatlisteId)
+                executeUpdate()
             }
         }
     }

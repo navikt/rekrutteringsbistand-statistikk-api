@@ -70,7 +70,8 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
             navIdent = utførtAvNavIdent
         )
 
-        if (repository.kandidatlisteAlleredeLagret(opprettKandidatliste)) {
+        if (repository.kandidatlisteFinnesIDB(opprettKandidatliste.kandidatlisteId)) {
+            repository.oppdaterKandidatliste(opprettKandidatliste)
             log.info("Lagrer ikke fordi vi har lagret samme kandidatlisteutfall tidligere")
         } else {
             repository.lagreKandidatliste(opprettKandidatliste)
