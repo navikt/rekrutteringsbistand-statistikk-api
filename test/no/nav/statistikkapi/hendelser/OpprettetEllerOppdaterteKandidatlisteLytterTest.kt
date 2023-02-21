@@ -1,6 +1,8 @@
+package no.nav.statistikkapi.hendelser
+
 import assertk.assertThat
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import assertk.assertions.size
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
@@ -35,12 +37,20 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
     }
 
     @Test
+    fun `skal motta melding om kandidatliste og lagre i databasen`() {
+        val tidspunkt = nowOslo()
+        rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
+        val kandidatliste = testRepository.hentKandidatlister()[1]
+        assertThat(kandidatliste).isEqualTo(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
+    }
+
+    @Test
     fun `mottak av kandidatliste skal være idempotent`() {
         val tidspunkt = nowOslo()
         rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
         rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
-        val utfall = testRepository.hentKandidatliste()
-        assertThat(utfall).size().isEqualTo(2)
+        val kandidatliste = testRepository.hentKandidatlister()
+        assertThat(kandidatliste).hasSize(1)
     }
 
     private fun opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-20T12:41:13.303+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """

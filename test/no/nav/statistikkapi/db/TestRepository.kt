@@ -40,7 +40,7 @@ class TestRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentKandidatliste(): List<Kandidatliste> {
+    fun hentKandidatlister(): List<Kandidatliste> {
         dataSource.connection.use {
             val resultSet =
                 it.prepareStatement("SELECT * FROM $kandidatlisteTabell ORDER BY id ASC")
