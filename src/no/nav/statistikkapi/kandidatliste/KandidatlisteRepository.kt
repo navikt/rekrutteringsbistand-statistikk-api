@@ -53,18 +53,16 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             it.prepareStatement(
                 """
                     update $kandidatlisteTabell
-                    set $navident = ?
-                        and $tidspunkt = ?
-                        and $antall_stillinger = ?
-                    where $stillingsid = ?
-                        and $kandidatlisteid = ?
+                    set $navident = ?,
+                        $tidspunkt = ?,
+                        $antall_stillinger = ?
+                    where $kandidatlisteid = ?
                 """.trimIndent()
             ).apply {
                 setString(1, kandidatliste.navIdent)
                 setTimestamp(2, Timestamp.valueOf(kandidatliste.tidspunktForHendelsen.toLocalDateTime()))
                 setInt(3, kandidatliste.antallStillinger)
-                setString(4, kandidatliste.stillingsId)
-                setString(5, kandidatliste.kandidatlisteId)
+                setString(4, kandidatliste.kandidatlisteId)
                 executeUpdate()
             }
         }

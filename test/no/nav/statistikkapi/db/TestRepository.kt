@@ -2,11 +2,11 @@ package no.nav.statistikkapi.db
 
 import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.kandidatliste.Kandidatliste
+import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository.Companion.konverterTilKandidatliste
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
-import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository.Companion.kandidatlisteTabell
 import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.konverterTilStilling
@@ -43,7 +43,7 @@ class TestRepository(private val dataSource: DataSource) {
     fun hentKandidatlister(): List<Kandidatliste> {
         dataSource.connection.use {
             val resultSet =
-                it.prepareStatement("SELECT * FROM $kandidatlisteTabell ORDER BY id ASC")
+                it.prepareStatement("SELECT * FROM ${KandidatlisteRepository.kandidatlisteTabell} ORDER BY id ASC")
                     .executeQuery()
             return generateSequence {
                 if (resultSet.next()) konverterTilKandidatliste(resultSet)
@@ -54,7 +54,7 @@ class TestRepository(private val dataSource: DataSource) {
 
     fun slettAlleKandidatlister() {
         dataSource.connection.use {
-            it.prepareStatement("delete from $kandidatlisteTabell").execute()
+            it.prepareStatement("delete from ${KandidatlisteRepository.kandidatlisteTabell}").execute()
         }
     }
 
