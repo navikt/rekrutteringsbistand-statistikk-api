@@ -68,10 +68,11 @@ fun startApp(
     startDatavarehusScheduler(database, datavarehusKafkaProducer)
 
     val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
+    val kandidatlisteRepository = KandidatlisteRepository(database.dataSource)
     val stillingRepository = StillingRepository(database.dataSource)
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
-    val statistikkjobb = Statistikkjobb(kandidatutfallRepository, prometheusMeterRegistry)
+    val statistikkjobb = Statistikkjobb(kandidatutfallRepository,kandidatlisteRepository, prometheusMeterRegistry)
 
     val rapid = RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(
@@ -139,8 +140,7 @@ fun startApp(
         )
         OpprettetEllerOppdaterteKandidatlisteLytter(
             rapidsConnection = this,
-            repository = KandidatlisteRepository(database.dataSource),
-            prometheusMeterRegistry = prometheusMeterRegistry
+            repository = KandidatlisteRepository(database.dataSource)
         )
 
         Tiltaklytter(this, TiltaksRepository(database.dataSource))

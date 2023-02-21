@@ -1,11 +1,9 @@
 package no.nav.statistikkapi.kandidatliste
 
-import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
-import no.nav.statistikkapi.kandidatutfall.asTextNullable
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.secureLog
@@ -13,8 +11,7 @@ import java.time.ZonedDateTime
 
 class OpprettetEllerOppdaterteKandidatlisteLytter(
     rapidsConnection: RapidsConnection,
-    private val repository: KandidatlisteRepository,
-    private val prometheusMeterRegistry: PrometheusMeterRegistry
+    private val repository: KandidatlisteRepository
 ): River.PacketListener {
     init {
         River(rapidsConnection).apply {
