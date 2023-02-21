@@ -20,17 +20,16 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
         River(rapidsConnection).apply {
             validate {
                 it.rejectValue("@slutt_av_hendelseskjede", true)
-                it.rejectKey("stillingsinfo")
                 it.demandValue("@event_name", "kandidat_v2.OpprettetEllerOppdaterteKandidatliste")
 
                 it.requireKey(
                     "stillingOpprettetTidspunkt",
                     "antallStillinger",
                     "erDirektemeldt",
-                    "stillingsId",
                     "organisasjonsnummer",
                     "kandidatlisteId",
                     "tidspunkt",
+                    "stillingsId",
                     "utførtAvNavIdent",
                 )
             }
@@ -44,7 +43,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
-        val stillingsId = packet["stillingsId"].asTextNullable()
+        val stillingsId = packet["stillingsId"].asText()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
 
         secureLog.info(
