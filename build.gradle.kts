@@ -72,12 +72,19 @@ repositories {
     maven("https://jcenter.bintray.com/")
     maven("https://packages.confluent.io/maven/")
     maven("https://jitpack.io")
+
+    // Fiks poison pill
+    maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
 dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.github.navikt:rapids-and-rivers:2022110411121667556720.8a951a765583")
+
+    /// Fiks poison pill
+//    implementation("com.github.navikt:rapids-and-rivers:2022110411121667556720.8a951a765583")
+    implementation("no.nav.arbeidsgiver.toi:toi-rapids-and-rivers-fork:1.1")
+
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
