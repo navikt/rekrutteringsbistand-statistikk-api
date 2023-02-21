@@ -1,4 +1,4 @@
-package no.nav.statistikkapi.kandidatlisteutfall
+package no.nav.statistikkapi.kandidatliste
 
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.JsonMessage
@@ -7,12 +7,13 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.statistikkapi.kandidatutfall.asTextNullable
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
+import no.nav.statistikkapi.log
 import no.nav.statistikkapi.secureLog
-import no.nav.statistikkapi.stillinger.Stillingskategori
+import java.time.ZonedDateTime
 
 class OpprettetEllerOppdaterteKandidatlisteLytter(
     rapidsConnection: RapidsConnection,
-    private val lagreKandidatlisteutfallOgStilling: LagreKandidatlisteutfallOgStilling,
+    private val repository: KandidatlisteRepository,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
 ): River.PacketListener {
     init {
@@ -62,26 +63,31 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
             """.trimIndent()
         )
 
-        val opprettKandidatlisteutfall = OpprettKandidatlisteutfall(
+        val opprettKandidatliste = OpprettKandidatliste(
             stillingOpprettetTidspunkt = stillingOpprettetTidspunkt,
             antallStillinger = antallStillinger,
             erDirektemeldt = erDirektemeldt,
             kandidatlisteId = kandidatlisteId,
             tidspunktForHendelsen = tidspunkt,
             stillingsId = stillingsId,
-            navIdent = utførtAvNavIdent,
-            utfall = UtfallKandidatliste.OPPRETTET_ELLER_OPPDATERT
+            navIdent = utførtAvNavIdent
         )
 
-        lagreKandidatlisteutfallOgStilling.lagreKandidatlsiteutfallOgStilling(
-            kandidatlisteutfall = opprettKandidatlisteutfall,
-            stillingsId = stillingsId,
-            stillingskategori = Stillingskategori.fraNavn(stillingskategori)
-        )
-
-        prometheusMeterRegistry.counter(
-            "rekrutteringsbistand.statistikk.kandidatlisteutfall.lagret",
-            "utfall", opprettKandidatlisteutfall.utfall.name
-        ).increment()
+        if (repository.kandidatlisteAlleredeLagret(opprettKandidatliste)) {
+            log.info("Lagrer ikke fordi vi har lagret samme kandidatlisteutfall tidligere")
+        } else {
+            repository.lagreKandidatliste(opprettKandidatliste)
+            log.info("Lagrer kandidatlistehendelse som kandidatlisteutfall")
+        }
     }
 }
+
+data class OpprettKandidatliste(
+    val stillingOpprettetTidspunkt: ZonedDateTime,
+    val antallStillinger: Int,
+    val erDirektemeldt: Boolean,
+    val kandidatlisteId: String,
+    val tidspunktForHendelsen: ZonedDateTime,
+    val stillingsId: String,
+    val navIdent: String
+)

@@ -1,5 +1,4 @@
 import assertk.assertThat
-import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.size
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
@@ -30,30 +29,18 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
 
     @After
     fun afterEach() {
-        testRepository.slettAlleKandidatlisteutfall()
+        testRepository.slettAlleKandidatlister()
         testRepository.slettAlleStillinger()
         rapid.reset()
     }
 
     @Test
-    fun `mottak av kandidatlisteutfall skal være idempotent`() {
+    fun `mottak av kandidatliste skal være idempotent`() {
         val tidspunkt = nowOslo()
         rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
         rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
-        val utfall = testRepository.hentKandidatlisteutfall()
+        val utfall = testRepository.hentKandidatliste()
         assertThat(utfall).size().isEqualTo(2)
-    }
-
-    @Test
-    fun `En melding skal ikke lagres dersom utfall er lik som på siste melding for samme kandidatliste`() {
-        val enMelding = opprettetEllerOppdaterteKandidatlisteMelding(nowOslo().minusHours(2))
-        val enLikMeldingMenMedSenereTidspunkt = opprettetEllerOppdaterteKandidatlisteMelding(nowOslo())
-
-        rapid.sendTestMessage(enMelding)
-        assertThat(testRepository.hentUtfall()).hasSize(2)
-
-        rapid.sendTestMessage(enLikMeldingMenMedSenereTidspunkt)
-        assertThat(testRepository.hentUtfall()).hasSize(2)
     }
 
     private fun opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-20T12:41:13.303+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """

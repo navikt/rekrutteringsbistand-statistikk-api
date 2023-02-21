@@ -1,13 +1,12 @@
 package no.nav.statistikkapi.db
 
 import no.nav.statistikkapi.atOslo
-import no.nav.statistikkapi.kandidatlisteutfall.Kandidatlisteutfall
-import no.nav.statistikkapi.kandidatlisteutfall.KandidatlisteutfallRepository
-import no.nav.statistikkapi.kandidatlisteutfall.KandidatlisteutfallRepository.Companion.konverterTilKandidatlisteutfall
+import no.nav.statistikkapi.kandidatliste.Kandidatliste
+import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository.Companion.konverterTilKandidatliste
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
-import no.nav.statistikkapi.kandidatlisteutfall.KandidatlisteutfallRepository.Companion.kandidatlisteutfallTabell
+import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository.Companion.kandidatlisteTabell
 import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.konverterTilStilling
@@ -41,21 +40,21 @@ class TestRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentKandidatlisteutfall(): List<Kandidatlisteutfall> {
+    fun hentKandidatliste(): List<Kandidatliste> {
         dataSource.connection.use {
             val resultSet =
-                it.prepareStatement("SELECT * FROM ${kandidatlisteutfallTabell} ORDER BY id ASC")
+                it.prepareStatement("SELECT * FROM $kandidatlisteTabell ORDER BY id ASC")
                     .executeQuery()
             return generateSequence {
-                if (resultSet.next()) konverterTilKandidatlisteutfall(resultSet)
+                if (resultSet.next()) konverterTilKandidatliste(resultSet)
                 else null
             }.toList()
         }
     }
 
-    fun slettAlleKandidatlisteutfall() {
+    fun slettAlleKandidatlister() {
         dataSource.connection.use {
-            it.prepareStatement("delete from ${kandidatlisteutfallTabell}").execute()
+            it.prepareStatement("delete from $kandidatlisteTabell").execute()
         }
     }
 

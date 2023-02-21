@@ -1,7 +1,6 @@
-CREATE TABLE kandidatlisteutfall (
+CREATE TABLE kandidatliste (
     id SERIAL PRIMARY KEY,
     stillingsid TEXT,
-    utfall TEXT,
     navident TEXT,
     kandidatlisteid TEXT,
     tidspunkt timestamp,

@@ -22,9 +22,8 @@ import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.*
-import no.nav.statistikkapi.kandidatlisteutfall.KandidatlisteutfallRepository
-import no.nav.statistikkapi.kandidatlisteutfall.LagreKandidatlisteutfallOgStilling
-import no.nav.statistikkapi.kandidatlisteutfall.OpprettetEllerOppdaterteKandidatlisteLytter
+import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
+import no.nav.statistikkapi.kandidatliste.OpprettetEllerOppdaterteKandidatlisteLytter
 import no.nav.statistikkapi.kandidatutfall.*
 import no.nav.statistikkapi.statistikkjobb.Statistikkjobb
 import no.nav.statistikkapi.stillinger.StillingRepository
@@ -140,10 +139,7 @@ fun startApp(
         )
         OpprettetEllerOppdaterteKandidatlisteLytter(
             rapidsConnection = this,
-            LagreKandidatlisteutfallOgStilling(
-                KandidatlisteutfallRepository(database.dataSource),
-                StillingRepository(database.dataSource)
-            ),
+            repository = KandidatlisteRepository(database.dataSource),
             prometheusMeterRegistry = prometheusMeterRegistry
         )
 

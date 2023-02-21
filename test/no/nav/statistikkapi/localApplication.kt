@@ -12,9 +12,9 @@ import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.TestDatabase
-import no.nav.statistikkapi.kandidatlisteutfall.KandidatlisteutfallRepository
-import no.nav.statistikkapi.kandidatlisteutfall.LagreKandidatlisteutfallOgStilling
-import no.nav.statistikkapi.kandidatlisteutfall.OpprettetEllerOppdaterteKandidatlisteLytter
+import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
+import no.nav.statistikkapi.kandidatliste.LagreKandidatliste
+import no.nav.statistikkapi.kandidatliste.OpprettetEllerOppdaterteKandidatlisteLytter
 import no.nav.statistikkapi.kandidatutfall.*
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
@@ -102,10 +102,7 @@ fun start(
     )
     OpprettetEllerOppdaterteKandidatlisteLytter(
         rapidsConnection = rapid,
-        LagreKandidatlisteutfallOgStilling(
-            KandidatlisteutfallRepository(database.dataSource),
-            StillingRepository(database.dataSource)
-        ),
+        repository = KandidatlisteRepository(database.dataSource),
         prometheusMeterRegistry = prometheusMeterRegistry
     )
 
