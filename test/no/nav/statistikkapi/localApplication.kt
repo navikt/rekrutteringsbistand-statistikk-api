@@ -13,7 +13,6 @@ import no.nav.security.token.support.v2.TokenSupportConfig
 import no.nav.security.token.support.v2.tokenValidationSupport
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
-import no.nav.statistikkapi.kandidatliste.LagreKandidatliste
 import no.nav.statistikkapi.kandidatliste.OpprettetEllerOppdaterteKandidatlisteLytter
 import no.nav.statistikkapi.kandidatutfall.*
 import no.nav.statistikkapi.stillinger.StillingRepository
