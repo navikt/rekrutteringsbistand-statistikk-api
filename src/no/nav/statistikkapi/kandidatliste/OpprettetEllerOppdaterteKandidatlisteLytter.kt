@@ -43,6 +43,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
         val stillingsId = packet["stillingsId"].asText()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
 
+        // TODO: Trenger vi logging i det hele tatt?
         secureLog.info(
             """
                 stillingOpprettetTidspunkt: $stillingOpprettetTidspunkt
@@ -56,7 +57,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
             """.trimIndent()
         )
 
-        val opprettKandidatliste = OpprettKandidatliste(
+        val opprettEllerOppdaterKandidatliste = OpprettEllerOppdaterKandidatliste(
             stillingOpprettetTidspunkt = stillingOpprettetTidspunkt,
             antallStillinger = antallStillinger,
             erDirektemeldt = erDirektemeldt,
@@ -66,12 +67,12 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
             navIdent = utførtAvNavIdent
         )
 
-        if (repository.kandidatlisteFinnesIDB(opprettKandidatliste.kandidatlisteId)) {
-            repository.oppdaterKandidatliste(opprettKandidatliste)
-            log.info("Lagrer ikke fordi vi har lagret samme kandidatlisteutfall tidligere")
+        if (repository.kandidatlisteFinnesIDB(opprettEllerOppdaterKandidatliste.kandidatlisteId)) {
+            repository.oppdaterKandidatliste(opprettEllerOppdaterKandidatliste)
+            log.info("Oppdaterer kandidatlistehendelse som kandidatliste")
         } else {
-            repository.lagreKandidatliste(opprettKandidatliste)
-            log.info("Lagrer kandidatlistehendelse som kandidatlisteutfall")
+            repository.opprettKandidatliste(opprettEllerOppdaterKandidatliste)
+            log.info("Oppretter kandidatlistehendelse som kandidatliste")
         }
 
         packet["@slutt_av_hendelseskjede"] = true
@@ -79,7 +80,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
     }
 }
 
-data class OpprettKandidatliste(
+data class OpprettEllerOppdaterKandidatliste(
     val stillingOpprettetTidspunkt: ZonedDateTime,
     val antallStillinger: Int,
     val erDirektemeldt: Boolean,

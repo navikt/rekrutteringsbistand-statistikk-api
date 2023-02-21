@@ -7,7 +7,7 @@ import javax.sql.DataSource
 
 class KandidatlisteRepository(private val dataSource: DataSource) {
 
-    fun lagreKandidatliste(kandidatliste: OpprettKandidatliste) {
+    fun opprettKandidatliste(kandidatliste: OpprettEllerOppdaterKandidatliste) {
 
         dataSource.connection.use {
             it.prepareStatement(
@@ -48,7 +48,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun oppdaterKandidatliste(kandidatliste: OpprettKandidatliste) {
+    fun oppdaterKandidatliste(kandidatliste: OpprettEllerOppdaterKandidatliste) {
         dataSource.connection.use {
             it.prepareStatement(
                 """
@@ -68,6 +68,20 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun slettKandidatliste(kandidatlisteId: String) {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """
+                    delete from $kandidatlisteTabell
+                    where $kandidatlisteid = ?
+                """.trimIndent()
+            ).apply {
+                setString(1, kandidatlisteId)
+                executeUpdate()
+            }
+        }
+    }
+
     companion object {
         const val dbId = "id"
         const val kandidatlisteTabell = "kandidatliste"
@@ -79,6 +93,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         const val stilling_opprettet_tidspunkt = "stilling_opprettet_tidspunkt"
         const val tidspunkt = "tidspunkt"
 
+        // TODO: Brukes foreløpig kun i test-kode, hvis ikke blir tatt i bruk i prod-kode bør den flyttes til test-koden
         fun konverterTilKandidatliste(resultSet: ResultSet): Kandidatliste =
             Kandidatliste(
                 dbId = resultSet.getLong(dbId),
