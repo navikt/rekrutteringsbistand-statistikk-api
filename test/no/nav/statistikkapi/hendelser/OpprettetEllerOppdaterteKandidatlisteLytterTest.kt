@@ -62,6 +62,15 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         assertThat(kandidatlisterFraDB).hasSize(1)
     }
 
+    @Test
+    fun `skal motta melding om eksisterende kandidatliste og oppdatere denne i databasen`() {
+        val tidspunkt = nowOslo()
+        rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt.minusHours(2)))
+        rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        assertThat(kandidatlisterFraDB).hasSize(1)
+    }
+
     private fun opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-20T12:41:13.303+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
         {
           "stillingOpprettetTidspunkt": "2023-02-03T13:56:11.354599+01:00",
