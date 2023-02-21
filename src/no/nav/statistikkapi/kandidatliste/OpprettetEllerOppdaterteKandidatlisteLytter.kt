@@ -76,6 +76,9 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
             repository.lagreKandidatliste(opprettKandidatliste)
             log.info("Lagrer kandidatlistehendelse som kandidatlisteutfall")
         }
+
+        packet["@slutt_av_hendelseskjede"] = true
+        context.publish(packet.toJson())
     }
 }
 
