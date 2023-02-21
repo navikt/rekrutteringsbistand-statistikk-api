@@ -21,6 +21,11 @@ class Statistikkjobb(
         AtomicLong(kandidatutfallRepository.hentAntallFåttJobbenForAlleNavKontor().toLong())
     )
 
+    private val antallKandidatlisterTilknyttetStilling = prometheusMeterRegistry.gauge(
+        "antall_kandidatlister_tilknyttet_stilling",
+        AtomicLong(kandidatlisteRepository.hentAntallKandidatlister().toLong())
+    )
+
     val executor = Executors.newScheduledThreadPool(1)
 
     fun start() {
@@ -30,5 +35,6 @@ class Statistikkjobb(
     private fun hentStatistikk() {
         antallPresenterteKandidater.getAndSet(kandidatutfallRepository.hentAntallPresentertForAlleNavKontor().toLong())
         antallFåttJobben.getAndSet(kandidatutfallRepository.hentAntallFåttJobbenForAlleNavKontor().toLong())
+        antallKandidatlisterTilknyttetStilling.getAndSet(kandidatlisteRepository.hentAntallKandidatlister().toLong())
     }
 }

@@ -82,6 +82,62 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentAntallKandidatlister(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT COUNT(unike_kandidatlister.*) FROM (
+                    SELECT DISTINCT $kandidatlisteid FROM $kandidatlisteTabell
+                ) as unike_kandidatlister
+            """.trimIndent()
+            ).executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall kandidatlister fra databasen")
+            }
+        }
+    }
+
+    fun hentAntallKandidatlisterTilknyttetDirektemeldteStillinger(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT COUNT(unike_kandidatlister.*) FROM (
+                    SELECT DISTINCT $kandidatlisteid FROM $kandidatlisteTabell
+                        where ($er_direktemeldt = 'true')
+                ) as unike_kandidatlister
+            """.trimIndent()
+            ).executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall kandidatlister tilknyttet direktemeldte stillinger fra databasen")
+            }
+        }
+    }
+
+    fun hentAntallKandidatlisterTilknyttetEksterneStillinger(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT COUNT(unike_kandidatlister.*) FROM (
+                    SELECT DISTINCT $kandidatlisteid FROM $kandidatlisteTabell
+                        where ($er_direktemeldt = 'false')
+                ) as unike_kandidatlister
+            """.trimIndent()
+            ).executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall kandidatlister tilknyttet eksterne stillinger fra databasen")
+            }
+        }
+    }
+
     companion object {
         const val dbId = "id"
         const val kandidatlisteTabell = "kandidatliste"
