@@ -101,8 +101,7 @@ fun start(
     )
     OpprettetEllerOppdaterteKandidatlisteLytter(
         rapidsConnection = rapid,
-        repository = KandidatlisteRepository(database.dataSource),
-        prometheusMeterRegistry = prometheusMeterRegistry
+        repository = KandidatlisteRepository(database.dataSource)
     )
 
     Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
