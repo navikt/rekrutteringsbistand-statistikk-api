@@ -14,6 +14,8 @@ import org.junit.BeforeClass
 import org.junit.Test
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.*
+
 
 class OpprettetEllerOppdaterteKandidatlisteLytterTest {
 
@@ -32,16 +34,23 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
     @After
     fun afterEach() {
         testRepository.slettAlleKandidatlister()
-        testRepository.slettAlleStillinger()
         rapid.reset()
     }
 
     @Test
     fun `skal motta melding om kandidatliste og lagre i databasen`() {
-        val tidspunkt = nowOslo()
-        rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
-        val kandidatliste = testRepository.hentKandidatlister()[1]
-        assertThat(kandidatliste).isEqualTo(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
+        val tidspunktForHendelse = nowOslo()
+        rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunktForHendelse))
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        kandidatlisterFraDB[0].apply {
+            assertThat(stillingsId).isEqualTo(UUID.fromString("fbf8c658-469a-44b8-8c0e-5f2013f1b835"))
+            assertThat(navIdent).isEqualTo("Z994241")
+            assertThat(kandidatlisteId).isEqualTo(UUID.fromString("fc63163c-96f9-491f-8c4e-e5bd0d35b463"))
+            assertThat(erDirektemeldt).isEqualTo(true)
+            assertThat(stillingOpprettetTidspunkt).isEqualTo(ZonedDateTime.parse("2023-02-03T13:56:11.354599+01:00").toLocalDateTime())
+            assertThat(antallStillinger).isEqualTo(1)
+            assertThat(tidspunkt).isEqualTo(tidspunktForHendelse.toLocalDateTime())
+        }
     }
 
     @Test
@@ -49,8 +58,8 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         val tidspunkt = nowOslo()
         rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
         rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
-        val kandidatliste = testRepository.hentKandidatlister()
-        assertThat(kandidatliste).hasSize(1)
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        assertThat(kandidatlisterFraDB).hasSize(1)
     }
 
     private fun opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-20T12:41:13.303+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
