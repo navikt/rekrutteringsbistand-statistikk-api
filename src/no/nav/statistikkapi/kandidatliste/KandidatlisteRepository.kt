@@ -38,7 +38,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             it.prepareStatement(
                 """
                     select 1 from $kandidatlisteTabell
-                    where $kandidatlisteId = ?
+                    where $kandidatlisteid = ?
                 """.trimIndent()
             ). apply {
                 setString(1, kandidatlisteId)
