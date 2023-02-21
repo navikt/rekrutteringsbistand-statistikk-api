@@ -33,7 +33,6 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
                     "tidspunkt",
                     "utførtAvNavIdent",
                 )
-                it.interestedIn("stillingsinfo.stillingskategori")
             }
         }.register(this)
     }
@@ -47,7 +46,6 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
         val stillingsId = packet["stillingsId"].asTextNullable()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
-        val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
 
         secureLog.info(
             """
@@ -59,7 +57,6 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
                 tidspunkt: $tidspunkt
                 stillingsId: $stillingsId
                 utførtAvNavIdent: $utførtAvNavIdent
-                stillingskategori: $stillingskategori
             """.trimIndent()
         )
 

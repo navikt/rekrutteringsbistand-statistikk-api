@@ -40,15 +40,15 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 """
                     select 1 from $kandidatlisteTabell
                     where $stillingsid = ?
+                        and $navident = ?
                         and $kandidatlisteid = ?
                         and $tidspunkt = ?
-                        and $navident = ?
                 """.trimIndent()
             ).apply {
                 setString(1, kandidatliste.stillingsId)
-                setString(2, kandidatliste.kandidatlisteId)
-                setTimestamp(3, Timestamp.valueOf(kandidatliste.tidspunktForHendelsen.toLocalDateTime()))
-                setString(4, kandidatliste.navIdent)
+                setString(2, kandidatliste.navIdent)
+                setString(3, kandidatliste.kandidatlisteId)
+                setTimestamp(4, Timestamp.valueOf(kandidatliste.tidspunktForHendelsen.toLocalDateTime()))
                 val resultSet = executeQuery()
                 return resultSet.next()
             }
@@ -65,9 +65,6 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         const val antall_stillinger = "antall_stillinger"
         const val stilling_opprettet_tidspunkt = "stilling_opprettet_tidspunkt"
         const val tidspunkt = "tidspunkt"
-        const val sendtStatus = "sendt_status"
-        const val antallSendtForsøk = "antall_sendt_forsok"
-        const val sisteSendtForsøk = "siste_sendt_forsok"
 
         fun konverterTilKandidatliste(resultSet: ResultSet): Kandidatliste =
             Kandidatliste(
@@ -78,10 +75,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 erDirektemeldt = resultSet.getBoolean(er_direktemeldt),
                 stillingOpprettetTidspunkt = resultSet.getTimestamp(stilling_opprettet_tidspunkt).toLocalDateTime(),
                 antallStillinger = resultSet.getInt(antall_stillinger),
-                tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime(),
-                antallSendtForsøk = resultSet.getInt(antallSendtForsøk),
-                sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
-                sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime()
+                tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime()
             )
     }
 
