@@ -56,7 +56,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val kandidatlisteId = packet["kandidatlisteId"].asText()
         val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asText())
         val stillingsId = packet["stillingsId"].asTextNullable()
-        val stillingskategori = packet["stillingsinfo.stillingskategori"].asText()
+        val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
         val synligKandidat = packet["synligKandidat"].asBoolean()
@@ -94,10 +94,6 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         if (stillingsId == null) {
             log.info("Behandler ikke melding fordi den er uten stilingsId")
             return
-        } else {
-            log.info("Behandler hendelse på stilling: $stillingsId")
-            if(stillingskategori==null) log.info("Stillingskategori er null")
-            else log.info("Stillingskategori er stringverdien $stillingskategori")
         }
 
         val opprettKandidatutfall = OpprettKandidatutfall(
