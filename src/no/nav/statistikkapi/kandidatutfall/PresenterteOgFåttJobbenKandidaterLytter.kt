@@ -94,6 +94,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         if (stillingsId == null) {
             log.info("Behandler ikke melding fordi den er uten stilingsId")
             return
+        } else {
+            log.info("Behandler hendelse på stilling: $stillingsId")
         }
 
         val opprettKandidatutfall = OpprettKandidatutfall(
