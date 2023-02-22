@@ -96,6 +96,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             return
         } else {
             log.info("Behandler hendelse på stilling: $stillingsId")
+            if(stillingskategori==null) log.info("Stillingskategori er null")
+            else log.info("Stillingskategori er $stillingskategori")
         }
 
         val opprettKandidatutfall = OpprettKandidatutfall(
