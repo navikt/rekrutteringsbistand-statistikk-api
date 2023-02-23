@@ -133,4 +133,33 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
           "@event_name": "kandidat_v2.OpprettetEllerOppdaterteKandidatliste"
         }
     """.trimIndent()
+
+    val oppdaterteKandidatlisteMelding = """
+        {
+          "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.75174+01:00",
+          "antallStillinger": 1,
+          "antallKandidater": 4,
+          "erDirektemeldt": true,
+          "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.75174+01:00",
+          "organisasjonsnummer": "312113341",
+          "kandidatlisteId": "153b304c-9cf2-454c-a224-141914975487",
+          "tidspunkt": "2023-02-23T13:28:25.416+01:00",
+          "stillingsId": "ebca044c-817a-4f9e-94ba-c73341c7d182",
+          "utførtAvNavIdent": "Z994086",
+          "@event_name": "kandidat_v2.OppdaterteKandidatliste",
+          "system_participating_services": [
+            {
+              "id": "131d6070-8ad1-44ec-ab81-92595e3e0ab2",
+              "time": "2023-02-23T13:28:30.009883591",
+              "service": "rekrutteringsbistand-kandidat-api",
+              "instance": "rekrutteringsbistand-kandidat-api-dfc77c7b4-qrr69",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-kandidat-api/rekrutteringsbistand-kandidat-api:6a09c2c38b8f925b4a8290c5e07c348d02c30824"
+            }
+          ]
+        }
+    """.trimIndent()
+
+    val opprettetKandidatlisteMelding = """
+        todo
+    """.trimIndent()
 }
