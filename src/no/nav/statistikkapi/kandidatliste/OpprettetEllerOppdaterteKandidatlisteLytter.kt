@@ -17,11 +17,14 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
         River(rapidsConnection).apply {
             validate {
                 it.rejectValue("@slutt_av_hendelseskjede", true)
-                it.demandValue("@event_name", "kandidat_v2.OpprettetEllerOppdaterteKandidatliste")
+                it.demandValue("@event_name", "kandidat_v2.OpprettetKandidatliste")
+                // TODO: Les også oppdaterKandidatliste-meldinger
 
                 it.requireKey(
                     "stillingOpprettetTidspunkt",
+                    "stillingensPubliseringstidspunkt",
                     "antallStillinger",
+                    "antallKandidater",
                     "erDirektemeldt",
                     "organisasjonsnummer",
                     "kandidatlisteId",
@@ -35,7 +38,9 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val stillingOpprettetTidspunkt = packet["stillingOpprettetTidspunkt"].asZonedDateTime()
+        val stillingensPubliseringstidspunkt = packet["stillingensPubliseringstidspunkt"].asZonedDateTime()
         val antallStillinger = packet["antallStillinger"].asInt()
+        val antallKandidater = packet["antallKandidater"].asInt()
         val erDirektemeldt = packet["erDirektemeldt"].asBoolean()
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
@@ -43,27 +48,16 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
         val stillingsId = packet["stillingsId"].asText()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
 
-        // TODO: Trenger vi logging i det hele tatt?
-        secureLog.info(
-            """
-                stillingOpprettetTidspunkt: $stillingOpprettetTidspunkt
-                antallStillinger: $antallStillinger
-                erDirektemeldt: $erDirektemeldt
-                organisasjonsnummer: $organisasjonsnummer
-                kandidatlisteId: $kandidatlisteId
-                tidspunkt: $tidspunkt
-                stillingsId: $stillingsId
-                utførtAvNavIdent: $utførtAvNavIdent
-            """.trimIndent()
-        )
-
-        val opprettEllerOppdaterKandidatliste = OpprettEllerOppdaterKandidatliste(
+        val opprettEllerOppdaterKandidatliste = OpprettKandidatliste(
             stillingOpprettetTidspunkt = stillingOpprettetTidspunkt,
+            stillingensPubliseringstidspunkt = stillingensPubliseringstidspunkt,
             antallStillinger = antallStillinger,
+            antallKandidater = antallKandidater,
             erDirektemeldt = erDirektemeldt,
             kandidatlisteId = kandidatlisteId,
-            tidspunktForHendelsen = tidspunkt,
+            tidspunkt = tidspunkt,
             stillingsId = stillingsId,
+            organisasjonsnummer = organisasjonsnummer,
             navIdent = utførtAvNavIdent
         )
 
@@ -80,12 +74,17 @@ class OpprettetEllerOppdaterteKandidatlisteLytter(
     }
 }
 
-data class OpprettEllerOppdaterKandidatliste(
+data class OpprettKandidatliste(
     val stillingOpprettetTidspunkt: ZonedDateTime,
+    val stillingensPubliseringstidspunkt: ZonedDateTime,
+    val organisasjonsnummer: String,
     val antallStillinger: Int,
+    val antallKandidater: Int,
     val erDirektemeldt: Boolean,
     val kandidatlisteId: String,
-    val tidspunktForHendelsen: ZonedDateTime,
+    val tidspunkt: ZonedDateTime,
     val stillingsId: String,
     val navIdent: String
 )
+
+typealias OppdaterKandidatliste = OpprettKandidatliste

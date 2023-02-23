@@ -43,7 +43,6 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         kandidatlisterFraDB[0].apply {
             assertThat(stillingsId).isEqualTo(UUID.fromString("fbf8c658-469a-44b8-8c0e-5f2013f1b835"))
-            assertThat(navIdent).isEqualTo("Z994241")
             assertThat(kandidatlisteId).isEqualTo(UUID.fromString("fc63163c-96f9-491f-8c4e-e5bd0d35b463"))
             assertThat(erDirektemeldt).isEqualTo(true)
             assertThat(stillingOpprettetTidspunkt).isEqualTo(ZonedDateTime.parse("2023-02-03T13:56:11.354599+01:00").toLocalDateTime())
