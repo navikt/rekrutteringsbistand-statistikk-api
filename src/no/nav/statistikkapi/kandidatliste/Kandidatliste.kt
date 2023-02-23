@@ -1,6 +1,7 @@
 package no.nav.statistikkapi.kandidatliste
 
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.*
 
 data class Kandidatliste(
@@ -9,7 +10,9 @@ data class Kandidatliste(
     val kandidatlisteId: UUID,
     val stillingsId: UUID,
     val erDirektemeldt: Boolean,
-    val stillingOpprettetTidspunkt: LocalDateTime,
+    val stillingOpprettetTidspunkt: ZonedDateTime,
+    val stillingensPubliseringstidspunkt: ZonedDateTime,
     val antallStillinger: Int,
-    val tidspunkt: LocalDateTime
+    val antallKandidater: Int,
+    val tidspunkt: ZonedDateTime
 )

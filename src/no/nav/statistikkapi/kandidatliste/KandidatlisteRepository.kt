@@ -1,5 +1,7 @@
 package no.nav.statistikkapi.kandidatliste
 
+import io.ktor.server.util.*
+import no.nav.statistikkapi.atOslo
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.util.*
@@ -146,6 +148,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         const val stillingsid = "stillingsid"
         const val er_direktemeldt = "er_direktemeldt"
         const val antall_stillinger = "antall_stillinger"
+        const val antall_kandidater = "antall_kandidater"
         const val stilling_opprettet_tidspunkt = "stilling_opprettet_tidspunkt"
         const val tidspunkt = "tidspunkt"
 
@@ -157,10 +160,11 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteid)),
                 stillingsId = UUID.fromString(resultSet.getString(stillingsid)),
                 erDirektemeldt = resultSet.getBoolean(er_direktemeldt),
-                stillingOpprettetTidspunkt = resultSet.getTimestamp(stilling_opprettet_tidspunkt).toLocalDateTime(),
+                stillingOpprettetTidspunkt = resultSet.getTimestamp(stilling_opprettet_tidspunkt).toInstant().atOslo(),
+                stillingensPubliseringstidspunkt = resultSet.getTimestamp(stilling_opprettet_tidspunkt).toInstant().atOslo(),
                 antallStillinger = resultSet.getInt(antall_stillinger),
-                tidspunkt = resultSet.getTimestamp(tidspunkt).toLocalDateTime()
+                antallKandidater = resultSet.getInt(antall_kandidater),
+                tidspunkt = resultSet.getTimestamp(tidspunkt).toInstant().atOslo(),
             )
     }
-
 }

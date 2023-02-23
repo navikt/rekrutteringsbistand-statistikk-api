@@ -12,13 +12,11 @@ import no.nav.statistikkapi.start
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 
 
 class OpprettetEllerOppdaterteKandidatlisteLytterTest {
-
     companion object {
         private val database = TestDatabase()
         private val rapid: TestRapid = TestRapid()
@@ -38,9 +36,10 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
     }
 
     @Test
-    fun `skal motta melding om kandidatliste og lagre i databasen`() {
+    fun `Skal motta melding om opprettet kandidatliste og lagre i databasen`() {
         val tidspunktForHendelse = nowOslo()
-        rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunktForHendelse))
+        rapid.sendTestMessage(opprettetKandidatlisteMelding(tidspunktForHendelse))
+
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         kandidatlisterFraDB[0].apply {
             assertThat(stillingsId).isEqualTo(UUID.fromString("fbf8c658-469a-44b8-8c0e-5f2013f1b835"))
@@ -49,92 +48,32 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
             assertThat(erDirektemeldt).isEqualTo(true)
             assertThat(stillingOpprettetTidspunkt).isEqualTo(ZonedDateTime.parse("2023-02-03T13:56:11.354599+01:00").toLocalDateTime())
             assertThat(antallStillinger).isEqualTo(1)
+            assertThat(antallKandidater).isEqualTo(0)
             assertThat(tidspunkt).isEqualTo(tidspunktForHendelse.toLocalDateTime())
         }
     }
 
     @Test
-    fun `mottak av kandidatliste skal være idempotent`() {
+    fun `Skal motta oppdatert-melding og oppdatere eksisterende kandidatliste i databasen`() {
         val tidspunkt = nowOslo()
-        rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
-        rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(tidspunkt.minusHours(2)))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(tidspunkt))
+
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         assertThat(kandidatlisterFraDB).hasSize(1)
     }
 
     @Test
-    fun `skal motta melding om eksisterende kandidatliste og oppdatere denne i databasen`() {
+    fun `Mottak av opprettet kandidatliste skal være idempotent`() {
         val tidspunkt = nowOslo()
-        rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt.minusHours(2)))
-        rapid.sendTestMessage(opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt))
+        rapid.sendTestMessage(opprettetKandidatlisteMelding(tidspunkt))
+        rapid.sendTestMessage(opprettetKandidatlisteMelding(tidspunkt))
+
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         assertThat(kandidatlisterFraDB).hasSize(1)
     }
 
-    private fun opprettetEllerOppdaterteKandidatlisteMelding(tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-20T12:41:13.303+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
-        {
-          "stillingOpprettetTidspunkt": "2023-02-03T13:56:11.354599+01:00",
-          "antallStillinger": 1,
-          "erDirektemeldt": true,
-          "organisasjonsnummer": "312113341",
-          "kandidatlisteId": "fc63163c-96f9-491f-8c4e-e5bd0d35b463",
-          "tidspunkt": "$tidspunkt",
-          "stillingsId": "fbf8c658-469a-44b8-8c0e-5f2013f1b835",
-          "utførtAvNavIdent": "Z994241",
-          "@event_name": "kandidat_v2.OpprettetEllerOppdaterteKandidatliste",
-          "@id": "a18ba861-b6ea-4591-8bff-500dae5cc988",
-          "@opprettet": "2023-02-20T12:42:00.368799706",
-          "system_read_count": 0,
-          "system_participating_services": [
-            {
-              "id": "492f0677-95c4-4b6b-aa05-802b16f05a8f",
-              "time": "2023-02-20T12:42:00.046146776",
-              "service": "rekrutteringsbistand-stilling-api",
-              "instance": "rekrutteringsbistand-stilling-api-77b44d8f66-kcvsb",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:b8a0313caaca50c1e639dd8fa461db202eecd8ef"
-            },
-            {
-              "id": "a18ba861-b6ea-4591-8bff-500dae5cc988",
-              "time": "2023-02-20T12:42:00.368799706",
-              "service": "rekrutteringsbistand-stilling-api",
-              "instance": "rekrutteringsbistand-stilling-api-77b44d8f66-kcvsb",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:b8a0313caaca50c1e639dd8fa461db202eecd8ef"
-            }
-          ],
-          "stillingsinfo": {
-            "stillingsinfoid": "a89bfdf9-c02f-4093-b360-340bff6ccc1b",
-            "stillingsid": "fbf8c658-469a-44b8-8c0e-5f2013f1b835",
-            "eier": null,
-            "notat": null,
-            "stillingskategori": "STILLING"
-          },
-          "stilling": {
-            "stillingstittel": "Superengasjert, morsom lærer til Oslo-skole",
-            "erDirektemeldt": true
-          },
-          "@forårsaket_av": {
-            "id": "492f0677-95c4-4b6b-aa05-802b16f05a8f",
-            "opprettet": "2023-02-20T12:42:00.046146776",
-            "event_name": "kandidat_v2.OpprettetEllerOppdaterteKandidatliste"
-          }
-        }
-    """.trimIndent()
-
-    val opprettetEllerOppdaterteKandidatlisteMeldingUtenStillingberikelse = """
-        {
-          "stillingOpprettetTidspunkt": "2023-02-03T13:56:11.354599+01:00",
-          "antallStillinger": 1,
-          "erDirektemeldt": true,
-          "organisasjonsnummer": "312113341",
-          "kandidatlisteId": "fc63163c-96f9-491f-8c4e-e5bd0d35b463",
-          "tidspunkt": "2023-02-20T12:41:13.303+01:00",
-          "stillingsId": "fbf8c658-469a-44b8-8c0e-5f2013f1b835",
-          "utførtAvNavIdent": "Z994241",
-          "@event_name": "kandidat_v2.OpprettetEllerOppdaterteKandidatliste"
-        }
-    """.trimIndent()
-
-    val oppdaterteKandidatlisteMelding = """
+    private fun oppdaterteKandidatlisteMelding(tidspunktForHendelse: ZonedDateTime) = """
         {
           "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.75174+01:00",
           "antallStillinger": 1,
@@ -143,7 +82,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
           "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.75174+01:00",
           "organisasjonsnummer": "312113341",
           "kandidatlisteId": "153b304c-9cf2-454c-a224-141914975487",
-          "tidspunkt": "2023-02-23T13:28:25.416+01:00",
+          "tidspunkt": ${tidspunktForHendelse},
           "stillingsId": "ebca044c-817a-4f9e-94ba-c73341c7d182",
           "utførtAvNavIdent": "Z994086",
           "@event_name": "kandidat_v2.OppdaterteKandidatliste",
@@ -159,7 +98,28 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         }
     """.trimIndent()
 
-    val opprettetKandidatlisteMelding = """
-        todo
+    private fun opprettetKandidatlisteMelding(tidspunktForHendelse: ZonedDateTime) = """
+        {
+          "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.75174+01:00",
+          "antallStillinger": 1,
+          "antallKandidater": 0,
+          "erDirektemeldt": true,
+          "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.75174+01:00",
+          "organisasjonsnummer": "312113341",
+          "kandidatlisteId": "153b304c-9cf2-454c-a224-141914975487",
+          "tidspunkt": ${tidspunktForHendelse},
+          "stillingsId": "ebca044c-817a-4f9e-94ba-c73341c7d182",
+          "utførtAvNavIdent": "Z994086",
+          "@event_name": "kandidat_v2.OpprettetKandidatliste",
+          "system_participating_services": [
+            {
+              "id": "131d6070-8ad1-44ec-ab81-92595e3e0ab2",
+              "time": "2023-02-23T13:28:30.009883591",
+              "service": "rekrutteringsbistand-kandidat-api",
+              "instance": "rekrutteringsbistand-kandidat-api-dfc77c7b4-qrr69",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-kandidat-api/rekrutteringsbistand-kandidat-api:6a09c2c38b8f925b4a8290c5e07c348d02c30824"
+            }
+          ]
+        }
     """.trimIndent()
 }
