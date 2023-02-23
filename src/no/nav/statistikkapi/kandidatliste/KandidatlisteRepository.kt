@@ -1,6 +1,5 @@
 package no.nav.statistikkapi.kandidatliste
 
-import io.ktor.server.util.*
 import no.nav.statistikkapi.atOslo
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -9,30 +8,37 @@ import javax.sql.DataSource
 
 class KandidatlisteRepository(private val dataSource: DataSource) {
 
-    fun opprettKandidatliste(kandidatliste: OpprettKandidatliste) {
+    fun opprettKandidatliste(kandidatliste: OpprettKandidatliste, eventName: String) {
         dataSource.connection.use {
             it.prepareStatement(
                 """insert into $kandidatlisteTabell (
-                    $stillingsId,
-                    $navIdent,
-                    $kandidatlisteId,
-                    $tidspunkt,
-                    $erDirektemeldt,
-                    $antallStillinger,
-                    $antallKandidater,
-                    $stillingOpprettetTidspunkt,
-                    $stillingensPubliseringstidspunkt
-                    ) values (?, ?, ?, ?, ?, ?, ?)"""
+                    $stillingsIdKolonne,
+                    $kandidatlisteIdKolonne,
+                    $erDirektemeldtKolonne,
+                    $antallStillingerKolonne,
+                    $antallKandidaterKolonne,
+                    $stillingOpprettetTidspunktKolonne,
+                    $stillingensPubliseringstidspunktKolonne,
+                    $organisasjonsnummerKolonne,
+                    $utførtAvNavIdentKolonne,
+                    $tidspunktKolonne,
+                    $eventNameKolonne
+                    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, kandidatliste.stillingsId)
-                setString(2, kandidatliste.navIdent)
-                setString(3, kandidatliste.kandidatlisteId)
-                setTimestamp(4, Timestamp(kandidatliste.tidspunkt.toInstant().toEpochMilli()))
-                setBoolean(5, kandidatliste.erDirektemeldt)
-                setInt(6, kandidatliste.antallStillinger)
-                setInt(7, kandidatliste.antallKandidater)
-                setTimestamp(8, Timestamp(kandidatliste.stillingOpprettetTidspunkt.toInstant().toEpochMilli()))
-                setTimestamp(9, Timestamp(kandidatliste.stillingensPubliseringstidspunkt.toInstant().toEpochMilli()))
+                setString(2, kandidatliste.kandidatlisteId)
+                setBoolean(3, kandidatliste.erDirektemeldt)
+                setInt(4, kandidatliste.antallStillinger)
+                setInt(5, kandidatliste.antallKandidater)
+                setTimestamp(6, Timestamp(kandidatliste.stillingOpprettetTidspunkt.toInstant().toEpochMilli()))
+                setTimestamp(7, Timestamp(kandidatliste.stillingensPubliseringstidspunkt.toInstant().toEpochMilli()))
+                setString(8, kandidatliste.organisasjonsnummer)
+                setString(9, kandidatliste.utførtAvNavIdent)
+                setTimestamp(10, Timestamp(kandidatliste.tidspunkt.toInstant().toEpochMilli()))
+                setString(11, eventName)
+
+
+
                 executeUpdate()
             }
         }
@@ -43,7 +49,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             it.prepareStatement(
                 """
                     select 1 from $kandidatlisteTabell
-                    where $kandidatlisteId = ?
+                    where $kandidatlisteIdKolonne = ?
                 """.trimIndent()
             ). apply {
                 setString(1, kandidatlisteId)
@@ -58,13 +64,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             it.prepareStatement(
                 """
                     update $kandidatlisteTabell
-                    set $navIdent = ?,
-                        $tidspunkt = ?,
-                        $antallStillinger = ?
-                    where $kandidatlisteId = ?
+                    set $utførtAvNavIdentKolonne = ?,
+                        $tidspunktKolonne = ?,
+                        $antallStillingerKolonne = ?
+                    where $kandidatlisteIdKolonne = ?
                 """.trimIndent()
             ).apply {
-                setString(1, kandidatliste.navIdent)
+                setString(1, kandidatliste.utførtAvNavIdent)
                 setTimestamp(2, Timestamp.valueOf(kandidatliste.tidspunkt.toLocalDateTime()))
                 setInt(3, kandidatliste.antallStillinger)
                 setString(4, kandidatliste.kandidatlisteId)
@@ -78,7 +84,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 SELECT COUNT(unike_kandidatlister.*) FROM (
-                    SELECT DISTINCT $kandidatlisteId FROM $kandidatlisteTabell
+                    SELECT DISTINCT $kandidatlisteIdKolonne FROM $kandidatlisteTabell
                 ) as unike_kandidatlister
             """.trimIndent()
             ).executeQuery()
@@ -96,8 +102,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 SELECT COUNT(unike_kandidatlister.*) FROM (
-                    SELECT DISTINCT $kandidatlisteId FROM $kandidatlisteTabell
-                        where ($erDirektemeldt = 'true')
+                    SELECT DISTINCT $kandidatlisteIdKolonne FROM $kandidatlisteTabell
+                        where ($erDirektemeldtKolonne = 'true')
                 ) as unike_kandidatlister
             """.trimIndent()
             ).executeQuery()
@@ -115,8 +121,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 SELECT COUNT(unike_kandidatlister.*) FROM (
-                    SELECT DISTINCT $kandidatlisteId FROM $kandidatlisteTabell
-                        where ($erDirektemeldt = 'false')
+                    SELECT DISTINCT $kandidatlisteIdKolonne FROM $kandidatlisteTabell
+                        where ($erDirektemeldtKolonne = 'false')
                 ) as unike_kandidatlister
             """.trimIndent()
             ).executeQuery()
@@ -132,31 +138,34 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
     companion object {
         const val kandidatlisteTabell = "kandidatliste"
 
-        const val dbId = "id"
-        const val stillingsId = "stillings_id"
-        const val navIdent = "utført_av_nav_ident"
-        const val kandidatlisteId = "kandidatliste_id"
-        const val erDirektemeldt = "er_direktemeldt"
-        const val antallStillinger = "antall_stillinger"
-        const val antallKandidater = "antall_kandidater"
-        const val stillingOpprettetTidspunkt = "stilling_opprettet_tidspunkt"
-        const val stillingensPubliseringstidspunkt = "stillingens_publiseringstidspunkt"
-        const val organisasjonsnummer = "organisasjonsnummer"
-        const val tidspunkt = "tidspunkt"
+        const val dbIdKolonne = "id"
+        const val stillingsIdKolonne = "stillings_id"
+        const val kandidatlisteIdKolonne = "kandidatliste_id"
+        const val erDirektemeldtKolonne = "er_direktemeldt"
+        const val antallStillingerKolonne = "antall_stillinger"
+        const val antallKandidaterKolonne = "antall_kandidater"
+        const val stillingOpprettetTidspunktKolonne = "stilling_opprettet_tidspunkt"
+        const val stillingensPubliseringstidspunktKolonne = "stillingens_publiseringstidspunkt"
+        const val organisasjonsnummerKolonne = "organisasjonsnummer"
+        const val utførtAvNavIdentKolonne = "utført_av_nav_ident"
+        const val tidspunktKolonne = "tidspunkt"
+        const val eventNameKolonne = "event_name"
 
         // TODO: Brukes foreløpig kun i test-kode, hvis ikke blir tatt i bruk i prod-kode bør den flyttes til test-koden
         fun konverterTilKandidatliste(resultSet: ResultSet): Kandidatliste =
             Kandidatliste(
-                dbId = resultSet.getLong(dbId),
-                kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteId)),
-                stillingsId = UUID.fromString(resultSet.getString(stillingsId)),
-                erDirektemeldt = resultSet.getBoolean(erDirektemeldt),
-                antallStillinger = resultSet.getInt(antallStillinger),
-                antallKandidater = resultSet.getInt(antallKandidater),
-                stillingOpprettetTidspunkt = resultSet.getTimestamp(stillingOpprettetTidspunkt).toInstant().atOslo(),
-                stillingensPubliseringstidspunkt = resultSet.getTimestamp(stillingensPubliseringstidspunkt).toInstant().atOslo(),
-                organisasjonsnummer = resultSet.getString(organisasjonsnummer),
-                tidspunkt = resultSet.getTimestamp(tidspunkt).toInstant().atOslo(),
+                dbId = resultSet.getLong(dbIdKolonne),
+                kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteIdKolonne)),
+                stillingsId = UUID.fromString(resultSet.getString(stillingsIdKolonne)),
+                erDirektemeldt = resultSet.getBoolean(erDirektemeldtKolonne),
+                antallStillinger = resultSet.getInt(antallStillingerKolonne),
+                antallKandidater = resultSet.getInt(antallKandidaterKolonne),
+                stillingOpprettetTidspunkt = resultSet.getTimestamp(stillingOpprettetTidspunktKolonne).toInstant().atOslo(),
+                stillingensPubliseringstidspunkt = resultSet.getTimestamp(stillingensPubliseringstidspunktKolonne).toInstant().atOslo(),
+                organisasjonsnummer = resultSet.getString(organisasjonsnummerKolonne),
+                utførtAvNavIdent = resultSet.getString(utførtAvNavIdentKolonne),
+                tidspunkt = resultSet.getTimestamp(tidspunktKolonne).toInstant().atOslo(),
+                eventName = resultSet.getString(eventNameKolonne)
             )
     }
 }

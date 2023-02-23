@@ -14,5 +14,7 @@ data class Kandidatliste(
     val organisasjonsnummer: String,
     val antallStillinger: Int,
     val antallKandidater: Int,
-    val tidspunkt: ZonedDateTime
+    val tidspunkt: ZonedDateTime,
+    val utførtAvNavIdent: String,
+    val eventName: String
 )
