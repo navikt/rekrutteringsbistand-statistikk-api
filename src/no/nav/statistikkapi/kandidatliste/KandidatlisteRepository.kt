@@ -8,7 +8,7 @@ import javax.sql.DataSource
 
 class KandidatlisteRepository(private val dataSource: DataSource) {
 
-    fun opprettKandidatliste(kandidatliste: OpprettKandidatliste, eventName: String) {
+    fun lagreKandidatlistehendelse(eventName: String, kandidatliste: OpprettKandidatliste) {
         dataSource.connection.use {
             it.prepareStatement(
                 """insert into $kandidatlisteTabell (
@@ -55,26 +55,6 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 setString(1, kandidatlisteId)
                 val resultSet = executeQuery()
                 return resultSet.next()
-            }
-        }
-    }
-
-    fun oppdaterKandidatliste(kandidatliste: OppdaterKandidatliste) {
-        dataSource.connection.use {
-            it.prepareStatement(
-                """
-                    update $kandidatlisteTabell
-                    set $utførtAvNavIdentKolonne = ?,
-                        $tidspunktKolonne = ?,
-                        $antallStillingerKolonne = ?
-                    where $kandidatlisteIdKolonne = ?
-                """.trimIndent()
-            ).apply {
-                setString(1, kandidatliste.utførtAvNavIdent)
-                setTimestamp(2, Timestamp.valueOf(kandidatliste.tidspunkt.toLocalDateTime()))
-                setInt(3, kandidatliste.antallStillinger)
-                setString(4, kandidatliste.kandidatlisteId)
-                executeUpdate()
             }
         }
     }
@@ -134,6 +114,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+
 
     companion object {
         const val kandidatlisteTabell = "kandidatliste"

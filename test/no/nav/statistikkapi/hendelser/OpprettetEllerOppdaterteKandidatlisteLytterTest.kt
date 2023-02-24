@@ -64,11 +64,12 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
     @Test
     fun `Skal motta oppdatert-melding og oppdatere eksisterende kandidatliste i databasen`() {
 
-        kandidatlisteRepository.opprettKandidatliste(OpprettKandidatliste(
+        kandidatlisteRepository.lagreKandidatlistehendelse(eventName =  "kandidat_v2.OppdaterteKandidatliste", OpprettKandidatliste(
             stillingOpprettetTidspunkt = nowOslo(), stillingensPubliseringstidspunkt = nowOslo(),
             organisasjonsnummer = "123123123", antallStillinger = 40, antallKandidater = 20, erDirektemeldt = true, kandidatlisteId = UUID.randomUUID().toString(),
             tidspunkt = nowOslo(), stillingsId = UUID.randomUUID().toString(), utførtAvNavIdent = "A100100"
-        ), eventName =  "kandidat_v2.OppdaterteKandidatliste")
+        ))
+        
         assertThat(testRepository.hentKandidatlister()).hasSize(1)
 
         val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023,1,1,1,0), ZoneId.of("Europe/Oslo"))
