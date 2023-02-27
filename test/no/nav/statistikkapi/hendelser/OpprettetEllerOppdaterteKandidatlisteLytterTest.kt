@@ -6,11 +6,12 @@ import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
-import no.nav.statistikkapi.kandidatliste.OpprettKandidatliste
+import no.nav.statistikkapi.kandidatliste.Kandidatlistehendelse
+import no.nav.statistikkapi.kandidatliste.oppdaterteKandidatlisteEventName
+import no.nav.statistikkapi.kandidatliste.opprettetKandidatlisteEventName
 import no.nav.statistikkapi.nowOslo
 import no.nav.statistikkapi.randomPort
 import no.nav.statistikkapi.start
-import no.nav.statistikkapi.toOslo
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -60,17 +61,27 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
 
     @Test
     fun `Skal motta oppdatert-melding og oppdatere eksisterende kandidatliste i databasen`() {
+        val kandidatlisteId = UUID.randomUUID()
+        kandidatlisteRepository.lagreKandidatlistehendelse(
+            Kandidatlistehendelse(
+                stillingOpprettetTidspunkt = nowOslo(),
+                stillingensPubliseringstidspunkt = nowOslo(),
+                organisasjonsnummer = "123123123",
+                antallStillinger = 40,
+                antallKandidater = 20,
+                erDirektemeldt = true,
+                kandidatlisteId = "$kandidatlisteId",
+                tidspunkt = nowOslo(),
+                stillingsId = UUID.randomUUID().toString(),
+                utførtAvNavIdent = "A100100",
+                eventName = oppdaterteKandidatlisteEventName
+            )
+        )
 
-        kandidatlisteRepository.lagreKandidatlistehendelse(eventName =  "kandidat_v2.OppdaterteKandidatliste", OpprettKandidatliste(
-            stillingOpprettetTidspunkt = nowOslo(), stillingensPubliseringstidspunkt = nowOslo(),
-            organisasjonsnummer = "123123123", antallStillinger = 40, antallKandidater = 20, erDirektemeldt = true, kandidatlisteId = "153b304c-9cf2-454c-a224-141914975487",
-            tidspunkt = nowOslo(), stillingsId = UUID.randomUUID().toString(), utførtAvNavIdent = "A100100"
-        ))
-        
         assertThat(testRepository.hentKandidatlister()).hasSize(1)
 
-        val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023,1,1,1,0), ZoneId.of("Europe/Oslo"))
-        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(tidspunkt))
+        val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023, 1, 1, 1, 0), ZoneId.of("Europe/Oslo"))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(kandidatlisteId, tidspunkt))
 
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         assertThat(kandidatlisterFraDB).hasSize(2)
@@ -87,10 +98,11 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         assertThat(oppdatertKandidatliste.tidspunkt).isNotNull()
     }
 
+    @Test
     fun `Vi skal ignorere oppdatert hendelser dersom det ikke finnes opprettet hendelse for samme kandidatliste`() {
-
-        val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023,1,1,1,0), ZoneId.of("Europe/Oslo"))
-        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(tidspunkt))
+        val kandidatlisteId = UUID.randomUUID()
+        val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023, 1, 1, 1, 0), ZoneId.of("Europe/Oslo"))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(kandidatlisteId, tidspunkt))
 
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         assertThat(kandidatlisterFraDB).isEmpty()
@@ -109,23 +121,34 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
 
     @Test
     fun `Mottak av flere endret kandidatliste hendelser skal være idempotent i databasen`() {
-        kandidatlisteRepository.lagreKandidatlistehendelse(eventName =  "kandidat_v2.OppdaterteKandidatliste", OpprettKandidatliste(
-            stillingOpprettetTidspunkt = nowOslo(), stillingensPubliseringstidspunkt = nowOslo(),
-            organisasjonsnummer = "123123123", antallStillinger = 40, antallKandidater = 20, erDirektemeldt = true, kandidatlisteId = UUID.randomUUID().toString(),
-            tidspunkt = nowOslo(), stillingsId = UUID.randomUUID().toString(), utførtAvNavIdent = "A100100"
-        ))
+        val kandidatlisteId = UUID.randomUUID()
+        kandidatlisteRepository.lagreKandidatlistehendelse(
+            Kandidatlistehendelse(
+                stillingOpprettetTidspunkt = nowOslo(),
+                stillingensPubliseringstidspunkt = nowOslo(),
+                organisasjonsnummer = "123123123",
+                antallStillinger = 40,
+                antallKandidater = 20,
+                erDirektemeldt = true,
+                kandidatlisteId = kandidatlisteId.toString(),
+                tidspunkt = nowOslo(),
+                stillingsId = UUID.randomUUID().toString(),
+                utførtAvNavIdent = "A100100",
+                eventName = opprettetKandidatlisteEventName
+            )
+        )
 
         assertThat(testRepository.hentKandidatlister()).hasSize(1)
 
-        val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023,1,1,1,0), ZoneId.of("Europe/Oslo"))
-        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(tidspunkt))
-        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(tidspunkt))
+        val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023, 1, 1, 1, 0), ZoneId.of("Europe/Oslo"))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(kandidatlisteId, tidspunkt))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(kandidatlisteId, tidspunkt))
 
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         assertThat(kandidatlisterFraDB).hasSize(2)
     }
 
-    private fun oppdaterteKandidatlisteMelding(tidspunktForHendelse: ZonedDateTime) = """
+    private fun oppdaterteKandidatlisteMelding(kandidatlisteId: UUID, tidspunktForHendelse: ZonedDateTime) = """
         {
           "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.75174+01:00",
           "antallStillinger": 20,
@@ -133,7 +156,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
           "erDirektemeldt": true,
           "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.75174+01:00",
           "organisasjonsnummer": "312113341",
-          "kandidatlisteId": "153b304c-9cf2-454c-a224-141914975487",
+          "kandidatlisteId": "$kandidatlisteId",
           "tidspunkt": "${tidspunktForHendelse}",
           "stillingsId": "ebca044c-817a-4f9e-94ba-c73341c7d182",
           "utførtAvNavIdent": "Z994086",
@@ -150,7 +173,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         }
     """.trimIndent()
 
-    private fun opprettetKandidatlisteMelding(tidspunktForHendelse: ZonedDateTime) = """
+    private fun opprettetKandidatlisteMelding(tidspunktForHendelsen: ZonedDateTime) = """
         {
           "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.75174+01:00",
           "antallStillinger": 1,
@@ -159,7 +182,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
           "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.75174+01:00",
           "organisasjonsnummer": "312113341",
           "kandidatlisteId": "153b304c-9cf2-454c-a224-141914975487",
-          "tidspunkt": "${tidspunktForHendelse}",
+          "tidspunkt": "$tidspunktForHendelsen",
           "stillingsId": "ebca044c-817a-4f9e-94ba-c73341c7d182",
           "utførtAvNavIdent": "Z994086",
           "@event_name": "kandidat_v2.OpprettetKandidatliste",
