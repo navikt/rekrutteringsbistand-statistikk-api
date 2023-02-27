@@ -8,7 +8,7 @@ import java.time.ZonedDateTime
 const val OpprettetKandidatlisteHendelse = "kandidat_v2.OpprettetKandidatliste"
 const val OppdaterteKandidatlisteHendelse = "kandidat_v2.OppdaterteKandidatliste"
 
-class KandidatlistehendelseLytter(
+    class KandidatlistehendelseLytter(
     rapidsConnection: RapidsConnection,
     private val repository: KandidatlisteRepository
 ) : River.PacketListener {
@@ -67,6 +67,8 @@ class KandidatlistehendelseLytter(
             eventName != OpprettetKandidatlisteHendelse &&
                     !repository.kandidatlisteFinnesIDB(kandidatlistehendelse.kandidatlisteId)
 
+
+
         if (erEndremeldingPåIkkeeksisterendeListe) {
             log.warn("Fikk endremelding ($eventName) på listen $kandidatlisteId, men denne forkastes fordi listen ikke finnes i databasen")
             return
@@ -99,6 +101,7 @@ data class Kandidatlistehendelse(
     val stillingsId: String,
     val utførtAvNavIdent: String,
 )
+
 
 typealias OpprettKandidatliste = Kandidatlistehendelse
 typealias OppdaterKandidatliste = OpprettKandidatliste

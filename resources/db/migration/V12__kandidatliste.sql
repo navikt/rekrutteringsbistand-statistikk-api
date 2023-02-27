@@ -9,6 +9,6 @@ create table kandidatliste (
     stillingens_publiseringstidspunkt timestamp with time zone not null,
     organisasjonsnummer text,
     utført_av_nav_ident text,
-    tidspunkt timestamp with time zone not null,
+    tidspunkt_for_hendelsen timestamp with time zone not null,
     event_name text
 );

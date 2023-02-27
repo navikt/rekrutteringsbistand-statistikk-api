@@ -1,10 +1,7 @@
 package no.nav.statistikkapi.hendelser
 
 import assertk.assertThat
-import assertk.assertions.hasSize
-import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
-import assertk.assertions.isTrue
+import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
@@ -90,14 +87,42 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         assertThat(oppdatertKandidatliste.tidspunkt).isNotNull()
     }
 
+    fun `Vi skal ignorere oppdatert hendelser dersom det ikke finnes opprettet hendelse for samme kandidatliste`() {
+
+        val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023,1,1,1,0), ZoneId.of("Europe/Oslo"))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(tidspunkt))
+
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        assertThat(kandidatlisterFraDB).isEmpty()
+
+    }
+
     @Test
-    fun `Mottak av opprettet kandidatliste skal være idempotent`() {
+    fun `Mottak av flere opprettet kandidatliste hendelser skal være idempotent i databasen`() {
         val tidspunkt = nowOslo()
         rapid.sendTestMessage(opprettetKandidatlisteMelding(tidspunkt))
         rapid.sendTestMessage(opprettetKandidatlisteMelding(tidspunkt))
 
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         assertThat(kandidatlisterFraDB).hasSize(1)
+    }
+
+    @Test
+    fun `Mottak av flere endret kandidatliste hendelser skal være idempotent i databasen`() {
+        kandidatlisteRepository.lagreKandidatlistehendelse(eventName =  "kandidat_v2.OppdaterteKandidatliste", OpprettKandidatliste(
+            stillingOpprettetTidspunkt = nowOslo(), stillingensPubliseringstidspunkt = nowOslo(),
+            organisasjonsnummer = "123123123", antallStillinger = 40, antallKandidater = 20, erDirektemeldt = true, kandidatlisteId = UUID.randomUUID().toString(),
+            tidspunkt = nowOslo(), stillingsId = UUID.randomUUID().toString(), utførtAvNavIdent = "A100100"
+        ))
+
+        assertThat(testRepository.hentKandidatlister()).hasSize(1)
+
+        val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023,1,1,1,0), ZoneId.of("Europe/Oslo"))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(tidspunkt))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(tidspunkt))
+
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        assertThat(kandidatlisterFraDB).hasSize(2)
     }
 
     private fun oppdaterteKandidatlisteMelding(tidspunktForHendelse: ZonedDateTime) = """

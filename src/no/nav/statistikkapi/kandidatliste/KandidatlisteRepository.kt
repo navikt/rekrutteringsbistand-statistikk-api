@@ -3,6 +3,7 @@ package no.nav.statistikkapi.kandidatliste
 import no.nav.statistikkapi.atOslo
 import java.sql.ResultSet
 import java.sql.Timestamp
+import java.time.ZonedDateTime
 import java.util.*
 import javax.sql.DataSource
 
@@ -21,7 +22,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                     $stillingensPubliseringstidspunktKolonne,
                     $organisasjonsnummerKolonne,
                     $utførtAvNavIdentKolonne,
-                    $tidspunktKolonne,
+                    $tidspunktForHendelsenKolonne,
                     $eventNameKolonne
                     ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
@@ -36,9 +37,6 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 setString(9, kandidatliste.utførtAvNavIdent)
                 setTimestamp(10, Timestamp(kandidatliste.tidspunkt.toInstant().toEpochMilli()))
                 setString(11, eventName)
-
-
-
                 executeUpdate()
             }
         }
@@ -130,7 +128,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         const val stillingensPubliseringstidspunktKolonne = "stillingens_publiseringstidspunkt"
         const val organisasjonsnummerKolonne = "organisasjonsnummer"
         const val utførtAvNavIdentKolonne = "utført_av_nav_ident"
-        const val tidspunktKolonne = "tidspunkt"
+        const val tidspunktForHendelsenKolonne = "tidspunkt_for_hendelsen"
         const val eventNameKolonne = "event_name"
 
         // TODO: Brukes foreløpig kun i test-kode, hvis ikke blir tatt i bruk i prod-kode bør den flyttes til test-koden
@@ -146,8 +144,23 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 stillingensPubliseringstidspunkt = resultSet.getTimestamp(stillingensPubliseringstidspunktKolonne).toInstant().atOslo(),
                 organisasjonsnummer = resultSet.getString(organisasjonsnummerKolonne),
                 utførtAvNavIdent = resultSet.getString(utførtAvNavIdentKolonne),
-                tidspunkt = resultSet.getTimestamp(tidspunktKolonne).toInstant().atOslo(),
+                tidspunkt = resultSet.getTimestamp(tidspunktForHendelsenKolonne).toInstant().atOslo(),
                 eventName = resultSet.getString(eventNameKolonne)
             )
     }
 }
+
+data class Kandidatliste(
+    val dbId: Long,
+    val kandidatlisteId: UUID,
+    val stillingsId: UUID,
+    val erDirektemeldt: Boolean,
+    val stillingOpprettetTidspunkt: ZonedDateTime,
+    val stillingensPubliseringstidspunkt: ZonedDateTime,
+    val organisasjonsnummer: String,
+    val antallStillinger: Int,
+    val antallKandidater: Int,
+    val tidspunkt: ZonedDateTime,
+    val utførtAvNavIdent: String,
+    val eventName: String
+)
