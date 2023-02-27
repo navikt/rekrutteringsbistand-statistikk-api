@@ -63,7 +63,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
 
         kandidatlisteRepository.lagreKandidatlistehendelse(eventName =  "kandidat_v2.OppdaterteKandidatliste", OpprettKandidatliste(
             stillingOpprettetTidspunkt = nowOslo(), stillingensPubliseringstidspunkt = nowOslo(),
-            organisasjonsnummer = "123123123", antallStillinger = 40, antallKandidater = 20, erDirektemeldt = true, kandidatlisteId = UUID.randomUUID().toString(),
+            organisasjonsnummer = "123123123", antallStillinger = 40, antallKandidater = 20, erDirektemeldt = true, kandidatlisteId = "153b304c-9cf2-454c-a224-141914975487",
             tidspunkt = nowOslo(), stillingsId = UUID.randomUUID().toString(), utførtAvNavIdent = "A100100"
         ))
         
