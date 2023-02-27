@@ -9,7 +9,7 @@ import javax.sql.DataSource
 
 class KandidatlisteRepository(private val dataSource: DataSource) {
 
-    fun lagreKandidatlistehendelse(eventName: String, kandidatliste: OpprettKandidatliste) {
+    fun lagreKandidatlistehendelse(hendelse: Kandidatlistehendelse) {
         dataSource.connection.use {
             it.prepareStatement(
                 """insert into $kandidatlisteTabell (
@@ -26,31 +26,31 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                     $eventNameKolonne
                     ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
-                setString(1, kandidatliste.stillingsId)
-                setString(2, kandidatliste.kandidatlisteId)
-                setBoolean(3, kandidatliste.erDirektemeldt)
-                setInt(4, kandidatliste.antallStillinger)
-                setInt(5, kandidatliste.antallKandidater)
-                setTimestamp(6, Timestamp(kandidatliste.stillingOpprettetTidspunkt.toInstant().toEpochMilli()))
-                setTimestamp(7, Timestamp(kandidatliste.stillingensPubliseringstidspunkt.toInstant().toEpochMilli()))
-                setString(8, kandidatliste.organisasjonsnummer)
-                setString(9, kandidatliste.utførtAvNavIdent)
-                setTimestamp(10, Timestamp(kandidatliste.tidspunkt.toInstant().toEpochMilli()))
-                setString(11, eventName)
+                setString(1, hendelse.stillingsId)
+                setString(2, hendelse.kandidatlisteId)
+                setBoolean(3, hendelse.erDirektemeldt)
+                setInt(4, hendelse.antallStillinger)
+                setInt(5, hendelse.antallKandidater)
+                setTimestamp(6, Timestamp(hendelse.stillingOpprettetTidspunkt.toInstant().toEpochMilli()))
+                setTimestamp(7, Timestamp(hendelse.stillingensPubliseringstidspunkt.toInstant().toEpochMilli()))
+                setString(8, hendelse.organisasjonsnummer)
+                setString(9, hendelse.utførtAvNavIdent)
+                setTimestamp(10, Timestamp(hendelse.tidspunkt.toInstant().toEpochMilli()))
+                setString(11, hendelse.eventName)
                 executeUpdate()
             }
         }
     }
 
-    fun kandidatlisteFinnesIDB(kandidatlisteId: String): Boolean {
+    fun kandidatlisteFinnesIDb(kandidatlisteId: UUID): Boolean {
         dataSource.connection.use {
             it.prepareStatement(
                 """
                     select 1 from $kandidatlisteTabell
                     where $kandidatlisteIdKolonne = ?
                 """.trimIndent()
-            ). apply {
-                setString(1, kandidatlisteId)
+            ).apply {
+                setString(1, kandidatlisteId.toString())
                 val resultSet = executeQuery()
                 return resultSet.next()
             }
@@ -114,7 +114,6 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
     }
 
 
-
     companion object {
         const val kandidatlisteTabell = "kandidatliste"
 
@@ -140,16 +139,43 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 erDirektemeldt = resultSet.getBoolean(erDirektemeldtKolonne),
                 antallStillinger = resultSet.getInt(antallStillingerKolonne),
                 antallKandidater = resultSet.getInt(antallKandidaterKolonne),
-                stillingOpprettetTidspunkt = resultSet.getTimestamp(stillingOpprettetTidspunktKolonne).toInstant().atOslo(),
-                stillingensPubliseringstidspunkt = resultSet.getTimestamp(stillingensPubliseringstidspunktKolonne).toInstant().atOslo(),
+                stillingOpprettetTidspunkt = resultSet.getTimestamp(stillingOpprettetTidspunktKolonne).toInstant()
+                    .atOslo(),
+                stillingensPubliseringstidspunkt = resultSet.getTimestamp(stillingensPubliseringstidspunktKolonne)
+                    .toInstant().atOslo(),
                 organisasjonsnummer = resultSet.getString(organisasjonsnummerKolonne),
                 utførtAvNavIdent = resultSet.getString(utførtAvNavIdentKolonne),
                 tidspunkt = resultSet.getTimestamp(tidspunktForHendelsenKolonne).toInstant().atOslo(),
                 eventName = resultSet.getString(eventNameKolonne)
             )
     }
+
+    fun hendelseFinnesFraFør(
+        eventName: String,
+        kandidatlisteId: UUID,
+        tidspunktForHendelsen: ZonedDateTime
+    ): Boolean {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """
+                select 1 from ${kandidatlisteTabell} 
+                where ${eventNameKolonne} = ?
+                    and ${kandidatlisteIdKolonne} = ?
+                    and ${tidspunktForHendelsenKolonne} = ?
+            """.trimIndent()
+            ).apply {
+                setString(1, eventName)
+                setString(2, kandidatlisteId.toString())
+                setTimestamp(3, Timestamp(tidspunktForHendelsen.toInstant().toEpochMilli()))
+                val resultSet = executeQuery()
+                return resultSet.next()
+            }
+        }
+
+    }
 }
 
+// TODO Slettes eller flyttes til testkode, fordi den ikke brukes av prodkode i skrivende stund.
 data class Kandidatliste(
     val dbId: Long,
     val kandidatlisteId: UUID,

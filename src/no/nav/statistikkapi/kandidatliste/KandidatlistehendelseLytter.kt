@@ -4,11 +4,12 @@ import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
 import no.nav.statistikkapi.log
 import java.time.ZonedDateTime
+import java.util.*
 
-const val OpprettetKandidatlisteHendelse = "kandidat_v2.OpprettetKandidatliste"
-const val OppdaterteKandidatlisteHendelse = "kandidat_v2.OppdaterteKandidatliste"
+const val opprettetKandidatlisteEventName = "kandidat_v2.OpprettetKandidatliste"
+const val oppdaterteKandidatlisteEventName = "kandidat_v2.OppdaterteKandidatliste"
 
-    class KandidatlistehendelseLytter(
+class KandidatlistehendelseLytter(
     rapidsConnection: RapidsConnection,
     private val repository: KandidatlisteRepository
 ) : River.PacketListener {
@@ -18,7 +19,7 @@ const val OppdaterteKandidatlisteHendelse = "kandidat_v2.OppdaterteKandidatliste
                 it.rejectValue("@slutt_av_hendelseskjede", true)
                 it.demandAny(
                     "@event_name",
-                    listOf(OpprettetKandidatlisteHendelse, OppdaterteKandidatlisteHendelse)
+                    listOf(opprettetKandidatlisteEventName, oppdaterteKandidatlisteEventName)
                 )
 
                 it.requireKey(
@@ -50,7 +51,7 @@ const val OppdaterteKandidatlisteHendelse = "kandidat_v2.OppdaterteKandidatliste
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val eventName = packet["@event_name"].asText()
 
-        val kandidatlistehendelse = OpprettKandidatliste(
+        val hendelse = Kandidatlistehendelse(
             stillingOpprettetTidspunkt = stillingOpprettetTidspunkt,
             stillingensPubliseringstidspunkt = stillingensPubliseringstidspunkt,
             antallStillinger = antallStillinger,
@@ -60,21 +61,24 @@ const val OppdaterteKandidatlisteHendelse = "kandidat_v2.OppdaterteKandidatliste
             tidspunkt = tidspunkt,
             stillingsId = stillingsId,
             organisasjonsnummer = organisasjonsnummer,
-            utførtAvNavIdent = utførtAvNavIdent
+            utførtAvNavIdent = utførtAvNavIdent,
+            eventName = eventName
         )
 
-        val erEndremeldingPåIkkeeksisterendeListe =
-            eventName != OpprettetKandidatlisteHendelse &&
-                    !repository.kandidatlisteFinnesIDB(kandidatlistehendelse.kandidatlisteId)
+        val listeId = UUID.fromString(hendelse.kandidatlisteId)
+        val finnesFraFør = repository.hendelseFinnesFraFør(hendelse.eventName, listeId, hendelse.tidspunkt)
+        val oppdaterhendelseManglerOppretthendelse =
+            hendelse.eventName == oppdaterteKandidatlisteEventName && !repository.kandidatlisteFinnesIDb(listeId)
 
-
-
-        if (erEndremeldingPåIkkeeksisterendeListe) {
-            log.warn("Fikk endremelding ($eventName) på listen $kandidatlisteId, men denne forkastes fordi listen ikke finnes i databasen")
+        if (finnesFraFør) {
+            log.warn("Ignorerer melding. Fikk opprettmelding for en kandidatliste som er opprettet ffra før. eventName=${hendelse.eventName}, kandidatlisteId=${hendelse.kandidatlisteId}")
+            return
+        } else if (oppdaterhendelseManglerOppretthendelse) {
+            log.warn("Ignorerer melding. Fikk oppdatermelding for en kandidatliste som ikke har blitt opprettet. eventName=${hendelse.eventName}, kandidatlisteId=${hendelse.kandidatlisteId}")
             return
         }
 
-        repository.lagreKandidatlistehendelse(eventName, kandidatlistehendelse)
+        repository.lagreKandidatlistehendelse(hendelse)
 
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())
@@ -100,8 +104,5 @@ data class Kandidatlistehendelse(
     val tidspunkt: ZonedDateTime,
     val stillingsId: String,
     val utførtAvNavIdent: String,
+    val eventName: String
 )
-
-
-typealias OpprettKandidatliste = Kandidatlistehendelse
-typealias OppdaterKandidatliste = OpprettKandidatliste
