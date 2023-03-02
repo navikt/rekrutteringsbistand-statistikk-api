@@ -18,7 +18,10 @@ fun hentUsendteUtfallOgSendPåKafka(
                 kafkaProducer.send(it, stilling!!.stillingskategori)
                 kandidatutfallRepository.registrerSomSendt(it)
             } catch (e: Exception) {
-                log.warn("Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall", e)
+                log.warn(
+                    "Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall. stillingsId=${it.stillingsId}",
+                    e
+                )
                 Metrics.counter(
                     "rekrutteringsbistand.statistikk.kafka.feilet", "antallSendtForsøk", it.antallSendtForsøk.toString()
                 ).increment()
