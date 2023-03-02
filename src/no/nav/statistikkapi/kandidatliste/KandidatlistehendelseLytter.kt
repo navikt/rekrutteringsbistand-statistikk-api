@@ -71,7 +71,7 @@ class KandidatlistehendelseLytter(
         val finnesFraFør = repository.hendelseFinnesFraFør(hendelse.eventName, listeId, hendelse.tidspunkt)
 
         if (finnesFraFør) {
-            log.warn("Ignorerer melding. Fikk opprettmelding for en kandidatliste som er opprettet ffra før. eventName=${hendelse.eventName}, kandidatlisteId=${hendelse.kandidatlisteId}")
+            log.warn("Ignorerer melding. Fikk opprettmelding for en kandidatliste som er opprettet fra før. eventName=${hendelse.eventName}, kandidatlisteId=${hendelse.kandidatlisteId}")
             return
         }
         repository.lagreKandidatlistehendelse(hendelse)
