@@ -2,19 +2,20 @@ package no.nav.statistikkapi.hendelser
 
 import assertk.assertThat
 import assertk.assertions.*
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
-import no.nav.statistikkapi.kandidatliste.Kandidatlistehendelse
-import no.nav.statistikkapi.kandidatliste.oppdaterteKandidatlisteEventName
-import no.nav.statistikkapi.kandidatliste.opprettetKandidatlisteEventName
+import no.nav.statistikkapi.kandidatliste.*
 import no.nav.statistikkapi.nowOslo
 import no.nav.statistikkapi.randomPort
 import no.nav.statistikkapi.start
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -32,6 +33,17 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         @JvmStatic
         fun beforeClass() {
             start(database = database, rapid = rapid, port = randomPort())
+            setUpLogWatcher()
+        }
+
+        private lateinit var logWatcher: ListAppender<ILoggingEvent>
+
+        private fun setUpLogWatcher() {
+            logWatcher = ListAppender<ILoggingEvent>()
+            logWatcher.start()
+            val logger =
+                LoggerFactory.getLogger(KandidatlistehendelseLytter::class.java) as ch.qos.logback.classic.Logger
+            logger.addAppender(logWatcher)
         }
     }
 
@@ -39,6 +51,8 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
     fun afterEach() {
         testRepository.slettAlleKandidatlister()
         rapid.reset()
+
+        setUpLogWatcher()
     }
 
     @Test
@@ -66,6 +80,19 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
 
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         assertThat(kandidatlisterFraDB).hasSize(0)
+
+        assertIngenFeilILogg()
+    }
+
+    @Test
+    fun `Skal ignorere melding om opprettet kandidatliste om stillinger som ikke er publiserte`() {
+        val tidspunktForHendelse = nowOslo()
+        rapid.sendTestMessage(opprettetKandidatlisteMelding(tidspunktForHendelse, stillingensPubliseringstidspunkt = null))
+
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        assertThat(kandidatlisterFraDB).hasSize(0)
+
+        assertIngenFeilILogg()
     }
 
     @Test
@@ -133,6 +160,43 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
 
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         assertThat(kandidatlisterFraDB).hasSize(1)
+
+        assertIngenFeilILogg()
+    }
+
+    @Test
+    fun `Skal ignorere oppdatert-melding om stillingen ikke er publisert`() {
+        val kandidatlisteId = UUID.randomUUID()
+        kandidatlisteRepository.lagreKandidatlistehendelse(
+            Kandidatlistehendelse(
+                stillingOpprettetTidspunkt = nowOslo(),
+                stillingensPubliseringstidspunkt = nowOslo(),
+                organisasjonsnummer = "123123123",
+                antallStillinger = 40,
+                antallKandidater = 20,
+                erDirektemeldt = true,
+                kandidatlisteId = "$kandidatlisteId",
+                tidspunkt = nowOslo(),
+                stillingsId = UUID.randomUUID().toString(),
+                utførtAvNavIdent = "A100100",
+                eventName = oppdaterteKandidatlisteEventName
+            )
+        )
+
+        assertThat(testRepository.hentKandidatlister()).hasSize(1)
+
+        val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023, 1, 1, 1, 0), ZoneId.of("Europe/Oslo"))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(kandidatlisteId, tidspunkt, stillingensPubliseringstidspunkt = null))
+
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        assertThat(kandidatlisterFraDB).hasSize(1)
+
+        assertIngenFeilILogg()
+    }
+
+    private fun assertIngenFeilILogg() {
+        val warningsOgErrorsLogglinjer = logWatcher.list.filter { it.level == Level.ERROR || it.level == Level.WARN }
+        assertThat(warningsOgErrorsLogglinjer).isEmpty()
     }
 
     @Test
@@ -185,7 +249,12 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         assertThat(kandidatlisterFraDB).hasSize(2)
     }
 
-    private fun oppdaterteKandidatlisteMelding(kandidatlisteId: UUID, tidspunktForHendelse: ZonedDateTime, harStilling: Boolean = true) = """
+    private fun oppdaterteKandidatlisteMelding(
+        kandidatlisteId: UUID,
+        tidspunktForHendelse: ZonedDateTime,
+        harStilling: Boolean = true,
+        stillingensPubliseringstidspunkt: String? = "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]"
+    ) = """
         {
           "antallKandidater": 40,
           "organisasjonsnummer": "312113341",
@@ -233,7 +302,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
             "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]",
             "antallStillinger": 20,
             "organisasjonsnummer": "312113341",
-            "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]"
+            "stillingensPubliseringstidspunkt": ${stillingensPubliseringstidspunkt?.let { "\"$it\"" }}
           },""" else ""}
           "@forårsaket_av": {
             "id": "3ab3fb46-92eb-4b84-aab4-6c81cc09d87c",
@@ -243,7 +312,10 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         }
     """.trimIndent()
 
-    private fun opprettetKandidatlisteMelding(tidspunktForHendelsen: ZonedDateTime, harStilling: Boolean = true) = """
+    private fun opprettetKandidatlisteMelding(
+        tidspunktForHendelsen: ZonedDateTime, harStilling: Boolean = true,
+        stillingensPubliseringstidspunkt: String? = "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]"
+    ) = """
         {
           "antallKandidater": 0,
           "organisasjonsnummer": "312113341",
@@ -291,7 +363,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
             "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]",
             "antallStillinger": 1,
             "organisasjonsnummer": "312113341",
-            "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]"
+            "stillingensPubliseringstidspunkt": ${stillingensPubliseringstidspunkt?.let { "\"$it\"" }}
           },""" else ""}
           "@forårsaket_av": {
             "id": "3ab3fb46-92eb-4b84-aab4-6c81cc09d87c",

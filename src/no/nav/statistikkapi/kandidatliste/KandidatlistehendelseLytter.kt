@@ -23,10 +23,10 @@ class KandidatlistehendelseLytter(
                 )
 
                 it.demandKey("stilling")
+                it.demandKey("stilling.stillingensPubliseringstidspunkt")
 
                 it.requireKey(
                     "stilling.stillingOpprettetTidspunkt",
-                    "stilling.stillingensPubliseringstidspunkt",
                     "stilling.antallStillinger",
                     "stilling.erDirektemeldt",
                     "antallKandidater",
