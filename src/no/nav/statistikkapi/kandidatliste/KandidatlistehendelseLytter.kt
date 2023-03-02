@@ -2,6 +2,7 @@ package no.nav.statistikkapi.kandidatliste
 
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
+import no.nav.statistikkapi.kandidatutfall.exists
 import no.nav.statistikkapi.log
 import java.time.ZonedDateTime
 import java.util.*
@@ -34,11 +35,14 @@ class KandidatlistehendelseLytter(
                     "stillingsId",
                     "utførtAvNavIdent",
                 )
+                it.interestedIn("stilling", "stillingsinfo")
             }
         }.register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        if (!erEntenKomplettStillingEllerIngenStilling(packet)) return
+
         val stillingOpprettetTidspunkt = packet["stillingOpprettetTidspunkt"].asZonedDateTime()
         val stillingensPubliseringstidspunkt = packet["stillingensPubliseringstidspunkt"].asZonedDateTime()
         val antallStillinger = packet["antallStillinger"].asInt()
@@ -83,6 +87,10 @@ class KandidatlistehendelseLytter(
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())
     }
+
+    private fun erEntenKomplettStillingEllerIngenStilling(packet: JsonMessage): Boolean =
+        packet["stillingsId"].isMissingOrNull() ||
+                (packet["stilling"].exists() && packet["stillingsinfo"].exists())
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error("Feil ved lesing av melding\n$problems")

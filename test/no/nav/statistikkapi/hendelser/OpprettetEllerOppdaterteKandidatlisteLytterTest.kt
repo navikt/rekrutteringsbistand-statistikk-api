@@ -163,13 +163,50 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
           "@event_name": "kandidat_v2.OppdaterteKandidatliste",
           "system_participating_services": [
             {
-              "id": "131d6070-8ad1-44ec-ab81-92595e3e0ab2",
-              "time": "2023-02-23T13:28:30.009883591",
+              "id": "c401cdfd-1dbd-4796-ae8a-574d60d61358",
+              "time": "2023-03-02T11:55:00.005653899",
               "service": "rekrutteringsbistand-kandidat-api",
-              "instance": "rekrutteringsbistand-kandidat-api-dfc77c7b4-qrr69",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-kandidat-api/rekrutteringsbistand-kandidat-api:6a09c2c38b8f925b4a8290c5e07c348d02c30824"
+              "instance": "rekrutteringsbistand-kandidat-api-7d9d79fbd4-rtd4x",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-kandidat-api/rekrutteringsbistand-kandidat-api:a7c562a9c6589b78d17096256163cd803f7b8c31"
+            },
+            {
+              "id": "3ab3fb46-92eb-4b84-aab4-6c81cc09d87c",
+              "time": "2023-03-02T11:55:00.055783457",
+              "service": "rekrutteringsbistand-stilling-api",
+              "instance": "rekrutteringsbistand-stilling-api-7c56bff44b-7wrzs",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:a8bc3d869653c84047262c5760b4946f73e6b44f"
+            },
+            {
+              "id": "a35579e8-cef5-42ad-b546-baf720b4eb3e",
+              "time": "2023-03-02T11:55:00.150721581",
+              "service": "rekrutteringsbistand-stilling-api",
+              "instance": "rekrutteringsbistand-stilling-api-7c56bff44b-7wrzs",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:a8bc3d869653c84047262c5760b4946f73e6b44f"
             }
-          ]
+          ],
+          "@id": "a35579e8-cef5-42ad-b546-baf720b4eb3e",
+          "@opprettet": "2023-03-02T11:55:00.150721581",
+          "system_read_count": 0,
+          "stillingsinfo": {
+            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+            "stillingsid": "ebca044c-817a-4f9e-94ba-c73341c7d182",
+            "eier": null,
+            "notat": "sds",
+            "stillingskategori": "STILLING"
+          },
+          "stilling": {
+            "stillingstittel": "ergerg",
+            "erDirektemeldt": true,
+            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
+            "antallStillinger": 3,
+            "organisasjonsnummer": "923282556",
+            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
+          },
+          "@forårsaket_av": {
+            "id": "3ab3fb46-92eb-4b84-aab4-6c81cc09d87c",
+            "opprettet": "2023-03-02T11:55:00.055783457",
+            "event_name": "kandidat_v2.OppdaterteKandidatliste"
+          }
         }
     """.trimIndent()
 
@@ -188,13 +225,50 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
           "@event_name": "kandidat_v2.OpprettetKandidatliste",
           "system_participating_services": [
             {
-              "id": "131d6070-8ad1-44ec-ab81-92595e3e0ab2",
-              "time": "2023-02-23T13:28:30.009883591",
+              "id": "c401cdfd-1dbd-4796-ae8a-574d60d61358",
+              "time": "2023-03-02T11:55:00.005653899",
               "service": "rekrutteringsbistand-kandidat-api",
-              "instance": "rekrutteringsbistand-kandidat-api-dfc77c7b4-qrr69",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-kandidat-api/rekrutteringsbistand-kandidat-api:6a09c2c38b8f925b4a8290c5e07c348d02c30824"
+              "instance": "rekrutteringsbistand-kandidat-api-7d9d79fbd4-rtd4x",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-kandidat-api/rekrutteringsbistand-kandidat-api:a7c562a9c6589b78d17096256163cd803f7b8c31"
+            },
+            {
+              "id": "3ab3fb46-92eb-4b84-aab4-6c81cc09d87c",
+              "time": "2023-03-02T11:55:00.055783457",
+              "service": "rekrutteringsbistand-stilling-api",
+              "instance": "rekrutteringsbistand-stilling-api-7c56bff44b-7wrzs",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:a8bc3d869653c84047262c5760b4946f73e6b44f"
+            },
+            {
+              "id": "a35579e8-cef5-42ad-b546-baf720b4eb3e",
+              "time": "2023-03-02T11:55:00.150721581",
+              "service": "rekrutteringsbistand-stilling-api",
+              "instance": "rekrutteringsbistand-stilling-api-7c56bff44b-7wrzs",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:a8bc3d869653c84047262c5760b4946f73e6b44f"
             }
-          ]
+          ],
+          "@id": "a35579e8-cef5-42ad-b546-baf720b4eb3e",
+          "@opprettet": "2023-03-02T11:55:00.150721581",
+          "system_read_count": 0,
+          "stillingsinfo": {
+            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+            "stillingsid": "ebca044c-817a-4f9e-94ba-c73341c7d182",
+            "eier": null,
+            "notat": "sds",
+            "stillingskategori": "STILLING"
+          },
+          "stilling": {
+            "stillingstittel": "ergerg",
+            "erDirektemeldt": true,
+            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
+            "antallStillinger": 3,
+            "organisasjonsnummer": "923282556",
+            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
+          },
+          "@forårsaket_av": {
+            "id": "3ab3fb46-92eb-4b84-aab4-6c81cc09d87c",
+            "opprettet": "2023-03-02T11:55:00.055783457",
+            "event_name": "kandidat_v2.OppdaterteKandidatliste"
+          }
         }
     """.trimIndent()
 }
