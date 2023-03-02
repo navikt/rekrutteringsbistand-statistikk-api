@@ -129,25 +129,6 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         const val utførtAvNavIdentKolonne = "utført_av_nav_ident"
         const val tidspunktForHendelsenKolonne = "tidspunkt_for_hendelsen"
         const val eventNameKolonne = "event_name"
-
-        // TODO: Brukes foreløpig kun i test-kode, hvis ikke blir tatt i bruk i prod-kode bør den flyttes til test-koden
-        fun konverterTilKandidatliste(resultSet: ResultSet): Kandidatliste =
-            Kandidatliste(
-                dbId = resultSet.getLong(dbIdKolonne),
-                kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteIdKolonne)),
-                stillingsId = UUID.fromString(resultSet.getString(stillingsIdKolonne)),
-                erDirektemeldt = resultSet.getBoolean(erDirektemeldtKolonne),
-                antallStillinger = resultSet.getInt(antallStillingerKolonne),
-                antallKandidater = resultSet.getInt(antallKandidaterKolonne),
-                stillingOpprettetTidspunkt = resultSet.getTimestamp(stillingOpprettetTidspunktKolonne).toInstant()
-                    .atOslo(),
-                stillingensPubliseringstidspunkt = resultSet.getTimestamp(stillingensPubliseringstidspunktKolonne)
-                    .toInstant().atOslo(),
-                organisasjonsnummer = resultSet.getString(organisasjonsnummerKolonne),
-                utførtAvNavIdent = resultSet.getString(utførtAvNavIdentKolonne),
-                tidspunkt = resultSet.getTimestamp(tidspunktForHendelsenKolonne).toInstant().atOslo(),
-                eventName = resultSet.getString(eventNameKolonne)
-            )
     }
 
     fun hendelseFinnesFraFør(
@@ -174,19 +155,3 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
 
     }
 }
-
-// TODO Slettes eller flyttes til testkode, fordi den ikke brukes av prodkode i skrivende stund.
-data class Kandidatliste(
-    val dbId: Long,
-    val kandidatlisteId: UUID,
-    val stillingsId: UUID,
-    val erDirektemeldt: Boolean,
-    val stillingOpprettetTidspunkt: ZonedDateTime,
-    val stillingensPubliseringstidspunkt: ZonedDateTime,
-    val organisasjonsnummer: String,
-    val antallStillinger: Int,
-    val antallKandidater: Int,
-    val tidspunkt: ZonedDateTime,
-    val utførtAvNavIdent: String,
-    val eventName: String
-)

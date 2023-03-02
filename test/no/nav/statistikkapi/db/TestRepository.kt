@@ -1,9 +1,7 @@
 package no.nav.statistikkapi.db
 
 import no.nav.statistikkapi.atOslo
-import no.nav.statistikkapi.kandidatliste.Kandidatliste
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
-import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository.Companion.konverterTilKandidatliste
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
@@ -11,7 +9,9 @@ import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.konverterTilStilling
 import no.nav.statistikkapi.tiltak.TiltaksRepository
+import java.sql.ResultSet
 import java.time.ZonedDateTime
+import java.util.*
 import javax.sql.DataSource
 
 class TestRepository(private val dataSource: DataSource) {
@@ -51,6 +51,24 @@ class TestRepository(private val dataSource: DataSource) {
             }.toList()
         }
     }
+
+    fun konverterTilKandidatliste(resultSet: ResultSet): Kandidatliste =
+        Kandidatliste(
+            dbId = resultSet.getLong(KandidatlisteRepository.dbIdKolonne),
+            kandidatlisteId = UUID.fromString(resultSet.getString(KandidatlisteRepository.kandidatlisteIdKolonne)),
+            stillingsId = UUID.fromString(resultSet.getString(KandidatlisteRepository.stillingsIdKolonne)),
+            erDirektemeldt = resultSet.getBoolean(KandidatlisteRepository.erDirektemeldtKolonne),
+            antallStillinger = resultSet.getInt(KandidatlisteRepository.antallStillingerKolonne),
+            antallKandidater = resultSet.getInt(KandidatlisteRepository.antallKandidaterKolonne),
+            stillingOpprettetTidspunkt = resultSet.getTimestamp(KandidatlisteRepository.stillingOpprettetTidspunktKolonne).toInstant()
+                .atOslo(),
+            stillingensPubliseringstidspunkt = resultSet.getTimestamp(KandidatlisteRepository.stillingensPubliseringstidspunktKolonne)
+                .toInstant().atOslo(),
+            organisasjonsnummer = resultSet.getString(KandidatlisteRepository.organisasjonsnummerKolonne),
+            utførtAvNavIdent = resultSet.getString(KandidatlisteRepository.utførtAvNavIdentKolonne),
+            tidspunkt = resultSet.getTimestamp(KandidatlisteRepository.tidspunktForHendelsenKolonne).toInstant().atOslo(),
+            eventName = resultSet.getString(KandidatlisteRepository.eventNameKolonne)
+        )
 
     fun slettAlleKandidatlister() {
         dataSource.connection.use {
@@ -95,4 +113,18 @@ class TestRepository(private val dataSource: DataSource) {
     }
     class TiltakRad(val sistEndret: ZonedDateTime, val avtaleInngått: ZonedDateTime, val tiltakstype: String)
 
+    data class Kandidatliste(
+        val dbId: Long,
+        val kandidatlisteId: UUID,
+        val stillingsId: UUID,
+        val erDirektemeldt: Boolean,
+        val stillingOpprettetTidspunkt: ZonedDateTime,
+        val stillingensPubliseringstidspunkt: ZonedDateTime,
+        val organisasjonsnummer: String,
+        val antallStillinger: Int,
+        val antallKandidater: Int,
+        val tidspunkt: ZonedDateTime,
+        val utførtAvNavIdent: String,
+        val eventName: String
+    )
 }
