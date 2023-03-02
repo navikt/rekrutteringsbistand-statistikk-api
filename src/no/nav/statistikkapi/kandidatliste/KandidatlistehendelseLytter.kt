@@ -2,7 +2,6 @@ package no.nav.statistikkapi.kandidatliste
 
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
-import no.nav.statistikkapi.kandidatutfall.exists
 import no.nav.statistikkapi.log
 import java.time.ZonedDateTime
 import java.util.*
@@ -70,26 +69,16 @@ class KandidatlistehendelseLytter(
 
         val listeId = UUID.fromString(hendelse.kandidatlisteId)
         val finnesFraFør = repository.hendelseFinnesFraFør(hendelse.eventName, listeId, hendelse.tidspunkt)
-        val oppdaterhendelseManglerOppretthendelse =
-            hendelse.eventName == oppdaterteKandidatlisteEventName && !repository.kandidatlisteFinnesIDb(listeId)
 
         if (finnesFraFør) {
             log.warn("Ignorerer melding. Fikk opprettmelding for en kandidatliste som er opprettet ffra før. eventName=${hendelse.eventName}, kandidatlisteId=${hendelse.kandidatlisteId}")
             return
-        } else if (oppdaterhendelseManglerOppretthendelse) {
-            log.warn("Ignorerer melding. Fikk oppdatermelding for en kandidatliste som ikke har blitt opprettet. eventName=${hendelse.eventName}, kandidatlisteId=${hendelse.kandidatlisteId}")
-            return
         }
-
         repository.lagreKandidatlistehendelse(hendelse)
 
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())
     }
-
-    private fun erEntenKomplettStillingEllerIngenStilling(packet: JsonMessage): Boolean =
-        packet["stillingsId"].isMissingOrNull() ||
-                (packet["stilling"].exists() && packet["stillingsinfo"].exists())
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error("Feil ved lesing av melding\n$problems")

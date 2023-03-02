@@ -136,14 +136,14 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
     }
 
     @Test
-    fun `Vi skal ignorere oppdatert hendelser dersom det ikke finnes opprettet hendelse for samme kandidatliste`() {
+    fun `Vi skal lagre oppdatert hendelser også dersom det ikke finnes opprettet hendelse for samme kandidatliste`() {
         val kandidatlisteId = UUID.randomUUID()
         val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023, 1, 1, 1, 0), ZoneId.of("Europe/Oslo"))
         rapid.sendTestMessage(oppdaterteKandidatlisteMelding(kandidatlisteId, tidspunkt))
 
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
-        assertThat(kandidatlisterFraDB).isEmpty()
-
+        assertThat(kandidatlisterFraDB).hasSize(1)
+        assertThat(kandidatlisterFraDB[0].eventName).isEqualTo(oppdaterteKandidatlisteEventName)
     }
 
     @Test
