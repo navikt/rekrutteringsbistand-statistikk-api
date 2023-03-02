@@ -19,7 +19,7 @@ fun hentUsendteUtfallOgSendPåKafka(
                 kandidatutfallRepository.registrerSomSendt(it)
             } catch (e: Exception) {
                 log.warn(
-                    "Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall. stillingsId=${it.stillingsId}",
+                    "Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall. utfall=${it.utfall}, stillingsId=${it.stillingsId}",
                     e
                 )
                 Metrics.counter(
