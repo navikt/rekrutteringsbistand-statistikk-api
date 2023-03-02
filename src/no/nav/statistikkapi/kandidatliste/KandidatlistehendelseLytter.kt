@@ -23,31 +23,30 @@ class KandidatlistehendelseLytter(
                     listOf(opprettetKandidatlisteEventName, oppdaterteKandidatlisteEventName)
                 )
 
+                it.demandKey("stilling")
+
                 it.requireKey(
-                    "stillingOpprettetTidspunkt",
-                    "stillingensPubliseringstidspunkt",
-                    "antallStillinger",
+                    "stilling.stillingOpprettetTidspunkt",
+                    "stilling.stillingensPubliseringstidspunkt",
+                    "stilling.antallStillinger",
+                    "stilling.erDirektemeldt",
                     "antallKandidater",
-                    "erDirektemeldt",
                     "organisasjonsnummer",
                     "kandidatlisteId",
                     "tidspunkt",
                     "stillingsId",
                     "utførtAvNavIdent",
                 )
-                it.interestedIn("stilling", "stillingsinfo")
             }
         }.register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        if (!erEntenKomplettStillingEllerIngenStilling(packet)) return
-
-        val stillingOpprettetTidspunkt = packet["stillingOpprettetTidspunkt"].asZonedDateTime()
-        val stillingensPubliseringstidspunkt = packet["stillingensPubliseringstidspunkt"].asZonedDateTime()
-        val antallStillinger = packet["antallStillinger"].asInt()
+        val stillingOpprettetTidspunkt = packet["stilling.stillingOpprettetTidspunkt"].asZonedDateTime()
+        val stillingensPubliseringstidspunkt = packet["stilling.stillingensPubliseringstidspunkt"].asZonedDateTime()
+        val antallStillinger = packet["stilling.antallStillinger"].asInt()
+        val erDirektemeldt = packet["stilling.erDirektemeldt"].asBoolean()
         val antallKandidater = packet["antallKandidater"].asInt()
-        val erDirektemeldt = packet["erDirektemeldt"].asBoolean()
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()

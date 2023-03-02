@@ -60,6 +60,15 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
     }
 
     @Test
+    fun `Skal ignorere melding om opprettet kandidatliste som ikke har stilling`() {
+        val tidspunktForHendelse = nowOslo()
+        rapid.sendTestMessage(opprettetKandidatlisteMelding(tidspunktForHendelse, harStilling = false))
+
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        assertThat(kandidatlisterFraDB).hasSize(0)
+    }
+
+    @Test
     fun `Skal motta oppdatert-melding og oppdatere eksisterende kandidatliste i databasen`() {
         val kandidatlisteId = UUID.randomUUID()
         kandidatlisteRepository.lagreKandidatlistehendelse(
@@ -96,6 +105,34 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         assertThat(oppdatertKandidatliste.stillingensPubliseringstidspunkt).isNotNull()
         assertThat(oppdatertKandidatliste.stillingsId).isNotNull()
         assertThat(oppdatertKandidatliste.tidspunkt).isNotNull()
+    }
+
+    @Test
+    fun `Skal ignorere oppdatert-melding og om stilling ikke finnes på hendelse`() {
+        val kandidatlisteId = UUID.randomUUID()
+        kandidatlisteRepository.lagreKandidatlistehendelse(
+            Kandidatlistehendelse(
+                stillingOpprettetTidspunkt = nowOslo(),
+                stillingensPubliseringstidspunkt = nowOslo(),
+                organisasjonsnummer = "123123123",
+                antallStillinger = 40,
+                antallKandidater = 20,
+                erDirektemeldt = true,
+                kandidatlisteId = "$kandidatlisteId",
+                tidspunkt = nowOslo(),
+                stillingsId = UUID.randomUUID().toString(),
+                utførtAvNavIdent = "A100100",
+                eventName = oppdaterteKandidatlisteEventName
+            )
+        )
+
+        assertThat(testRepository.hentKandidatlister()).hasSize(1)
+
+        val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023, 1, 1, 1, 0), ZoneId.of("Europe/Oslo"))
+        rapid.sendTestMessage(oppdaterteKandidatlisteMelding(kandidatlisteId, tidspunkt, harStilling = false))
+
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        assertThat(kandidatlisterFraDB).hasSize(1)
     }
 
     @Test
@@ -148,13 +185,9 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         assertThat(kandidatlisterFraDB).hasSize(2)
     }
 
-    private fun oppdaterteKandidatlisteMelding(kandidatlisteId: UUID, tidspunktForHendelse: ZonedDateTime) = """
+    private fun oppdaterteKandidatlisteMelding(kandidatlisteId: UUID, tidspunktForHendelse: ZonedDateTime, harStilling: Boolean = true) = """
         {
-          "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.75174+01:00",
-          "antallStillinger": 20,
           "antallKandidater": 40,
-          "erDirektemeldt": true,
-          "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.75174+01:00",
           "organisasjonsnummer": "312113341",
           "kandidatlisteId": "$kandidatlisteId",
           "tidspunkt": "${tidspunktForHendelse}",
@@ -194,14 +227,14 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
             "notat": "sds",
             "stillingskategori": "STILLING"
           },
-          "stilling": {
+          ${if(harStilling)""""stilling": {
             "stillingstittel": "ergerg",
             "erDirektemeldt": true,
-            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
-            "antallStillinger": 3,
-            "organisasjonsnummer": "923282556",
-            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
-          },
+            "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]",
+            "antallStillinger": 20,
+            "organisasjonsnummer": "312113341",
+            "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]"
+          },""" else ""}
           "@forårsaket_av": {
             "id": "3ab3fb46-92eb-4b84-aab4-6c81cc09d87c",
             "opprettet": "2023-03-02T11:55:00.055783457",
@@ -210,13 +243,9 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         }
     """.trimIndent()
 
-    private fun opprettetKandidatlisteMelding(tidspunktForHendelsen: ZonedDateTime) = """
+    private fun opprettetKandidatlisteMelding(tidspunktForHendelsen: ZonedDateTime, harStilling: Boolean = true) = """
         {
-          "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.75174+01:00",
-          "antallStillinger": 1,
           "antallKandidater": 0,
-          "erDirektemeldt": true,
-          "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.75174+01:00",
           "organisasjonsnummer": "312113341",
           "kandidatlisteId": "153b304c-9cf2-454c-a224-141914975487",
           "tidspunkt": "$tidspunktForHendelsen",
@@ -256,14 +285,14 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
             "notat": "sds",
             "stillingskategori": "STILLING"
           },
-          "stilling": {
+          ${if(harStilling)""""stilling": {
             "stillingstittel": "ergerg",
             "erDirektemeldt": true,
-            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
-            "antallStillinger": 3,
-            "organisasjonsnummer": "923282556",
-            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
-          },
+            "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]",
+            "antallStillinger": 1,
+            "organisasjonsnummer": "312113341",
+            "stillingensPubliseringstidspunkt": "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]"
+          },""" else ""}
           "@forårsaket_av": {
             "id": "3ab3fb46-92eb-4b84-aab4-6c81cc09d87c",
             "opprettet": "2023-03-02T11:55:00.055783457",
