@@ -224,14 +224,19 @@ private fun registrertDeltCvmelding(tidspunkt: ZonedDateTime = ZonedDateTime.par
             }
           ],
           "stillingsinfo": {
-            "stillingsinfoid": "0f5daf9c-e6c6-4001-86bb-f90f812e40e7",
+            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
             "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
             "eier": null,
-            "notat": null,
+            "notat": "sds",
             "stillingskategori": "STILLING"
           },
           "stilling": {
-            "stillingstittel": "Ny stilling"
+            "stillingstittel": "ergerg",
+            "erDirektemeldt": true,
+            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
+            "antallStillinger": 3,
+            "organisasjonsnummer": "923282556",
+            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
           },
           "@forårsaket_av": {
             "id": "15379170-9d91-4670-bda1-94b4f4355131",
@@ -273,14 +278,19 @@ private val registrertDeltCvmeldingUsynligKandidatUtenInkludering = """
             }
           ],
           "stillingsinfo": {
-            "stillingsinfoid": "0f5daf9c-e6c6-4001-86bb-f90f812e40e7",
+            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
             "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
             "eier": null,
-            "notat": null,
+            "notat": "sds",
             "stillingskategori": "STILLING"
           },
           "stilling": {
-            "stillingstittel": "Ny stilling"
+            "stillingstittel": "ergerg",
+            "erDirektemeldt": true,
+            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
+            "antallStillinger": 3,
+            "organisasjonsnummer": "923282556",
+            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
           },
           "@forårsaket_av": {
             "id": "15379170-9d91-4670-bda1-94b4f4355131",
@@ -388,16 +398,21 @@ private val registrertFåttJobbenMelding = """
           "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
         }
       ],
-      "stillingsinfo": {
-        "stillingsinfoid": "0f5daf9c-e6c6-4001-86bb-f90f812e40e7",
-        "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-        "eier": null,
-        "notat": null,
-        "stillingskategori": "STILLING"
-      },
-      "stilling": {
-        "stillingstittel": "Ny stilling"
-      },
+       "stillingsinfo": {
+            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+            "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+            "eier": null,
+            "notat": "sds",
+            "stillingskategori": "STILLING"
+          },
+          "stilling": {
+            "stillingstittel": "ergerg",
+            "erDirektemeldt": true,
+            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
+            "antallStillinger": 3,
+            "organisasjonsnummer": "923282556",
+            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
+          },
       "@forårsaket_av": {
         "id": "506fbed0-a263-432b-8f74-c4aa96587c90",
         "opprettet": "2023-02-13T12:40:02.037858424",
