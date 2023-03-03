@@ -10,6 +10,10 @@ import javax.sql.DataSource
 class KandidatlisteRepository(private val dataSource: DataSource) {
 
     fun lagreKandidatlistehendelse(hendelse: Kandidatlistehendelse) {
+        val stillingOpprettet = hendelse.stillingOpprettetTidspunkt?.let {
+            Timestamp(hendelse.stillingOpprettetTidspunkt.toInstant().toEpochMilli())
+        }
+
         dataSource.connection.use {
             it.prepareStatement(
                 """insert into $kandidatlisteTabell (
@@ -31,7 +35,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 setBoolean(3, hendelse.erDirektemeldt)
                 setInt(4, hendelse.antallStillinger)
                 setInt(5, hendelse.antallKandidater)
-                setTimestamp(6, Timestamp(hendelse.stillingOpprettetTidspunkt.toInstant().toEpochMilli()))
+                setTimestamp(6, stillingOpprettet)
                 setTimestamp(7, Timestamp(hendelse.stillingensPubliseringstidspunkt.toInstant().toEpochMilli()))
                 setString(8, hendelse.organisasjonsnummer)
                 setString(9, hendelse.utførtAvNavIdent)

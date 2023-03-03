@@ -60,8 +60,7 @@ class TestRepository(private val dataSource: DataSource) {
             erDirektemeldt = resultSet.getBoolean(KandidatlisteRepository.erDirektemeldtKolonne),
             antallStillinger = resultSet.getInt(KandidatlisteRepository.antallStillingerKolonne),
             antallKandidater = resultSet.getInt(KandidatlisteRepository.antallKandidaterKolonne),
-            stillingOpprettetTidspunkt = resultSet.getTimestamp(KandidatlisteRepository.stillingOpprettetTidspunktKolonne).toInstant()
-                .atOslo(),
+            stillingOpprettetTidspunkt = resultSet.getTimestamp(KandidatlisteRepository.stillingOpprettetTidspunktKolonne)?.toInstant()?.atOslo(),
             stillingensPubliseringstidspunkt = resultSet.getTimestamp(KandidatlisteRepository.stillingensPubliseringstidspunktKolonne)
                 .toInstant().atOslo(),
             organisasjonsnummer = resultSet.getString(KandidatlisteRepository.organisasjonsnummerKolonne),
@@ -118,7 +117,7 @@ class TestRepository(private val dataSource: DataSource) {
         val kandidatlisteId: UUID,
         val stillingsId: UUID,
         val erDirektemeldt: Boolean,
-        val stillingOpprettetTidspunkt: ZonedDateTime,
+        val stillingOpprettetTidspunkt: ZonedDateTime?,
         val stillingensPubliseringstidspunkt: ZonedDateTime,
         val organisasjonsnummer: String,
         val antallStillinger: Int,

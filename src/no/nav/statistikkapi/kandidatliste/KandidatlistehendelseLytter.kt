@@ -2,6 +2,7 @@ package no.nav.statistikkapi.kandidatliste
 
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
+import no.nav.statistikkapi.kandidatutfall.asZonedDateTimeNullable
 import no.nav.statistikkapi.log
 import java.time.ZonedDateTime
 import java.util.*
@@ -24,7 +25,6 @@ class KandidatlistehendelseLytter(
 
                 it.demandKey("stilling")
                 it.demandKey("stilling.stillingensPubliseringstidspunkt")
-                it.demandKey("stilling.stillingOpprettetTidspunkt")
 
                 it.requireKey(
                     "stilling.antallStillinger",
@@ -36,12 +36,14 @@ class KandidatlistehendelseLytter(
                     "stillingsId",
                     "utførtAvNavIdent",
                 )
+
+                it.interestedIn("stilling.stillingOpprettetTidspunkt")
             }
         }.register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val stillingOpprettetTidspunkt = packet["stilling.stillingOpprettetTidspunkt"].asZonedDateTime()
+        val stillingOpprettetTidspunkt = packet["stilling.stillingOpprettetTidspunkt"].asZonedDateTimeNullable()
         val stillingensPubliseringstidspunkt = packet["stilling.stillingensPubliseringstidspunkt"].asZonedDateTime()
         val antallStillinger = packet["stilling.antallStillinger"].asInt()
         val erDirektemeldt = packet["stilling.erDirektemeldt"].asBoolean()
@@ -96,7 +98,7 @@ class KandidatlistehendelseLytter(
 }
 
 data class Kandidatlistehendelse(
-    val stillingOpprettetTidspunkt: ZonedDateTime,
+    val stillingOpprettetTidspunkt: ZonedDateTime?,
     val stillingensPubliseringstidspunkt: ZonedDateTime,
     val organisasjonsnummer: String,
     val antallStillinger: Int,

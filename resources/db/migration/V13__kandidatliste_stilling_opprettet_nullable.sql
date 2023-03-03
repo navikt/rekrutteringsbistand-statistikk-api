@@ -1,0 +1,1 @@
+alter table kandidatliste ALTER COLUMN stilling_opprettet_tidspunkt DROP NOT NULL;

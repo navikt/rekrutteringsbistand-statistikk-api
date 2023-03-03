@@ -74,6 +74,24 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
     }
 
     @Test
+    fun `Skal motta melding om opprettet kandidatliste uten stilling opprettet tidspunkt og lagre i databasen`() {
+        val tidspunktForHendelse = nowOslo()
+        rapid.sendTestMessage(opprettetKandidatlisteMelding(tidspunktForHendelsen = tidspunktForHendelse, stillingOpprettetTidspunkt = null))
+
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        assertThat(kandidatlisterFraDB).hasSize(1)
+        kandidatlisterFraDB[0].apply {
+            assertThat(stillingsId).isEqualTo(UUID.fromString("ebca044c-817a-4f9e-94ba-c73341c7d182"))
+            assertThat(kandidatlisteId).isEqualTo(UUID.fromString("153b304c-9cf2-454c-a224-141914975487"))
+            assertThat(erDirektemeldt).isEqualTo(true)
+            assertThat(stillingOpprettetTidspunkt).isNull()
+            assertThat(antallStillinger).isEqualTo(1)
+            assertThat(antallKandidater).isEqualTo(0)
+            assertThat(tidspunkt).isEqualTo(tidspunktForHendelse)
+        }
+    }
+
+    @Test
     fun `Skal ignorere melding om opprettet kandidatliste som ikke har stilling`() {
         val tidspunktForHendelse = nowOslo()
         rapid.sendTestMessage(opprettetKandidatlisteMelding(tidspunktForHendelse, harStilling = false))
@@ -343,7 +361,8 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
         tidspunktForHendelsen: ZonedDateTime,
         harStilling: Boolean = true,
         stillingensPubliseringstidspunkt: String? = "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]",
-        kandidatlisteId: String = "153b304c-9cf2-454c-a224-141914975487"
+        kandidatlisteId: String = "153b304c-9cf2-454c-a224-141914975487",
+        stillingOpprettetTidspunkt: String? = "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]"
     ) = """
         {
           "antallKandidater": 0,
@@ -389,7 +408,7 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
           ${if(harStilling)""""stilling": {
             "stillingstittel": "ergerg",
             "erDirektemeldt": true,
-            "stillingOpprettetTidspunkt": "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]",
+            "stillingOpprettetTidspunkt": ${stillingOpprettetTidspunkt?.let { "\"$it\"" }},
             "antallStillinger": 1,
             "organisasjonsnummer": "312113341",
             "stillingensPubliseringstidspunkt": ${stillingensPubliseringstidspunkt?.let { "\"$it\"" }}
