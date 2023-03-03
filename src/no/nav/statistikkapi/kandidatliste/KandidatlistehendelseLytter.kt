@@ -68,12 +68,18 @@ class KandidatlistehendelseLytter(
         )
 
         val listeId = UUID.fromString(hendelse.kandidatlisteId)
-        val finnesFraFør = repository.hendelseFinnesFraFør(hendelse.eventName, listeId, hendelse.tidspunkt)
+        val erDuplikat = repository.hendelseFinnesFraFør(hendelse.eventName, listeId, hendelse.tidspunkt)
+        val harMottattOpprettetMelding = repository.harMottattOpprettetMelding(listeId)
 
-        if (finnesFraFør) {
+        if (eventName == opprettetKandidatlisteEventName && harMottattOpprettetMelding) {
             log.warn("Ignorerer melding. Fikk opprettmelding for en kandidatliste som er opprettet fra før. eventName=${hendelse.eventName}, kandidatlisteId=${hendelse.kandidatlisteId}")
             return
         }
+        if (erDuplikat) {
+            log.info("Har behandlet meldingen tidligere. Ignorerer den.")
+            return
+        }
+
         repository.lagreKandidatlistehendelse(hendelse)
 
         packet["@slutt_av_hendelseskjede"] = true

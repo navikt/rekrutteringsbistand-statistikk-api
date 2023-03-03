@@ -154,4 +154,22 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
 
     }
+
+    fun harMottattOpprettetMelding(kandidatlisteId: UUID): Boolean {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """
+                select 1 from ${kandidatlisteTabell} 
+                where ${eventNameKolonne} = ?
+                    and ${kandidatlisteIdKolonne} = ?
+            """.trimIndent()
+            ).apply {
+                setString(1, opprettetKandidatlisteEventName)
+                setString(2, kandidatlisteId.toString())
+                val resultSet = executeQuery()
+                return resultSet.next()
+            }
+        }
+
+    }
 }

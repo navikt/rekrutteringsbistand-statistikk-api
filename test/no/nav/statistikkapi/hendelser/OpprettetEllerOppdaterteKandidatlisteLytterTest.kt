@@ -238,7 +238,6 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
                 eventName = opprettetKandidatlisteEventName
             )
         )
-
         assertThat(testRepository.hentKandidatlister()).hasSize(1)
 
         val tidspunkt = ZonedDateTime.of(LocalDateTime.of(2023, 1, 1, 1, 0), ZoneId.of("Europe/Oslo"))
@@ -247,6 +246,34 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
 
         val kandidatlisterFraDB = testRepository.hentKandidatlister()
         assertThat(kandidatlisterFraDB).hasSize(2)
+    }
+
+    @Test
+    fun `Skal kun være mulig å motta én opprettetKandidatliste-hendelse`() {
+        val førsteTidspunkt = nowOslo().minusHours(1)
+        val andreTidspunkt = nowOslo()
+        val kandidatlisteId = UUID.randomUUID()
+        kandidatlisteRepository.lagreKandidatlistehendelse(
+            Kandidatlistehendelse(
+                stillingOpprettetTidspunkt = nowOslo(),
+                stillingensPubliseringstidspunkt = nowOslo(),
+                organisasjonsnummer = "123123123",
+                antallStillinger = 40,
+                antallKandidater = 20,
+                erDirektemeldt = true,
+                kandidatlisteId = kandidatlisteId.toString(),
+                tidspunkt = førsteTidspunkt,
+                stillingsId = UUID.randomUUID().toString(),
+                utførtAvNavIdent = "A100100",
+                eventName = opprettetKandidatlisteEventName
+            )
+        )
+        assertThat(testRepository.hentKandidatlister()).hasSize(1)
+
+        rapid.sendTestMessage(opprettetKandidatlisteMelding(tidspunktForHendelsen = andreTidspunkt, harStilling = true, kandidatlisteId = kandidatlisteId.toString()))
+
+        val kandidatlisterFraDB = testRepository.hentKandidatlister()
+        assertThat(kandidatlisterFraDB).hasSize(1)
     }
 
     private fun oppdaterteKandidatlisteMelding(
@@ -313,13 +340,15 @@ class OpprettetEllerOppdaterteKandidatlisteLytterTest {
     """.trimIndent()
 
     private fun opprettetKandidatlisteMelding(
-        tidspunktForHendelsen: ZonedDateTime, harStilling: Boolean = true,
-        stillingensPubliseringstidspunkt: String? = "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]"
+        tidspunktForHendelsen: ZonedDateTime,
+        harStilling: Boolean = true,
+        stillingensPubliseringstidspunkt: String? = "2023-01-06T08:57:40.751740+01:00[Europe/Oslo]",
+        kandidatlisteId: String = "153b304c-9cf2-454c-a224-141914975487"
     ) = """
         {
           "antallKandidater": 0,
           "organisasjonsnummer": "312113341",
-          "kandidatlisteId": "153b304c-9cf2-454c-a224-141914975487",
+          "kandidatlisteId": "$kandidatlisteId",
           "tidspunkt": "$tidspunktForHendelsen",
           "stillingsId": "ebca044c-817a-4f9e-94ba-c73341c7d182",
           "utførtAvNavIdent": "Z994086",
