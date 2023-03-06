@@ -1,5 +1,6 @@
 package no.nav.statistikkapi.kandidatliste
 
+import java.sql.SQLException
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 import java.util.*
@@ -112,6 +113,29 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 return resultSet.getInt(1)
             } else {
                 throw RuntimeException("Prøvde å hente antall kandidatlister tilknyttet eksterne stillinger fra databasen")
+            }
+        }
+    }
+
+    fun hentAntallStillingerForAlleEksterneStillingsannonserMedKandidatliste(): Int {
+        dataSource.connection.use {
+            try {
+                val resultSet = it.prepareStatement(
+                    """
+                SELECT DISTINCT $kandidatlisteIdKolonne, $antallStillingerKolonne FROM $kandidatlisteTabell
+                        where $erDirektemeldtKolonne is false and $stillingOpprettetTidspunktKolonne is not null
+            """.trimIndent()
+                ).executeQuery()
+
+                var antallStillinger = 0
+
+                while (resultSet.next()) {
+                    antallStillinger += resultSet.getInt(antallStillingerKolonne)
+                }
+                return antallStillinger
+
+            } catch (e: SQLException) {
+                throw RuntimeException("Prøvde å hente antall stillinger tilknyttet eksterne stillingsannonser fra databasen")
             }
         }
     }
