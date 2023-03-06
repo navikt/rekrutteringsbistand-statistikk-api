@@ -79,7 +79,22 @@ class KandidatlisteRepositoryTest {
     }
 
     @Test
-    fun `Tell antall kandidatlister tilknyttet direktemeldte stillinger`() {
+    fun `Tell antall kandidatlister tilknyttet direktemeldte stillinger skal kun telle kandidatlister tilknyttet opprettede stillinger`() {
+        val kandidatlisteIdDirektemeldt = UUID.randomUUID()
+        val opprettetKandidatlisteHendelseDirektemeldt = lagOpprettetKandidatlisteHendelse(kandidatlisteId = kandidatlisteIdDirektemeldt, erDirektemeldt = true, stillingOpprettetTidspunkt = null)
+        val oppdatertKandidatlistehendelseDirektemeldt = lagOppdatertKandidatlisteHendelse(kandidatlisteId = kandidatlisteIdDirektemeldt, erDirektemeldt = true)
+        val nyOpprettetKandidatlisteHendelseDirektemeldt = lagOpprettetKandidatlisteHendelse(erDirektemeldt = true, stillingOpprettetTidspunkt = null)
+        kandidatlisteRepository.lagreKandidatlistehendelse(opprettetKandidatlisteHendelseDirektemeldt)
+        kandidatlisteRepository.lagreKandidatlistehendelse(oppdatertKandidatlistehendelseDirektemeldt)
+        kandidatlisteRepository.lagreKandidatlistehendelse(nyOpprettetKandidatlisteHendelseDirektemeldt)
+
+        val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldteStillinger()
+
+        assertThat(antallKandidatlister).isEqualTo(1)
+    }
+
+    @Test
+    fun `Tell antall kandidatlister tilknyttet direktemeldte stillinger skal ikke telle med kandidatlister tilknyttet eksterne stillinger`() {
         val kandidatlisteIdDirektemeldt = UUID.randomUUID()
         val opprettetKandidatlisteHendelseDirektemeldt = lagOpprettetKandidatlisteHendelse(kandidatlisteId = kandidatlisteIdDirektemeldt, erDirektemeldt = true, stillingOpprettetTidspunkt = null)
         val oppdatertKandidatlistehendelseDirektemeldt = lagOppdatertKandidatlisteHendelse(kandidatlisteId = kandidatlisteIdDirektemeldt, erDirektemeldt = true)
