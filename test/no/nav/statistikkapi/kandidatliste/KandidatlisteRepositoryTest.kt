@@ -109,7 +109,42 @@ class KandidatlisteRepositoryTest {
     }
 
     @Test
-    fun `Tell antall kandidatlister tilknyttet eksterne stillinger`() {
+    fun `Tell antall kandidatlister tilknyttet eksterne stillinger skal kun telle kandidatlister tilknyttet opprettede stillinger`() {
+        val opprettetKandidatlisteHendelse = lagOpprettetKandidatlisteHendelse(erDirektemeldt = false, stillingOpprettetTidspunkt = null)
+        val nyOpprettetKandidatlisteHendelse = lagOpprettetKandidatlisteHendelse(erDirektemeldt = false)
+        kandidatlisteRepository.lagreKandidatlistehendelse(opprettetKandidatlisteHendelse)
+        kandidatlisteRepository.lagreKandidatlistehendelse(nyOpprettetKandidatlisteHendelse)
+
+        val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetEksterneStillinger()
+
+        assertThat(antallKandidatlister).isEqualTo(1)
+    }
+
+    @Test
+    fun `Tell antall kandidatlister tilknyttet eksterne stillinger skal ikke telle kandidatlister tilknyttet direktemeldte stillinger`() {
+        val oppdatertKandidatlisteHendelseEkstern = lagOppdatertKandidatlisteHendelse(erDirektemeldt = false)
+        val oppdatertKandidatlisteHendelseDirektemeldt = lagOppdatertKandidatlisteHendelse(erDirektemeldt = true)
+        kandidatlisteRepository.lagreKandidatlistehendelse(oppdatertKandidatlisteHendelseEkstern)
+        kandidatlisteRepository.lagreKandidatlistehendelse(oppdatertKandidatlisteHendelseDirektemeldt)
+
+        val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetEksterneStillinger()
+
+        assertThat(antallKandidatlister).isEqualTo(1)
+    }
+
+    @Test
+    fun `Skal telle kandidatliste tilknyttet ekstern stilling kun en gang per kandidatlisteId`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val opprettetKandidatlisteHendelse = lagOpprettetKandidatlisteHendelse(kandidatlisteId = kandidatlisteId, erDirektemeldt = false)
+        val oppdatertKandidatliseHendelse = lagOppdatertKandidatlisteHendelse(kandidatlisteId = kandidatlisteId, erDirektemeldt = false)
+        val nyOppdatertKandidatlisteHendelse = lagOppdatertKandidatlisteHendelse(kandidatlisteId = kandidatlisteId, erDirektemeldt = false)
+        kandidatlisteRepository.lagreKandidatlistehendelse(opprettetKandidatlisteHendelse)
+        kandidatlisteRepository.lagreKandidatlistehendelse(oppdatertKandidatliseHendelse)
+        kandidatlisteRepository.lagreKandidatlistehendelse(nyOppdatertKandidatlisteHendelse)
+
+        val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetEksterneStillinger()
+
+        assertThat(antallKandidatlister).isEqualTo(1)
     }
 
     fun lagOpprettetKandidatlisteHendelse(
