@@ -1,7 +1,5 @@
 package no.nav.statistikkapi.kandidatliste
 
-import no.nav.statistikkapi.atOslo
-import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 import java.util.*
@@ -61,12 +59,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallKandidatlister(): Int {
+    fun hentAntallKandidatlisterForOpprettedeStillinger(): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
                 SELECT COUNT(unike_kandidatlister.*) FROM (
                     SELECT DISTINCT $kandidatlisteIdKolonne FROM $kandidatlisteTabell
+                    where $stillingOpprettetTidspunktKolonne is not null
                 ) as unike_kandidatlister
             """.trimIndent()
             ).executeQuery()
