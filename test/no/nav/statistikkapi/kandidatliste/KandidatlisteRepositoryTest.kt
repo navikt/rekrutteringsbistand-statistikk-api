@@ -203,6 +203,20 @@ class KandidatlisteRepositoryTest {
         assertThat(antallStillinger).isEqualTo(80)
     }
 
+    @Test
+    fun `Skal returnere totale antall stillinger for alle stillingsannonser med kandidatliste`() {
+        val opprettetKandidatlisteHendelseEkstern = lagOpprettetKandidatlisteHendelse(erDirektemeldt = false)
+        val oppdatertKandidatlisteHendelseDirektemeldt = lagOppdatertKandidatlisteHendelse(erDirektemeldt = true)
+        val nyOppdatertKandidatlisteHendelseDirektemeldt = lagOppdatertKandidatlisteHendelse(erDirektemeldt = true)
+        kandidatlisteRepository.lagreKandidatlistehendelse(opprettetKandidatlisteHendelseEkstern)
+        kandidatlisteRepository.lagreKandidatlistehendelse(oppdatertKandidatlisteHendelseDirektemeldt)
+        kandidatlisteRepository.lagreKandidatlistehendelse(nyOppdatertKandidatlisteHendelseDirektemeldt)
+
+        val antallStillinger = kandidatlisteRepository.hentAntallStillingerForAlleStillingsannonserMedKandidatliste()
+
+        assertThat(antallStillinger).isEqualTo(120)
+    }
+
     fun lagOpprettetKandidatlisteHendelse(
         kandidatlisteId: UUID = UUID.randomUUID(),
         erDirektemeldt: Boolean,
