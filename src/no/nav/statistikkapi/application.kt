@@ -25,7 +25,7 @@ import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlistehendelseLytter
 import no.nav.statistikkapi.kandidatutfall.*
-import no.nav.statistikkapi.statistikkjobb.Statistikkjobb
+import no.nav.statistikkapi.metrikker.MetrikkJobb
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
@@ -72,7 +72,7 @@ fun startApp(
     val stillingRepository = StillingRepository(database.dataSource)
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
-    val statistikkjobb = Statistikkjobb(kandidatutfallRepository,kandidatlisteRepository, prometheusMeterRegistry)
+    val metrikkJobb = MetrikkJobb(kandidatutfallRepository,kandidatlisteRepository, prometheusMeterRegistry)
 
     val rapid = RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(
@@ -147,7 +147,7 @@ fun startApp(
         TiltakManglerAktørIdLytter(this)
     }
 
-    statistikkjobb.start();
+    metrikkJobb.start();
     rapid.start()
 }
 

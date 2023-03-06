@@ -1,4 +1,4 @@
-package no.nav.statistikkapi.statistikkjobb
+package no.nav.statistikkapi.metrikker
 
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
@@ -7,7 +7,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
-class Statistikkjobb(
+class MetrikkJobb(
     private val kandidatutfallRepository: KandidatutfallRepository,
     private val kandidatlisteRepository: KandidatlisteRepository,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
