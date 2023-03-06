@@ -72,7 +72,8 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             return
         }
         if (!erForventetUtfall(eventNamePostfix, utfallFraDb.utfall)) {
-            log.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}")
+            log.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, sjekk secureLog for mer informasjon")
+            secureLog.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, aktørId: $aktørId, kandidatlisteId: $kandidatlisteId")
             return
         }
 
