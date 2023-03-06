@@ -140,6 +140,29 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentAntallStillingerForAlleDirektemeldteStillingsannonser(): Int {
+        dataSource.connection.use {
+            try {
+                val resultSet = it.prepareStatement(
+                    """
+                SELECT DISTINCT $kandidatlisteIdKolonne, $antallStillingerKolonne FROM $kandidatlisteTabell
+                        where $erDirektemeldtKolonne is true and $stillingOpprettetTidspunktKolonne is not null
+            """.trimIndent()
+                ).executeQuery()
+
+                var antallStillinger = 0
+
+                while (resultSet.next()) {
+                    antallStillinger += resultSet.getInt(antallStillingerKolonne)
+                }
+                return antallStillinger
+
+            } catch (e: SQLException) {
+                throw RuntimeException("Prøvde å hente antall stillinger tilknyttet direktemeldte stillingsannonser fra databasen")
+            }
+        }
+    }
+
 
     companion object {
         const val kandidatlisteTabell = "kandidatliste"
