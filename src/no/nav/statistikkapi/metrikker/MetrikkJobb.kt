@@ -65,6 +65,6 @@ class MetrikkJobb(
         antallKandidatlisterTilknyttetEksternStilling.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetEksterneStillinger().toLong())
         antallStillingerForAlleEksterneStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForAlleEksterneStillingsannonserMedKandidatliste().toLong())
         antallStillingerForAlleDirektemeldteStillingsannonser.getAndSet(kandidatlisteRepository.hentAntallStillingerForAlleDirektemeldteStillingsannonser().toLong())
-        antallStillingerForAlleDirektemeldteStillingsannonser.getAndSet(kandidatlisteRepository.hentAntallStillingerForAlleStillingsannonserMedKandidatliste().toLong())
+        antallStillingerForAlleStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForAlleStillingsannonserMedKandidatliste().toLong())
     }
 }
