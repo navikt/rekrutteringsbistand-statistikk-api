@@ -84,7 +84,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 """
                 SELECT COUNT(unike_kandidatlister.*) FROM (
                     SELECT DISTINCT $kandidatlisteIdKolonne FROM $kandidatlisteTabell
-                        where ($erDirektemeldtKolonne = 'true')
+                        where $erDirektemeldtKolonne is true
                 ) as unike_kandidatlister
             """.trimIndent()
             ).executeQuery()
