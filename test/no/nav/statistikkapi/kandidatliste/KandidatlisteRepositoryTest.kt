@@ -25,7 +25,7 @@ class KandidatlisteRepositoryTest {
     }
 
     @Test
-    fun `Tell antall kandidatlister for direktemeldte stillinger`() {
+    fun `Tell antall kandidatlister tilknyttet direktemeldte stillinger`() {
         val opprettetKandidatlistehendelse = lagOpprettetKandidatlisteHendelse(stillingOpprettetTidspunkt = null, erDirektemeldt = true)
         val oppdatertKandidatlistehendelse = lagOppdatertKandidatlisteHendelse(erDirektemeldt = true)
         kandidatlisteRepository.lagreKandidatlistehendelse(opprettetKandidatlistehendelse)
@@ -34,6 +34,34 @@ class KandidatlisteRepositoryTest {
         val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterForOpprettedeStillinger()
 
         assertThat(antallKandidatlister).isEqualTo(1)
+    }
+
+    @Test
+    fun `Skal kunne telle svært mange kandidatlister for direktemeldte stillinger`() {
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+
+        val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldteStillinger()
+
+        assertThat(antallKandidatlister).isEqualTo(20)
     }
 
     @Test
