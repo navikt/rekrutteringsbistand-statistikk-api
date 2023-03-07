@@ -251,7 +251,8 @@ class KandidatlisteRepositoryTest {
         val oppdatertKandidatlisteHendelse = lagOppdatertKandidatlisteHendelse(
             kandidatlisteId = kandidatlisteId,
             erDirektemeldt = true,
-            antallStillinger = 40
+            antallStillinger = 40,
+            tidspunkt = nowOslo().minusNanos(1)
         )
         val nyOppdatertKandidatlistehendelse = lagOppdatertKandidatlisteHendelse(
             kandidatlisteId = kandidatlisteId,
@@ -290,7 +291,8 @@ class KandidatlisteRepositoryTest {
     fun lagOppdatertKandidatlisteHendelse(
         kandidatlisteId: UUID = UUID.randomUUID(),
         erDirektemeldt: Boolean,
-        antallStillinger: Int = 40
+        antallStillinger: Int = 40,
+        tidspunkt: ZonedDateTime = nowOslo()
     ): Kandidatlistehendelse {
         return Kandidatlistehendelse(
             stillingOpprettetTidspunkt = nowOslo(),
@@ -300,7 +302,7 @@ class KandidatlisteRepositoryTest {
             antallKandidater = 20,
             erDirektemeldt = erDirektemeldt,
             kandidatlisteId = kandidatlisteId.toString(),
-            tidspunkt = nowOslo(),
+            tidspunkt = tidspunkt,
             stillingsId = UUID.randomUUID().toString(),
             utførtAvNavIdent = "A100100",
             eventName = oppdaterteKandidatlisteEventName
