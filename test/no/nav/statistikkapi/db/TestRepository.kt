@@ -10,7 +10,6 @@ import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.konverterTilStilling
 import no.nav.statistikkapi.tiltak.TiltaksRepository
-import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfo
 import java.sql.ResultSet
 import java.time.ZonedDateTime
 import java.util.*
@@ -129,6 +128,12 @@ class TestRepository(private val dataSource: DataSource) {
             }
             else null
         }.toList()
+    }
+
+    fun slettAlleVisningKontaktinfo() {
+        dataSource.connection.use {
+            it.prepareStatement("DELETE FROM visning_kontaktinfo").execute()
+        }
     }
 
     data class VisningKontaktinfoMedDbId(

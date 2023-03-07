@@ -19,6 +19,8 @@ import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
 import no.nav.statistikkapi.tiltak.TiltaksRepository
+import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoLytter
+import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
 import java.net.InetAddress
 
 fun main() {
@@ -102,6 +104,10 @@ fun start(
     KandidatlistehendelseLytter(
         rapidsConnection = rapid,
         repository = KandidatlisteRepository(database.dataSource)
+    )
+    VisningKontaktinfoLytter(
+        rapidsConnection = rapid,
+        repository = VisningKontaktinfoRepository(database.dataSource)
     )
 
     Tiltaklytter(rapid, TiltaksRepository(database.dataSource))

@@ -30,6 +30,8 @@ import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
 import no.nav.statistikkapi.tiltak.Tiltaklytter
 import no.nav.statistikkapi.tiltak.TiltaksRepository
+import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoLytter
+import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -141,6 +143,10 @@ fun startApp(
         KandidatlistehendelseLytter(
             rapidsConnection = this,
             repository = KandidatlisteRepository(database.dataSource)
+        )
+        VisningKontaktinfoLytter(
+            rapidsConnection = this,
+            repository = VisningKontaktinfoRepository(database.dataSource)
         )
 
         Tiltaklytter(this, TiltaksRepository(database.dataSource))

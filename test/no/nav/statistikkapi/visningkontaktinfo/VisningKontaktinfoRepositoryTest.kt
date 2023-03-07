@@ -26,22 +26,18 @@ class VisningKontaktinfoRepositoryTest {
 
     @Test
     fun `Skal kunne lagre en visningAvKontaktinfo`() {
-        val visningAvKontaktinfo = visningAvKontaktinfo()
+        val aktørId = "1010101010"
+        val stillingsId = UUID.randomUUID()
+        val tidspunkt = nowOslo()
 
-        visningKontaktinfoRepository.lagre(visningAvKontaktinfo)
+        visningKontaktinfoRepository.lagre(aktørId, stillingsId, tidspunkt)
 
         val lagreteVisningKontaktinfo = testRepository.hentVisningKontaktinfo()
         assertThat(lagreteVisningKontaktinfo.size).isEqualTo(1)
         val lagretVisning = lagreteVisningKontaktinfo.first()
         assertNotNull(lagretVisning.dbId)
-        assertThat(lagretVisning.aktørId).isEqualTo(visningAvKontaktinfo.aktørId)
-        assertThat(lagretVisning.stillingId).isEqualTo(visningAvKontaktinfo.stillingId)
-        assertThat(lagretVisning.tidspunkt).isEqualTo(visningAvKontaktinfo.tidspunkt)
+        assertThat(lagretVisning.aktørId).isEqualTo(aktørId)
+        assertThat(lagretVisning.stillingId).isEqualTo(stillingsId)
+        assertThat(lagretVisning.tidspunkt).isEqualTo(tidspunkt)
     }
-
-    private fun visningAvKontaktinfo() = VisningKontaktinfo(
-        aktørId = "1010101010",
-        stillingId = UUID.randomUUID(),
-        tidspunkt = nowOslo()
-    )
 }

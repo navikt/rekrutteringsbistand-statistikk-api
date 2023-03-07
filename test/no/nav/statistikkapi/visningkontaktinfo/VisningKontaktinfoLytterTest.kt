@@ -31,11 +31,10 @@ class VisningKontaktinfoLytterTest {
 
     @After
     fun afterEach() {
-        testRepository.slettAlleKandidatlister()
+        testRepository.slettAlleVisningKontaktinfo()
         rapid.reset()
     }
 
-    @Ignore
     @Test
     fun `Skal lagre visning av kontaktinfo når vi mottar melding`() {
         val stillingsId = UUID.randomUUID()
@@ -49,16 +48,13 @@ class VisningKontaktinfoLytterTest {
         rapid.sendTestMessage(melding)
 
         val lagretVisningerAvKontaktinfo = testRepository.hentVisningKontaktinfo()
-
         assertThat(lagretVisningerAvKontaktinfo.size).isEqualTo(1)
-
         val lagretVisning = lagretVisningerAvKontaktinfo.first()
         assertThat(lagretVisning.aktørId).isEqualTo("10108000398")
         assertThat(lagretVisning.stillingId).isEqualTo(stillingsId)
         assertThat(lagretVisning.tidspunkt).isEqualTo(tidspunkt)
     }
 
-    @Ignore
     @Test
     fun `Behandling av melding skal være idempotent`() {
         val stillingsId = UUID.randomUUID()
@@ -73,9 +69,7 @@ class VisningKontaktinfoLytterTest {
         rapid.sendTestMessage(melding)
 
         val lagretVisningerAvKontaktinfo = testRepository.hentVisningKontaktinfo()
-
         assertThat(lagretVisningerAvKontaktinfo.size).isEqualTo(1)
-
     }
 
     private fun visningKontaktinfoMelding(
@@ -84,9 +78,11 @@ class VisningKontaktinfoLytterTest {
         tidspunkt: ZonedDateTime
     ) =
         """
-             "@event_name": "arbeidsgiversKandidatliste.VisningKontaktinfo",
-             "aktørId": "$aktørId",
-             "stillingsId": "$stillingsId",
-             "tidspunkt": "$tidspunkt"
+            {
+                 "@event_name": "arbeidsgiversKandidatliste.VisningKontaktinfo",
+                 "aktørId": "$aktørId",
+                 "stillingsId": "$stillingsId",
+                 "tidspunkt": "$tidspunkt"
+             }
         """.trimIndent()
 }
