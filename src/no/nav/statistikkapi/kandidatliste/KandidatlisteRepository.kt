@@ -117,13 +117,24 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallStillingerForAlleEksterneStillingsannonserMedKandidatliste(): Int {
+    fun hentAntallStillingerForEksterneStillingsannonserMedKandidatliste(): Int {
         dataSource.connection.use {
             try {
                 val resultSet = it.prepareStatement(
                     """
-                SELECT DISTINCT $kandidatlisteIdKolonne, $antallStillingerKolonne FROM $kandidatlisteTabell
+                with id_og_siste_tidspunkt_for_direktemeldte_stillinger as (
+                        select first_value($tidspunktForHendelsenKolonne) 
+                            over (partition by $kandidatlisteIdKolonne order by $tidspunktForHendelsenKolonne desc) 
+                            as tidspunkt, $kandidatlisteIdKolonne
+                        from $kandidatlisteTabell
                         where $erDirektemeldtKolonne is false and $stillingOpprettetTidspunktKolonne is not null
+                        group by $kandidatlisteIdKolonne, $tidspunktForHendelsenKolonne
+                    )
+                    
+                    select distinct $kandidatlisteTabell.$kandidatlisteIdKolonne, $kandidatlisteTabell.$antallStillingerKolonne from $kandidatlisteTabell
+                    join id_og_siste_tidspunkt_for_direktemeldte_stillinger
+                        on id_og_siste_tidspunkt_for_direktemeldte_stillinger.kandidatliste_id = $kandidatlisteTabell.$kandidatlisteIdKolonne
+                        and id_og_siste_tidspunkt_for_direktemeldte_stillinger.tidspunkt = $kandidatlisteTabell.$tidspunktForHendelsenKolonne
             """.trimIndent()
                 ).executeQuery()
 
@@ -140,13 +151,24 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallStillingerForAlleDirektemeldteStillingsannonser(): Int {
+    fun hentAntallStillingerForDirektemeldteStillingsannonser(): Int {
         dataSource.connection.use {
             try {
                 val resultSet = it.prepareStatement(
                     """
-                SELECT DISTINCT $kandidatlisteIdKolonne, $antallStillingerKolonne FROM $kandidatlisteTabell
+                    with id_og_siste_tidspunkt_for_direktemeldte_stillinger as (
+                        select first_value($tidspunktForHendelsenKolonne) 
+                            over (partition by $kandidatlisteIdKolonne order by $tidspunktForHendelsenKolonne desc) 
+                            as tidspunkt, $kandidatlisteIdKolonne
+                        from $kandidatlisteTabell
                         where $erDirektemeldtKolonne is true and $stillingOpprettetTidspunktKolonne is not null
+                        group by $kandidatlisteIdKolonne, $tidspunktForHendelsenKolonne
+                    )
+                    
+                    select distinct $kandidatlisteTabell.$kandidatlisteIdKolonne, $kandidatlisteTabell.$antallStillingerKolonne from $kandidatlisteTabell
+                    join id_og_siste_tidspunkt_for_direktemeldte_stillinger
+                        on id_og_siste_tidspunkt_for_direktemeldte_stillinger.kandidatliste_id = $kandidatlisteTabell.$kandidatlisteIdKolonne
+                        and id_og_siste_tidspunkt_for_direktemeldte_stillinger.tidspunkt = $kandidatlisteTabell.$tidspunktForHendelsenKolonne
             """.trimIndent()
                 ).executeQuery()
 
@@ -163,13 +185,24 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallStillingerForAlleStillingsannonserMedKandidatliste(): Int {
+    fun hentAntallStillingerForStillingsannonserMedKandidatliste(): Int {
         dataSource.connection.use {
             try {
                 val resultSet = it.prepareStatement(
                     """
-                SELECT DISTINCT $kandidatlisteIdKolonne, $antallStillingerKolonne FROM $kandidatlisteTabell
+                with id_og_siste_tidspunkt_for_direktemeldte_stillinger as (
+                        select first_value($tidspunktForHendelsenKolonne) 
+                            over (partition by $kandidatlisteIdKolonne order by $tidspunktForHendelsenKolonne desc) 
+                            as tidspunkt, $kandidatlisteIdKolonne
+                        from $kandidatlisteTabell
                         where $stillingOpprettetTidspunktKolonne is not null
+                        group by $kandidatlisteIdKolonne, $tidspunktForHendelsenKolonne
+                    )
+                    
+                    select distinct $kandidatlisteTabell.$kandidatlisteIdKolonne, $kandidatlisteTabell.$antallStillingerKolonne from $kandidatlisteTabell
+                    join id_og_siste_tidspunkt_for_direktemeldte_stillinger
+                        on id_og_siste_tidspunkt_for_direktemeldte_stillinger.kandidatliste_id = $kandidatlisteTabell.$kandidatlisteIdKolonne
+                        and id_og_siste_tidspunkt_for_direktemeldte_stillinger.tidspunkt = $kandidatlisteTabell.$tidspunktForHendelsenKolonne
             """.trimIndent()
                 ).executeQuery()
 
