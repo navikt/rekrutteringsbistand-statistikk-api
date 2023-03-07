@@ -1,0 +1,1 @@
+alter table visning_kontaktinfo ALTER COLUMN tidspunkt DROP DEFAULT;
