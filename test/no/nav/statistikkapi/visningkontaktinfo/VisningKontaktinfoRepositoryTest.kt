@@ -222,11 +222,47 @@ class VisningKontaktinfoRepositoryTest {
     }
 
     @Test
-    fun `Skal kunne telle mange kandidater med åpnet kontaktinfo`() {
+    fun `Skal kunne telle mange kandidater med vist kontaktinfo`() {
+        uniktKandidatutfallIPrioritertMålgruppe().also {
+            kandidatutfallRepository.lagreUtfall(it)
+            visningKontaktinfoRepo.lagre(it.aktørId, UUID.fromString(it.stillingsId), nowOslo())
+        }
+        uniktKandidatutfallIPrioritertMålgruppe().also {
+            kandidatutfallRepository.lagreUtfall(it)
+            visningKontaktinfoRepo.lagre(it.aktørId, UUID.fromString(it.stillingsId), nowOslo())
+        }
+        uniktKandidatutfallIPrioritertMålgruppe().also {
+            kandidatutfallRepository.lagreUtfall(it)
+            visningKontaktinfoRepo.lagre(it.aktørId, UUID.fromString(it.stillingsId), nowOslo())
+        }
+        uniktKandidatutfallIPrioritertMålgruppe().also {
+            kandidatutfallRepository.lagreUtfall(it)
+            visningKontaktinfoRepo.lagre(it.aktørId, UUID.fromString(it.stillingsId), nowOslo())
+        }
+        uniktKandidatutfallIPrioritertMålgruppe().also {
+            kandidatutfallRepository.lagreUtfall(it)
+            visningKontaktinfoRepo.lagre(it.aktørId, UUID.fromString(it.stillingsId), nowOslo())
+        }
+        uniktKandidatutfallIPrioritertMålgruppe().also {
+            kandidatutfallRepository.lagreUtfall(it)
+            visningKontaktinfoRepo.lagre(it.aktørId, UUID.fromString(it.stillingsId), nowOslo())
+        }
 
+        kandidatutfallIkkeIPrioritertMålgruppe.also {
+            kandidatutfallRepository.lagreUtfall(it)
+            visningKontaktinfoRepo.lagre(it.aktørId, UUID.fromString(it.stillingsId), nowOslo())
+        }
+
+        val antallUtfall = kandidatutfallRepository.hentUsendteUtfall()
+        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antallUtfall.size).isEqualTo(7)
+        assertThat(antall).isEqualTo(6)
     }
 
-    private val kandidatutfallIPrioritertMålgruppe = etKandidatutfall.copy(aktørId = "1", utfall = Utfall.PRESENTERT, harHullICv = true)
+    private val kandidatutfallIPrioritertMålgruppe =
+        etKandidatutfall.copy(aktørId = "1", utfall = Utfall.PRESENTERT, harHullICv = true)
+
     private val kandidatutfallIkkeIPrioritertMålgruppe = etKandidatutfall.copy(
         aktørId = "2",
         utfall = Utfall.PRESENTERT,
@@ -234,4 +270,11 @@ class VisningKontaktinfoRepositoryTest {
         alder = 33,
         innsatsbehov = "IKVAL"
     )
+
+    private fun uniktKandidatutfallIPrioritertMålgruppe() =
+        kandidatutfallIPrioritertMålgruppe.copy(
+            stillingsId = UUID.randomUUID().toString(),
+            alder = 666,
+            aktørId = UUID.randomUUID().toString().substring(26, 35)
+        )
 }
