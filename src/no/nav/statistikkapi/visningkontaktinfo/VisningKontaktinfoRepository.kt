@@ -62,8 +62,11 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
                 select count(*) from kandidater_i_prioritert_målgruppe_med_åpnet_kontaktinfo;
             """.trimIndent()).executeQuery()
 
-            resultSet.next()
-            return resultSet.getInt(1)
+            return if (resultSet.next()) {
+                resultSet.getInt(1)
+            } else {
+                0
+            }
         }
     }
 }

@@ -85,7 +85,13 @@ class VisningKontaktinfoRepositoryTest {
 
     @Test
     fun `Skal ikke telle kandidat i prioritert målgruppe som ikke fikk åpnet sin kontaktinformasjon`() {
+        val kandidatUtfallIPrioritertMålgruppe =
+            etKandidatutfall.copy(aktørId = "1", utfall = Utfall.PRESENTERT, harHullICv = true)
+        kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
 
+        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(0)
     }
 
     @Test
@@ -93,6 +99,9 @@ class VisningKontaktinfoRepositoryTest {
 
     @Test
     fun `Skal telle flere ganger per kandidat når vedkommende har fått åpnet sin kontaktinfo i flere kandidatlister`() {}
+
+    @Test
+    fun `Skal kunne telle mange kandidater med åpnet kontaktinfo`() {}
 
     @Test
     fun `Kandidat under 30 år skal telles i prioritert målgruppe`() {
