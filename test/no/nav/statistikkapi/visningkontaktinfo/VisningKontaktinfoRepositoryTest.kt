@@ -132,26 +132,98 @@ class VisningKontaktinfoRepositoryTest {
     }
 
     @Test
-    fun `Skal kunne telle mange kandidater med åpnet kontaktinfo`() {}
-
-    @Test
     fun `Kandidat under 30 år skal telles i prioritert målgruppe`() {
+        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(alder = 29)
+        kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
+        visningKontaktinfoRepo.lagre(
+            kandidatUtfallIPrioritertMålgruppe.aktørId,
+            UUID.fromString(kandidatUtfallIPrioritertMålgruppe.stillingsId),
+            tidspunkt = nowOslo()
+        )
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(1)
     }
 
     @Test
     fun `Kandidat over 50 år skal telles i prioritert målgruppe`() {
+        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(alder = 51)
+        kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
+        visningKontaktinfoRepo.lagre(
+            kandidatUtfallIPrioritertMålgruppe.aktørId,
+            UUID.fromString(kandidatUtfallIPrioritertMålgruppe.stillingsId),
+            tidspunkt = nowOslo()
+        )
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(1)
     }
 
     @Test
     fun `Kandidat med innsatsgruppe situasjonsbestemt innsats skal telles i prioritert målgruppe`() {
+        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "BFORM")
+        kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
+        visningKontaktinfoRepo.lagre(
+            kandidatUtfallIPrioritertMålgruppe.aktørId,
+            UUID.fromString(kandidatUtfallIPrioritertMålgruppe.stillingsId),
+            tidspunkt = nowOslo()
+        )
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(1)
     }
 
     @Test
     fun `Kandidat med innsatsgruppe spesielt tilpasset innsats skal telles i prioritert målgruppe`() {
+        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "BATT")
+        kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
+        visningKontaktinfoRepo.lagre(
+            kandidatUtfallIPrioritertMålgruppe.aktørId,
+            UUID.fromString(kandidatUtfallIPrioritertMålgruppe.stillingsId),
+            tidspunkt = nowOslo()
+        )
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(1)
     }
 
     @Test
     fun `Kandidat med innsatsgruppe varig tilpasset innsats skal telles i prioritert målgruppe`() {
+        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "VARIG")
+        kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
+        visningKontaktinfoRepo.lagre(
+            kandidatUtfallIPrioritertMålgruppe.aktørId,
+            UUID.fromString(kandidatUtfallIPrioritertMålgruppe.stillingsId),
+            tidspunkt = nowOslo()
+        )
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(1)
+    }
+
+    @Test
+    fun `Kandidat med innsatsgruppe standardinnsats skal ikke telles i prioritert målgruppe`() {
+        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "IKVAL")
+        kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
+        visningKontaktinfoRepo.lagre(
+            kandidatUtfallIPrioritertMålgruppe.aktørId,
+            UUID.fromString(kandidatUtfallIPrioritertMålgruppe.stillingsId),
+            tidspunkt = nowOslo()
+        )
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(0)
+    }
+
+    @Test
+    fun `Skal kunne telle mange kandidater med åpnet kontaktinfo`() {
+
     }
 
     private val kandidatutfallIPrioritertMålgruppe = etKandidatutfall.copy(aktørId = "1", utfall = Utfall.PRESENTERT, harHullICv = true)
