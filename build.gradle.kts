@@ -6,7 +6,6 @@ val kotlinCodeStyle = "official"
 val logbackVersion = "1.4.4"
 val ktorVersion = "2.1.3"
 val ktorLesserVersion = "1.6.8"
-val h2Version = "2.1.214"
 val flywayVersion = "9.7.0"
 val hikariVersion = "5.0.1"
 val logstashEncoderVersion = "7.2"
@@ -114,7 +113,6 @@ dependencies {
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
 
     testImplementation(kotlin("test"))
-    testImplementation("com.h2database:h2:$h2Version")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
@@ -125,6 +123,9 @@ dependencies {
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
 
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
+
+    testImplementation("org.testcontainers:testcontainers:1.17.5")
+    testImplementation("org.testcontainers:postgresql:1.17.5")
 }
 
 configurations.all {
