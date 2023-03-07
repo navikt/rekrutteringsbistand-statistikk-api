@@ -38,17 +38,17 @@ class MetrikkJobb(
 
     private val antallStillingerForAlleEksterneStillingsannonserMedKandidatliste = prometheusMeterRegistry.gauge(
         "antall_stillinger_for_alle_eksterne_stillingsannonser_med_kandidatliste",
-        AtomicLong(kandidatlisteRepository.hentAntallStillingerForAlleEksterneStillingsannonserMedKandidatliste().toLong())
+        AtomicLong(kandidatlisteRepository.hentAntallStillingerForEksterneStillingsannonserMedKandidatliste().toLong())
     )
 
     private val antallStillingerForAlleDirektemeldteStillingsannonser = prometheusMeterRegistry.gauge(
         "antall_stillinger_for_alle_direktemeldte_stillingsannonser",
-        AtomicLong(kandidatlisteRepository.hentAntallStillingerForAlleDirektemeldteStillingsannonser().toLong())
+        AtomicLong(kandidatlisteRepository.hentAntallStillingerForDirektemeldteStillingsannonser().toLong())
     )
 
     private val antallStillingerForAlleStillingsannonserMedKandidatliste = prometheusMeterRegistry.gauge(
         "antall_stillinger_for_alle_stillingsannonser_med_kandidatliste",
-        AtomicLong(kandidatlisteRepository.hentAntallStillingerForAlleStillingsannonserMedKandidatliste().toLong())
+        AtomicLong(kandidatlisteRepository.hentAntallStillingerForStillingsannonserMedKandidatliste().toLong())
     )
 
     val executor = Executors.newScheduledThreadPool(1)
@@ -63,8 +63,8 @@ class MetrikkJobb(
         antallKandidatlisterTilknyttetStilling.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterForOpprettedeStillinger().toLong())
         antallKandidatlisterTilknyttetDirektemeldtStilling.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldteStillinger().toLong())
         antallKandidatlisterTilknyttetEksternStilling.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetEksterneStillinger().toLong())
-        antallStillingerForAlleEksterneStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForAlleEksterneStillingsannonserMedKandidatliste().toLong())
-        antallStillingerForAlleDirektemeldteStillingsannonser.getAndSet(kandidatlisteRepository.hentAntallStillingerForAlleDirektemeldteStillingsannonser().toLong())
-        antallStillingerForAlleStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForAlleStillingsannonserMedKandidatliste().toLong())
+        antallStillingerForAlleEksterneStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForEksterneStillingsannonserMedKandidatliste().toLong())
+        antallStillingerForAlleDirektemeldteStillingsannonser.getAndSet(kandidatlisteRepository.hentAntallStillingerForDirektemeldteStillingsannonser().toLong())
+        antallStillingerForAlleStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForStillingsannonserMedKandidatliste().toLong())
     }
 }
