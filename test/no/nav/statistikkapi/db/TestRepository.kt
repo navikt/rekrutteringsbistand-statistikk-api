@@ -1,5 +1,6 @@
 package no.nav.statistikkapi.db
 
+import no.nav.statistikkapi.aktørId1
 import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
@@ -9,6 +10,7 @@ import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.konverterTilStilling
 import no.nav.statistikkapi.tiltak.TiltaksRepository
+import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfo
 import java.sql.ResultSet
 import java.time.ZonedDateTime
 import java.util.*
@@ -111,6 +113,30 @@ class TestRepository(private val dataSource: DataSource) {
         }
     }
     class TiltakRad(val sistEndret: ZonedDateTime, val avtaleInngått: ZonedDateTime, val tiltakstype: String)
+
+    fun hentVisningKontaktinfo(): List<VisningKontaktinfoMedDbId> = dataSource.connection.use {
+        val resultSet =
+            it.prepareStatement("select * from visning_kontaktinfo")
+                .executeQuery()
+        return generateSequence {
+            if (resultSet.next()) {
+                VisningKontaktinfoMedDbId(
+                    dbId = resultSet.getLong("id"),
+                    aktørId = resultSet.getString("aktør_id"),
+                    stillingId = UUID.fromString(resultSet.getString("stilling_id")),
+                    tidspunkt = resultSet.getTimestamp("tidspunkt").toInstant().atOslo()
+                )
+            }
+            else null
+        }.toList()
+    }
+
+    data class VisningKontaktinfoMedDbId(
+        val dbId: Long,
+        val aktørId: String,
+        val stillingId: UUID,
+        val tidspunkt: ZonedDateTime
+    )
 
     data class Kandidatliste(
         val dbId: Long,
