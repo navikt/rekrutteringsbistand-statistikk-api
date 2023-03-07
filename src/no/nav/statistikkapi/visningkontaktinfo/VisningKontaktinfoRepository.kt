@@ -51,7 +51,7 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
                     select 1
                     from kandidatutfall
                     where aktorid in (select aktør_id from vist_kontaktinfo_per_kandidat_per_liste)
-                    and (utfall = 'PRESENTERT' or utfall = 'FÅTT_JOBBEN')
+                    and (utfall = 'PRESENTERT' or utfall = 'FATT_JOBBEN')
                         and (
                             (alder < 30 or alder > 50) or 
                             (hull_i_cv is true) or 
