@@ -246,7 +246,7 @@ class KandidatlisteRepositoryTest {
     }
 
     @Test
-    fun `Skal telle antall stillinger fra siste  rad for en kandidatliste`() {
+    fun `Skal telle antall stillinger fra siste rad for en kandidatliste tilknyttet direktemeldt stilling`() {
         val kandidatlisteId = UUID.randomUUID()
         val oppdatertKandidatlisteHendelse = lagOppdatertKandidatlisteHendelse(
             kandidatlisteId = kandidatlisteId,
@@ -266,6 +266,67 @@ class KandidatlisteRepositoryTest {
         val antallStillinger = kandidatlisteRepository.hentAntallStillingerForDirektemeldteStillingsannonser()
 
         assertThat(antallStillinger).isEqualTo(2)
+    }
+
+    @Test
+    fun `Skal telle antall stillinger fra siste rad for en kandidatliste tilknyttet ekstern stilling`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val oppdatertKandidatlisteHendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = false,
+            antallStillinger = 40,
+            tidspunkt = nowOslo().minusNanos(1)
+        )
+        val nyOppdatertKandidatlistehendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = false,
+            antallStillinger = 2
+        )
+
+        kandidatlisteRepository.lagreKandidatlistehendelse(oppdatertKandidatlisteHendelse)
+        kandidatlisteRepository.lagreKandidatlistehendelse(nyOppdatertKandidatlistehendelse)
+
+        val antallStillinger = kandidatlisteRepository.hentAntallStillingerForEksterneStillingsannonserMedKandidatliste()
+
+        assertThat(antallStillinger).isEqualTo(2)
+    }
+
+    @Test
+    fun `Skal telle antall stillinger fra siste rad for en kandidatliste tilknyttet stilling`() {
+        val kandidatlisteIdDirektemeldt = UUID.randomUUID()
+        val kandidatlisteIdEkstern = UUID.randomUUID()
+        val oppdatertKandidatlisteHendelseDirektemeldt = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteIdDirektemeldt,
+            erDirektemeldt = true,
+            antallStillinger = 40,
+            tidspunkt = nowOslo().minusNanos(1)
+        )
+        val nyOppdatertKandidatlisteHendelseDirektemeldt = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteIdDirektemeldt,
+            erDirektemeldt = true,
+            antallStillinger = 2
+        )
+        val oppdatertKandidatlistehendelseEkstern = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteIdEkstern,
+            erDirektemeldt = false,
+            antallStillinger = 20,
+            tidspunkt = nowOslo().minusNanos(1)
+        )
+
+        val nyOppdatertKandidatlistehendelseEkstern = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteIdEkstern,
+            erDirektemeldt = false,
+            antallStillinger = 4
+        )
+
+        kandidatlisteRepository.lagreKandidatlistehendelse(oppdatertKandidatlisteHendelseDirektemeldt)
+        kandidatlisteRepository.lagreKandidatlistehendelse(nyOppdatertKandidatlisteHendelseDirektemeldt)
+        kandidatlisteRepository.lagreKandidatlistehendelse(oppdatertKandidatlistehendelseEkstern)
+        kandidatlisteRepository.lagreKandidatlistehendelse(nyOppdatertKandidatlistehendelseEkstern)
+
+        val antallStillinger = kandidatlisteRepository.hentAntallStillingerForStillingsannonserMedKandidatliste()
+
+        assertThat(antallStillinger).isEqualTo(6)
     }
 
     fun lagOpprettetKandidatlisteHendelse(
