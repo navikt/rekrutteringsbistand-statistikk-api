@@ -58,8 +58,23 @@ class VisningKontaktinfoLytterTest {
         assertThat(lagretVisning.tidspunkt).isEqualTo(tidspunkt)
     }
 
+    @Ignore
     @Test
     fun `Behandling av melding skal være idempotent`() {
+        val stillingsId = UUID.randomUUID()
+        val tidspunkt = nowOslo()
+        val melding = visningKontaktinfoMelding(
+            aktørId = "10108000398",
+            stillingsId = stillingsId,
+            tidspunkt = tidspunkt
+        )
+
+        rapid.sendTestMessage(melding)
+        rapid.sendTestMessage(melding)
+
+        val lagretVisningerAvKontaktinfo = testRepository.hentVisningKontaktinfo()
+
+        assertThat(lagretVisningerAvKontaktinfo.size).isEqualTo(1)
 
     }
 
