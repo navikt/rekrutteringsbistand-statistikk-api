@@ -38,5 +38,33 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement("""
+                with vist_kontaktinfo_per_kandidat_per_liste as (
+                    select aktør_id, stilling_id
+                    from visning_kontaktinfo
+                    group by aktør_id, stilling_id
+                ),
+                kandidater_i_prioritert_målgruppe_med_åpnet_kontaktinfo as (
+                    select 1
+                    from kandidatutfall
+                    where aktorid in (select aktør_id from vist_kontaktinfo_per_kandidat_per_liste)
+                    and (utfall = 'PRESENTERT' or utfall = 'FÅTT_JOBBEN')
+                        and (
+                            (alder < 30 or alder > 50) or 
+                            (hull_i_cv is true) or 
+                            (innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                        )
+                    group by aktorid, stillingsid
+                )
+                select count(*) from kandidater_i_prioritert_målgruppe_med_åpnet_kontaktinfo;
+            """.trimIndent()).executeQuery()
+
+            resultSet.next()
+            return resultSet.getInt(1)
+        }
+    }
 }
 
