@@ -3,6 +3,7 @@ package no.nav.statistikkapi.metrikker
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
@@ -10,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong
 class MetrikkJobb(
     private val kandidatutfallRepository: KandidatutfallRepository,
     private val kandidatlisteRepository: KandidatlisteRepository,
+    private val visningKontaktinfoRepository: VisningKontaktinfoRepository,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) {
     private val antallPresenterteKandidater = prometheusMeterRegistry.gauge(
@@ -51,6 +53,11 @@ class MetrikkJobb(
         AtomicLong(kandidatlisteRepository.hentAntallStillingerForStillingsannonserMedKandidatliste().toLong())
     )
 
+    private val antallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo = prometheusMeterRegistry.gauge(
+        "antall_kandidater_i_prioritert_maalgruppe_som_har_faatt_vist_sin_kontaktinfo",
+        AtomicLong(visningKontaktinfoRepository.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo().toLong())
+    )
+
     val executor = Executors.newScheduledThreadPool(1)
 
     fun start() {
@@ -66,5 +73,6 @@ class MetrikkJobb(
         antallStillingerForEksterneStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForEksterneStillingsannonserMedKandidatliste().toLong())
         antallStillingerForDirektemeldteStillingsannonser.getAndSet(kandidatlisteRepository.hentAntallStillingerForDirektemeldteStillingsannonser().toLong())
         antallStillingerForStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForStillingsannonserMedKandidatliste().toLong())
+        antallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo.getAndSet(visningKontaktinfoRepository.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo().toLong())
     }
 }

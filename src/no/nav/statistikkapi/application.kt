@@ -71,10 +71,16 @@ fun startApp(
 
     val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
     val kandidatlisteRepository = KandidatlisteRepository(database.dataSource)
+    val visningKontaktinfoRepository = VisningKontaktinfoRepository(database.dataSource)
     val stillingRepository = StillingRepository(database.dataSource)
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
-    val metrikkJobb = MetrikkJobb(kandidatutfallRepository,kandidatlisteRepository, prometheusMeterRegistry)
+    val metrikkJobb = MetrikkJobb(
+        kandidatutfallRepository,
+        kandidatlisteRepository,
+        visningKontaktinfoRepository,
+        prometheusMeterRegistry
+    )
 
     val rapid = RapidApplication.Builder(
         RapidApplication.RapidApplicationConfig.fromEnv(
@@ -146,7 +152,7 @@ fun startApp(
         )
         VisningKontaktinfoLytter(
             rapidsConnection = this,
-            repository = VisningKontaktinfoRepository(database.dataSource)
+            repository = visningKontaktinfoRepository
         )
 
         Tiltaklytter(this, TiltaksRepository(database.dataSource))
