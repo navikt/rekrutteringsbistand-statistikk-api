@@ -85,7 +85,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
 
 
     @Test
-    fun `Kan opprette kandidatutfall av FjernetRegistreringDeltCv-melding`() {
+    fun `Kan lagre kandidatutfall og stiling av FjernetRegistreringDeltCv-melding`() {
         kandidatutfallRepository.lagreUtfall(
             etKandidatutfall.copy(
                 utfall = Utfall.PRESENTERT,
@@ -101,9 +101,9 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
 
         rapid.sendTestMessage(fjernetRegistreringDeltCvMelding)
 
-        val utfallFraDb = testRepository.hentUtfall()
-        assertThat(utfallFraDb).hasSize(2)
-        utfallFraDb[1].apply {
+        val kandidatutfallFraDb = testRepository.hentUtfall()
+        assertThat(kandidatutfallFraDb).hasSize(2)
+        kandidatutfallFraDb[1].apply {
             assertThat(stillingsId).isEqualTo(UUID.fromString("b5919e46-9882-4b3c-8089-53ad02f26023"))
             assertThat(kandidatlisteId).isEqualTo(UUID.fromString("d5b5b4c1-0375-4719-9038-ab31fe27fb40"))
             assertThat(navIdent).isEqualTo("Z994633")
@@ -119,6 +119,9 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
 
             assertThat(utfall).isEqualTo(Utfall.IKKE_PRESENTERT)
         }
+
+        val stillingFraDb = testRepository.hentStilling()
+        assertThat(stillingFraDb).hasSize(1)
     }
 
     @Test
