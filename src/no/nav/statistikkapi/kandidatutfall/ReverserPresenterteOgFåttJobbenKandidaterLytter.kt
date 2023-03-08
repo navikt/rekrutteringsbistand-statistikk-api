@@ -32,9 +32,8 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
                     "stillingsId"
                 )
 
-                it.demandKey(
-                    "stillingsinfo.stillingskategori"
-                )
+                it.demandKey("stillingsinfo")
+                it.interestedIn("stillingsinfo.stillingskategori")
 
             }
         }.register(this)

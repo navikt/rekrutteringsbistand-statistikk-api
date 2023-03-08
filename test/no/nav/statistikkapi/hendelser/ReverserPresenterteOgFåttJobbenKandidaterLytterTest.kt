@@ -131,12 +131,47 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
     }
 
     @Test
-    fun `Vil ikke lagre kandidatutfall og stilling av FjernetRegistreringDeltCv-melding dersom kategori er null`() {
-
-        rapid.sendTestMessage(fjernetRegistreringDeltCvMeldingUtenStilliingskategori)
+    fun `Vil lagre kandidatutfall og stilling av FjernetRegistreringDeltCv-melding dersom kategori er null`() {
+        kandidatutfallRepository.lagreUtfall(
+            etKandidatutfall.copy(
+                utfall = Utfall.PRESENTERT,
+                aktørId = "2258757075176",
+                kandidatlisteId = "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
+                stillingsId = "b5919e46-9882-4b3c-8089-53ad02f26023",
+                innsatsbehov = "BATT",
+                hovedmål = "SKAFFEA",
+                alder = 55,
+                tilretteleggingsbehov = listOf("permittert", "arbeidstid")
+            )
+        )
+        rapid.sendTestMessage(fjernetRegistreringDeltCvMeldingUtenStillingskategori)
 
         val kandidatutfallFraDb = testRepository.hentUtfall()
-        assertThat(kandidatutfallFraDb).isEmpty()
+        assertThat(kandidatutfallFraDb).hasSize(2)
+
+
+        val stillingFraDb = testRepository.hentStilling()
+        assertThat(stillingFraDb).hasSize(1)
+    }
+
+    @Test
+    fun `Vil ikke lagre kandidatutfall og stilling av FjernetRegistreringDeltCv-melding dersom stillingsinfo mangler`() {
+        kandidatutfallRepository.lagreUtfall(
+            etKandidatutfall.copy(
+                utfall = Utfall.PRESENTERT,
+                aktørId = "2258757075176",
+                kandidatlisteId = "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
+                stillingsId = "b5919e46-9882-4b3c-8089-53ad02f26023",
+                innsatsbehov = "BATT",
+                hovedmål = "SKAFFEA",
+                alder = 55,
+                tilretteleggingsbehov = listOf("permittert", "arbeidstid")
+            )
+        )
+        rapid.sendTestMessage(fjernetRegistreringDeltCvMeldingUtenStillingsinfo)
+
+        val kandidatutfallFraDb = testRepository.hentUtfall()
+        assertThat(kandidatutfallFraDb).hasSize(1)
 
 
         val stillingFraDb = testRepository.hentStilling()
@@ -201,7 +236,7 @@ private val fjernetRegistreringDeltCvMelding = """
     }
 """.trimIndent()
 
-private val fjernetRegistreringDeltCvMeldingUtenStilliingskategori = """
+private val fjernetRegistreringDeltCvMeldingUtenStillingskategori = """
     {
       "aktørId": "2258757075176",
       "organisasjonsnummer": "312113341",
@@ -218,6 +253,19 @@ private val fjernetRegistreringDeltCvMeldingUtenStilliingskategori = """
             "notat": "sds",
             "stillingskategori": null
           }
+    }
+""".trimIndent()
+
+private val fjernetRegistreringDeltCvMeldingUtenStillingsinfo = """
+    {
+      "aktørId": "2258757075176",
+      "organisasjonsnummer": "312113341",
+      "kandidatlisteId": "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
+      "tidspunkt": "2023-02-16T10:38:25.877+01:00",
+      "stillingsId": "b5919e46-9882-4b3c-8089-53ad02f26023",
+      "utførtAvNavIdent": "Z994633",
+      "utførtAvNavKontorKode": "0313",
+      "@event_name": "kandidat_v2.FjernetRegistreringDeltCv"
     }
 """.trimIndent()
 
