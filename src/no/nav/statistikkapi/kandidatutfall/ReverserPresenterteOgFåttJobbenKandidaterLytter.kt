@@ -4,6 +4,7 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.log
 import no.nav.statistikkapi.secureLog
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
 
 class ReverserPresenterteOgFåttJobbenKandidaterLytter(
@@ -27,26 +28,29 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
                     "utførtAvNavKontorKode",
                     "utførtAvNavIdent",
                     "kandidatlisteId",
-                    "organisasjonsnummer"
-                )
-
-                it.interestedIn(
+                    "organisasjonsnummer",
                     "stillingsId"
                 )
+
+                it.demandKey(
+                    "stillingsinfo.stillingskategori"
+                )
+
             }
         }.register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
 
-        val aktørId = packet["aktørId"].asText()
-        val organisasjonsnummer = packet["organisasjonsnummer"].asText()
-        val kandidatlisteId = packet["kandidatlisteId"].asText()
-        val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asText())
-        val stillingsId = packet["stillingsId"].asTextNullable()
-        val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
-        val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
-        val utfall = if (eventNamePostfix == "FjernetRegistreringDeltCv") Utfall.IKKE_PRESENTERT else Utfall.PRESENTERT
+        val aktørId: String = packet["aktørId"].asText()
+        val organisasjonsnummer: String = packet["organisasjonsnummer"].asText()
+        val kandidatlisteId: String = packet["kandidatlisteId"].asText()
+        val tidspunkt: ZonedDateTime = ZonedDateTime.parse(packet["tidspunkt"].asText())
+        val stillingsId: String = packet["stillingsId"].asText()
+        val stillingskategori: Stillingskategori =  Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
+        val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asText()
+        val utførtAvNavKontorKode: String = packet["utførtAvNavKontorKode"].asText()
+        val utfall: Utfall = if (eventNamePostfix == "FjernetRegistreringDeltCv") Utfall.IKKE_PRESENTERT else Utfall.PRESENTERT
 
         secureLog.info(
             """
@@ -55,16 +59,13 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             kandidatlisteId: $kandidatlisteId
             tidspunkt: $tidspunkt
             stillingsId: $stillingsId
+            stillingskategori: $stillingskategori
             utførtAvNavIdent: $utførtAvNavIdent
             utførtAvNavKontorKode: $utførtAvNavKontorKode
             utfall: $utfall
             """.trimIndent()
         )
 
-        if (stillingsId == null) {
-            log.info("Behandler ikke melding fordi den er uten stilingsId")
-            return
-        }
         val utfallFraDb = utfallRepository.hentSisteUtfallForKandidatIKandidatliste(aktørId, kandidatlisteId)
 
         if (utfallFraDb == null) {
@@ -93,8 +94,11 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             hovedmål = utfallFraDb.hovedmål
         )
 
-        lagreUtfallOgStilling.lagreUtfall(
-            kandidatutfall = opprettKandidatutfall
+
+        lagreUtfallOgStilling.lagreUtfallOgStilling(
+            kandidatutfall = opprettKandidatutfall,
+            stillingsId,
+            stillingskategori
         )
 
         prometheusMeterRegistry.incrementUtfallLagret(opprettKandidatutfall.utfall)

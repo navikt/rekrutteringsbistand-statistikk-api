@@ -3,11 +3,14 @@ package no.nav.statistikkapi.hendelser
 import assertk.assertThat
 import assertk.assertions.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
-import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
+import no.nav.statistikkapi.etKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall
+import no.nav.statistikkapi.randomPort
+import no.nav.statistikkapi.start
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -76,6 +79,8 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 tilretteleggingsbehov = listOf("permittert", "arbeidstid")
             )
         )
+        assertThat(testRepository.hentUtfall()).size().isEqualTo(1)
+
         rapid.sendTestMessage(fjernetRegistreringFåttJobbenMelding)
         assertThat(testRepository.hentUtfall()).size().isEqualTo(2)
 
@@ -122,6 +127,20 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
 
         val stillingFraDb = testRepository.hentStilling()
         assertThat(stillingFraDb).hasSize(1)
+        assertThat(stillingFraDb[0].stillingskategori).isEqualTo(Stillingskategori.STILLING)
+    }
+
+    @Test
+    fun `Vil ikke lagre kandidatutfall og stilling av FjernetRegistreringDeltCv-melding dersom kategori er null`() {
+
+        rapid.sendTestMessage(fjernetRegistreringDeltCvMeldingUtenStilliingskategori)
+
+        val kandidatutfallFraDb = testRepository.hentUtfall()
+        assertThat(kandidatutfallFraDb).isEmpty()
+
+
+        val stillingFraDb = testRepository.hentStilling()
+        assertThat(stillingFraDb).isEmpty()
     }
 
     @Test
@@ -171,7 +190,34 @@ private val fjernetRegistreringDeltCvMelding = """
       "stillingsId": "b5919e46-9882-4b3c-8089-53ad02f26023",
       "utførtAvNavIdent": "Z994633",
       "utførtAvNavKontorKode": "0313",
-      "@event_name": "kandidat_v2.FjernetRegistreringDeltCv"
+      "@event_name": "kandidat_v2.FjernetRegistreringDeltCv",
+      "stillingsinfo": {
+            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+            "stillingsid": "b5919e46-9882-4b3c-8089-53ad02f26023",
+            "eier": null,
+            "notat": "sds",
+            "stillingskategori": "STILLING"
+          }
+    }
+""".trimIndent()
+
+private val fjernetRegistreringDeltCvMeldingUtenStilliingskategori = """
+    {
+      "aktørId": "2258757075176",
+      "organisasjonsnummer": "312113341",
+      "kandidatlisteId": "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
+      "tidspunkt": "2023-02-16T10:38:25.877+01:00",
+      "stillingsId": "b5919e46-9882-4b3c-8089-53ad02f26023",
+      "utførtAvNavIdent": "Z994633",
+      "utførtAvNavKontorKode": "0313",
+      "@event_name": "kandidat_v2.FjernetRegistreringDeltCv",
+      "stillingsinfo": {
+            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+            "stillingsid": "b5919e46-9882-4b3c-8089-53ad02f26023",
+            "eier": null,
+            "notat": "sds",
+            "stillingskategori": null
+          }
     }
 """.trimIndent()
 
@@ -185,6 +231,13 @@ private val fjernetRegistreringFåttJobbenMelding = """
       "stillingsId": "b5919e46-9882-4b3c-8089-53ad02f26023",
       "utførtAvNavIdent": "Z994633",
       "utførtAvNavKontorKode": "0313",
-      "@event_name": "kandidat_v2.FjernetRegistreringFåttJobben"
+      "@event_name": "kandidat_v2.FjernetRegistreringFåttJobben",
+      "stillingsinfo": {
+            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+            "stillingsid": "b5919e46-9882-4b3c-8089-53ad02f26023",
+            "eier": null,
+            "notat": "sds",
+            "stillingskategori": "STILLING"
+          }
     }
 """.trimIndent()
