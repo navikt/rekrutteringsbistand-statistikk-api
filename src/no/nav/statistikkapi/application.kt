@@ -144,7 +144,11 @@ fun startApp(
         SlettetStillingOgKandidatlisteLytter(
             rapidsConnection = this,
             repository =  KandidatutfallRepository(database.dataSource),
-            prometheusMeterRegistry = prometheusMeterRegistry
+            prometheusMeterRegistry = prometheusMeterRegistry,
+            lagreUtfallOgStilling = LagreUtfallOgStilling(
+                KandidatutfallRepository(database.dataSource),
+                StillingRepository(database.dataSource)
+            )
         )
         KandidatlistehendelseLytter(
             rapidsConnection = this,

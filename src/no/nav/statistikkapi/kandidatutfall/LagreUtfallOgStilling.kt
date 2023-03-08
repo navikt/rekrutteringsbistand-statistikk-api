@@ -17,12 +17,6 @@ class LagreUtfallOgStilling(
         stillingskategori: Stillingskategori
     ) {
         stillingRepository.lagreStilling(stillingsid, stillingskategori)
-       lagreUtfall(kandidatutfall)
-    }
-
-    fun lagreUtfall(
-        kandidatutfall: OpprettKandidatutfall,
-    ) {
         if (kandidatutfallRepository.kandidatutfallAlleredeLagret(kandidatutfall)) {
             log.info("Lagrer ikke fordi vi har lagret samme utfall tidligere")
         } else if (kandidatutfallRepository.hentSisteUtfallForKandidatIKandidatliste(kandidatutfall) == kandidatutfall.utfall) {

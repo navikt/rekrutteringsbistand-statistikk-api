@@ -6,11 +6,11 @@ import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -118,6 +118,18 @@ class SlettetStillingOgKandidatlisteLytterTest {
         assertThat(utfallFraDatabase).hasSize(3)
     }
 
+    @Test
+    fun `Når en mottar en slettetstillingmelding uten stillingskategori så skal stillingskategori lagres i stillingstabell`() {
+        val utfallPresentert = etKandidatutfall.copy(utfall = PRESENTERT, aktørId = aktørId1)
+        repository.lagreUtfall(utfallPresentert)
+        rapid.sendTestMessage(slettetStillingOgKandidatlisteMelding(utfallPresentert.kandidatlisteId))
+
+        val utfallFraDatabase = testRepository.hentStilling()
+        assertThat(utfallFraDatabase).hasSize(1)
+        assertThat(utfallFraDatabase[0].uuid).isEqualTo("b5919e46-9882-4b3c-8089-53ad02f26023")
+        assertThat(utfallFraDatabase[0].stillingskategori).isEqualTo(Stillingskategori.STILLING)
+    }
+
     private fun slettetStillingOgKandidatlisteMelding(kandidatlisteId: String) = """
         {
           "organisasjonsnummer": "312113341",
@@ -126,8 +138,15 @@ class SlettetStillingOgKandidatlisteLytterTest {
           "stillingsId": "b5919e46-9882-4b3c-8089-53ad02f26023",
           "utførtAvNavIdent": "Z994633",
           "@event_name": "kandidat_v2.SlettetStillingOgKandidatliste",
-           "@id": "74b0b8dd-315f-406f-9979-e0bec5bcc5b6",
-          "@opprettet": "2023-02-09T09:46:01.027221527"
+          "@id": "74b0b8dd-315f-406f-9979-e0bec5bcc5b6",
+          "@opprettet": "2023-02-09T09:46:01.027221527",
+          "stillingsinfo": {
+            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+            "stillingsid": "b5919e46-9882-4b3c-8089-53ad02f26023",
+            "eier": null,
+            "notat": "sds",
+            "stillingskategori": null
+          }
         }
     """.trimIndent()
 }
