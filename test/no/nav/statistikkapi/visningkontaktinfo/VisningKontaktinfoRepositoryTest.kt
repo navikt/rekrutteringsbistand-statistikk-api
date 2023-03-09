@@ -30,32 +30,6 @@ class VisningKontaktinfoRepositoryTest {
     }
 
     @Test
-    fun `skal teste noe`() {
-        val kandidatutfall1 = kandidatutfallIPrioritertMålgruppe.copy(aktørId = "10", stillingsId = "8be310b1-bee7-4aa2-80a6-146c247dca45")
-        val kandidatutfall2 = kandidatutfallIPrioritertMålgruppe.copy(aktørId = "10", stillingsId = "3ebb877f-a010-4b1a-ae83-00c7b1725504")
-        val kandidatutfall3 = kandidatutfallIPrioritertMålgruppe.copy(aktørId = "10", stillingsId = "a6f36cf5-f85e-451e-9212-cb23c1aac9ac")
-        kandidatutfallRepository.lagreUtfall(kandidatutfall1)
-        kandidatutfallRepository.lagreUtfall(kandidatutfall2)
-        kandidatutfallRepository.lagreUtfall(kandidatutfall3)
-        val nyttKandidatutfall1 = kandidatutfallIkkeIPrioritertMålgruppe.copy(aktørId = "11", stillingsId = kandidatutfall1.stillingsId)
-        val nyttKandidatutfall2 = kandidatutfallIkkeIPrioritertMålgruppe.copy(aktørId = "12", stillingsId = kandidatutfall2.stillingsId)
-        val nyttKandidatutfall3 = kandidatutfallIkkeIPrioritertMålgruppe.copy(aktørId = "13", stillingsId = kandidatutfall3.stillingsId)
-        kandidatutfallRepository.lagreUtfall(nyttKandidatutfall1)
-        kandidatutfallRepository.lagreUtfall(nyttKandidatutfall2)
-        kandidatutfallRepository.lagreUtfall(nyttKandidatutfall3)
-        visningKontaktinfoRepo.lagre(aktørId = nyttKandidatutfall1.aktørId, stillingsId = UUID.fromString(nyttKandidatutfall1.stillingsId), tidspunkt = nowOslo())
-        visningKontaktinfoRepo.lagre(aktørId = nyttKandidatutfall2.aktørId, stillingsId = UUID.fromString(nyttKandidatutfall2.stillingsId), tidspunkt = nowOslo())
-        visningKontaktinfoRepo.lagre(aktørId = nyttKandidatutfall3.aktørId, stillingsId = UUID.fromString(nyttKandidatutfall3.stillingsId), tidspunkt = nowOslo())
-        val kandidatutfallSomSkalTelles = kandidatutfall1.copy(stillingsId = "688976b1-0340-42e1-b658-ba76eb437ed5")
-        kandidatutfallRepository.lagreUtfall(kandidatutfallSomSkalTelles)
-        visningKontaktinfoRepo.lagre(aktørId = kandidatutfallSomSkalTelles.aktørId, stillingsId = UUID.fromString(kandidatutfallSomSkalTelles.stillingsId), tidspunkt = nowOslo())
-
-        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
-
-        assertThat(antall).isEqualTo(1)
-    }
-
-    @Test
     fun `Skal kunne lagre en visningAvKontaktinfo`() {
         val aktørId = "1010101010"
         val stillingsId = UUID.randomUUID()
@@ -372,6 +346,43 @@ class VisningKontaktinfoRepositoryTest {
         val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
 
         assertThat(antall).isEqualTo(1)
+    }
+
+    @Test
+    fun `Skal telle én gang når kandidat i prioritert målgruppe får vist sin kontaktinfo, men også er på annen liste der kontaktinfo kun vises for annen kandidat som ikke er i prioritert målgruppe`() {
+        val stillingsIdDerDetErToKandidatutfall = UUID.randomUUID().toString()
+        val kandidatutfallPrioritertMålgruppe = kandidatutfallIPrioritertMålgruppe.copy(aktørId = "10", stillingsId = stillingsIdDerDetErToKandidatutfall)
+        val kandidatutfallIkkePrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(aktørId = "13", stillingsId = stillingsIdDerDetErToKandidatutfall)
+        kandidatutfallRepository.lagreUtfall(kandidatutfallPrioritertMålgruppe)
+        kandidatutfallRepository.lagreUtfall(kandidatutfallIkkePrioritertMålgruppe)
+        visningKontaktinfoRepo.lagre(aktørId = kandidatutfallIkkePrioritertMålgruppe.aktørId, stillingsId = UUID.fromString(kandidatutfallIkkePrioritertMålgruppe.stillingsId), tidspunkt = nowOslo())
+        val kandidatutfallSomSkalTelles = kandidatutfallPrioritertMålgruppe.copy(aktørId = "10", stillingsId = UUID.randomUUID().toString())
+        kandidatutfallRepository.lagreUtfall(kandidatutfallSomSkalTelles)
+        visningKontaktinfoRepo.lagre(aktørId = kandidatutfallSomSkalTelles.aktørId, stillingsId = UUID.fromString(kandidatutfallSomSkalTelles.stillingsId), tidspunkt = nowOslo())
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(1)
+    }
+
+    @Test
+    fun `Skal ikke telle når kandidat i prioritert målgruppe ikke får vist sin kontaktinfo, men også er på annen liste der kontaktinfo vises for annen kandidat som heller ikke er i prioritert målgruppe`() {
+        val stillingsId1 = UUID.randomUUID()
+        val aktørIdIkkePrioritertMålgruppe = "10"
+        val aktørIdPrioritertMålgruppe = "20"
+        val kandidatutfallIkkePrioritertMålgruppeFørsteListe = kandidatutfallIkkeIPrioritertMålgruppe.copy(stillingsId = stillingsId1.toString(), aktørId = aktørIdIkkePrioritertMålgruppe)
+        val kandidatutfallIPrioritertMålgruppeFørsteListe = kandidatutfallIPrioritertMålgruppe.copy(stillingsId = stillingsId1.toString(), aktørId = aktørIdPrioritertMålgruppe)
+        kandidatutfallRepository.lagreUtfall(kandidatutfallIPrioritertMålgruppeFørsteListe)
+        kandidatutfallRepository.lagreUtfall(kandidatutfallIPrioritertMålgruppeFørsteListe)
+        visningKontaktinfoRepo.lagre(aktørId = kandidatutfallIkkePrioritertMålgruppeFørsteListe.aktørId, stillingsId = stillingsId1, tidspunkt = nowOslo())
+        val stillingsId2 = UUID.randomUUID()
+        val kandidatutfallIkkePrioritertMålgruppeAndreListe = kandidatutfallIkkePrioritertMålgruppeFørsteListe.copy(stillingsId = stillingsId2.toString(), aktørId = aktørIdIkkePrioritertMålgruppe)
+        kandidatutfallRepository.lagreUtfall(kandidatutfallIkkePrioritertMålgruppeAndreListe)
+        visningKontaktinfoRepo.lagre(aktørId = aktørIdIkkePrioritertMålgruppe, stillingsId = stillingsId2, tidspunkt = nowOslo())
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(0)
     }
 
     @Test
