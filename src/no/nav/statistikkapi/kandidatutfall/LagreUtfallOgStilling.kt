@@ -16,6 +16,12 @@ class LagreUtfallOgStilling(
         stillingsid: String,
         stillingskategori: Stillingskategori
     ) {
+        // TODO: Are tester alerts, skal slettes
+        repeat(10) {
+            log.warn("Alt i orden, Are tester alerts for warnings i loggen")
+        }
+        log.error("Alt i orden, Are tester alerts for errors")
+
         stillingRepository.lagreStilling(stillingsid, stillingskategori)
         if (kandidatutfallRepository.kandidatutfallAlleredeLagret(kandidatutfall)) {
             log.info("Lagrer ikke fordi vi har lagret samme utfall tidligere")
