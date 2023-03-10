@@ -424,6 +424,67 @@ class VisningKontaktinfoRepositoryTest {
         assertThat(antall).isEqualTo(6)
     }
 
+    @Test
+    fun `Skal telle antall unike kandidatlister hvor minst en kandidat i prioritert målgruppe har fått vist sin kontaktinfo`() {
+        kandidatutfallIPrioritertMålgruppe
+            .copy(aktørId = "10", stillingsId = UUID.randomUUID().toString())
+            .also {
+                kandidatutfallRepository.lagreUtfall(it)
+                visningKontaktinfoRepo.lagre(it.aktørId, UUID.fromString(it.stillingsId), nowOslo())
+            }
+        kandidatutfallIPrioritertMålgruppe
+            .copy(aktørId = "20", stillingsId = UUID.randomUUID().toString())
+            .also {
+                kandidatutfallRepository.lagreUtfall(it)
+                visningKontaktinfoRepo.lagre(it.aktørId, UUID.fromString(it.stillingsId), nowOslo())
+            }
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(2)
+    }
+
+    @Test
+    fun `Skal ikke telle kandidatlister hvor ingen kandidater i prioritert målgruppe har fått vist sin kontaktinfo`() {
+        val stillingsId = UUID.randomUUID()
+        kandidatutfallIPrioritertMålgruppe
+            .copy(aktørId = "10", stillingsId = stillingsId.toString())
+            .also {
+                kandidatutfallRepository.lagreUtfall(it)
+            }
+        kandidatutfallIkkeIPrioritertMålgruppe
+            .copy(aktørId = "20", stillingsId = stillingsId.toString())
+            .also {
+                kandidatutfallRepository.lagreUtfall(it)
+                visningKontaktinfoRepo.lagre(it.aktørId, stillingsId, nowOslo())
+            }
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(0)
+    }
+
+    @Test
+    fun `Skal telle en gang når to kandidater i prioritert målgruppe har fått vist sin kontaktinfo på samme liste`() {
+        val stillingsId = UUID.randomUUID()
+        kandidatutfallIPrioritertMålgruppe
+            .copy(aktørId = "10", stillingsId = stillingsId.toString())
+            .also {
+                kandidatutfallRepository.lagreUtfall(it)
+                visningKontaktinfoRepo.lagre(it.aktørId, stillingsId, nowOslo())
+            }
+        kandidatutfallIPrioritertMålgruppe
+            .copy(aktørId = "20", stillingsId = stillingsId.toString())
+            .also {
+                kandidatutfallRepository.lagreUtfall(it)
+                visningKontaktinfoRepo.lagre(it.aktørId, stillingsId, nowOslo())
+            }
+
+        val antall = visningKontaktinfoRepo.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
+
+        assertThat(antall).isEqualTo(1)
+    }
+
     private val kandidatutfallIPrioritertMålgruppe =
         etKandidatutfall.copy(aktørId = "1", utfall = Utfall.PRESENTERT, harHullICv = true)
 

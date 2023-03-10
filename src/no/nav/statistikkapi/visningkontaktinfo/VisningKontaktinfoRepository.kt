@@ -55,13 +55,35 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
                         and kandidatutfall.stillingsid = vist_kontaktinfo_per_kandidat_per_liste.stilling_id::text
                     where (utfall = 'PRESENTERT' or utfall = 'FATT_JOBBEN')
                         and (
-                            (alder < 30 or alder > 50) or 
+                            (alder < 30 or alder > 49) or 
                             (hull_i_cv is true) or 
                             (innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
                         )
                     group by aktorid, stillingsid
                 )
                 select count(*) from kandidater_i_prioritert_målgruppe_med_åpnet_kontaktinfo;
+            """.trimIndent()).executeQuery()
+
+            return if (resultSet.next()) {
+                resultSet.getInt(1)
+            } else {
+                0
+            }
+        }
+    }
+
+    fun hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement("""
+                select count(distinct stilling_id) from visning_kontaktinfo
+                inner join kandidatutfall
+                    on visning_kontaktinfo.stilling_id::text = kandidatutfall.stillingsid
+                    and visning_kontaktinfo.aktør_id = kandidatutfall.aktorid
+                where (
+                    (alder < 30 or alder > 49) or
+                    (hull_i_cv is true) or
+                    (innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                );
             """.trimIndent()).executeQuery()
 
             return if (resultSet.next()) {
