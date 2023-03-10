@@ -13,7 +13,7 @@ spec:
           expr: sum(up{app="rekrutteringsbistand-statistikk-api", job="nais-system/monitoring-apps-tenant"}) == 0
           for: 1s
           annotations:
-            summary: Appen er nede.
+            summary: Appen er nede
             action: "https://logs.adeo.no/goto/3f0b14d0-f5fb-11ec-9b1a-4723a5e7a9db"
           labels:
             namespace: toi
