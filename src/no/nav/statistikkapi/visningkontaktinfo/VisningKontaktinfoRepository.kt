@@ -41,7 +41,8 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
 
     fun hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo(): Int {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("""
+            val resultSet = it.prepareStatement(
+                """
                 with vist_kontaktinfo_per_kandidat_per_liste as (
                     select aktør_id, stilling_id
                     from visning_kontaktinfo
@@ -62,7 +63,8 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
                     group by aktorid, stillingsid
                 )
                 select count(*) from kandidater_i_prioritert_målgruppe_med_åpnet_kontaktinfo;
-            """.trimIndent()).executeQuery()
+            """.trimIndent()
+            ).executeQuery()
 
             return if (resultSet.next()) {
                 resultSet.getInt(1)
@@ -72,10 +74,18 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
         }
     }
 
+    /**
+     * Når man henter antallet må man kun hente de visningene av kontaktinfo som er på stillinger
+     * der vi har lagret kandidatliste-informasjon i kandidatliste-tabellen. Dette skyldes at vi har data om
+     * visning av kontaktinfo fra et mye tidligere tidspunkt enn for data om kandidatlister.
+     */
     fun hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo(): Int {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("""
+            val resultSet = it.prepareStatement(
+                """
                 select count(distinct stilling_id) from visning_kontaktinfo
+                inner join kandidatliste
+                        on kandidatliste.stillings_id = visning_kontaktinfo.stilling_id::text
                 inner join kandidatutfall
                     on visning_kontaktinfo.stilling_id::text = kandidatutfall.stillingsid
                     and visning_kontaktinfo.aktør_id = kandidatutfall.aktorid
@@ -84,7 +94,8 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
                     (hull_i_cv is true) or
                     (innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
                 );
-            """.trimIndent()).executeQuery()
+            """.trimIndent()
+            ).executeQuery()
 
             return if (resultSet.next()) {
                 resultSet.getInt(1)
