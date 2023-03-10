@@ -276,6 +276,29 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 return resultSet.next()
             }
         }
+    }
 
+    fun hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                select count(distinct kandidatliste_id)
+                from $kandidatlisteTabell
+                         inner join kandidatutfall
+                                    on kandidatutfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
+                         inner join stilling
+                                    on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
+                
+                where (kandidatutfall.utfall = 'PRESENTERT' or kandidatutfall.utfall = 'FATT_JOBBEN')
+                    and $kandidatlisteTabell.$erDirektemeldtKolonne is true
+                    and stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null;
+            """.trimIndent()).executeQuery()
+
+            return if (resultSet.next()) {
+                resultSet.getInt(1)
+            } else {
+                0
+            }
+        }
     }
 }
