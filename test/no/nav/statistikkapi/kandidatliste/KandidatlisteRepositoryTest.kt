@@ -29,6 +29,7 @@ class KandidatlisteRepositoryTest {
     fun afterEach() {
         testRepository.slettAlleKandidatlister()
         testRepository.slettAlleStillinger()
+        testRepository.slettAlleUtfall()
     }
 
     @Test
