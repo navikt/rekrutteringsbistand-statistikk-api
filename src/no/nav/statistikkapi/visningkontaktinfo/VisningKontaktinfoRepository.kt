@@ -50,9 +50,10 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
                 kandidater_i_prioritert_målgruppe_med_åpnet_kontaktinfo as (
                     select 1
                     from kandidatutfall
-                    where aktorid in (select aktør_id from vist_kontaktinfo_per_kandidat_per_liste)
-                    and stillingsid in (select stilling_id::text from vist_kontaktinfo_per_kandidat_per_liste)
-                    and (utfall = 'PRESENTERT' or utfall = 'FATT_JOBBEN')
+                    inner join vist_kontaktinfo_per_kandidat_per_liste 
+                        on kandidatutfall.aktorid = vist_kontaktinfo_per_kandidat_per_liste.aktør_id
+                        and kandidatutfall.stillingsid = vist_kontaktinfo_per_kandidat_per_liste.stilling_id::text
+                    where (utfall = 'PRESENTERT' or utfall = 'FATT_JOBBEN')
                         and (
                             (alder < 30 or alder > 50) or 
                             (hull_i_cv is true) or 

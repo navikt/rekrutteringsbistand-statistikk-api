@@ -54,7 +54,7 @@ class MetrikkJobb(
     )
 
     private val antallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo = prometheusMeterRegistry.gauge(
-        "antall_kandidater_i_prioritert_maalgruppe_som_har_faatt_vist_sin_kontaktinfo",
+        "antall_kandidater_i_prioritert_malgruppe_som_har_fatt_vist_sin_kontaktinfo",
         AtomicLong(visningKontaktinfoRepository.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo().toLong())
     )
 
