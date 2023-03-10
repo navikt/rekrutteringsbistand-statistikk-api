@@ -53,6 +53,11 @@ class MetrikkJobb(
         AtomicLong(kandidatlisteRepository.hentAntallStillingerForStillingsannonserMedKandidatliste().toLong())
     )
 
+    private val antallDirektemeldteStillingerMedMinstEnPresentertKandidat = prometheusMeterRegistry.gauge(
+        "antall_direktemeldte_stillinger_med_minst_en_presentert_kandidat",
+        AtomicLong(kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat().toLong())
+    )
+
     private val antallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo = prometheusMeterRegistry.gauge(
         "antall_kandidater_i_prioritert_malgruppe_som_har_fatt_vist_sin_kontaktinfo",
         AtomicLong(visningKontaktinfoRepository.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo().toLong())
@@ -73,6 +78,7 @@ class MetrikkJobb(
         antallStillingerForEksterneStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForEksterneStillingsannonserMedKandidatliste().toLong())
         antallStillingerForDirektemeldteStillingsannonser.getAndSet(kandidatlisteRepository.hentAntallStillingerForDirektemeldteStillingsannonser().toLong())
         antallStillingerForStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForStillingsannonserMedKandidatliste().toLong())
+        antallDirektemeldteStillingerMedMinstEnPresentertKandidat.getAndSet(kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat().toLong())
         antallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo.getAndSet(visningKontaktinfoRepository.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo().toLong())
     }
 }
