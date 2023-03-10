@@ -7,6 +7,8 @@ import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.etKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.nowOslo
+import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.junit.After
 import org.junit.Test
 import java.time.ZonedDateTime
@@ -20,6 +22,7 @@ class KandidatlisteRepositoryTest {
         private val kandidatlisteRepository = KandidatlisteRepository(database.dataSource)
         private val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
+        private val stillingRepository = StillingRepository(database.dataSource)
     }
 
     @After
@@ -344,6 +347,10 @@ class KandidatlisteRepositoryTest {
             tidspunkt = nowOslo().minusNanos(1)
         ).also {
             kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = Stillingskategori.STILLING
+            )
         }
 
         lagOppdatertKandidatlisteHendelse(
@@ -352,6 +359,10 @@ class KandidatlisteRepositoryTest {
             antallStillinger = 2
         ).also {
             kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = null
+            )
         }
 
         uniktKandidatutfall(kandidatlisteId.toString()).also {
@@ -368,6 +379,68 @@ class KandidatlisteRepositoryTest {
         val antallKandidatlisterMedPresentertKandidat = kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat()
 
         assertThat(antallKandidatlisterMedPresentertKandidat).isEqualTo(2)
+    }
+
+    @Test
+    fun `Skal ikke telle kandidatliste der vi ikke har stillingsinformasjon når vi teller kandidatlister med minst en presentert kandidat`() {
+        val kandidatlisteId = UUID.randomUUID()
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = true,
+            antallStillinger = 40,
+            tidspunkt = nowOslo().minusNanos(1)
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+        }
+
+        uniktKandidatutfall(kandidatlisteId.toString()).also {
+            kandidatutfallRepository.lagreUtfall(it)
+        }
+
+        val antallKandidatlisterMedPresentertKandidat = kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat()
+
+        assertThat(antallKandidatlisterMedPresentertKandidat).isEqualTo(0)
+    }
+
+    @Test
+    fun `Skal ikke telle kandidatliste tilknyttet en stilling som ikke har stillingskategori STILLING eller null`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val nyKandidatlisteId = UUID.randomUUID()
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = true,
+            antallStillinger = 40,
+            tidspunkt = nowOslo().minusNanos(1)
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = Stillingskategori.JOBBMESSE
+            )
+        }
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = nyKandidatlisteId,
+            erDirektemeldt = true,
+            antallStillinger = 40,
+            tidspunkt = nowOslo().minusNanos(1)
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = Stillingskategori.FORMIDLING
+            )
+        }
+
+        uniktKandidatutfall(kandidatlisteId.toString()).also {
+            kandidatutfallRepository.lagreUtfall(it)
+        }
+        uniktKandidatutfall(nyKandidatlisteId.toString()).also {
+            kandidatutfallRepository.lagreUtfall(it)
+        }
+
+        val antallKandidatlisterMedPresentertKandidat = kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat()
+
+        assertThat(antallKandidatlisterMedPresentertKandidat).isEqualTo(0)
     }
 
     fun lagOpprettetKandidatlisteHendelse(

@@ -277,46 +277,21 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             }
         }
     }
-    /*
-    with vist_kontaktinfo_per_kandidat_per_liste as (
-                    select aktør_id, stilling_id
-                    from visning_kontaktinfo
-                    group by aktør_id, stilling_id
-                ),
-                kandidater_i_prioritert_målgruppe_med_åpnet_kontaktinfo as (
-                    select 1
-                    from kandidatutfall
-                    where aktorid in (select aktør_id from vist_kontaktinfo_per_kandidat_per_liste)
-                    and stillingsid in (select stilling_id::text from vist_kontaktinfo_per_kandidat_per_liste)
-                    and (utfall = 'PRESENTERT' or utfall = 'FATT_JOBBEN')
-                        and (
-                            (alder < 30 or alder > 50) or
-                            (hull_i_cv is true) or
-                            (innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
-                        )
-                    group by aktorid, stillingsid
-                )
-                select count(*) from kandidater_i_prioritert_målgruppe_med_åpnet_kontaktinfo;
-    */
 
     fun hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat(): Int {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("""
-                with unike_kandidatlister_tilknyttet_direktemeldte_stillinger as (
-                    select distinct $kandidatlisteIdKolonne FROM $kandidatlisteTabell
-                    where $stillingOpprettetTidspunktKolonne is not null and $erDirektemeldtKolonne is true
-                ),
-                    kandidatlister_med_minst_en_presentert_kandidat as (
-                        select aktorid, utfall, kandidatlisteid from kandidatutfall
-                        where kandidatlisteid in (select $kandidatlisteIdKolonne from unike_kandidatlister_tilknyttet_direktemeldte_stillinger)
-                        and (utfall = 'PRESENTERT' or utfall = 'FATT_JOBBEN')
-                        group by aktorid, utfall, kandidatlisteid
-                    ),
-                    unike_kandidatlister_med_minst_en_presentert_kandidat as (
-                        select distinct kandidatlisteid from kandidatlister_med_minst_en_presentert_kandidat
-                    )
-
-                select count(*) from unike_kandidatlister_med_minst_en_presentert_kandidat
+            val resultSet = it.prepareStatement(
+                """
+                select count(distinct kandidatliste_id)
+                from $kandidatlisteTabell
+                         inner join kandidatutfall
+                                    on kandidatutfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
+                         inner join stilling
+                                    on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
+                
+                where (kandidatutfall.utfall = 'PRESENTERT' or kandidatutfall.utfall = 'FATT_JOBBEN')
+                    and $kandidatlisteTabell.$erDirektemeldtKolonne is true
+                    and stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null;
             """.trimIndent()).executeQuery()
 
             return if (resultSet.next()) {
