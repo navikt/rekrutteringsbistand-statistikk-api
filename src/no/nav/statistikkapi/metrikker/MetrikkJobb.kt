@@ -63,6 +63,11 @@ class MetrikkJobb(
         AtomicLong(visningKontaktinfoRepository.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo().toLong())
     )
 
+    private val antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo  = prometheusMeterRegistry.gauge(
+        "antall_kandidatlister_med_minst_en_kandidat_i_prioritert_malgruppe_som_har_fatt_vist_sin_kontaktinfo",
+        AtomicLong(visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo().toLong())
+    )
+
     val executor = Executors.newScheduledThreadPool(1)
 
     fun start() {
@@ -80,5 +85,6 @@ class MetrikkJobb(
         antallStillingerForStillingsannonserMedKandidatliste.getAndSet(kandidatlisteRepository.hentAntallStillingerForStillingsannonserMedKandidatliste().toLong())
         antallDirektemeldteStillingerMedMinstEnPresentertKandidat.getAndSet(kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat().toLong())
         antallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo.getAndSet(visningKontaktinfoRepository.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo().toLong())
+        antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo.getAndSet(visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo().toLong())
     }
 }
