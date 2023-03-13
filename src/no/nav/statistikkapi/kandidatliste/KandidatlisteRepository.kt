@@ -6,6 +6,10 @@ import java.time.ZonedDateTime
 import java.util.*
 import javax.sql.DataSource
 
+/**
+ * Det funker å telle antall kandidatlister uten å se på stillingskategori fordi alle radene i kandidatliste-tabellen
+ * gjelder kandidatlister tilknyttet stillinger med stillingskategori STILLING eller null.
+ */
 class KandidatlisteRepository(private val dataSource: DataSource) {
 
     fun lagreKandidatlistehendelse(hendelse: Kandidatlistehendelse) {
@@ -282,15 +286,14 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                select count(distinct kandidatliste_id)
+                select count(distinct $kandidatlisteIdKolonne)
                 from $kandidatlisteTabell
                          inner join kandidatutfall
                                     on kandidatutfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
                          inner join stilling
                                     on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
-                
                 where (kandidatutfall.utfall = 'PRESENTERT' or kandidatutfall.utfall = 'FATT_JOBBEN')
-                    and $kandidatlisteTabell.$erDirektemeldtKolonne is true
+                    and $kandidatlisteTabell.$erDirektemeldtKolonne is true and $stillingOpprettetTidspunktKolonne is not null
                     and stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null;
             """.trimIndent()).executeQuery()
 
