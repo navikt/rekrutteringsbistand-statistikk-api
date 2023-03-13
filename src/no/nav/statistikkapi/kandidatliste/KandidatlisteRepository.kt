@@ -304,4 +304,32 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobben(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                select count(distinct $kandidatlisteIdKolonne)
+                from $kandidatlisteTabell
+                         inner join kandidatutfall
+                                    on kandidatutfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
+                         inner join stilling
+                                    on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
+                where (kandidatutfall.utfall = 'FATT_JOBBEN')
+                    and $stillingOpprettetTidspunktKolonne is not null
+                    and (stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null)
+                    and (
+                        (kandidatutfall.alder < 30 or kandidatutfall.alder > 49) or 
+                        (kandidatutfall.hull_i_cv is true) or 
+                        (kandidatutfall.innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                    )
+            """.trimIndent()).executeQuery()
+
+            return if (resultSet.next()) {
+                resultSet.getInt(1)
+            } else {
+                0
+            }
+        }
+    }
 }
