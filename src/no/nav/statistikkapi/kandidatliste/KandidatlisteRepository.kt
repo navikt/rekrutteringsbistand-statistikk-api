@@ -349,4 +349,27 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun hentAntallDirektemeldteStillingerSomHarTomKandidatliste(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                    with id_siste_hendelse_per_kandidatliste as (
+                        select max(id) from $kandidatlisteTabell
+                        group by $kandidatlisteIdKolonne
+                    )
+                    select count(distinct $kandidatlisteIdKolonne) from $kandidatlisteTabell
+                    where id in (select * from id_siste_hendelse_per_kandidatliste)
+                    and $antallKandidaterKolonne = 0
+                    and $stillingOpprettetTidspunktKolonne is not null;
+                """.trimIndent()
+            ).executeQuery()
+
+            return if (resultSet.next()) {
+                resultSet.getInt(1)
+            } else {
+                0
+            }
+        }
+    }
 }

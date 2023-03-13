@@ -2,6 +2,7 @@ package no.nav.statistikkapi.kandidatliste
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import io.mockk.InternalPlatformDsl.toStr
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.etKandidatutfall
@@ -567,6 +568,106 @@ class KandidatlisteRepositoryTest {
         kandidatutfallRepository.lagreUtfall(presentertUtfall)
 
         val antall = kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobben()
+
+        assertThat(antall).isEqualTo(0)
+    }
+
+    @Test
+    fun `Skal telle antall direktemeledte stillinger med tom kandidatliste`() {
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = UUID.randomUUID(),
+            erDirektemeldt = true
+        ).copy(
+            antallKandidater = 0
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = Stillingskategori.STILLING
+            )
+        }
+
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = UUID.randomUUID(),
+            erDirektemeldt = true
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = Stillingskategori.STILLING
+            )
+        }
+
+        val antall = kandidatlisteRepository.hentAntallDirektemeldteStillingerSomHarTomKandidatliste()
+
+        assertThat(antall).isEqualTo(1)
+    }
+
+    @Test
+    fun `Skal telle antall direktemeldte stillinger med tom kandidatliste når fjerner kandidat fra liste`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val stillingsId = UUID.randomUUID()
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = true
+        ).copy(
+            stillingsId = stillingsId.toString()
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = Stillingskategori.STILLING
+            )
+        }
+
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = true
+        ).copy(
+            antallKandidater = 0,
+            stillingsId = stillingsId.toString()
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = Stillingskategori.STILLING
+            )
+        }
+
+        val antall = kandidatlisteRepository.hentAntallDirektemeldteStillingerSomHarTomKandidatliste()
+
+        assertThat(antall).isEqualTo(1)
+    }
+
+    @Test
+    fun `Skal telle antall direktemeldte stillinger med tom kandidatliste når legger til kandidat i liste`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val stillingsId = UUID.randomUUID().toString()
+        stillingRepository.lagreStilling(
+            stillingsuuid = stillingsId,
+            stillingskategori = Stillingskategori.STILLING
+        )
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = true
+        ).copy(
+            antallKandidater = 0,
+            stillingsId = stillingsId
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+        }
+
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = true
+        ).copy(
+            antallKandidater = 2,
+            stillingsId = stillingsId
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+        }
+
+        val antall = kandidatlisteRepository.hentAntallDirektemeldteStillingerSomHarTomKandidatliste()
 
         assertThat(antall).isEqualTo(0)
     }
