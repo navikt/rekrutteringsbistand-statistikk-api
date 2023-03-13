@@ -286,14 +286,23 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
+                with id_siste_utfall_per_kandidat_per_liste as (
+                    select max(id) from kandidatutfall 
+                    group by aktorid, kandidatlisteid
+                ),
+                presentert_utfall as (
+                    select * from kandidatutfall 
+                    where id in (select * from id_siste_utfall_per_kandidat_per_liste)
+                    and (utfall = 'FATT_JOBBEN' or utfall = 'PRESENTERT')
+                )
                 select count(distinct $kandidatlisteIdKolonne)
                 from $kandidatlisteTabell
-                         inner join kandidatutfall
-                                    on kandidatutfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
+                         inner join presentert_utfall
+                                    on presentert_utfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
                          inner join stilling
                                     on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
-                where (kandidatutfall.utfall = 'PRESENTERT' or kandidatutfall.utfall = 'FATT_JOBBEN')
-                    and $kandidatlisteTabell.$erDirektemeldtKolonne is true and $stillingOpprettetTidspunktKolonne is not null
+                where $kandidatlisteTabell.$erDirektemeldtKolonne is true 
+                    and $kandidatlisteTabell.$stillingOpprettetTidspunktKolonne is not null
                     and stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null;
             """.trimIndent()).executeQuery()
 
@@ -324,7 +333,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                             on fått_jobben_utfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
                          inner join stilling
                             on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
-                where $stillingOpprettetTidspunktKolonne is not null
+                where $kandidatlisteTabell.$stillingOpprettetTidspunktKolonne is not null
                     and (stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null)
                     and (
                         (fått_jobben_utfall.alder < 30 or fått_jobben_utfall.alder > 49) or 
