@@ -309,19 +309,27 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
+                with id_siste_utfall_per_kandidat_per_liste as (
+                    select max(id) from kandidatutfall 
+                    group by aktorid, kandidatlisteid
+                ),
+                fått_jobben_utfall as (
+                    select * from kandidatutfall 
+                    where id in (select * from id_siste_utfall_per_kandidat_per_liste)
+                    and utfall = 'FATT_JOBBEN'
+                )
                 select count(distinct $kandidatlisteIdKolonne)
                 from $kandidatlisteTabell
-                         inner join kandidatutfall
-                                    on kandidatutfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
+                         inner join fått_jobben_utfall
+                            on fått_jobben_utfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
                          inner join stilling
-                                    on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
-                where (kandidatutfall.utfall = 'FATT_JOBBEN')
-                    and $stillingOpprettetTidspunktKolonne is not null
+                            on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
+                where $stillingOpprettetTidspunktKolonne is not null
                     and (stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null)
                     and (
-                        (kandidatutfall.alder < 30 or kandidatutfall.alder > 49) or 
-                        (kandidatutfall.hull_i_cv is true) or 
-                        (kandidatutfall.innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                        (fått_jobben_utfall.alder < 30 or fått_jobben_utfall.alder > 49) or 
+                        (fått_jobben_utfall.hull_i_cv is true) or 
+                        (fått_jobben_utfall.innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
                     )
             """.trimIndent()).executeQuery()
 

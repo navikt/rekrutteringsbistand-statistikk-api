@@ -295,7 +295,8 @@ class KandidatlisteRepositoryTest {
         kandidatlisteRepository.lagreKandidatlistehendelse(oppdatertKandidatlisteHendelse)
         kandidatlisteRepository.lagreKandidatlistehendelse(nyOppdatertKandidatlistehendelse)
 
-        val antallStillinger = kandidatlisteRepository.hentAntallStillingerForEksterneStillingsannonserMedKandidatliste()
+        val antallStillinger =
+            kandidatlisteRepository.hentAntallStillingerForEksterneStillingsannonserMedKandidatliste()
 
         assertThat(antallStillinger).isEqualTo(2)
     }
@@ -379,7 +380,8 @@ class KandidatlisteRepositoryTest {
             kandidatutfallRepository.lagreUtfall(it)
         }
 
-        val antallKandidatlisterMedPresentertKandidat = kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat()
+        val antallKandidatlisterMedPresentertKandidat =
+            kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat()
 
         assertThat(antallKandidatlisterMedPresentertKandidat).isEqualTo(2)
     }
@@ -400,7 +402,8 @@ class KandidatlisteRepositoryTest {
             kandidatutfallRepository.lagreUtfall(it)
         }
 
-        val antallKandidatlisterMedPresentertKandidat = kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat()
+        val antallKandidatlisterMedPresentertKandidat =
+            kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat()
 
         assertThat(antallKandidatlisterMedPresentertKandidat).isEqualTo(0)
     }
@@ -441,7 +444,8 @@ class KandidatlisteRepositoryTest {
             kandidatutfallRepository.lagreUtfall(it)
         }
 
-        val antallKandidatlisterMedPresentertKandidat = kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat()
+        val antallKandidatlisterMedPresentertKandidat =
+            kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat()
 
         assertThat(antallKandidatlisterMedPresentertKandidat).isEqualTo(0)
     }
@@ -474,8 +478,10 @@ class KandidatlisteRepositoryTest {
             stillingskategori = null
         )
 
-        uniktKandidatutfall(kandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN).also { kandidatutfallRepository.lagreUtfall(it) }
-        uniktKandidatutfall(annenKandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN).also { kandidatutfallRepository.lagreUtfall(it) }
+        uniktKandidatutfall(kandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+        uniktKandidatutfall(annenKandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
 
         val antall = kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobben()
 
@@ -510,8 +516,55 @@ class KandidatlisteRepositoryTest {
             stillingskategori = null
         )
 
-        uniktKandidatutfall(kandidatlisteId.toString()).copy(utfall = Utfall.PRESENTERT).also { kandidatutfallRepository.lagreUtfall(it) }
-        uniktKandidatutfall(annenKandidatlisteId.toString()).copy(utfall = Utfall.PRESENTERT).also { kandidatutfallRepository.lagreUtfall(it) }
+        uniktKandidatutfall(kandidatlisteId.toString()).copy(utfall = Utfall.PRESENTERT)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+        uniktKandidatutfall(annenKandidatlisteId.toString()).copy(utfall = Utfall.PRESENTERT)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+
+        val antall = kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobben()
+
+        assertThat(antall).isEqualTo(0)
+    }
+
+    @Test
+    fun `Telling for antall kandidatlister der minst én kandidat i prioritert målgruppe fikk jobben gjelder ikke for formidlingsstillinger`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val hendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = false
+        )
+        kandidatlisteRepository.lagreKandidatlistehendelse(hendelse)
+        stillingRepository.lagreStilling(
+            stillingsuuid = hendelse.stillingsId,
+            stillingskategori = Stillingskategori.FORMIDLING
+        )
+        uniktKandidatutfall(kandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+
+        val antall = kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobben()
+
+        assertThat(antall).isEqualTo(0)
+    }
+
+    @Test
+    fun `Telling for antall kandidatlister der minst én kandidat i prioritert målgruppe fikk jobben gjelder ikke når kandidaten som fikk jobben senere ble satt tilbake til presentert`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val hendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = false
+        )
+        kandidatlisteRepository.lagreKandidatlistehendelse(hendelse)
+        stillingRepository.lagreStilling(
+            stillingsuuid = hendelse.stillingsId,
+            stillingskategori = Stillingskategori.STILLING
+        )
+        val fåttJobbenUtfall = uniktKandidatutfall(kandidatlisteId.toString()).copy(
+            utfall = Utfall.FATT_JOBBEN,
+            tidspunktForHendelsen = nowOslo().minusDays(1)
+        )
+        val presentertUtfall = fåttJobbenUtfall.copy(utfall = Utfall.PRESENTERT, tidspunktForHendelsen = nowOslo())
+        kandidatutfallRepository.lagreUtfall(fåttJobbenUtfall)
+        kandidatutfallRepository.lagreUtfall(presentertUtfall)
 
         val antall = kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobben()
 
