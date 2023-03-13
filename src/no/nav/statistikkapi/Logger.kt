@@ -6,4 +6,4 @@ import org.slf4j.LoggerFactory
 val Any.log: Logger
     get() = LoggerFactory.getLogger(this::class.java)
 
-val secureLog = LoggerFactory.getLogger("tjenestekall")
+val secureLog = LoggerFactory.getLogger("secureLog")
