@@ -2,7 +2,6 @@ package no.nav.statistikkapi.kandidatliste
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import io.mockk.InternalPlatformDsl.toStr
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.etKandidatutfall
@@ -679,6 +678,22 @@ class KandidatlisteRepositoryTest {
         val antall = kandidatlisteRepository.hentAntallDirektemeldteStillingerSomHarTomKandidatliste()
 
         assertThat(antall).isEqualTo(0)
+    }
+
+    @Test
+    fun `Skal returnere unike antall arbeidsgivere som har fått opprettet direktemeldt stilling`() {
+        val hendelseDirektemeldtStilling1 = lagOppdatertKandidatlisteHendelse(erDirektemeldt = true).copy(organisasjonsnummer = "1234")
+        val hendelseDirektemeldtStilling2 = lagOppdatertKandidatlisteHendelse(erDirektemeldt = true).copy(organisasjonsnummer = "2345")
+        val hendelseEksternStilling = lagOppdatertKandidatlisteHendelse(erDirektemeldt = false).copy(organisasjonsnummer = "3456")
+        val hendelseDirektemeldtStillingIkkePublisert = lagOpprettetKandidatlisteHendelse(erDirektemeldt = true, stillingOpprettetTidspunkt = null).copy(organisasjonsnummer = "4567")
+        kandidatlisteRepository.lagreKandidatlistehendelse(hendelseDirektemeldtStilling1)
+        kandidatlisteRepository.lagreKandidatlistehendelse(hendelseDirektemeldtStilling2)
+        kandidatlisteRepository.lagreKandidatlistehendelse(hendelseEksternStilling)
+        kandidatlisteRepository.lagreKandidatlistehendelse(hendelseDirektemeldtStillingIkkePublisert)
+
+        val antall = kandidatlisteRepository.hentAntallUnikeArbeidsgivereForDirektemeldteStillinger()
+
+        assertThat(antall).isEqualTo(2)
     }
 
     fun lagOpprettetKandidatlisteHendelse(

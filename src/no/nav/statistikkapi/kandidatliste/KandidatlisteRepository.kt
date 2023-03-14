@@ -372,4 +372,21 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun hentAntallUnikeArbeidsgivereForDirektemeldteStillinger(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement("""
+                select count(distinct $organisasjonsnummerKolonne) 
+                from $kandidatlisteTabell
+                where $erDirektemeldtKolonne is true 
+                and $stillingOpprettetTidspunktKolonne is not null;
+            """.trimIndent()).executeQuery()
+
+            return if (resultSet.next()) {
+                resultSet.getInt(1)
+            } else {
+                0
+            }
+        }
+    }
 }
