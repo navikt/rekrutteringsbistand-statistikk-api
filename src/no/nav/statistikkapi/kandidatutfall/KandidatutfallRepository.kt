@@ -1,7 +1,7 @@
 package no.nav.statistikkapi.kandidatutfall
 
 import no.nav.statistikkapi.HentStatistikk
-import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
+import no.nav.statistikkapi.SendtStatus
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
 import java.sql.Date
@@ -134,7 +134,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     fun hentUsendteUtfall(): List<Kandidatutfall> {
         dataSource.connection.use {
             val resultSet =
-                it.prepareStatement("SELECT * FROM $kandidatutfallTabell WHERE $sendtStatus = '${IKKE_SENDT.name}' ORDER BY $dbId ASC")
+                it.prepareStatement("SELECT * FROM $kandidatutfallTabell WHERE $sendtStatus = '${SendtStatus.IKKE_SENDT.name}' ORDER BY $dbId ASC")
                     .executeQuery()
             return generateSequence {
                 if (resultSet.next()) konverterTilKandidatutfall(resultSet)

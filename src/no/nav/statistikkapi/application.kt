@@ -61,7 +61,7 @@ fun main() {
 fun startApp(
     database: Database,
     tokenSupportConfig: TokenSupportConfig,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer
+    datavarehusKafkaProducer: DatavarehusKafkaProducer,
 ) {
     val tokenValidationConfig: AuthenticationConfig.() -> Unit = {
         tokenValidationSupport(config = tokenSupportConfig)
@@ -72,7 +72,6 @@ fun startApp(
     val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
     val kandidatlisteRepository = KandidatlisteRepository(database.dataSource)
     val visningKontaktinfoRepository = VisningKontaktinfoRepository(database.dataSource)
-    val stillingRepository = StillingRepository(database.dataSource)
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
     val metrikkJobb = MetrikkJobb(
@@ -169,13 +168,17 @@ fun startApp(
 
 private fun startDatavarehusScheduler(
     database: Database,
-    datavarehusKafkaProducer: DatavarehusKafkaProducer
+    datavarehusKafkaProducer: DatavarehusKafkaProducer,
+
 ) {
     val stillingRepository = StillingRepository(database.dataSource)
     val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
-    val sendKafkaMelding: Runnable =
+    val tiltaksRepository = TiltaksRepository(database.dataSource)
+    val sendKafkaMeldingFraUtfall: Runnable =
         hentUsendteUtfallOgSendPåKafka(kandidatutfallRepository, datavarehusKafkaProducer, stillingRepository)
-    val datavarehusScheduler = KafkaTilDataverehusScheduler(database.dataSource, sendKafkaMelding)
+    val sendKafkaMeldingFraTiltak: Runnable =
+        hentUsendteTiltakOgSendPåKafka(tiltaksRepository , datavarehusKafkaProducer)
+    val datavarehusScheduler = KafkaTilDataverehusScheduler(database.dataSource, sendKafkaMeldingFraUtfall, sendKafkaMeldingFraTiltak)
 
     datavarehusScheduler.kjørPeriodisk()
 }
@@ -242,3 +245,7 @@ fun ZonedDateTime.toOsloSameLocal(): ZonedDateTime = this.truncatedTo(MILLIS).wi
 
 fun LocalDateTime.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))
 fun Instant.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))
+
+enum class SendtStatus {
+    IKKE_SENDT, SENDT, KANSELLERT
+}

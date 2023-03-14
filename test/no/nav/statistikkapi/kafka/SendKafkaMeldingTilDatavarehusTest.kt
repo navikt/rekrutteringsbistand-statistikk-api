@@ -4,20 +4,17 @@ import assertk.assertThat
 import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import assertk.assertions.isZero
-import io.mockk.every
-import io.mockk.mockk
+import no.nav.statistikkapi.SendtStatus
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.enStillingsId
 import no.nav.statistikkapi.etKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
-import no.nav.statistikkapi.kandidatutfall.SendtStatus.SENDT
 import no.nav.statistikkapi.nowOslo
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.Stillingskategori
+import no.nav.statistikkapi.tiltak.TiltaksRepository
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -34,6 +31,12 @@ class SendKafkaMeldingTilDatavarehusTest {
         private val producerSomFeilerEtterFørsteKall = object : DatavarehusKafkaProducer {
             var førsteKall = true
             override fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori) {
+                if (førsteKall) {
+                    førsteKall = false
+                    return
+                } else throw Exception()
+            }
+            override fun send(tiltak: TiltaksRepository.Tiltak, stillingskategori: Stillingskategori) {
                 if (førsteKall) {
                     førsteKall = false
                     return
@@ -62,12 +65,12 @@ class SendKafkaMeldingTilDatavarehusTest {
         val nå = now()
         val vellyketUtfall = testRepository.hentUtfall()[0]
         assertThat(stillingRepo.hentStilling(vellyketUtfall.stillingsId)).isNotNull()
-        assertThat(vellyketUtfall.sendtStatus).isEqualTo(SENDT)
+        assertThat(vellyketUtfall.sendtStatus).isEqualTo(SendtStatus.SENDT)
         assertThat(vellyketUtfall.antallSendtForsøk).isEqualTo(1)
         assertThat(vellyketUtfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
 
         val feiletUtfall = testRepository.hentUtfall()[1]
-        assertThat(feiletUtfall.sendtStatus).isEqualTo(IKKE_SENDT)
+        assertThat(feiletUtfall.sendtStatus).isEqualTo(SendtStatus.IKKE_SENDT)
         assertThat(feiletUtfall.antallSendtForsøk).isEqualTo(1)
         assertThat(feiletUtfall.sisteSendtForsøk!!).isBetween(nå.minusSeconds(10), nå)
     }

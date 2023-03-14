@@ -1,11 +1,14 @@
 package no.nav.statistikkapi.tiltak
 
 import no.nav.statistikkapi.HentStatistikk
+import no.nav.statistikkapi.SendtStatus
 import no.nav.statistikkapi.atOslo
+import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.log
 import java.sql.Date
+import java.sql.ResultSet
 import java.sql.Timestamp
-import java.time.ZoneId
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.*
 import javax.sql.DataSource
@@ -21,23 +24,44 @@ class TiltaksRepository(private val dataSource: DataSource) {
         const val tiltakstypeLabel = "tiltakstype"
         const val avtaleInngåttLabel = "avtaleInngått"
         const val sistEndretLabel = "sistEndret"
+        const val sendtStatusLabel = "sendt_status"
+        const val antallSendtForsøkLabel = "antall_sendt_forsok"
+        const val sisteSendtForsøkLabel = "siste_sendt_forsok"
+        const val dbIdLabel = "id"
+
+        fun konverterTilTiltak(resultSet: ResultSet): Tiltak =
+            Tiltak(
+                deltakerAktørId = resultSet.getString(TiltaksRepository.deltakerAktørIdLabel),
+                avtaleId = UUID.fromString(resultSet.getString(TiltaksRepository.avtaleIdLabel)),
+                deltakerFnr = resultSet.getString(deltakerFnrLabel),
+                enhetOppfolging = resultSet.getString(enhetOppfolgingLabel),
+                tiltakstype = resultSet.getString(tiltakstypeLabel),
+                avtaleInngått = resultSet.getTimestamp(TiltaksRepository.avtaleInngåttLabel).toInstant().atOslo(),
+                sistEndret = resultSet.getTimestamp(TiltaksRepository.sistEndretLabel).toInstant().atOslo(),
+                antallSendtForsøk = resultSet.getInt(TiltaksRepository.antallSendtForsøkLabel),
+                sendtStatus = SendtStatus.valueOf(resultSet.getString(TiltaksRepository.sendtStatusLabel)),
+                sisteSendtForsøk = resultSet.getTimestamp(TiltaksRepository.sisteSendtForsøkLabel)?.toLocalDateTime(),
+            )
     }
 
-    data class OpprettTiltak(
+    data class Tiltak(
         val avtaleId: UUID,
         val deltakerAktørId: String,
         val deltakerFnr: String,
         val enhetOppfolging: String,
         val tiltakstype: String,
         val avtaleInngått: ZonedDateTime,
-        val sistEndret: ZonedDateTime
+        val sistEndret: ZonedDateTime,
+        val sendtStatus: SendtStatus,
+        val antallSendtForsøk: Int,
+        val sisteSendtForsøk: LocalDateTime?,
     )
 
-    fun lagreTiltak(tiltak: OpprettTiltak) {
+    fun lagreTiltak(tiltak: Tiltak) {
 
         val sistEndretIDb = sistEndretDatoForAvtaleId(tiltak)
 
-        if(sistEndretIDb == null) {
+        if (sistEndretIDb == null) {
             dataSource.connection.use {
                 it.prepareStatement(
                     """INSERT INTO ${tiltaksTabellLabel} (
@@ -60,7 +84,7 @@ class TiltaksRepository(private val dataSource: DataSource) {
 
                 }.executeUpdate()
             }
-        } else if(tiltak.sistEndret.isAfter(sistEndretIDb)) {
+        } else if (tiltak.sistEndret.isAfter(sistEndretIDb)) {
             dataSource.connection.use {
                 it.prepareStatement(
                     """UPDATE ${tiltaksTabellLabel} 
@@ -118,7 +142,7 @@ class TiltaksRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun sistEndretDatoForAvtaleId(tiltak: OpprettTiltak): ZonedDateTime? {
+    fun sistEndretDatoForAvtaleId(tiltak: Tiltak): ZonedDateTime? {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -133,6 +157,49 @@ class TiltaksRepository(private val dataSource: DataSource) {
             if (resultSet.next() == false) return null
 
             return resultSet.getTimestamp(sistEndretLabel).toInstant().atOslo()
+        }
+    }
+
+    fun hentUsendteTiltak(): List<Tiltak> {
+        dataSource.connection.use {
+            val resultSet =
+                it.prepareStatement("SELECT * FROM ${TiltaksRepository.tiltaksTabellLabel} WHERE ${TiltaksRepository.sendtStatusLabel} = '${SendtStatus.IKKE_SENDT.name}' ORDER BY ${TiltaksRepository.dbIdLabel} ASC")
+                    .executeQuery()
+            return generateSequence {
+                if (resultSet.next()) TiltaksRepository.konverterTilTiltak(resultSet)
+                else null
+            }.toList()
+        }
+    }
+
+    fun registrerSendtForsøk(tiltak: Tiltak) {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """UPDATE ${TiltaksRepository.tiltaksTabellLabel}
+                      SET ${TiltaksRepository.antallSendtForsøkLabel} = ?,
+                          ${TiltaksRepository.sisteSendtForsøkLabel} = ?
+                    WHERE ${TiltaksRepository.avtaleIdLabel} = ?"""
+            ).apply {
+                setInt(1, tiltak.antallSendtForsøk + 1)
+                setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+                setString(3, tiltak.avtaleId.toString())
+                executeUpdate()
+            }
+        }
+
+    }
+
+    fun registrerSomSendt(tiltak: Tiltak) {
+        dataSource.connection.use {
+            it.prepareStatement(
+                """UPDATE ${TiltaksRepository.tiltaksTabellLabel}
+                      SET ${TiltaksRepository.sendtStatusLabel} = ?
+                    WHERE ${TiltaksRepository.avtaleIdLabel} = ?"""
+            ).apply {
+                setString(1, SendtStatus.SENDT.name)
+                setString(2, tiltak.avtaleId.toString())
+                executeUpdate()
+            }
         }
     }
 }

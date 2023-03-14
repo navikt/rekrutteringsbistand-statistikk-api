@@ -2,6 +2,7 @@ package no.nav.statistikkapi.tiltak
 
 import no.nav.helse.rapids_rivers.*
 import no.nav.helse.rapids_rivers.River.PacketListener
+import no.nav.statistikkapi.SendtStatus
 import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.log
 import java.time.ZonedDateTime
@@ -38,14 +39,17 @@ class Tiltaklytter(
         log.info("Tiltaksmelding mottatt tiltakstype: avtaleId: ${avtaleId}")
 
 
-        val tiltak = TiltaksRepository.OpprettTiltak(
+        val tiltak = TiltaksRepository.Tiltak(
             avtaleId = avtaleId,
             deltakerAktørId = deltakerAktørId,
             deltakerFnr = deltakerFnr,
             enhetOppfolging = enhetOppfolging,
             tiltakstype = tiltakstype,
             avtaleInngått = avtaleInngått,
-            sistEndret = sistEndret
+            sistEndret = sistEndret,
+            sendtStatus = SendtStatus.IKKE_SENDT,
+            antallSendtForsøk = 0,
+            sisteSendtForsøk = null
         )
         repo.lagreTiltak(tiltak)
         packet["@slutt_av_hendelseskjede"] = true
@@ -53,6 +57,6 @@ class Tiltaklytter(
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        log.error("Mangler oblligatorisk felt $problems")
+        log.error("Mangler obligatorisk felt $problems")
     }
 }

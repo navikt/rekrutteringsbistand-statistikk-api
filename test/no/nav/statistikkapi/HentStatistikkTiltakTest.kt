@@ -233,7 +233,7 @@ class HentStatistikkTiltakTest {
         }
     }
 
-    fun etArbeidstreningTiltak(deltakerAktørId: String) = TiltaksRepository.OpprettTiltak(
+    fun etArbeidstreningTiltak(deltakerAktørId: String) = TiltaksRepository.Tiltak(
         avtaleId = UUID.randomUUID(),
         deltakerAktørId = deltakerAktørId,
         deltakerFnr = "12121212121",
@@ -241,6 +241,9 @@ class HentStatistikkTiltakTest {
         tiltakstype = "ARBEIDSTRENING",
         avtaleInngått = LocalDateTime.of(2022, 5, 3, 0, 0, 0).atOslo(),
         sistEndret = LocalDateTime.of(2022, 5, 2, 0, 0, 0).atOslo(),
+        sendtStatus = SendtStatus.IKKE_SENDT,
+        antallSendtForsøk = 0,
+        sisteSendtForsøk = null
     )
 
     private fun tiltakRapidMelding(

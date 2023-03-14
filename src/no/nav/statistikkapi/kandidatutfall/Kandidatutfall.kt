@@ -1,5 +1,6 @@
 package no.nav.statistikkapi.kandidatutfall
 
+import no.nav.statistikkapi.SendtStatus
 import java.time.LocalDateTime
 import java.util.*
 
@@ -22,10 +23,6 @@ data class Kandidatutfall(
     val alder: Int?,
     val tilretteleggingsbehov: List<String>
 )
-
-enum class SendtStatus {
-    IKKE_SENDT, SENDT, KANSELLERT
-}
 
 enum class Utfall {
     IKKE_PRESENTERT, PRESENTERT, FATT_JOBBEN;
