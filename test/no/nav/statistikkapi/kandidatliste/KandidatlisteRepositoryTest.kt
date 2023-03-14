@@ -590,6 +590,8 @@ class KandidatlisteRepositoryTest {
         lagOppdatertKandidatlisteHendelse(
             kandidatlisteId = UUID.randomUUID(),
             erDirektemeldt = true
+        ).copy(
+            antallKandidater = 2
         ).also {
             kandidatlisteRepository.lagreKandidatlistehendelse(it)
             stillingRepository.lagreStilling(
@@ -604,14 +606,12 @@ class KandidatlisteRepositoryTest {
     }
 
     @Test
-    fun `Skal telle antall direktemeldte stillinger med tom kandidatliste når fjerner kandidat fra liste`() {
-        val kandidatlisteId = UUID.randomUUID()
-        val stillingsId = UUID.randomUUID()
+    fun `Skal kunne telle flere antall direktemeledte stillinger med tom kandidatliste`() {
         lagOppdatertKandidatlisteHendelse(
-            kandidatlisteId = kandidatlisteId,
+            kandidatlisteId = UUID.randomUUID(),
             erDirektemeldt = true
         ).copy(
-            stillingsId = stillingsId.toString()
+            antallKandidater = 0
         ).also {
             kandidatlisteRepository.lagreKandidatlistehendelse(it)
             stillingRepository.lagreStilling(
@@ -619,13 +619,23 @@ class KandidatlisteRepositoryTest {
                 stillingskategori = Stillingskategori.STILLING
             )
         }
-
         lagOppdatertKandidatlisteHendelse(
-            kandidatlisteId = kandidatlisteId,
+            kandidatlisteId = UUID.randomUUID(),
             erDirektemeldt = true
         ).copy(
-            antallKandidater = 0,
-            stillingsId = stillingsId.toString()
+            antallKandidater = 0
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = Stillingskategori.STILLING
+            )
+        }
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = UUID.randomUUID(),
+            erDirektemeldt = true
+        ).copy(
+            antallKandidater = 2
         ).also {
             kandidatlisteRepository.lagreKandidatlistehendelse(it)
             stillingRepository.lagreStilling(
@@ -636,11 +646,11 @@ class KandidatlisteRepositoryTest {
 
         val antall = kandidatlisteRepository.hentAntallDirektemeldteStillingerSomHarTomKandidatliste()
 
-        assertThat(antall).isEqualTo(1)
+        assertThat(antall).isEqualTo(2)
     }
 
     @Test
-    fun `Skal telle antall direktemeldte stillinger med tom kandidatliste når legger til kandidat i liste`() {
+    fun `Skal se på antall kandidater i siste kandidatlistemelding når man telle antall direktemeldte stillinger med tom kandidatliste`() {
         val kandidatlisteId = UUID.randomUUID()
         val stillingsId = UUID.randomUUID().toString()
         stillingRepository.lagreStilling(
@@ -656,7 +666,6 @@ class KandidatlisteRepositoryTest {
         ).also {
             kandidatlisteRepository.lagreKandidatlistehendelse(it)
         }
-
         lagOppdatertKandidatlisteHendelse(
             kandidatlisteId = kandidatlisteId,
             erDirektemeldt = true
