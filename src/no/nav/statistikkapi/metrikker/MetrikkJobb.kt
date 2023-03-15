@@ -83,6 +83,11 @@ class MetrikkJobb(
         AtomicLong(kandidatlisteRepository.hentAntallUnikeArbeidsgivereForDirektemeldteStillinger().toLong())
     )
 
+    private val antallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben = prometheusMeterRegistry.gauge(
+        "antall_kandidatlister_tilknyttet_direktemeldt_stilling_der_minst_en_kandidat_fikk_jobben",
+        AtomicLong(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben().toLong())
+    )
+
     val executor = Executors.newScheduledThreadPool(1)
 
     fun start() {
@@ -104,5 +109,6 @@ class MetrikkJobb(
         antallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobben.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobben().toLong())
         antallDirektemeldteStillingerSomHarTomKandidatliste.getAndSet(kandidatlisteRepository.hentAntallDirektemeldteStillingerSomHarTomKandidatliste().toLong())
         antallUnikeArbeidsgivereForDirektemeldteStillinger.getAndSet(kandidatlisteRepository.hentAntallUnikeArbeidsgivereForDirektemeldteStillinger().toLong())
+        antallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben().toLong())
     }
 }

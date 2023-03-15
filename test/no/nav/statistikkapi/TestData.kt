@@ -50,5 +50,21 @@ val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(
     hovedmål = "SKAFFERA"
 )
 
+val etKandidatutfallIkkeIPrioritertMålgruppe = OpprettKandidatutfall(
+    aktørId = "10000254879658",
+    utfall = Utfall.PRESENTERT,
+    navIdent = enNavIdent,
+    navKontor = etKontor1,
+    kandidatlisteId = "385c74d1-0d14-48d7-9a9b-b219beff22c8",
+    stillingsId = enStillingsId.toString(),
+    synligKandidat = true,
+    harHullICv = false,
+    alder = 35,
+    tilretteleggingsbehov = emptyList(),
+    tidspunktForHendelsen = nowOslo(),
+    innsatsbehov = "IKVAL",
+    hovedmål = "SKAFFERA"
+)
+
 val aktørId1 = "100000000001"
 val aktørId2 = "100000000002"

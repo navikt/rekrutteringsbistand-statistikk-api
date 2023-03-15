@@ -389,4 +389,36 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben(): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                with id_siste_utfall_per_kandidat_per_liste as (
+                    select max(id) from kandidatutfall 
+                    group by aktorid, kandidatlisteid
+                ),
+                fått_jobben_utfall as (
+                    select * from kandidatutfall 
+                    where id in (select * from id_siste_utfall_per_kandidat_per_liste)
+                    and utfall = 'FATT_JOBBEN'
+                )
+                select count(distinct $kandidatlisteIdKolonne)
+                from $kandidatlisteTabell
+                         inner join fått_jobben_utfall
+                            on fått_jobben_utfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
+                         inner join stilling
+                            on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
+                where $kandidatlisteTabell.$stillingOpprettetTidspunktKolonne is not null
+                    and $erDirektemeldtKolonne is true
+                    and (stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null)
+            """.trimIndent()).executeQuery()
+
+            return if (resultSet.next()) {
+                resultSet.getInt(1)
+            } else {
+                0
+            }
+        }
+    }
 }

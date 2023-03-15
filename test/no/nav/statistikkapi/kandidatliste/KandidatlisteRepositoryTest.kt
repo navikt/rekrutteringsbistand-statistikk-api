@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.etKandidatutfall
+import no.nav.statistikkapi.etKandidatutfallIkkeIPrioritertMålgruppe
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall
 import no.nav.statistikkapi.nowOslo
@@ -696,6 +697,159 @@ class KandidatlisteRepositoryTest {
         assertThat(antall).isEqualTo(2)
     }
 
+    @Test
+    fun `Skal kunne telle antall kandidatlister tilknyttet direktemeldt stilling der minst én kandidat fikk jobben`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val annenKandidatlisteId = UUID.randomUUID()
+        val hendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = false
+        )
+        val annenHendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = annenKandidatlisteId,
+            erDirektemeldt = true
+        )
+        kandidatlisteRepository.lagreKandidatlistehendelse(hendelse)
+        kandidatlisteRepository.lagreKandidatlistehendelse(annenHendelse)
+        stillingRepository.lagreStilling(
+            stillingsuuid = hendelse.stillingsId,
+            stillingskategori = Stillingskategori.STILLING
+        )
+        stillingRepository.lagreStilling(
+            stillingsuuid = annenHendelse.stillingsId,
+            stillingskategori = null
+        )
+        uniktKandidatutfallIkkeIPrioritertMålgruppe(kandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+        uniktKandidatutfall(annenKandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+
+        val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
+
+        assertThat(antall).isEqualTo(1)
+    }
+
+    @Test
+    fun `Skal ikke inkludere kandidater som kun er blitt presentert fra telling for antall kandidatlister tilknyttet direktemeldt stilling der minst én kandidat fikk jobben`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val annenKandidatlisteId = UUID.randomUUID()
+        val tredjeKandidatlisteId = UUID.randomUUID()
+        val hendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = false
+        )
+        val annenHendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = annenKandidatlisteId,
+            erDirektemeldt = true
+        )
+        val tredjeHendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = tredjeKandidatlisteId,
+            erDirektemeldt = true
+        )
+        kandidatlisteRepository.lagreKandidatlistehendelse(hendelse)
+        kandidatlisteRepository.lagreKandidatlistehendelse(annenHendelse)
+        kandidatlisteRepository.lagreKandidatlistehendelse(tredjeHendelse)
+        stillingRepository.lagreStilling(
+            stillingsuuid = hendelse.stillingsId,
+            stillingskategori = Stillingskategori.STILLING
+        )
+        stillingRepository.lagreStilling(
+            stillingsuuid = annenHendelse.stillingsId,
+            stillingskategori = null
+        )
+        stillingRepository.lagreStilling(
+            stillingsuuid = tredjeHendelse.stillingsId,
+            stillingskategori = Stillingskategori.STILLING
+        )
+        uniktKandidatutfallIkkeIPrioritertMålgruppe(kandidatlisteId.toString()).copy(utfall = Utfall.PRESENTERT)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+        uniktKandidatutfallIkkeIPrioritertMålgruppe(annenKandidatlisteId.toString()).copy(utfall = Utfall.PRESENTERT)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+        uniktKandidatutfall(annenKandidatlisteId.toString()).copy(utfall = Utfall.PRESENTERT)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+        uniktKandidatutfallIkkeIPrioritertMålgruppe(tredjeKandidatlisteId.toString()).copy(utfall = Utfall.PRESENTERT)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+
+        val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
+
+        assertThat(antall).isEqualTo(0)
+    }
+
+    @Test
+    fun `Telling for antall kandidatlister tilknyttet direktemeldt stilling der minst én kandidat fikk jobben gjelder ikke for formidlingsstillinger`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val annenKandidatlisteId = UUID.randomUUID()
+        val hendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = true
+        )
+        val annenHendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = false
+        )
+        kandidatlisteRepository.lagreKandidatlistehendelse(hendelse)
+        kandidatlisteRepository.lagreKandidatlistehendelse(annenHendelse)
+        stillingRepository.lagreStilling(
+            stillingsuuid = hendelse.stillingsId,
+            stillingskategori = Stillingskategori.FORMIDLING
+        )
+        stillingRepository.lagreStilling(
+            stillingsuuid = annenHendelse.stillingsId,
+            stillingskategori = Stillingskategori.FORMIDLING
+        )
+        uniktKandidatutfallIkkeIPrioritertMålgruppe(kandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+        uniktKandidatutfall(kandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
+            .also { kandidatutfallRepository.lagreUtfall(it) }
+        uniktKandidatutfallIkkeIPrioritertMålgruppe(annenKandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
+
+        val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
+
+        assertThat(antall).isEqualTo(0)
+    }
+
+    @Test
+    fun `Telling for antall kandidatlister tilknyttet direktemeldt stilling der minst én kandidat fikk jobben gjelder ikke når kandidaten som fikk jobben senere ble satt tilbake til presentert`() {
+        val kandidatlisteId = UUID.randomUUID()
+        val annenKandidatlisteId = UUID.randomUUID()
+        val hendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = false
+        )
+        val annenHendelse = lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = annenKandidatlisteId,
+            erDirektemeldt = true
+        )
+        kandidatlisteRepository.lagreKandidatlistehendelse(hendelse)
+        kandidatlisteRepository.lagreKandidatlistehendelse(annenHendelse)
+        stillingRepository.lagreStilling(
+            stillingsuuid = hendelse.stillingsId,
+            stillingskategori = Stillingskategori.STILLING
+        )
+        stillingRepository.lagreStilling(
+            stillingsuuid = annenHendelse.stillingsId,
+            stillingskategori = Stillingskategori.STILLING
+        )
+        val fåttJobbenUtfall = uniktKandidatutfallIkkeIPrioritertMålgruppe(kandidatlisteId.toString()).copy(
+            utfall = Utfall.FATT_JOBBEN,
+            tidspunktForHendelsen = nowOslo().minusDays(1)
+        )
+        val annenFåttJobbenUtfalll = uniktKandidatutfallIkkeIPrioritertMålgruppe(annenKandidatlisteId.toString()).copy(
+            utfall = Utfall.FATT_JOBBEN,
+            tidspunktForHendelsen = nowOslo().minusDays(1)
+        )
+        val presentertUtfall = fåttJobbenUtfall.copy(utfall = Utfall.PRESENTERT, tidspunktForHendelsen = nowOslo())
+        val annenPresentertUtfall = annenFåttJobbenUtfalll.copy(utfall = Utfall.PRESENTERT, tidspunktForHendelsen = nowOslo())
+        kandidatutfallRepository.lagreUtfall(fåttJobbenUtfall)
+        kandidatutfallRepository.lagreUtfall(annenFåttJobbenUtfalll)
+        kandidatutfallRepository.lagreUtfall(presentertUtfall)
+        kandidatutfallRepository.lagreUtfall(annenPresentertUtfall)
+
+        val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
+
+        assertThat(antall).isEqualTo(0)
+    }
+
     fun lagOpprettetKandidatlisteHendelse(
         kandidatlisteId: UUID = UUID.randomUUID(),
         erDirektemeldt: Boolean,
@@ -739,6 +893,13 @@ class KandidatlisteRepositoryTest {
 
     private fun uniktKandidatutfall(kandidatlisteId: String = "385c74d1-0d14-48d7-9a9b-b219beff22c8") =
         etKandidatutfall.copy(
+            stillingsId = UUID.randomUUID().toString(),
+            aktørId = UUID.randomUUID().toString().substring(26, 35),
+            kandidatlisteId = kandidatlisteId
+        )
+
+    private fun uniktKandidatutfallIkkeIPrioritertMålgruppe(kandidatlisteId: String = "385c74d1-0d14-48d7-9a9b-b219beff22c8") =
+        etKandidatutfallIkkeIPrioritertMålgruppe.copy(
             stillingsId = UUID.randomUUID().toString(),
             aktørId = UUID.randomUUID().toString().substring(26, 35),
             kandidatlisteId = kandidatlisteId
