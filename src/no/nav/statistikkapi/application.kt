@@ -216,11 +216,10 @@ fun settOppKtor(
         Metrics.addRegistry(prometheusMeterRegistry)
 
         val kandidatutfallRepository = KandidatutfallRepository(dataSource)
-        val tiltaksRepository = TiltaksRepository(dataSource)
 
         routing {
             route("/rekrutteringsbistand-statistikk-api") {
-                hentStatistikk(kandidatutfallRepository, tiltaksRepository)
+                hentStatistikk(kandidatutfallRepository)
                 get("/metrics") {
                     call.respond(prometheusMeterRegistry.scrape())
                 }

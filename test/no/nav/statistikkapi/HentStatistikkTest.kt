@@ -2,7 +2,6 @@ package no.nav.statistikkapi
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.assertions.isZero
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.apache.*
@@ -15,13 +14,9 @@ import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
-import no.nav.statistikkapi.tiltak.TiltaksRepository
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Test
 import java.time.LocalDate
-import java.time.ZoneId
-import java.time.ZonedDateTime
 
 class HentStatistikkTest {
 
@@ -33,7 +28,6 @@ class HentStatistikkTest {
         private val basePath = basePath(port)
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
-        private val tiltaksRepository = TiltaksRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
 
         init {
@@ -515,7 +509,6 @@ class HentStatistikkTest {
     @After
     fun cleanUp() {
         testRepository.slettAlleUtfall()
-        testRepository.slettAlleLønnstilskudd()
         mockOAuth2Server.shutdown()
     }
 

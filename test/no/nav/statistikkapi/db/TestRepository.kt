@@ -1,6 +1,5 @@
 package no.nav.statistikkapi.db
 
-import no.nav.statistikkapi.aktørId1
 import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
@@ -9,7 +8,6 @@ import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.ko
 import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.konverterTilStilling
-import no.nav.statistikkapi.tiltak.TiltaksRepository
 import java.sql.ResultSet
 import java.time.ZonedDateTime
 import java.util.*
@@ -20,12 +18,6 @@ class TestRepository(private val dataSource: DataSource) {
     fun slettAlleUtfall() {
         dataSource.connection.use {
             it.prepareStatement("DELETE FROM ${KandidatutfallRepository.kandidatutfallTabell}").execute()
-        }
-    }
-
-    fun slettAlleLønnstilskudd() {
-        dataSource.connection.use {
-            it.prepareStatement("DELETE FROM ${TiltaksRepository.tiltaksTabellLabel}").execute()
         }
     }
 
@@ -100,18 +92,6 @@ class TestRepository(private val dataSource: DataSource) {
             it.prepareStatement("DELETE FROM ${StillingRepository.stillingtabell}").execute()
         }
     }
-
-    fun hentTiltak() = dataSource.connection.use {
-        it.prepareStatement("SELECT ${TiltaksRepository.sistEndretLabel}, ${TiltaksRepository.tiltakstypeLabel}, ${TiltaksRepository.avtaleInngåttLabel}" +
-                " FROM ${TiltaksRepository.tiltaksTabellLabel}").executeQuery().run {
-            next()
-            TiltakRad(
-                getTimestamp(TiltaksRepository.sistEndretLabel).toInstant().atOslo(),
-                getTimestamp(TiltaksRepository.avtaleInngåttLabel).toInstant().atOslo(),
-                getString(TiltaksRepository.tiltakstypeLabel))
-        }
-    }
-    class TiltakRad(val sistEndret: ZonedDateTime, val avtaleInngått: ZonedDateTime, val tiltakstype: String)
 
     fun hentVisningKontaktinfo(): List<VisningKontaktinfoMedDbId> = dataSource.connection.use {
         val resultSet =

@@ -1,11 +1,8 @@
 package no.nav.statistikkapi.tiltak
 
-import no.nav.statistikkapi.HentStatistikk
 import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.log
-import java.sql.Date
 import java.sql.Timestamp
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 import javax.sql.DataSource
@@ -90,35 +87,7 @@ class TiltaksRepository(private val dataSource: DataSource) {
 
     }
 
-    fun hentAktøridFåttJobbenTiltak(hentStatistikk: HentStatistikk): List<Tiltakstilfelle> {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT ${deltakerAktørIdLabel}, ${tiltakstypeLabel} FROM ${tiltaksTabellLabel}
-                  WHERE ${enhetOppfolgingLabel} = ? 
-                  AND ${avtaleInngåttLabel} BETWEEN ? AND ? 
-                """.trimIndent()
-            )
-                .apply {
-                    setString(1, hentStatistikk.navKontor)
-                    setDate(2, Date.valueOf(hentStatistikk.fraOgMed))
-                    setDate(3, Date.valueOf(hentStatistikk.tilOgMed))
-
-                }.executeQuery()
-
-            return generateSequence {
-                if (!resultSet.next()) null
-                else {
-                    Tiltakstilfelle(
-                        resultSet.getString(deltakerAktørIdLabel),
-                        resultSet.getString(tiltakstypeLabel).tilTiltakstype()
-                    )
-                }
-            }.toList()
-        }
-    }
-
-    fun sistEndretDatoForAvtaleId(tiltak: OpprettTiltak): ZonedDateTime? {
+    private fun sistEndretDatoForAvtaleId(tiltak: OpprettTiltak): ZonedDateTime? {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """

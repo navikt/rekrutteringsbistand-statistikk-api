@@ -2,11 +2,6 @@ package no.nav.statistikkapi
 
 import no.nav.statistikkapi.kandidatutfall.OpprettKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Utfall
-import no.nav.statistikkapi.stillinger.*
-import no.nav.statistikkapi.tiltak.TiltaksRepository
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.*
 
 const val enNavIdent = "X123456"
