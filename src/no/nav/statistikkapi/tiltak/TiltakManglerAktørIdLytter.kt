@@ -23,7 +23,7 @@ class TiltakManglerAktørIdLytter(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         packet["fnr"] = packet["deltakerFnr"]
-        packet["@event_name"] = "tiltakAvtaleIngått"
+        packet["@event_name"] = "tiltakAvtaleInngått"
         context.publish(packet.toJson())
     }
 
