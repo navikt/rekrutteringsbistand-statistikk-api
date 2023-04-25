@@ -80,9 +80,7 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
 
-    /// Fiks poison pill
-//    implementation("com.github.navikt:rapids-and-rivers:2022110411121667556720.8a951a765583")
-    implementation("no.nav.arbeidsgiver.toi:toi-rapids-and-rivers-fork:1.1")
+    implementation("com.github.navikt:rapids-and-rivers:2023041310341681374880.67ced5ad4dda")
 
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
