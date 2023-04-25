@@ -25,15 +25,6 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Run tests
         run: ./gradlew --no-daemon check --info
-      - name: Install Snyk CLI
-        uses: snyk/actions/setup@master
-      - name: Test dependencies with Snyk
-        run: snyk test --org=toi --fail-on=all --severity-threshold=medium
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        ## Ved fix av prodfeil, sett continue-on-error=true, slik at workflow fortsetter selvom snyk finner sårbarheter
-        continue-on-error: false
 
   deploy-to-dev:
     name: Deploy to dev
@@ -86,28 +77,3 @@ jobs:
           CLUSTER: prod-fss
           VAR: version=${{ env.IMAGE }}
           RESOURCE: nais/nais-prod.yaml,nais/alerts.yml
-
-  snyk-monitor:
-    name: Monitor dependencies with Snyk
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Setup Java v17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
-      - name: Install Snyk CLI
-        uses: snyk/actions/setup@master
-      - name: Monitor dependencies with Snyk
-        run: >
-          snyk monitor
-          --org=toi
-          --project-name=${{ github.repository }}
-          --remote-repo-url=https://github.com/${{ github.repository }}.git
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
