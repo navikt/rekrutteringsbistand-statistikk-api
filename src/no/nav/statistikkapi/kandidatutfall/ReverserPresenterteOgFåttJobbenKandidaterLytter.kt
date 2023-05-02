@@ -87,7 +87,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             synligKandidat = utfallFraDb.synligKandidat ?: false,
             harHullICv = utfallFraDb.hullICv,
             alder = utfallFraDb.alder,
-            tilretteleggingsbehov = utfallFraDb.tilretteleggingsbehov,
             tidspunktForHendelsen = tidspunkt,
             innsatsbehov = utfallFraDb.innsatsbehov,
             hovedmål = utfallFraDb.hovedmål

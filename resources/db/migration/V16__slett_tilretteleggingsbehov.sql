@@ -1,0 +1,2 @@
+alter table kandidatutfall
+drop column tilretteleggingsbehov;
