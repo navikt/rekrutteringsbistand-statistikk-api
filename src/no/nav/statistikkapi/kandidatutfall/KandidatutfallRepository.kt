@@ -29,10 +29,9 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                                $tidspunkt,
                                $hullICv,
                                $alder,
-                               $tilretteleggingsbehov,
                                $innsatsbehov,
                                $hovedmål
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, kandidatutfall.aktørId)
                 setString(2, kandidatutfall.utfall.name)
@@ -44,12 +43,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 setTimestamp(8, Timestamp.valueOf(kandidatutfall.tidspunktForHendelsen.toLocalDateTime()))
                 if (kandidatutfall.harHullICv != null) setBoolean(9, kandidatutfall.harHullICv) else setNull(9, 0)
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
-                setString(
-                    11,
-                    kandidatutfall.tilretteleggingsbehov.joinToString(separator = tilretteleggingsbehovdelimiter)
-                )
-                setString(12, kandidatutfall.innsatsbehov)
-                setString(13, kandidatutfall.hovedmål)
+                setString(11, kandidatutfall.innsatsbehov)
+                setString(12, kandidatutfall.hovedmål)
                 executeUpdate()
             }
         }
@@ -242,7 +237,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         val harHull: Boolean?,
         val alder: Int?,
         val tidspunkt: LocalDateTime,
-        val tilretteleggingsbehov: List<String>,
         val synligKandidat: Boolean
     )
 
@@ -250,10 +244,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         harHull = if (getObject(1) == null) null else getBoolean(1),
         alder = if (getObject(2) == null) null else getInt(2),
         tidspunkt = getTimestamp(3).toLocalDateTime(),
-        tilretteleggingsbehov = if (getObject(4) == null || getString(4).isBlank()) emptyList() else getString(4).split(
-            tilretteleggingsbehovdelimiter
-        ),
-        synligKandidat = if (getObject(5) == null) false else getBoolean(5)
+        synligKandidat = if (getObject(4) == null) false else getBoolean(4)
     )
 
     fun hentUtfallPresentert(fraOgMed: LocalDate): List<UtfallElement> {
@@ -261,7 +252,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                     with KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST as (
-                        SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov, $synligKandidat FROM $kandidatutfallTabell k1,
+                        SELECT $hullICv, $alder, $tidspunkt, $synligKandidat FROM $kandidatutfallTabell k1,
                             (SELECT MIN($dbId) as $dbId from $kandidatutfallTabell k2
                             WHERE k2.$tidspunkt >= ?
                             GROUP BY $aktorid, $kandidatlisteid) as k2
@@ -270,7 +261,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                         AND k1.$utfall = '${FATT_JOBBEN.name}'
                     ),
                     PRESENTERTE_KANDIDATER as (
-                        SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov, $synligKandidat from $kandidatutfallTabell k1,
+                        SELECT $hullICv, $alder, $tidspunkt, $synligKandidat from $kandidatutfallTabell k1,
                             (
                                 SELECT MAX($dbId) as maksId from $kandidatutfallTabell k2
                                 WHERE k2.$utfall = '${PRESENTERT}'
@@ -279,9 +270,9 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                         WHERE $tidspunkt >= ?
                         AND $dbId = k2.maksId
                     )
-                    SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov, $synligKandidat from KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST
+                    SELECT $hullICv, $alder, $tidspunkt, $synligKandidat from KANDIDATER_SOM_FIKK_JOBBEN_UTEN_AA_HA_BLITT_PRESENTERT_FØRST
                     UNION ALL
-                    SELECT $hullICv, $alder, $tidspunkt, $tilretteleggingsbehov, $synligKandidat from PRESENTERTE_KANDIDATER;
+                    SELECT $hullICv, $alder, $tidspunkt, $synligKandidat from PRESENTERTE_KANDIDATER;
                 """.trimIndent()
             ).apply {
                 setDate(1, Date.valueOf(fraOgMed))
@@ -300,7 +291,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$tidspunkt, telleliste.$tilretteleggingsbehov, telleliste.$synligKandidat FROM $kandidatutfallTabell telleliste,
+                SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$tidspunkt, telleliste.$synligKandidat FROM $kandidatutfallTabell telleliste,
                   (SELECT MIN($dbId) as minId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon,
                     (SELECT MAX($dbId) as maksId, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
                       (SELECT senesteUtfallITidsromOgFåttJobben.$aktorid, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
@@ -363,9 +354,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
         const val alder = "alder"
-        const val tilretteleggingsbehov = "tilretteleggingsbehov"
-        const val tilretteleggingsbehovdelimiter = ";"
-
 
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
             Kandidatutfall(
@@ -387,9 +375,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
                 alder = if (resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
-                tilretteleggingsbehov = if (resultSet.getString(tilretteleggingsbehov)
-                        .isBlank()
-                ) emptyList() else resultSet.getString(tilretteleggingsbehov).split(tilretteleggingsbehovdelimiter)
             )
     }
 }

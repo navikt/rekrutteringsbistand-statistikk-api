@@ -39,7 +39,6 @@ class PresenterteOgFåttJobbenKandidaterLytter(
                     "stillingsinfo.stillingskategori",
                     "inkludering.harHullICv",
                     "inkludering.alder",
-                    "inkludering.tilretteleggingsbehov",
                     "inkludering.innsatsbehov",
                     "inkludering.hovedmål"
                 )
@@ -62,11 +61,6 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val synligKandidat = packet["synligKandidat"].asBoolean()
         val harHullICv = packet["inkludering.harHullICv"].asBooleanNullable()
         val alder = packet["inkludering.alder"].asIntNullable()
-        val tilretteleggingsbehov = packet["inkludering.tilretteleggingsbehov"]
-            .run {
-                if (isMissingOrNull()) emptyList() else map(JsonNode::asText)
-            }
-
         val innsatsbehov = packet["inkludering.innsatsbehov"].asTextNullable()
         val hovedmål = packet["inkludering.hovedmål"].asTextNullable()
         val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
@@ -84,7 +78,6 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             synligKandidat: $synligKandidat
             harHullICv: $harHullICv
             alder: $alder
-            tilretteleggingsbehov: $tilretteleggingsbehov
             innsatsbehov: $innsatsbehov
             hovedmål: $hovedmål
             utfall: $utfall
@@ -106,7 +99,6 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             synligKandidat = synligKandidat,
             harHullICv = harHullICv,
             alder = alder,
-            tilretteleggingsbehov = tilretteleggingsbehov,
             tidspunktForHendelsen = tidspunkt,
             innsatsbehov = innsatsbehov,
             hovedmål = hovedmål

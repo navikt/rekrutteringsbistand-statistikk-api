@@ -86,33 +86,6 @@ class KandidatutfallRepositoryTest {
     }
 
     @Test
-    fun `gitt en fått-jobben som usynlig kandidat og ingen tilretteleggingsbehov men presentert som synlig og med tilretteleggingsbehov skal informasjon fra presentering gjelde for fått jobben-utfall`() {
-        val presenterteTilretteleggingsbehov = listOf("arbeidstid", "permittert")
-        repository.lagreUtfall(
-            etKandidatutfall.copy(
-                utfall = Utfall.PRESENTERT,
-                synligKandidat = true,
-                tilretteleggingsbehov = presenterteTilretteleggingsbehov,
-                tidspunktForHendelsen = LocalDate.of(2020, 1, 1).atStartOfDay().atOslo()
-            )
-        )
-        repository.lagreUtfall(
-            etKandidatutfall.copy(
-                utfall = Utfall.FATT_JOBBEN,
-                synligKandidat = false,
-                tilretteleggingsbehov = listOf(),
-                tidspunktForHendelsen = LocalDate.of(2020, 3, 4).atTime(20, 59).atOslo()
-            )
-        )
-
-        val utfallFåttJobben = repository.hentUtfallFåttJobben(fraOgMed = LocalDate.of(2020, 3, 1))
-
-        assertThat(utfallFåttJobben.size).isEqualTo(1)
-        assertThat(utfallFåttJobben[0].synligKandidat).isTrue()
-        assertThat(utfallFåttJobben[0].tilretteleggingsbehov).isEqualTo(presenterteTilretteleggingsbehov)
-    }
-
-    @Test
     fun `kan telle om cv har hull-status er ukjent på presenterte kandidater`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
@@ -308,11 +281,10 @@ class KandidatutfallRepositoryTest {
     }
 
     @Test
-    fun `test lagring og uthenting av kandidat uten tilretteleggingsbehov`() {
+    fun `test lagring og uthenting av kandidat`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
                 utfall = Utfall.PRESENTERT,
-                tilretteleggingsbehov = listOf(),
                 tidspunktForHendelsen = LocalDate.of(2020, 3, 2).atTime(20, 49).atOslo()
             )
         )
@@ -320,7 +292,6 @@ class KandidatutfallRepositoryTest {
         val utfallElementPresentert = repository.hentUtfallPresentert(fraOgMed = LocalDate.of(2020, 3, 1))
 
         assertThat(utfallElementPresentert.size).isEqualTo(1)
-        assertThat(utfallElementPresentert[0].tilretteleggingsbehov).isEmpty()
     }
 
     @After

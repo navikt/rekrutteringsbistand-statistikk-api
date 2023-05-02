@@ -46,6 +46,5 @@ data class OpprettKandidatutfall(
     val innsatsbehov: String?,
     val hovedmål: String?,
     val alder: Int?,
-    val tilretteleggingsbehov: List<String>,
     val tidspunktForHendelsen: ZonedDateTime,
 )

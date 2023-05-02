@@ -66,7 +66,6 @@ class SlettetStillingOgKandidatlisteLytter(
                     innsatsbehov = null,
                     hovedmål = null,
                     alder = null,
-                    tilretteleggingsbehov = emptyList(),
                     tidspunktForHendelsen = tidspunkt
                 )
                 lagreUtfallOgStilling.lagreUtfallOgStilling(nyttUtfall, stillingsId, stillingskategori)

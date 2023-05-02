@@ -57,7 +57,6 @@ class SlettetStillingOgKandidatlisteLytterTest {
             assertThat(innsatsbehov).isNull()
             assertThat(hovedmål).isNull()
             assertThat(alder).isNull()
-            assertThat(tilretteleggingsbehov).isEmpty()
         }
         utfallFraDb.find { u -> u.aktorId == utfallFåttJobben.aktørId && u.utfall == Utfall.IKKE_PRESENTERT }!!.apply {
             assertThat(kandidatlisteId.toString()).isEqualTo(utfallFåttJobben.kandidatlisteId)
@@ -66,7 +65,6 @@ class SlettetStillingOgKandidatlisteLytterTest {
             assertThat(innsatsbehov).isNull()
             assertThat(hovedmål).isNull()
             assertThat(alder).isNull()
-            assertThat(tilretteleggingsbehov).isEmpty()
         }
     }
 

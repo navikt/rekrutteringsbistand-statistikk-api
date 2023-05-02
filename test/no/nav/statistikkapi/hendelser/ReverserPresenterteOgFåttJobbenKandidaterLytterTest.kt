@@ -56,7 +56,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 innsatsbehov = "BATT",
                 hovedmål = "SKAFFEA",
                 alder = 55,
-                tilretteleggingsbehov = listOf("permittert", "arbeidstid")
             )
         )
         rapid.sendTestMessage(fjernetRegistreringFåttJobbenMelding)
@@ -76,7 +75,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 innsatsbehov = "BATT",
                 hovedmål = "SKAFFEA",
                 alder = 55,
-                tilretteleggingsbehov = listOf("permittert", "arbeidstid")
             )
         )
         assertThat(testRepository.hentUtfall()).size().isEqualTo(1)
@@ -100,7 +98,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 innsatsbehov = "BATT",
                 hovedmål = "SKAFFEA",
                 alder = 55,
-                tilretteleggingsbehov = listOf("permittert", "arbeidstid")
             )
         )
 
@@ -117,7 +114,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(synligKandidat).isNotNull().isTrue()
             assertThat(aktorId).isEqualTo("2258757075176")
             assertThat(alder).isEqualTo(55)
-            assertThat(tilretteleggingsbehov).containsExactly("permittert", "arbeidstid")
             assertThat(hullICv!!).isTrue()
             assertThat(innsatsbehov).isEqualTo("BATT")
             assertThat(hovedmål).isEqualTo("SKAFFEA")
@@ -141,7 +137,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 innsatsbehov = "BATT",
                 hovedmål = "SKAFFEA",
                 alder = 55,
-                tilretteleggingsbehov = listOf("permittert", "arbeidstid")
             )
         )
         rapid.sendTestMessage(fjernetRegistreringDeltCvMeldingUtenStillingskategori)
@@ -165,7 +160,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 innsatsbehov = "BATT",
                 hovedmål = "SKAFFEA",
                 alder = 55,
-                tilretteleggingsbehov = listOf("permittert", "arbeidstid")
             )
         )
         rapid.sendTestMessage(fjernetRegistreringDeltCvMeldingUtenStillingsinfo)
@@ -189,7 +183,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 innsatsbehov = "BATT",
                 hovedmål = "SKAFFEA",
                 alder = 55,
-                tilretteleggingsbehov = listOf("permittert", "arbeidstid")
             )
         )
 
@@ -206,7 +199,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(synligKandidat).isNotNull().isTrue()
             assertThat(aktorId).isEqualTo("2258757075176")
             assertThat(alder).isEqualTo(55)
-            assertThat(tilretteleggingsbehov).containsExactly("permittert", "arbeidstid")
             assertThat(hullICv!!).isTrue()
             assertThat(innsatsbehov).isEqualTo("BATT")
             assertThat(hovedmål).isEqualTo("SKAFFEA")

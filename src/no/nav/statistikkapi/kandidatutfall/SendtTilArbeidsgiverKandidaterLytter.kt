@@ -53,7 +53,6 @@ class SendtTilArbeidsgiverKandidaterLytter(
         packet["kandidater"].fields().forEach { (aktørId, node) ->
             val harHullICv = node["harHullICv"].asBoolean()
             val alder = node["alder"].asInt()
-            val tilretteleggingsbehov = node["tilretteleggingsbehov"].map(JsonNode::asText)
             val innsatsbehov = node["innsatsbehov"].asText()
             val hovedmål = node["hovedmål"].asTextNullable()
 
@@ -73,7 +72,6 @@ class SendtTilArbeidsgiverKandidaterLytter(
             aktørId: $aktørId
             harHullICv: $harHullICv
             alder: $alder
-            tilretteleggingsbehov: $tilretteleggingsbehov
             innsatsbehov: $innsatsbehov
             hovedmål: $hovedmål
             """.trimIndent()
@@ -89,7 +87,6 @@ class SendtTilArbeidsgiverKandidaterLytter(
                 synligKandidat = true,
                 harHullICv = harHullICv,
                 alder = alder,
-                tilretteleggingsbehov = tilretteleggingsbehov,
                 tidspunktForHendelsen = tidspunkt,
                 innsatsbehov = innsatsbehov,
                 hovedmål = hovedmål
