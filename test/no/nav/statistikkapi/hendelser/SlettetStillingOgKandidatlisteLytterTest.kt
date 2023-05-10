@@ -128,6 +128,13 @@ class SlettetStillingOgKandidatlisteLytterTest {
         assertThat(utfallFraDatabase[0].stillingskategori).isEqualTo(Stillingskategori.STILLING)
     }
 
+    @Test
+    fun `Skal ikke kaste feil når man mottar melding for stilling uten noen kandiatutfall`() {
+        val melding = slettetStillingOgKandidatlisteMelding(UUID.randomUUID().toString())
+
+        rapid.sendTestMessage(melding)
+    }
+
     private fun slettetStillingOgKandidatlisteMelding(kandidatlisteId: String) = """
         {
           "organisasjonsnummer": "312113341",
