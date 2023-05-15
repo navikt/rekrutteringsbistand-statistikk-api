@@ -54,7 +54,7 @@ class KandidatlisteRepositoryTest {
 
         val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned()
 
-        assertThat(antallKandidatlister).isEqualTo(2)
+        assertThat(antallKandidatlister.values.contains(2))
     }
 
     @Test

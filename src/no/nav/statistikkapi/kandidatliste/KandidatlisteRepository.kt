@@ -83,17 +83,18 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallKandidatlisterTilknyttetStillingPerMåned(): Int {
+    fun hentAntallKandidatlisterTilknyttetStillingPerMåned(): Map<String, Long> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                select count(unike_kandidatlister.*), (
+                select (
                     concat(
                         (extract(year from unike_kandidatlister.stilling_opprettet_tidspunkt))::text,
                         '-',
                         (extract(month from unike_kandidatlister.stilling_opprettet_tidspunkt))::text
                     )
-                ) maaned
+                ) maaned,
+                count(unike_kandidatlister.*)
                 from (
                     select distinct kandidatliste_id, stilling_opprettet_tidspunkt from kandidatliste
                     where stilling_opprettet_tidspunkt is not null
@@ -109,11 +110,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             """.trimIndent()
             ).executeQuery()
 
-            if (resultSet.next()) {
-                return resultSet.getInt(1)
-            } else {
-                throw RuntimeException("Prøvde å hente antall kandidatlister per måned fra databasen")
-            }
+            return generateSequence {
+                if (resultSet.next()) {
+                    val count = resultSet.getLong("count")
+                    val maaned = resultSet.getString("maaned")
+                    maaned to count
+                } else null
+            }.toMap()
         }
     }
 

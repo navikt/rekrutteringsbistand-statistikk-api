@@ -1,5 +1,6 @@
 package no.nav.statistikkapi.metrikker
 
+import io.micrometer.core.instrument.Tags
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
@@ -14,6 +15,18 @@ class MetrikkJobb(
     private val visningKontaktinfoRepository: VisningKontaktinfoRepository,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) {
+    private val antallKandidatlisterTilknyttetStillingPerMåned = mutableMapOf<String,AtomicLong>();
+
+    init {
+        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
+            antallKandidatlisterTilknyttetStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_tilknyttet_stilling_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value)
+            ) as AtomicLong
+        }
+    }
+
     private val antallPresenterteKandidater = prometheusMeterRegistry.gauge(
         "antall_presenterte_kandidater",
         AtomicLong(kandidatutfallRepository.hentAntallPresentertForAlleNavKontor().toLong())
@@ -88,11 +101,6 @@ class MetrikkJobb(
         AtomicLong(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben().toLong())
     )
 
-    private val antallKandidatlisterTilknyttetStillingPerMåned = prometheusMeterRegistry.gauge(
-        "antall_kandidatlister_tilknyttet_stilling_per_maaned",
-        AtomicLong(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().toLong())
-    )
-
     val executor = Executors.newScheduledThreadPool(1)
 
     fun start() {
@@ -116,6 +124,8 @@ class MetrikkJobb(
         antallUnikeArbeidsgivereForDirektemeldteStillinger.getAndSet(kandidatlisteRepository.hentAntallUnikeArbeidsgivereForDirektemeldteStillinger().toLong())
         antallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben().toLong())
 
-        antallKandidatlisterTilknyttetStillingPerMåned.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().toLong())
+        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
+            antallKandidatlisterTilknyttetStillingPerMåned[it.key]?.getAndSet(it.value)
+        }
     }
 }
