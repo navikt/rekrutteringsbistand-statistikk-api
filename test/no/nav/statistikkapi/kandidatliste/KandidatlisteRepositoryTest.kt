@@ -48,6 +48,16 @@ class KandidatlisteRepositoryTest {
     }
 
     @Test
+    fun `Tell antall kandidatlister tilknyttet stilling per måned`() {
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
+        kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = false))
+
+        val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned()
+
+        assertThat(antallKandidatlister).isEqualTo(2)
+    }
+
+    @Test
     fun `Skal kunne telle svært mange kandidatlister for direktemeldte stillinger`() {
         kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
         kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))

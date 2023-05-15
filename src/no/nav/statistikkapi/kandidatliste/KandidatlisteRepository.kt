@@ -87,14 +87,14 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                select (
+                select count(unike_kandidatlister.*), (
                     concat(
                         (extract(year from unike_kandidatlister.stilling_opprettet_tidspunkt))::text,
                         '-',
                         (extract(month from unike_kandidatlister.stilling_opprettet_tidspunkt))::text
                     )
-                ) maaned,
-                count(unike_kandidatlister.kandidatliste_id) from (
+                ) maaned
+                from (
                     select distinct kandidatliste_id, stilling_opprettet_tidspunkt from kandidatliste
                     where stilling_opprettet_tidspunkt is not null
                 ) as unike_kandidatlister
