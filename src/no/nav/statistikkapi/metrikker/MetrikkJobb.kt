@@ -5,6 +5,7 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
@@ -15,7 +16,7 @@ class MetrikkJobb(
     private val visningKontaktinfoRepository: VisningKontaktinfoRepository,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) {
-    private val antallKandidatlisterTilknyttetStillingPerMåned = mutableMapOf<String,AtomicLong>();
+    private val antallKandidatlisterTilknyttetStillingPerMåned = ConcurrentHashMap<String, AtomicLong>()
 
     init {
         kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
@@ -125,10 +126,11 @@ class MetrikkJobb(
         antallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben().toLong())
 
         kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
-            antallKandidatlisterTilknyttetStillingPerMåned[it.key]!!.getAndSet(it.value.toLong())
+            antallKandidatlisterTilknyttetStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_tilknyttet_stilling_per_måned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
         }
-        /*antallKandidatlisterTilknyttetStillingPerMåned.forEach {
-            antallKandidatlisterTilknyttetStillingPerMåned[it.key]?.getAndSet(it.value.toLong())
-        }*/
     }
 }
