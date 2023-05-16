@@ -4,6 +4,7 @@ import java.sql.SQLException
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 import java.util.*
+import java.util.concurrent.atomic.AtomicLong
 import javax.sql.DataSource
 
 /**
@@ -83,7 +84,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallKandidatlisterTilknyttetStillingPerMåned(): Map<String, Long> {
+    fun hentAntallKandidatlisterTilknyttetStillingPerMåned(): Map<String, Int> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -112,8 +113,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
 
             return generateSequence {
                 if (resultSet.next()) {
-                    val count = resultSet.getLong("count")
-                    val maaned = resultSet.getString("maaned")
+                    val maaned = resultSet.getString(1)
+                    val count = resultSet.getInt(2)
                     maaned to count
                 } else null
             }.toMap()
