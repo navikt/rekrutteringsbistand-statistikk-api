@@ -72,6 +72,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 SELECT COUNT(unike_kandidatlister.*) FROM (
                     SELECT DISTINCT $kandidatlisteIdKolonne FROM $kandidatlisteTabell
                     where $stillingOpprettetTidspunktKolonne is not null
+                    and (
+                        concat(
+                            (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                            '-',
+                            (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                        )
+                    ) >= '2023-3'
                 ) as unike_kandidatlister
             """.trimIndent()
             ).executeQuery()
@@ -128,6 +135,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 SELECT COUNT(unike_kandidatlister.*) FROM (
                     SELECT DISTINCT $kandidatlisteIdKolonne FROM $kandidatlisteTabell
                         where $erDirektemeldtKolonne is true and $stillingOpprettetTidspunktKolonne is not null
+                        and (
+                        concat(
+                            (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                            '-',
+                            (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                        )
+                    ) >= '2023-3'
                 ) as unike_kandidatlister
             """.trimIndent()
             ).executeQuery()
@@ -184,6 +198,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 SELECT COUNT(unike_kandidatlister.*) FROM (
                     SELECT DISTINCT $kandidatlisteIdKolonne FROM $kandidatlisteTabell
                         where $erDirektemeldtKolonne is false and $stillingOpprettetTidspunktKolonne is not null
+                        and (
+                            concat(
+                                (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                                '-',
+                                (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                            )
+                        ) >= '2023-3'
                 ) as unike_kandidatlister
             """.trimIndent()
             ).executeQuery()
@@ -207,6 +228,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                             as tidspunkt, $kandidatlisteIdKolonne
                         from $kandidatlisteTabell
                         where $erDirektemeldtKolonne is false and $stillingOpprettetTidspunktKolonne is not null
+                        and (
+                            concat(
+                                (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                                '-',
+                                (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                            )
+                        ) >= '2023-3'
                         group by $kandidatlisteIdKolonne, $tidspunktForHendelsenKolonne
                     )
                     
@@ -241,6 +269,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                             as tidspunkt, $kandidatlisteIdKolonne
                         from $kandidatlisteTabell
                         where $erDirektemeldtKolonne is true and $stillingOpprettetTidspunktKolonne is not null
+                        and (
+                            concat(
+                                (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                                '-',
+                                (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                            )
+                        ) >= '2023-3'
                         group by $kandidatlisteIdKolonne, $tidspunktForHendelsenKolonne
                     )
                     
@@ -275,6 +310,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                             as tidspunkt, $kandidatlisteIdKolonne
                         from $kandidatlisteTabell
                         where $stillingOpprettetTidspunktKolonne is not null
+                        and (
+                            concat(
+                                (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                                '-',
+                                (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                            )
+                        ) >= '2023-3'
                         group by $kandidatlisteIdKolonne, $tidspunktForHendelsenKolonne
                     )
                     
@@ -378,6 +420,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                                     on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
                 where $kandidatlisteTabell.$erDirektemeldtKolonne is true 
                     and $kandidatlisteTabell.$stillingOpprettetTidspunktKolonne is not null
+                    and (
+                        concat(
+                            (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                            '-',
+                            (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                        )
+                    ) >= '2023-3'
                     and stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null;
             """.trimIndent()).executeQuery()
 
@@ -409,6 +458,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                          inner join stilling
                             on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
                 where $kandidatlisteTabell.$stillingOpprettetTidspunktKolonne is not null
+                    and (
+                            concat(
+                                (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                                '-',
+                                (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                            )
+                        ) >= '2023-3'
                     and (stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null)
                     and (
                         (fått_jobben_utfall.alder < 30 or fått_jobben_utfall.alder > 49) or 
@@ -436,7 +492,14 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                     select count(distinct $kandidatlisteIdKolonne) from $kandidatlisteTabell
                     where id in (select * from id_siste_hendelse_per_kandidatliste)
                     and $antallKandidaterKolonne = 0
-                    and $stillingOpprettetTidspunktKolonne is not null;
+                    and $stillingOpprettetTidspunktKolonne is not null
+                    and (
+                        concat(
+                            (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                            '-',
+                            (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                        )
+                    ) >= '2023-3';
                 """.trimIndent()
             ).executeQuery()
 
@@ -454,7 +517,14 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 select count(distinct $organisasjonsnummerKolonne) 
                 from $kandidatlisteTabell
                 where $erDirektemeldtKolonne is true 
-                and $stillingOpprettetTidspunktKolonne is not null;
+                and $stillingOpprettetTidspunktKolonne is not null
+                and (
+                        concat(
+                            (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                            '-',
+                            (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                        )
+                    ) >= '2023-3';
             """.trimIndent()).executeQuery()
 
             return if (resultSet.next()) {
@@ -485,6 +555,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                          inner join stilling
                             on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
                 where $kandidatlisteTabell.$stillingOpprettetTidspunktKolonne is not null
+                    and (
+                            concat(
+                                (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                                '-',
+                                (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                            )
+                        ) >= '2023-3'
                     and $erDirektemeldtKolonne is true
                     and (stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null)
             """.trimIndent()).executeQuery()
