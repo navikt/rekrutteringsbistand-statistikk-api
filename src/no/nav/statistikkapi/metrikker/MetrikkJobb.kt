@@ -124,8 +124,8 @@ class MetrikkJobb(
         antallUnikeArbeidsgivereForDirektemeldteStillinger.getAndSet(kandidatlisteRepository.hentAntallUnikeArbeidsgivereForDirektemeldteStillinger().toLong())
         antallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben().toLong())
 
-        antallKandidatlisterTilknyttetStillingPerMåned.forEach {
-            antallKandidatlisterTilknyttetStillingPerMåned[it.key]?.getAndSet(it.value.toLong())
+        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
+            antallKandidatlisterTilknyttetStillingPerMåned[it.key]!!.getAndSet(it.value.toLong())
         }
     }
 }
