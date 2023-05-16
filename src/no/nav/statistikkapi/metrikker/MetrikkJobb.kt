@@ -125,7 +125,7 @@ class MetrikkJobb(
         antallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben().toLong())
 
         kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
-            antallKandidatlisterTilknyttetStillingPerMåned[it.key].getAndSet(it.value.toLong())
+            antallKandidatlisterTilknyttetStillingPerMåned[it.key]!!.getAndSet(it.value.toLong())
         }
         /*antallKandidatlisterTilknyttetStillingPerMåned.forEach {
             antallKandidatlisterTilknyttetStillingPerMåned[it.key]?.getAndSet(it.value.toLong())
