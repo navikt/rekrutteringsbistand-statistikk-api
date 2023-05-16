@@ -140,6 +140,43 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned(): Map<String, Int> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                select (
+                    concat(
+                        (extract(year from unike_kandidatlister.stilling_opprettet_tidspunkt))::text,
+                        '-',
+                        (extract(month from unike_kandidatlister.stilling_opprettet_tidspunkt))::text
+                    )
+                ) maaned,
+                count(unike_kandidatlister.*)
+                from (
+                    select distinct kandidatliste_id, stilling_opprettet_tidspunkt from kandidatliste
+                    where kandidatliste.er_direktemeldt is true and stilling_opprettet_tidspunkt is not null
+                ) as unike_kandidatlister
+                where (
+                    concat(
+                        (extract(year from unike_kandidatlister.stilling_opprettet_tidspunkt))::text,
+                        '-',
+                        (extract(month from unike_kandidatlister.stilling_opprettet_tidspunkt))::text
+                    )
+                ) >= '2023-3'
+                group by maaned
+            """.trimIndent()
+            ).executeQuery()
+
+            return generateSequence {
+                if (resultSet.next()) {
+                    val maaned = resultSet.getString(1)
+                    val count = resultSet.getInt(2)
+                    maaned to count
+                } else null
+            }.toMap()
+        }
+    }
+
     fun hentAntallKandidatlisterTilknyttetEksterneStillinger(): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(

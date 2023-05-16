@@ -17,6 +17,7 @@ class MetrikkJobb(
     private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) {
     private val antallKandidatlisterTilknyttetStillingPerMåned = ConcurrentHashMap<String, AtomicLong>()
+    private val antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned = ConcurrentHashMap<String, AtomicLong>()
 
     init {
         kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
@@ -26,6 +27,15 @@ class MetrikkJobb(
                 AtomicLong(it.value.toLong())
             ) as AtomicLong
         }
+
+        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach {
+            antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_tilknyttet_direktemeldt_stilling_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
+
     }
 
     private val antallPresenterteKandidater = prometheusMeterRegistry.gauge(
@@ -131,6 +141,22 @@ class MetrikkJobb(
                 Tags.of("maaned", it.key),
                 AtomicLong(it.value.toLong())
             ) as AtomicLong
+        }
+
+        antallKandidatlisterTilknyttetStillingPerMåned.forEach {
+            antallKandidatlisterTilknyttetStillingPerMåned[it.key]?.getAndSet(it.value.toLong())
+        }
+
+        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach {
+            antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_tilknyttet_direktemeldt_stilling_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
+
+        antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned.forEach {
+            antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[it.key]?.getAndSet(it.value.toLong())
         }
     }
 }
