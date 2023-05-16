@@ -20,7 +20,7 @@ class MetrikkJobb(
     init {
         kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
             antallKandidatlisterTilknyttetStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
-                "antall_kandidatlister_tilknyttet_stilling_per_maaned",
+                "antall_kandidatlister_tilknyttet_stilling_per_måned",
                 Tags.of("maaned", it.key),
                 AtomicLong(it.value.toLong())
             ) as AtomicLong
@@ -125,7 +125,10 @@ class MetrikkJobb(
         antallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben().toLong())
 
         kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
-            antallKandidatlisterTilknyttetStillingPerMåned[it.key]!!.getAndSet(it.value.toLong())
+            antallKandidatlisterTilknyttetStillingPerMåned[it.key].getAndSet(it.value.toLong())
         }
+        /*antallKandidatlisterTilknyttetStillingPerMåned.forEach {
+            antallKandidatlisterTilknyttetStillingPerMåned[it.key]?.getAndSet(it.value.toLong())
+        }*/
     }
 }
