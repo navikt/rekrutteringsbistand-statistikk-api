@@ -39,6 +39,14 @@ class MetrikkJobb(
             ) as AtomicLong
         }
 
+        kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned().forEach {
+            antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_direktemeldte_stillinger_med_minst_en_presentert_kandidat_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
+
     }
 
     private val antallPresenterteKandidater = prometheusMeterRegistry.gauge(
@@ -145,6 +153,14 @@ class MetrikkJobb(
                 AtomicLong(it.value.toLong())
             ) as AtomicLong
         }
+
+        kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned().forEach {
+            antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_direktemeldte_stillinger_med_minst_en_presentert_kandidat_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
     }
 
     private fun hentStatistikk() {
@@ -174,6 +190,14 @@ class MetrikkJobb(
 
         antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned.keys.forEach { k ->
             kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach {
+                if (k == it.key) {
+                    antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[k]?.getAndSet(it.value.toLong())
+                }
+            }
+        }
+
+        antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned.keys.forEach { k ->
+            kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned().forEach {
                 if (k == it.key) {
                     antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[k]?.getAndSet(it.value.toLong())
                 }
