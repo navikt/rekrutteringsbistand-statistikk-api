@@ -5,6 +5,8 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -116,7 +118,33 @@ class MetrikkJobb(
     val executor = Executors.newScheduledThreadPool(1)
 
     fun start() {
+        val dayOfMonth = 1;
+
+        var dateTime: ZonedDateTime = ZonedDateTime.now();
+        if (dateTime.getDayOfMonth() >= dayOfMonth) {
+            dateTime = dateTime.plusMonths(1);
+        }
+        dateTime = dateTime.withDayOfMonth(dayOfMonth);
+        executor.schedule({ initierNyeMåneder() }, ZonedDateTime.now().until(dateTime, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS)
         executor.scheduleWithFixedDelay({ hentStatistikk() }, 5L, 20L, TimeUnit.SECONDS)
+    }
+
+    private fun initierNyeMåneder() {
+        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
+            antallKandidatlisterTilknyttetStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_tilknyttet_stilling_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
+
+        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach {
+            antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_tilknyttet_direktemeldt_stilling_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
     }
 
     private fun hentStatistikk() {
@@ -140,26 +168,14 @@ class MetrikkJobb(
             kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
                 if (k == it.key) {
                     antallKandidatlisterTilknyttetStillingPerMåned[k]?.getAndSet(it.value.toLong())
-                } else {
-                    antallKandidatlisterTilknyttetStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
-                        "antall_kandidatlister_tilknyttet_stilling_per_maaned",
-                        Tags.of("maaned", it.key),
-                        AtomicLong(it.value.toLong())
-                    ) as AtomicLong
                 }
             }
         }
 
-        antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned.keys.forEach {k ->
+        antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned.keys.forEach { k ->
             kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach {
                 if (k == it.key) {
                     antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[k]?.getAndSet(it.value.toLong())
-                } else {
-                    antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
-                        "antall_kandidatlister_tilknyttet_direktemeldt_stilling_per_maaned",
-                        Tags.of("maaned", it.key),
-                        AtomicLong(it.value.toLong())
-                    ) as AtomicLong
                 }
             }
         }
