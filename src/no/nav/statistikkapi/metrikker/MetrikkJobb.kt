@@ -136,31 +136,32 @@ class MetrikkJobb(
         antallUnikeArbeidsgivereForDirektemeldteStillinger.getAndSet(kandidatlisteRepository.hentAntallUnikeArbeidsgivereForDirektemeldteStillinger().toLong())
         antallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben.getAndSet(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben().toLong())
 
-        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
-            antallKandidatlisterTilknyttetStillingPerMåned.keys.forEach { k ->
+        antallKandidatlisterTilknyttetStillingPerMåned.keys.forEach { k ->
+            kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
                 if (k == it.key) {
                     antallKandidatlisterTilknyttetStillingPerMåned[k]?.getAndSet(it.value.toLong())
+                } else {
+                    antallKandidatlisterTilknyttetStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                        "antall_kandidatlister_tilknyttet_stilling_per_maaned",
+                        Tags.of("maaned", it.key),
+                        AtomicLong(it.value.toLong())
+                    ) as AtomicLong
                 }
             }
-
-            antallKandidatlisterTilknyttetStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
-                "antall_kandidatlister_tilknyttet_stilling_per_maaned",
-                Tags.of("maaned", it.key),
-                AtomicLong(it.value.toLong())
-            ) as AtomicLong
         }
 
-        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach {
-            antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned.keys.forEach {k ->
+        antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned.keys.forEach {k ->
+            kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach {
                 if (k == it.key) {
                     antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[k]?.getAndSet(it.value.toLong())
+                } else {
+                    antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                        "antall_kandidatlister_tilknyttet_direktemeldt_stilling_per_maaned",
+                        Tags.of("maaned", it.key),
+                        AtomicLong(it.value.toLong())
+                    ) as AtomicLong
                 }
             }
-            antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[it.key] = prometheusMeterRegistry.gauge(
-                "antall_kandidatlister_tilknyttet_direktemeldt_stilling_per_maaned",
-                Tags.of("maaned", it.key),
-                AtomicLong(it.value.toLong())
-            ) as AtomicLong
         }
     }
 }
