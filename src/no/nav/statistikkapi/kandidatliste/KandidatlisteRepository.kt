@@ -100,13 +100,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                     select distinct kandidatliste_id, stilling_opprettet_tidspunkt from kandidatliste
                     where stilling_opprettet_tidspunkt is not null
                 ) as unike_kandidatlister
-                where (
-                    concat(
-                        (extract(year from unike_kandidatlister.stilling_opprettet_tidspunkt))::text,
-                        '-',
-                        (extract(month from unike_kandidatlister.stilling_opprettet_tidspunkt))::text
-                    )
-                ) >= '2023-3'
+                where unike_kandidatlister.stilling_opprettet_tidspunkt >= '2023-03-01'
                 group by maaned
             """.trimIndent()
             ).executeQuery()
@@ -156,13 +150,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                     select distinct kandidatliste_id, stilling_opprettet_tidspunkt from kandidatliste
                     where kandidatliste.er_direktemeldt is true and stilling_opprettet_tidspunkt is not null
                 ) as unike_kandidatlister
-                where (
-                    concat(
-                        (extract(year from unike_kandidatlister.stilling_opprettet_tidspunkt))::text,
-                        '-',
-                        (extract(month from unike_kandidatlister.stilling_opprettet_tidspunkt))::text
-                    )
-                ) >= '2023-3'
+                where unike_kandidatlister.stilling_opprettet_tidspunkt >= '2023-03-01'
                 group by maaned
             """.trimIndent()
             ).executeQuery()
@@ -421,13 +409,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                         and kandidatliste.stilling_opprettet_tidspunkt is not null
                         and stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null
                 ) as unike_kandidatlister
-                where (
-                    concat(
-                        (extract(year from unike_kandidatlister.stilling_opprettet_tidspunkt))::text,
-                        '-',
-                        (extract(month from unike_kandidatlister.stilling_opprettet_tidspunkt))::text
-                    )
-                ) >= '2023-3'
+                where unike_kandidatlister.stilling_opprettet_tidspunkt >= '2023-03-01'
                 group by maaned;
             """.trimIndent()).executeQuery()
 
