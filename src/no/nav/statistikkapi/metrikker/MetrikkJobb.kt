@@ -23,6 +23,7 @@ class MetrikkJobb(
     private val antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned = ConcurrentHashMap<String, AtomicLong>()
     private val antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned = ConcurrentHashMap<String, AtomicLong>()
     private val antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned = ConcurrentHashMap<String, AtomicLong>()
+    private val antallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned = ConcurrentHashMap<String, AtomicLong>()
 
     init {
         kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
@@ -60,6 +61,14 @@ class MetrikkJobb(
         visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned().forEach {
             antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned[it.key] = prometheusMeterRegistry.gauge(
                 "antall_kandidatlister_med_minst_en_kandidat_som_har_faatt_vist_sin_kontaktinfo_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
+
+        kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned().forEach {
+            antallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_der_minst_en_kandidat_i_prioritert_maalgruppe_fikk_jobben_per_maaned",
                 Tags.of("maaned", it.key),
                 AtomicLong(it.value.toLong())
             ) as AtomicLong
@@ -195,6 +204,14 @@ class MetrikkJobb(
                 AtomicLong(it.value.toLong())
             ) as AtomicLong
         }
+
+        kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned().forEach {
+            antallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_der_minst_en_kandidat_i_prioritert_maalgruppe_fikk_jobben_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
     }
 
     private fun hentStatistikk() {
@@ -250,6 +267,14 @@ class MetrikkJobb(
             visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned().forEach {
                 if (k == it.key) {
                     antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned[k]?.getAndSet(it.value.toLong())
+                }
+            }
+        }
+
+        antallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned.keys.forEach { k ->
+            kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned().forEach {
+                if (k == it.key) {
+                    antallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned[k]?.getAndSet(it.value.toLong())
                 }
             }
         }

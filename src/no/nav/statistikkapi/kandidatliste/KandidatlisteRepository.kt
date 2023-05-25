@@ -459,6 +459,53 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned(): Map<String, Int> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                with id_siste_utfall_per_kandidat_per_liste as (
+                    select max(id) from kandidatutfall 
+                    group by aktorid, kandidatlisteid
+                ),
+                fått_jobben_utfall as (
+                    select * from kandidatutfall 
+                    where id in (select * from id_siste_utfall_per_kandidat_per_liste)
+                    and utfall = 'FATT_JOBBEN'
+                )
+                select (
+                    concat(
+                        (extract(year from $stillingOpprettetTidspunktKolonne))::text,
+                        '-',
+                        (extract(month from $stillingOpprettetTidspunktKolonne))::text
+                    )
+                ) maaned,
+                count(distinct $kandidatlisteIdKolonne)
+                from $kandidatlisteTabell
+                         inner join fått_jobben_utfall
+                            on fått_jobben_utfall.kandidatlisteid = $kandidatlisteTabell.$kandidatlisteIdKolonne
+                         inner join stilling
+                            on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
+                where $kandidatlisteTabell.$stillingOpprettetTidspunktKolonne is not null
+                    and $kandidatlisteTabell.$stillingOpprettetTidspunktKolonne >= '2023-03-01'
+                    and (stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null)
+                    and (
+                        (fått_jobben_utfall.alder < 30 or fått_jobben_utfall.alder > 49) or 
+                        (fått_jobben_utfall.hull_i_cv is true) or 
+                        (fått_jobben_utfall.innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                    )
+                group by maaned
+            """.trimIndent()).executeQuery()
+
+            return generateSequence {
+                if (resultSet.next()) {
+                    val maaned = resultSet.getString(1)
+                    val count = resultSet.getInt(2)
+                    maaned to count
+                } else null
+            }.toMap()
+        }
+    }
+
     fun hentAntallDirektemeldteStillingerSomHarTomKandidatliste(): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
