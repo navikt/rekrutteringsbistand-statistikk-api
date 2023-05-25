@@ -21,6 +21,8 @@ class MetrikkJobb(
     private val antallKandidatlisterTilknyttetStillingPerMåned = ConcurrentHashMap<String, AtomicLong>()
     private val antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned = ConcurrentHashMap<String, AtomicLong>()
     private val antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned = ConcurrentHashMap<String, AtomicLong>()
+    private val antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned = ConcurrentHashMap<String, AtomicLong>()
+    private val antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned = ConcurrentHashMap<String, AtomicLong>()
 
     init {
         kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
@@ -42,6 +44,22 @@ class MetrikkJobb(
         kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned().forEach {
             antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned[it.key] = prometheusMeterRegistry.gauge(
                 "antall_direktemeldte_stillinger_med_minst_en_presentert_kandidat_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
+
+        visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned().forEach {
+            antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_med_minst_en_kandidat_i_prioritert_maalgruppe_som_har_faatt_vist_sin_kontaktinfo_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
+
+        visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned().forEach {
+            antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_med_minst_en_kandidat_som_har_faatt_vist_sin_kontaktinfo_per_maaned",
                 Tags.of("maaned", it.key),
                 AtomicLong(it.value.toLong())
             ) as AtomicLong
@@ -161,6 +179,22 @@ class MetrikkJobb(
                 AtomicLong(it.value.toLong())
             ) as AtomicLong
         }
+
+        visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned().forEach {
+            antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_med_minst_en_kandidat_i_prioritert_maalgruppe_som_har_faatt_vist_sin_kontaktinfo_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
+
+        visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned().forEach {
+            antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned[it.key] = prometheusMeterRegistry.gauge(
+                "antall_kandidatlister_med_minst_en_kandidat_som_har_faatt_vist_sin_kontaktinfo_per_maaned",
+                Tags.of("maaned", it.key),
+                AtomicLong(it.value.toLong())
+            ) as AtomicLong
+        }
     }
 
     private fun hentStatistikk() {
@@ -200,6 +234,22 @@ class MetrikkJobb(
             kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned().forEach {
                 if (k == it.key) {
                     antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[k]?.getAndSet(it.value.toLong())
+                }
+            }
+        }
+
+        antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned.keys.forEach { k ->
+            visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned().forEach {
+                if (k == it.key) {
+                    antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned[k]?.getAndSet(it.value.toLong())
+                }
+            }
+        }
+
+        antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned.keys.forEach { k ->
+            visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned().forEach {
+                if (k == it.key) {
+                    antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned[k]?.getAndSet(it.value.toLong())
                 }
             }
         }

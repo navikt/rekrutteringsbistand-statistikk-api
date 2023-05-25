@@ -104,5 +104,77 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    /**
+     * Ser kun på stillinger opprettet fra 1.mars 2023 fordi det var da vi fikk inn data for opprettelse av nye stillinger
+     */
+    fun hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned(): Map<String, Int> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                select (
+                           concat(
+                                   (extract(year from visning_kontaktinfo.tidspunkt))::text,
+                                   '-',
+                                   (extract(month from visning_kontaktinfo.tidspunkt))::text
+                               )
+                           ) maaned, count(distinct stilling_id)
+                from visning_kontaktinfo
+                         inner join kandidatliste
+                                    on kandidatliste.stillings_id = visning_kontaktinfo.stilling_id::text
+                         inner join kandidatutfall
+                                    on visning_kontaktinfo.stilling_id::text = kandidatutfall.stillingsid
+                                        and visning_kontaktinfo.aktør_id = kandidatutfall.aktorid
+                where kandidatliste.stilling_opprettet_tidspunkt >= '2023-03-01'
+                  and (
+                        (alder < 30 or alder > 49) or
+                        (hull_i_cv is true) or
+                        (innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                    )
+                group by maaned;
+            """.trimIndent()
+            ).executeQuery()
+
+            return generateSequence {
+                if (resultSet.next()) {
+                    val maaned = resultSet.getString(1)
+                    val count = resultSet.getInt(2)
+                    maaned to count
+                } else null
+            }.toMap()
+        }
+    }
+
+    fun hentAntallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned(): Map<String, Int> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                select (
+                           concat(
+                                   (extract(year from visning_kontaktinfo.tidspunkt))::text,
+                                   '-',
+                                   (extract(month from visning_kontaktinfo.tidspunkt))::text
+                               )
+                           ) maaned, count(distinct stilling_id)
+                from visning_kontaktinfo
+                         inner join kandidatliste
+                                    on kandidatliste.stillings_id = visning_kontaktinfo.stilling_id::text
+                         inner join kandidatutfall
+                                    on visning_kontaktinfo.stilling_id::text = kandidatutfall.stillingsid
+                                        and visning_kontaktinfo.aktør_id = kandidatutfall.aktorid
+                where kandidatliste.stilling_opprettet_tidspunkt >= '2023-03-01'
+                group by maaned;
+            """.trimIndent()
+            ).executeQuery()
+
+            return generateSequence {
+                if (resultSet.next()) {
+                    val maaned = resultSet.getString(1)
+                    val count = resultSet.getInt(2)
+                    maaned to count
+                } else null
+            }.toMap()
+        }
+    }
 }
 
