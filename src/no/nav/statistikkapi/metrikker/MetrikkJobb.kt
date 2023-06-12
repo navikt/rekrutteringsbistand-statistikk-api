@@ -250,7 +250,7 @@ class MetrikkJobb(
         antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned.keys.forEach { k ->
             kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned().forEach {
                 if (k == it.key) {
-                    antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[k]?.getAndSet(it.value.toLong())
+                    antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned[k]?.getAndSet(it.value.toLong())
                 }
             }
         }
