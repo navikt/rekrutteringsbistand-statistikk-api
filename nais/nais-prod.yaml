@@ -27,13 +27,12 @@ spec:
     inbound:
       rules:
         - application: rekrutteringsbistand-statistikk
-          namespace: toi
           cluster: prod-gcp
         - application: rekrutteringsbistand-container
-          namespace: toi
+          cluster: prod-gcp
+        - application: rekrutteringsbistand
           cluster: prod-gcp
         - application: rekrutteringsbistand-kandidat-api
-          namespace: toi
           cluster: prod-fss
   webproxy: true
   kafka:
