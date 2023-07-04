@@ -3,7 +3,7 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-                <marker>secureLog</marker>
+                <marker>SECURE_LOG</marker>
             </evaluator>
             <OnMismatch>NEUTRAL</OnMismatch>
             <OnMatch>DENY</OnMatch>
@@ -23,16 +23,12 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-                <marker>secureLog</marker>
+                <marker>SECURE_LOG</marker>
             </evaluator>
             <OnMismatch>DENY</OnMismatch>
             <OnMatch>NEUTRAL</OnMatch>
         </filter>
     </appender>
-
-    <logger name="secureLog" level="TRACE" additivity="false">
-        <appender-ref ref="secureLog"/>
-    </logger>
 
     <root level="INFO">
         <appender-ref ref="loggIJsonFormatTilKibana"/>

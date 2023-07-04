@@ -5,23 +5,28 @@ import org.slf4j.LoggerFactory
 import org.slf4j.Marker
 import org.slf4j.MarkerFactory
 
-val Any.log: Logger
-    get() = LoggerFactory.getLogger(this::class.java)
-
-val secureLog = LoggerFactory.getLogger("secureLog")
-
-
 interface LoggerWithMarker {
+    val markerName: String
+
     fun info(msg: String)
 
     fun info(msg: String, t: Throwable)
+
+    fun warn(msg: String)
+
+    fun warn(msg: String, t: Throwable)
+
+    fun error(msg: String)
+
+    fun error(msg: String, t: Throwable)
 }
 
-interface SecureLogLogger : LoggerWithMarker
-interface AppLogLogger : LoggerWithMarker
 
+class SecureLogLogger(private val l: Logger) : LoggerWithMarker {
+    override val markerName: String = "SECURE_LOG"
 
-private class LoggerWithMarkerImpl(private val m: Marker, private val l: Logger) : AppLogLogger, SecureLogLogger {
+    private val m: Marker = MarkerFactory.getMarker(markerName)
+
     override fun info(msg: String) {
         l.info(m, msg)
     }
@@ -30,10 +35,26 @@ private class LoggerWithMarkerImpl(private val m: Marker, private val l: Logger)
         l.info(m, msg, t)
     }
 
+    override fun warn(msg: String) {
+        l.warn(m, msg)
+    }
+
+    override fun warn(msg: String, t: Throwable) {
+        l.warn(m, msg, t)
+    }
+
+    override fun error(msg: String) {
+        l.error(m, msg)
+    }
+
+    override fun error(msg: String, t: Throwable) {
+        l.error(m, msg, t)
+    }
+
 }
 
-val Any.aresAppLog: AppLogLogger
-    get() = LoggerWithMarkerImpl(MarkerFactory.getMarker("appLog"), LoggerFactory.getLogger(this::class.java))
+val Any.log: Logger
+    get() = LoggerFactory.getLogger(this::class.java)
 
-val Any.aresSecureLog: SecureLogLogger
-    get() = LoggerWithMarkerImpl(MarkerFactory.getMarker("secureLog"), LoggerFactory.getLogger(this::class.java))
+val Any.secureLog: SecureLogLogger
+    get() = SecureLogLogger(LoggerFactory.getLogger(this::class.java))

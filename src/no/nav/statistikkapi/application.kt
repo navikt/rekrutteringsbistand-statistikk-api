@@ -44,6 +44,12 @@ import javax.sql.DataSource
 
 val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
 
+// TODO Are rydd
+val aresRandomLogger: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk.aresrandomlogger")
+val aresJukseSecureLogger1: Logger = LoggerFactory.getLogger("secureLog")
+val aresJukseSecureLogger2: Logger = LoggerFactory.getLogger("SECURE_LOG")
+
+
 fun main() {
     val tokenSupportConfig = TokenSupportConfig(
         IssuerConfig(
@@ -227,8 +233,10 @@ fun settOppKtor(
         // TODO Are rydd
         log.info("Are tester vanlig applogging")
         secureLog.info("Are tester logging til secureLog")
-        aresAppLog.info("Are tester aresAppLog")
-        aresSecureLog.info("Are tester aresSecureLog")
+        aresRandomLogger.info("Are tester å lage en tilfeldig ny logger")
+        aresJukseSecureLogger1.info("Are tester juks 1")
+        aresJukseSecureLogger2.info("Are tester juks 2")
+
     }
 }
 
