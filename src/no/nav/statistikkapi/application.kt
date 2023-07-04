@@ -223,7 +223,12 @@ fun settOppKtor(
         }
 
         log.info("Ktor satt opp i miljø: ${Cluster.current}")
-        secureLog.info("Are tester logging til secureLog") // TODO Are rydd
+
+        // TODO Are rydd
+        log.info("Are tester vanlig applogging")
+        secureLog.info("Are tester logging til secureLog")
+        aresAppLog.info("Are tester aresAppLog")
+        aresSecureLog.info("Are tester aresSecureLog")
     }
 }
 
