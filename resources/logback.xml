@@ -1,9 +1,11 @@
 <configuration>
     <appender name="loggIJsonFormatTilKibana" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-        <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-            <marker>appLog</marker>
-        </evaluator>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+                <marker>appLog</marker>
+            </evaluator>
+        </filter>
     </appender>
 
     <appender name="secureLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -17,9 +19,11 @@
             <maxFileSize>128MB</maxFileSize>
         </triggeringPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-        <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-            <marker>secureLog</marker>
-        </evaluator>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+                <marker>secureLog</marker>
+            </evaluator>
+        </filter>
     </appender>
 
     <logger name="secureLog" level="TRACE" additivity="false">
@@ -28,5 +32,6 @@
 
     <root level="INFO">
         <appender-ref ref="loggIJsonFormatTilKibana"/>
+        <appender-ref ref="secureLog"/>
     </root>
 </configuration>
