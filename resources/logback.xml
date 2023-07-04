@@ -3,8 +3,10 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-                <marker>appLog</marker>
+                <marker>secureLog</marker>
             </evaluator>
+            <OnMismatch>NEUTRAL</OnMismatch>
+            <OnMatch>DENY</OnMatch>
         </filter>
     </appender>
 
@@ -23,6 +25,8 @@
             <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
                 <marker>secureLog</marker>
             </evaluator>
+            <OnMismatch>DENY</OnMismatch>
+            <OnMatch>NEUTRAL</OnMatch>
         </filter>
     </appender>
 
