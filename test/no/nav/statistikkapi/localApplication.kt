@@ -129,5 +129,5 @@ fun start(
     )
 
     ktorServer.start()
-    log.info("Applikasjon startet")
+    logWithoutClassname.info("Applikasjon startet")
 }

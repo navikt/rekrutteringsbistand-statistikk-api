@@ -1,7 +1,7 @@
 package no.nav.statistikkapi.tiltak
 
 import no.nav.statistikkapi.atOslo
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logWithoutClassname
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 import java.util.*
@@ -81,7 +81,7 @@ class TiltaksRepository(private val dataSource: DataSource) {
                 }.executeUpdate()
             }
         } else {
-            log.info("Ignorerer avtaleid ${tiltak.avtaleId} med sistEndret ${tiltak.sistEndret} fordi det finnes nyere oppdatering ${sistEndretIDb} i databasen")
+            logWithoutClassname.info("Ignorerer avtaleid ${tiltak.avtaleId} med sistEndret ${tiltak.sistEndret} fordi det finnes nyere oppdatering ${sistEndretIDb} i databasen")
         }
 
 

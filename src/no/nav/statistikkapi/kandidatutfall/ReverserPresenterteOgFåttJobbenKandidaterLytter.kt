@@ -2,7 +2,7 @@ package no.nav.statistikkapi.kandidatutfall
 
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logWithoutClassname
 import no.nav.statistikkapi.logging.secure
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
@@ -51,7 +51,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         val utførtAvNavKontorKode: String = packet["utførtAvNavKontorKode"].asText()
         val utfall: Utfall = if (eventNamePostfix == "FjernetRegistreringDeltCv") Utfall.IKKE_PRESENTERT else Utfall.PRESENTERT
 
-        secure(log).info(
+        secure(logWithoutClassname).info(
             """
             aktørId: $aktørId
             organisasjonsnummer: $organisasjonsnummer
@@ -68,12 +68,12 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         val utfallFraDb = utfallRepository.hentSisteUtfallForKandidatIKandidatliste(aktørId, kandidatlisteId)
 
         if (utfallFraDb == null) {
-            log.warn("Finner ikke utfallrad i databasen for event: $eventNamePostfix")
+            logWithoutClassname.warn("Finner ikke utfallrad i databasen for event: $eventNamePostfix")
             return
         }
         if (!erForventetUtfall(eventNamePostfix, utfallFraDb.utfall)) {
-            log.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, sjekk secureLog for mer informasjon")
-            secure(log).warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, aktørId: $aktørId, kandidatlisteId: $kandidatlisteId")
+            logWithoutClassname.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, sjekk secureLog for mer informasjon")
+            secure(logWithoutClassname).warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, aktørId: $aktørId, kandidatlisteId: $kandidatlisteId")
             return
         }
 
@@ -110,7 +110,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
                 (eventNamePostfix == "FjernetRegistreringFåttJobben" && utfall == Utfall.FATT_JOBBEN)
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        log.error("Feil ved lesing av melding\n$problems")
+        logWithoutClassname.error("Feil ved lesing av melding\n$problems")
     }
 
     override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {

@@ -3,7 +3,7 @@ package no.nav.statistikkapi.kandidatutfall
 import com.fasterxml.jackson.databind.JsonNode
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logWithoutClassname
 import no.nav.statistikkapi.logging.secure
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
@@ -65,7 +65,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val hovedmål = packet["inkludering.hovedmål"].asTextNullable()
         val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
 
-        secure(log).info(
+        secure(logWithoutClassname).info(
             """
             aktørId: $aktørId
             organisasjonsnummer: $organisasjonsnummer
@@ -85,7 +85,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         )
 
         if (stillingsId == null) {
-            log.info("Behandler ikke melding fordi den er uten stilingsId")
+            logWithoutClassname.info("Behandler ikke melding fordi den er uten stilingsId")
             return
         }
 
@@ -121,7 +121,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
                 (packet["stilling"].exists() && packet["stillingsinfo"].exists())
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        log.error("Feil ved lesing av melding\n$problems")
+        logWithoutClassname.error("Feil ved lesing av melding\n$problems")
     }
 
     override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {

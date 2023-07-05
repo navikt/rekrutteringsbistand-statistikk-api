@@ -2,7 +2,7 @@ package no.nav.statistikkapi.kafka
 
 import io.micrometer.core.instrument.Metrics
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logWithoutClassname
 import no.nav.statistikkapi.stillinger.StillingRepository
 
 fun hentUsendteUtfallOgSendPåKafka(
@@ -18,7 +18,7 @@ fun hentUsendteUtfallOgSendPåKafka(
                 kafkaProducer.send(it, stilling!!.stillingskategori)
                 kandidatutfallRepository.registrerSomSendt(it)
             } catch (e: Exception) {
-                log.warn(
+                logWithoutClassname.warn(
                     "Prøvde å sende melding på Kafka til Datavarehus om et kandidatutfall. utfall=${it.utfall}, stillingsId=${it.stillingsId}",
                     e
                 )

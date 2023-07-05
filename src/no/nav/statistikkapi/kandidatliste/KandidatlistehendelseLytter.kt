@@ -3,7 +3,7 @@ package no.nav.statistikkapi.kandidatliste
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTimeNullable
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logWithoutClassname
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -74,11 +74,11 @@ class KandidatlistehendelseLytter(
         val harMottattOpprettetMelding = repository.harMottattOpprettetMelding(listeId)
 
         if (eventName == opprettetKandidatlisteEventName && harMottattOpprettetMelding) {
-            log.warn("Ignorerer melding. Fikk opprettmelding for en kandidatliste som er opprettet fra før. eventName=${hendelse.eventName}, kandidatlisteId=${hendelse.kandidatlisteId}")
+            logWithoutClassname.warn("Ignorerer melding. Fikk opprettmelding for en kandidatliste som er opprettet fra før. eventName=${hendelse.eventName}, kandidatlisteId=${hendelse.kandidatlisteId}")
             return
         }
         if (erDuplikat) {
-            log.info("Har behandlet meldingen tidligere. Ignorerer den.")
+            logWithoutClassname.info("Har behandlet meldingen tidligere. Ignorerer den.")
             return
         }
 
@@ -89,7 +89,7 @@ class KandidatlistehendelseLytter(
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        log.error("Feil ved lesing av melding\n$problems")
+        logWithoutClassname.error("Feil ved lesing av melding\n$problems")
     }
 
     override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {

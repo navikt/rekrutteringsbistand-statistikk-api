@@ -3,7 +3,7 @@ package no.nav.statistikkapi.kandidatutfall
 import com.fasterxml.jackson.databind.JsonNode
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logWithoutClassname
 import no.nav.statistikkapi.logging.secure
 import no.nav.statistikkapi.stillinger.Stillingskategori
 
@@ -53,7 +53,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
             val innsatsbehov = node["innsatsbehov"].asText()
             val hovedmål = node["hovedmål"].asTextNullable()
 
-            secure(log).info(
+            secure(logWithoutClassname).info(
                 """
             stillingsId: $stillingsId
             stillingstittel: $stillingstittel
@@ -105,7 +105,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        log.error("Feil ved lesing av melding\n$problems")
+        logWithoutClassname.error("Feil ved lesing av melding\n$problems")
     }
 
     override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {

@@ -42,7 +42,7 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit.MILLIS
 import javax.sql.DataSource
 
-val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
+val logWithoutClassname: Logger = LoggerFactory.getLogger("no.nav.statistikkapi")
 
 fun main() {
     val tokenSupportConfig = TokenSupportConfig(

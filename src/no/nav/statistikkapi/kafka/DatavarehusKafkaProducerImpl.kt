@@ -2,7 +2,7 @@ package no.nav.statistikkapi.kafka
 
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logWithoutClassname
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -36,9 +36,9 @@ class DatavarehusKafkaProducerImpl(private val producer: Producer<String, AvroKa
             if (exception != null) {
                 val msg =
                     "Forsøkte å sende melding til Datavarehus på topic [$topic]. Kanidatutfallets dbId: ${kandidatutfall.dbId}"
-                log.error(msg, exception)
+                logWithoutClassname.error(msg, exception)
             } else {
-                log.info("Sendte melding på Kafka-topic [$topic]. Kandidatutfallets dbId: ${kandidatutfall.dbId},kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
+                logWithoutClassname.info("Sendte melding på Kafka-topic [$topic]. Kandidatutfallets dbId: ${kandidatutfall.dbId},kafkaId: $kafkaId, partition: ${metadata.partition()}, offset: ${metadata.offset()}")
             }
         }
     }
