@@ -7,7 +7,7 @@ import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository.Companion.konverterTilKandidatutfall
 import no.nav.statistikkapi.stillinger.Stilling
 import no.nav.statistikkapi.stillinger.StillingRepository
-import no.nav.statistikkapi.stillinger.konverterTilStilling
+import no.nav.statistikkapi.stillinger.StillingRepository.Companion.konverterTilStilling
 import java.sql.ResultSet
 import java.time.ZonedDateTime
 import java.util.*

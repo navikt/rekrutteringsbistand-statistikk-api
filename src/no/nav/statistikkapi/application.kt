@@ -33,8 +33,6 @@ import no.nav.statistikkapi.tiltak.TiltaksRepository
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoLytter
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.time.Instant
 import java.time.LocalDateTime
@@ -42,8 +40,6 @@ import java.time.ZoneId.of
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit.MILLIS
 import javax.sql.DataSource
-
-val logWithoutClassname: Logger = LoggerFactory.getLogger("no.nav.statistikkapi")
 
 fun main() {
     val tokenSupportConfig = TokenSupportConfig(
@@ -227,8 +223,8 @@ fun settOppKtor(
 
         // TODO Are rydd
         log.info("Are tester Ktor sin log")
-        logWithoutClassname.info("Are tester logWithoutClassname")
-        secure(logWithoutClassname).info("Are tester secure()")
+        log.info("Are tester log")
+        secure(log).info("Are tester secure()")
     }
 }
 

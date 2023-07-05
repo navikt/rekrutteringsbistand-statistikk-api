@@ -1,7 +1,7 @@
 package no.nav.statistikkapi.kandidatutfall
 
 import io.micrometer.core.instrument.Metrics
-import no.nav.statistikkapi.logWithoutClassname
+import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
@@ -18,12 +18,12 @@ class LagreUtfallOgStilling(
     ) {
         stillingRepository.lagreStilling(stillingsid, stillingskategori)
         if (kandidatutfallRepository.kandidatutfallAlleredeLagret(kandidatutfall)) {
-            logWithoutClassname.info("Lagrer ikke fordi vi har lagret samme utfall tidligere")
+            log.info("Lagrer ikke fordi vi har lagret samme utfall tidligere")
         } else if (kandidatutfallRepository.hentSisteUtfallForKandidatIKandidatliste(kandidatutfall) == kandidatutfall.utfall) {
-            logWithoutClassname.info("Lagrer ikke fordi siste kandidatutfall for samme kandidat og kandidatliste har likt utfall")
+            log.info("Lagrer ikke fordi siste kandidatutfall for samme kandidat og kandidatliste har likt utfall")
         } else {
             kandidatutfallRepository.lagreUtfall(kandidatutfall)
-            logWithoutClassname.info("Lagrer kandidathendelse som kandidatutfall")
+            log.info("Lagrer kandidathendelse som kandidatutfall")
 
             Metrics.counter(
                 "rekrutteringsbistand.statistikk.utfall.lagret",

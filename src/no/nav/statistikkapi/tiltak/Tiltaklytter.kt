@@ -3,7 +3,7 @@ package no.nav.statistikkapi.tiltak
 import no.nav.helse.rapids_rivers.*
 import no.nav.helse.rapids_rivers.River.PacketListener
 import no.nav.statistikkapi.atOslo
-import no.nav.statistikkapi.logWithoutClassname
+import no.nav.statistikkapi.logging.log
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -35,7 +35,7 @@ class Tiltaklytter(
         val sistEndret = ZonedDateTime.parse(packet["sistEndret"].asText())
 
 
-        logWithoutClassname.info("Tiltaksmelding mottatt tiltakstype: avtaleId: ${avtaleId}")
+        log.info("Tiltaksmelding mottatt tiltakstype: avtaleId: ${avtaleId}")
 
 
         val tiltak = TiltaksRepository.OpprettTiltak(
@@ -53,6 +53,6 @@ class Tiltaklytter(
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        logWithoutClassname.error("Mangler oblligatorisk felt $problems")
+        log.error("Mangler oblligatorisk felt $problems")
     }
 }

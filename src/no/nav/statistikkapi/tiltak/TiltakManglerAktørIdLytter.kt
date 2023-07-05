@@ -1,7 +1,7 @@
 package no.nav.statistikkapi.tiltak
 
 import no.nav.helse.rapids_rivers.*
-import no.nav.statistikkapi.logWithoutClassname
+import no.nav.statistikkapi.logging.log
 
 class TiltakManglerAktørIdLytter(
     rapidsConnection: RapidsConnection,
@@ -28,7 +28,7 @@ class TiltakManglerAktørIdLytter(
     }
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
-        logWithoutClassname.error("Mangler obligatorisk felt $problems")
+        log.error("Mangler obligatorisk felt $problems")
     }
 
 }

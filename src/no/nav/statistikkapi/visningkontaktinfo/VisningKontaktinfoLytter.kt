@@ -6,7 +6,7 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.statistikkapi.kandidatutfall.asUUID
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
-import no.nav.statistikkapi.logWithoutClassname
+import no.nav.statistikkapi.logging.log
 
 class VisningKontaktinfoLytter(
     rapidsConnection: RapidsConnection,
@@ -31,7 +31,7 @@ class VisningKontaktinfoLytter(
         val alleredeLagret = repository.harAlleredeBlittLagret(aktørId, stillingsId, tidspunkt)
 
         if (alleredeLagret) {
-            logWithoutClassname.info("Melding om visning av kontaktinfo har allerede blitt lagret, så ignorerer melding")
+            log.info("Melding om visning av kontaktinfo har allerede blitt lagret, så ignorerer melding")
         } else {
             repository.lagre(aktørId, stillingsId, tidspunkt)
         }

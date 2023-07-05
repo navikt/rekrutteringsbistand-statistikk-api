@@ -21,6 +21,7 @@ import no.nav.statistikkapi.tiltak.Tiltaklytter
 import no.nav.statistikkapi.tiltak.TiltaksRepository
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoLytter
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
+import org.slf4j.LoggerFactory
 import java.net.InetAddress
 
 fun main() {
@@ -98,7 +99,7 @@ fun start(
     )
     SlettetStillingOgKandidatlisteLytter(
         rapidsConnection = rapid,
-        repository =  KandidatutfallRepository(database.dataSource),
+        repository = KandidatutfallRepository(database.dataSource),
         prometheusMeterRegistry = prometheusMeterRegistry,
         lagreUtfallOgStilling = LagreUtfallOgStilling(
             KandidatutfallRepository(database.dataSource),
@@ -129,5 +130,7 @@ fun start(
     )
 
     ktorServer.start()
-    logWithoutClassname.info("Applikasjon startet")
+
+    val loggerWithoutClassname = LoggerFactory.getLogger("no.nav.statistikkapi.start")
+    loggerWithoutClassname.info("Applikasjon startet")
 }
