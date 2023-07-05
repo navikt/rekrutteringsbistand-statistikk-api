@@ -24,6 +24,7 @@ import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlistehendelseLytter
 import no.nav.statistikkapi.kandidatutfall.*
+import no.nav.statistikkapi.logging.secure
 import no.nav.statistikkapi.metrikker.MetrikkJobb
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
@@ -223,6 +224,11 @@ fun settOppKtor(
         }
 
         log.info("Ktor satt opp i miljø: ${Cluster.current}")
+
+        // TODO Are rydd
+        log.info("Are tester Ktor sin log")
+        logWithoutClassname.info("Are tester logWithoutClassname")
+        secure(logWithoutClassname).info("Are tester secure()")
     }
 }
 
