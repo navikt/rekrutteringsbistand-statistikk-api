@@ -3,8 +3,8 @@ package no.nav.statistikkapi.kandidatutfall
 import com.fasterxml.jackson.databind.JsonNode
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
+import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
-import no.nav.statistikkapi.logging.secure
 import no.nav.statistikkapi.stillinger.Stillingskategori
 
 class SendtTilArbeidsgiverKandidaterLytter(

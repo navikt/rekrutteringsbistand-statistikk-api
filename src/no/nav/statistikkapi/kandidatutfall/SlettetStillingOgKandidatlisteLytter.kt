@@ -2,8 +2,8 @@ package no.nav.statistikkapi.kandidatutfall
 
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
+import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
-import no.nav.statistikkapi.logging.secure
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
 
@@ -38,7 +38,8 @@ class SlettetStillingOgKandidatlisteLytter(
         val tidspunkt: ZonedDateTime = ZonedDateTime.parse(packet["tidspunkt"].asText())
         val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asText()
         val stillingsId: String = packet["stillingsId"].asText()
-        val stillingskategori: Stillingskategori =  Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
+        val stillingskategori: Stillingskategori =
+            Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
 
         secure(log).info(
             """
@@ -53,15 +54,15 @@ class SlettetStillingOgKandidatlisteLytter(
             .map { it.value.maxByOrNull(Kandidatutfall::tidspunkt)!! }
 
         kandidatutfall.forEach {
-            if(it.utfall == Utfall.PRESENTERT || it.utfall == Utfall.FATT_JOBBEN) {
-                val nyttUtfall =  OpprettKandidatutfall(
+            if (it.utfall == Utfall.PRESENTERT || it.utfall == Utfall.FATT_JOBBEN) {
+                val nyttUtfall = OpprettKandidatutfall(
                     utfall = Utfall.IKKE_PRESENTERT,
                     aktørId = it.aktorId,
                     navIdent = utførtAvNavIdent,
                     navKontor = "",
                     kandidatlisteId = it.kandidatlisteId.toString(),
                     stillingsId = it.stillingsId.toString(),
-                    synligKandidat = it.synligKandidat?:false,
+                    synligKandidat = it.synligKandidat ?: false,
                     harHullICv = null,
                     innsatsbehov = null,
                     hovedmål = null,
