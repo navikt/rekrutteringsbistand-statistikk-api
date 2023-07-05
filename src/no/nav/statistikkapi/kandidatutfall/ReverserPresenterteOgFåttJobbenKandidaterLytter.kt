@@ -3,7 +3,7 @@ package no.nav.statistikkapi.kandidatutfall
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.log
-import no.nav.statistikkapi.secureLog
+import no.nav.statistikkapi.logging.secure
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
 
@@ -51,7 +51,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         val utførtAvNavKontorKode: String = packet["utførtAvNavKontorKode"].asText()
         val utfall: Utfall = if (eventNamePostfix == "FjernetRegistreringDeltCv") Utfall.IKKE_PRESENTERT else Utfall.PRESENTERT
 
-        secureLog.info(
+        secure(log).info(
             """
             aktørId: $aktørId
             organisasjonsnummer: $organisasjonsnummer
@@ -73,7 +73,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         }
         if (!erForventetUtfall(eventNamePostfix, utfallFraDb.utfall)) {
             log.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, sjekk secureLog for mer informasjon")
-            secureLog.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, aktørId: $aktørId, kandidatlisteId: $kandidatlisteId")
+            secure(log).warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, aktørId: $aktørId, kandidatlisteId: $kandidatlisteId")
             return
         }
 

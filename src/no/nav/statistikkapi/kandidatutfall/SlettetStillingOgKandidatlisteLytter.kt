@@ -3,7 +3,7 @@ package no.nav.statistikkapi.kandidatutfall
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.log
-import no.nav.statistikkapi.secureLog
+import no.nav.statistikkapi.logging.secure
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
 
@@ -40,7 +40,7 @@ class SlettetStillingOgKandidatlisteLytter(
         val stillingsId: String = packet["stillingsId"].asText()
         val stillingskategori: Stillingskategori =  Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
 
-        secureLog.info(
+        secure(log).info(
             """
             kandidatlisteId: $kandidatlisteId
             tidspunkt: $tidspunkt

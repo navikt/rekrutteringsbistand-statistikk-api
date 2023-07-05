@@ -4,11 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.log
-import no.nav.statistikkapi.secureLog
-import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.logging.secure
 import no.nav.statistikkapi.stillinger.Stillingskategori
-import java.time.LocalDate
-import java.time.ZonedDateTime
 
 class SendtTilArbeidsgiverKandidaterLytter(
     rapidsConnection: RapidsConnection,
@@ -56,7 +53,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
             val innsatsbehov = node["innsatsbehov"].asText()
             val hovedmål = node["hovedmål"].asTextNullable()
 
-            secureLog.info(
+            secure(log).info(
                 """
             stillingsId: $stillingsId
             stillingstittel: $stillingstittel
