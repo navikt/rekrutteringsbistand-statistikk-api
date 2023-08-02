@@ -1,7 +1,7 @@
 package no.nav.statistikkapi.tiltak
 
 import no.nav.helse.rapids_rivers.*
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logging.log
 
 class TiltakManglerAktørIdLytter(
     rapidsConnection: RapidsConnection,

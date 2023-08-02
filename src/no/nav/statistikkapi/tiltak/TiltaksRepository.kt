@@ -1,7 +1,7 @@
 package no.nav.statistikkapi.tiltak
 
 import no.nav.statistikkapi.atOslo
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logging.log
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 import java.util.*
