@@ -46,7 +46,7 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                     navKontor = navKontorParameter
                 )
 
-                val antallPresentert = kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
+                val antallPresentert = kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikk)
                 val fåttJobben = kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk)
 
                 call.respond(

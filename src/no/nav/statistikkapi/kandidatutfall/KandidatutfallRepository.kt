@@ -139,17 +139,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
 
-    /**
-     Gitt én kandidat K som ble presentert i mai og fikk jobben i juni
-     når henter statistikk for juni
-     så skal antall presentasjoner være 0
-
-     Gitt én person som ble presentert for to ulike stillinger i samme måned
-     når henter statistikk for den måneden
-     så skal antall presentasjoner være 2
-     **/
-
-    fun hentAntallPresentert(hentStatistikk: HentStatistikk): Int {
+    // TODO Are: Hva er presentert; personer eller kandidaturer? Mistenker at et bedre navn på funksjonen er hentAntallPresentasjoner for å skille det fra antall personer.
+    fun hentAntallPresentasjoner(hentStatistikk: HentStatistikk): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """

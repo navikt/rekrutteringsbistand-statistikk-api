@@ -2,11 +2,9 @@ package no.nav.statistikkapi.kandidatutfall
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import no.nav.statistikkapi.atOslo
+import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.etKandidatutfall
-import no.nav.statistikkapi.etKontor1
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
@@ -195,6 +193,36 @@ class KandidatutfallRepositoryTest {
 
         assertThat(antallPresentert).isEqualTo(1)
     }
+
+    @Test
+    fun `antall presentasjoner er ikke det samme som antall personer`() {
+        val presentertForStilling1 = etKandidatutfall
+        val presentertForStilling2 = presentertForStilling1.copy(
+            kandidatlisteId = "kandliste2",
+            stillingsId = "stilling2"
+        )
+        assertThat(presentertForStilling2.aktørId).isEqualTo(presentertForStilling1.aktørId)
+        assertThat(presentertForStilling2.tidspunktForHendelsen).isEqualTo(presentertForStilling1.tidspunktForHendelsen)
+        repository.lagreUtfall(presentertForStilling1)
+        repository.lagreUtfall(presentertForStilling2)
+
+        val hentStatistikk = HentStatistikk(
+            fraOgMed = LocalDate.now().minusDays(1),
+            tilOgMed = LocalDate.now().plusDays(1), // TODO Are: Hvorfor må jeg legge på +1 dag her? Det stemmer ikke med navngivingen.
+            navKontor = presentertForStilling1.navKontor
+        )
+        val actual: Int = repository.hentAntallPresentasjoner(hentStatistikk)
+
+        assertThat(actual).isEqualTo(2)
+    }
+
+    /**
+    TODO Are
+    Gitt én kandidat K som ble presentert i mai og fikk jobben i juni
+    når henter statistikk for juni
+    så skal antall presentasjoner være 0
+     **/
+
 
     @Test
     fun `en kandidat som ble satt rett til fått jobben skal også telle som presentert`() {
