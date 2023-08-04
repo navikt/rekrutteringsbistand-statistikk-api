@@ -138,6 +138,17 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
+
+    /**
+     Gitt én kandidat K som ble presentert i mai og fikk jobben i juni
+     når henter statistikk for juni
+     så skal antall presentasjoner være 0
+
+     Gitt én person som ble presentert for to ulike stillinger i samme måned
+     når henter statistikk for den måneden
+     så skal antall presentasjoner være 2
+     **/
+
     fun hentAntallPresentert(hentStatistikk: HentStatistikk): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
@@ -148,7 +159,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                             WHERE k2.$tidspunkt BETWEEN ? AND ?
                             GROUP BY $aktorid, $kandidatlisteid
                         ) as k2
-                     WHERE k1.$navkontor = ? 
+                     WHERE k1.$navkontor = ?
                       AND k1.$tidspunkt = k2.maksTidspunkt
                       AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
                 ) as unike_presenteringer_per_person_og_liste
@@ -210,11 +221,11 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 SELECT k1.* FROM $kandidatutfallTabell k1,
-                
+
                   (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktorid, $kandidatlisteid) as k2
-                     
+
                 WHERE k1.$navkontor = ?
                   AND k1.$tidspunkt = k2.maksTidspunkt
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
@@ -294,12 +305,12 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$tidspunkt, telleliste.$synligKandidat FROM $kandidatutfallTabell telleliste,
                   (SELECT MIN($dbId) as minId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon,
                     (SELECT MAX($dbId) as maksId, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
-                      (SELECT senesteUtfallITidsromOgFåttJobben.$aktorid, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
+                      (SELECT senesteUtfallITidsromOgFåttJobben.$aktorid, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,
                           (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
                           WHERE senesteUtfallITidsrom.$tidspunkt >= ?
                           GROUP BY senesteUtfallITidsrom.$aktorid, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
                       WHERE senesteUtfallITidsromOgFåttJobben.$dbId = senesteUtfallITidsrom.maksId
-                      AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben                  
+                      AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben
                     WHERE tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktorid = senesteUtfallITidsromOgFåttJobben.$aktorid
                     AND tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid = senesteUtfallITidsromOgFåttJobben.$kandidatlisteid
                     GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktorid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$utfall, senesteUtfallITidsromOgFåttJobben.$tidspunkt) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon

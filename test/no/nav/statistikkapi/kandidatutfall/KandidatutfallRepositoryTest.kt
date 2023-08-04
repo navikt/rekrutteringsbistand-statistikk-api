@@ -1,19 +1,15 @@
-package no.nav.statistikkapi.db
+package no.nav.statistikkapi.kandidatutfall
 
 import assertk.assertThat
-import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isTrue
 import no.nav.statistikkapi.atOslo
-import org.junit.After
-import org.junit.Test
+import no.nav.statistikkapi.db.TestDatabase
+import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.etKandidatutfall
 import no.nav.statistikkapi.etKontor1
-import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.kandidatutfall.Utfall
+import org.junit.After
+import org.junit.Test
 import java.time.LocalDate
-import java.time.ZoneId
-import java.time.ZonedDateTime
 
 class KandidatutfallRepositoryTest {
 
