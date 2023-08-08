@@ -144,12 +144,14 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 """
                 SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
                     SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                        (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
+                        (SELECT MAX($tidspunkt) as maksTidspunkt, $aktorid, $kandidatlisteid FROM $kandidatutfallTabell k2
                             WHERE k2.$tidspunkt BETWEEN ? AND ?
                             GROUP BY $aktorid, $kandidatlisteid
                         ) as k2
                      WHERE k1.$navkontor = ? 
                       AND k1.$tidspunkt = k2.maksTidspunkt
+                      AND k1.$aktorid = k2.$aktorid
+                      AND k1.$kandidatlisteid = k2.$kandidatlisteid
                       AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
                 ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
@@ -173,13 +175,15 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 """
                 SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
                     SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                        (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
+                        (SELECT MAX($tidspunkt) as maksTidspunkt, $aktorid, $kandidatlisteid FROM $kandidatutfallTabell k2
                             WHERE k2.$tidspunkt BETWEEN ? AND ?
                             GROUP BY $aktorid, $kandidatlisteid
                         ) as k2
                      WHERE k1.$navkontor = ? 
                       AND k1.$tidspunkt = k2.maksTidspunkt
                       AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+                      AND k1.$aktorid = k2.$aktorid
+                      AND k1.$kandidatlisteid = k2.$kandidatlisteid
                       AND k1.$innsatsbehov IN ('${Innsatsgruppe.BATT.name}', '${Innsatsgruppe.BFORM.name}', '${Innsatsgruppe.VARIG.name}')
                 ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
@@ -240,12 +244,14 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                  (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
+                  (SELECT MAX($tidspunkt) as maksTidspunkt, $aktorid, $kandidatlisteid FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktorid, $kandidatlisteid) as k2
                      
                 WHERE k1.$navkontor = ?
                   AND k1.$tidspunkt = k2.maksTidspunkt
+                  AND k1.$aktorid = k2.$aktorid
+                  AND k1.$kandidatlisteid = k2.$kandidatlisteid
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
             """.trimIndent()
             ).apply {
@@ -267,12 +273,14 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                  (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
+                  (SELECT MAX($tidspunkt) as maksTidspunkt, $aktorid, $kandidatlisteid FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktorid, $kandidatlisteid) as k2
                      
                 WHERE k1.$navkontor = ?
                   AND k1.$tidspunkt = k2.maksTidspunkt
+                  AND k1.$aktorid = k2.$aktorid
+                  AND k1.$kandidatlisteid = k2.$kandidatlisteid
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
                   AND k1.$innsatsbehov IN ('${Innsatsgruppe.BATT.name}', '${Innsatsgruppe.BFORM.name}', '${Innsatsgruppe.VARIG.name}')
             """.trimIndent()
