@@ -10,13 +10,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class HentStatistikk(
-    val fraOgMed: LocalDateTime,
-    val tilOgMed: LocalDateTime,
+    val fra: LocalDateTime,
+    val til: LocalDateTime,
     val navKontor: String
 ) {
     constructor(fraOgMed: LocalDate, tilOgMed: LocalDate, navKontor: String) : this(
-        fraOgMed = fraOgMed.atStartOfDay(),
-        tilOgMed = tilOgMed.plusDays(1).atStartOfDay(),
+        fra = fraOgMed.atStartOfDay(),
+        til = tilOgMed.plusDays(1).atStartOfDay(),
         navKontor = navKontor
     )
 }
