@@ -32,7 +32,7 @@ jobs:
     #########################
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/bedre-securelog'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/statistikk-prioritert-målgruppe'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
