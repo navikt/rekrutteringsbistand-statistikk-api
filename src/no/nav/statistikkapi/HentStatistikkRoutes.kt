@@ -55,9 +55,9 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                     navKontor = navKontorParameter
                 )
 
-                val antallPresentert = kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
-                val antallPresentertIPrioritertMålgruppe =
-                    kandidatutfallRepository.hentAntallPresentertIPrioritertMålgruppe(hentStatistikk)
+                val antallPresentasjoner = kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikk)
+                val antallPresentasjonerIPrioritertMålgruppe =
+                    kandidatutfallRepository.hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk)
 
                 val fåttJobben = kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk)
                 val fåttJobbenIPrioritertMålgruppe =
@@ -65,8 +65,8 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
 
                 call.respond(
                     StatistikkOutboundDto(
-                        antallPresentert,
-                        antallPresentertIPrioritertMålgruppe,
+                        antallPresentasjoner,
+                        antallPresentasjonerIPrioritertMålgruppe,
                         fåttJobben.size,
                         fåttJobbenIPrioritertMålgruppe.size
                     )

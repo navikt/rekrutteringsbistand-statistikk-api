@@ -6,9 +6,10 @@
     </appender>
 
     <logger name="io.netty" level="INFO"/>
-    <logger name="org.flywaydb.core" level="INFO"/>
-    <logger name="com.zaxxer.hikari" level="INFO"/>
-    <logger name="no.nav.security" level="DEBUG" />
+    <logger name="org.flywaydb.core" level="WARN"/>
+    <logger name="com.zaxxer.hikari" level="WARN"/>
+    <logger name="no.nav.security" level="INFO"/>
+    <logger name="org.testcontainers" level="WARN"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
