@@ -587,7 +587,8 @@ class HentStatistikkTest {
         )
         assertThat(presentertForStilling2.aktørId).isEqualTo(presentertForStilling1.aktørId)
         assertThat(presentertForStilling2.tidspunktForHendelsen).isEqualTo(presentertForStilling1.tidspunktForHendelsen)
-        val prioritertMålgruppe: List<String> = KandidatutfallRepository.Companion.prioritertMålgruppe.map(Innsatsgruppe::name)
+        val prioritertMålgruppe: List<String> =
+            KandidatutfallRepository.Companion.prioritertMålgruppe.map(Innsatsgruppe::name)
         assertThat(prioritertMålgruppe).contains(presentertForStilling1.innsatsbehov)
         assertThat(prioritertMålgruppe).contains(presentertForStilling2.innsatsbehov)
 
@@ -599,15 +600,6 @@ class HentStatistikkTest {
         assertThat(actual.antallPresentert).isEqualTo(2)
         assertThat(actual.antallPresentertIPrioritertMålgruppe).isEqualTo(2)
     }
-
-
-    /**
-    TODO Are
-    Gitt én kandidat K som ble presentert i mai og fikk jobben i juni
-    når henter statistikk for juni
-    så skal antall presentasjoner være 0
-     **/
-
 
 
     private fun hentStatistikk(
