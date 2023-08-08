@@ -243,7 +243,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                
                   (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktorid, $kandidatlisteid) as k2
@@ -270,8 +269,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT k1.* FROM $kandidatutfallTabell k1,
-                
+                SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
                   (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktorid, $kandidatlisteid) as k2
