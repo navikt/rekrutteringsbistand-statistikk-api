@@ -154,8 +154,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
             ).apply {
-                setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
-                setDate(2, Date.valueOf(hentStatistikk.tilOgMed))
+                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
+                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
                 setString(3, hentStatistikk.navKontor)
             }.executeQuery()
 
@@ -184,8 +184,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
             ).apply {
-                setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
-                setDate(2, Date.valueOf(hentStatistikk.tilOgMed))
+                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
+                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
                 setString(3, hentStatistikk.navKontor)
             }.executeQuery()
 
@@ -249,8 +249,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
             """.trimIndent()
             ).apply {
-                setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
-                setDate(2, Date.valueOf(hentStatistikk.tilOgMed))
+                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
+                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
                 setString(3, hentStatistikk.navKontor)
             }.executeQuery()
 
@@ -277,8 +277,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                   AND k1.$innsatsbehov IN ('${Innsatsgruppe.BATT.name}', '${Innsatsgruppe.BFORM.name}', '${Innsatsgruppe.VARIG.name}')
             """.trimIndent()
             ).apply {
-                setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
-                setDate(2, Date.valueOf(hentStatistikk.tilOgMed))
+                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
+                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
                 setString(3, hentStatistikk.navKontor)
             }.executeQuery()
 

@@ -64,7 +64,11 @@ class HentStatistikkTest {
             etKandidatutfall.copy(utfall = FATT_JOBBEN, tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
         repository.lagreUtfall(
-            etKandidatutfall.copy(aktørId = "1234", utfall = FATT_JOBBEN, tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
+            etKandidatutfall.copy(
+                aktørId = "1234",
+                utfall = FATT_JOBBEN,
+                tidspunktForHendelsen = lagTidspunkt(2020, 10, 15)
+            )
         )
 
 
@@ -127,8 +131,10 @@ class HentStatistikkTest {
 
     @Test
     fun `Registrert utfall på samme kandidat på to kandidatlister skal gi to tellinger`() {
-        val kandidatutfall1 = etKandidatutfall.copy(kandidatlisteId = "1", tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
-        val kandidatutfall2 = kandidatutfall1.copy(kandidatlisteId = "2", tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
+        val kandidatutfall1 =
+            etKandidatutfall.copy(kandidatlisteId = "1", tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
+        val kandidatutfall2 =
+            kandidatutfall1.copy(kandidatlisteId = "2", tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
         assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
 
@@ -146,7 +152,7 @@ class HentStatistikkTest {
 
     @Test
     fun `Registrerte utfall på to kandidater på en kandidatliste skal gi to tellinger`() {
-        val kandidatutfall1 = etKandidatutfall.copy(aktørId = "1",tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
+        val kandidatutfall1 = etKandidatutfall.copy(aktørId = "1", tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
         val kandidatutfall2 = kandidatutfall1.copy(aktørId = "2", tidspunktForHendelsen = lagTidspunkt(2020, 1, 1))
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
 
@@ -518,8 +524,11 @@ class HentStatistikkTest {
     @Test
     fun `Gitt en presentering en gitt dag så skal vi få presentering hvis tilOgMed er samme dag`() {
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1,
-                    tidspunktForHendelsen = lagTidspunkt(2020, 1, 1).plusHours(13).plusMinutes(55)),
+            etKandidatutfall.copy(
+                utfall = PRESENTERT,
+                navKontor = etKontor1,
+                tidspunktForHendelsen = lagTidspunkt(2020, 1, 1).plusHours(13).plusMinutes(55)
+            ),
         )
 
         val actual = hentStatistikk(
@@ -534,8 +543,11 @@ class HentStatistikkTest {
     @Test
     fun `Gitt en presentering en gitt dag så skal vi få presentering hvis fraOgMed er samme dag`() {
         repository.lagreUtfall(
-            etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1,
-                    tidspunktForHendelsen = lagTidspunkt(2020, 1, 1).plusHours(19).plusMinutes(54))
+            etKandidatutfall.copy(
+                utfall = PRESENTERT,
+                navKontor = etKontor1,
+                tidspunktForHendelsen = lagTidspunkt(2020, 1, 1).plusHours(19).plusMinutes(54)
+            )
         )
 
         val actual = hentStatistikk(
@@ -553,14 +565,7 @@ class HentStatistikkTest {
         navKontor: String
     ): StatistikkOutboundDto = runBlocking {
         client.get("$basePath/statistikk") {
-            leggTilQueryParametere(
-                this,
-                HentStatistikk(
-                    fraOgMed = fraOgMed,
-                    tilOgMed = tilOgMed,
-                    navKontor = navKontor
-                )
-            )
+            leggTilQueryParametere(this, fraOgMed, tilOgMed, navKontor)
         }.body()
     }
 
@@ -570,11 +575,16 @@ class HentStatistikkTest {
         mockOAuth2Server.shutdown()
     }
 
-    private fun leggTilQueryParametere(httpRequestBuilder: HttpRequestBuilder, hentStatistikk: HentStatistikk) {
+    private fun leggTilQueryParametere(
+        httpRequestBuilder: HttpRequestBuilder,
+        fraOgMed: LocalDate,
+        tilOgMed: LocalDate,
+        navKontor: String
+    ) {
         httpRequestBuilder.url.parameters.apply {
-            append(StatistikkParametere.fraOgMed, hentStatistikk.fraOgMed.toString())
-            append(StatistikkParametere.tilOgMed, hentStatistikk.tilOgMed.toString())
-            append(StatistikkParametere.navKontor, hentStatistikk.navKontor)
+            append(StatistikkParametere.fraOgMed, fraOgMed.toString())
+            append(StatistikkParametere.tilOgMed, tilOgMed.toString())
+            append(StatistikkParametere.navKontor, navKontor)
         }
     }
 }
