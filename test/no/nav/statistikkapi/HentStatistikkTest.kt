@@ -247,6 +247,62 @@ class HentStatistikkTest {
     }
 
     @Test
+    fun `Statistikk skal også returnere presentert-statistikk for personer i prioritert målgruppe`() {
+        val tidspunkt = lagTidspunkt(2023, 8, 1)
+        val presentertPrioritert = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
+            aktørId = "123",
+            utfall = PRESENTERT,
+            tidspunktForHendelsen = tidspunkt
+        )
+
+        val presentertIkkePrioritert = etKandidatutfallIkkeIPrioritertMålgruppe.copy(
+            aktørId = "456",
+            utfall = PRESENTERT,
+            tidspunktForHendelsen = tidspunkt
+        )
+
+        repository.lagreUtfall(presentertPrioritert)
+        repository.lagreUtfall(presentertIkkePrioritert)
+
+        val statistikk = hentStatistikk(
+            fraOgMed = tidspunkt.minusDays(1).toLocalDate(),
+            tilOgMed = tidspunkt.plusDays(1).toLocalDate(),
+            navKontor = presentertPrioritert.navKontor
+        )
+
+        assertThat(statistikk.antallPresentert).isEqualTo(2)
+        assertThat(statistikk.antallPresentertIPrioritertMålgruppe).isEqualTo(1)
+    }
+
+    @Test
+    fun `Statistikk skal også returnere fått jobben-statistikk for personer i prioritert målgruppe`() {
+        val tidspunkt = lagTidspunkt(2023, 8, 8)
+        val fåttJobbenPrioritert = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
+            aktørId = "123",
+            utfall = FATT_JOBBEN,
+            tidspunktForHendelsen = tidspunkt
+        )
+
+        val fåttJobbenIkkePrioritert = etKandidatutfallIkkeIPrioritertMålgruppe.copy(
+            aktørId = "456",
+            utfall = FATT_JOBBEN,
+            tidspunktForHendelsen = tidspunkt
+        )
+
+        repository.lagreUtfall(fåttJobbenPrioritert)
+        repository.lagreUtfall(fåttJobbenIkkePrioritert)
+
+        val statistikk = hentStatistikk(
+            fraOgMed = tidspunkt.minusDays(1).toLocalDate(),
+            tilOgMed = tidspunkt.plusDays(1).toLocalDate(),
+            navKontor = fåttJobbenPrioritert.navKontor
+        )
+
+        assertThat(statistikk.antallFåttJobben).isEqualTo(2)
+        assertThat(statistikk.antallFåttJobbenIPrioritertMålgruppe).isEqualTo(1)
+    }
+
+    @Test
     fun `Statistikk skal returnere unauthorized hvis man ikke er logget inn`() = runBlocking {
         val uinnloggaClient = HttpClient(Apache) {
             expectSuccess = false

@@ -39,3 +39,10 @@ enum class Utfall {
             }
     }
 }
+
+enum class Innsatsgruppe {
+    BATT,
+    BFORM,
+    VARIG,
+    IKVAL
+}

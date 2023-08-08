@@ -24,7 +24,9 @@ class StatistikkParametere {
 
 data class StatistikkOutboundDto(
     val antallPresentert: Int,
-    val antallFåttJobben: Int
+    val antallPresentertIPrioritertMålgruppe: Int,
+    val antallFåttJobben: Int,
+    val antallFåttJobbenIPrioritertMålgruppe: Int,
 )
 
 fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
@@ -47,12 +49,17 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                 )
 
                 val antallPresentert = kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
+                val antallPresentertIPrioritertMålgruppe = kandidatutfallRepository.hentAntallPresentertIPrioritertMålgruppe(hentStatistikk)
+
                 val fåttJobben = kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk)
+                val fåttJobbenIPrioritertMålgruppe = kandidatutfallRepository.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk)
 
                 call.respond(
                     StatistikkOutboundDto(
                         antallPresentert,
-                        fåttJobben.size
+                        antallPresentertIPrioritertMålgruppe,
+                        fåttJobben.size,
+                        fåttJobbenIPrioritertMålgruppe.size
                     )
                 )
             }

@@ -167,6 +167,39 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentAntallPresentertIPrioritertMålgruppe(hentStatistikk: HentStatistikk): Int {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
+                    SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
+                        (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
+                            WHERE k2.$tidspunkt BETWEEN ? AND ?
+                            GROUP BY $aktorid, $kandidatlisteid
+                        ) as k2
+                     WHERE k1.$navkontor = ? 
+                      AND k1.$tidspunkt = k2.maksTidspunkt
+                      AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+                      AND (k1.$innsatsbehov = '${Innsatsgruppe.BATT.name}'
+                        OR k1.$innsatsbehov = '${Innsatsgruppe.BFORM.name}'
+                        OR k1.$innsatsbehov = '${Innsatsgruppe.VARIG.name}'
+                      )
+                ) as unike_presenteringer_per_person_og_liste
+            """.trimIndent()
+            ).apply {
+                setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
+                setDate(2, Date.valueOf(hentStatistikk.tilOgMed))
+                setString(3, hentStatistikk.navKontor)
+            }.executeQuery()
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1)
+            } else {
+                throw RuntimeException("Prøvde å hente antall presenterte kandidater i prioritert målgruppe fra databasen")
+            }
+        }
+    }
+
     fun hentAntallPresentertForAlleNavKontor(): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
@@ -218,6 +251,38 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 WHERE k1.$navkontor = ?
                   AND k1.$tidspunkt = k2.maksTidspunkt
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
+            """.trimIndent()
+            ).apply {
+                setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
+                setDate(2, Date.valueOf(hentStatistikk.tilOgMed))
+                setString(3, hentStatistikk.navKontor)
+            }.executeQuery()
+
+            return generateSequence {
+                if (!resultSet.next()) null
+                else resultSet.getString(aktorid)
+            }.toList()
+
+        }
+    }
+
+    fun hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk: HentStatistikk): List<String> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                SELECT k1.* FROM $kandidatutfallTabell k1,
+                
+                  (SELECT MAX($tidspunkt) as maksTidspunkt FROM $kandidatutfallTabell k2
+                     WHERE k2.$tidspunkt BETWEEN ? AND ?
+                     GROUP BY $aktorid, $kandidatlisteid) as k2
+                     
+                WHERE k1.$navkontor = ?
+                  AND k1.$tidspunkt = k2.maksTidspunkt
+                  AND k1.$utfall = '${FATT_JOBBEN.name}'
+                  AND (k1.$innsatsbehov = '${Innsatsgruppe.BATT.name}'
+                        OR k1.$innsatsbehov = '${Innsatsgruppe.BFORM.name}'
+                        OR k1.$innsatsbehov = '${Innsatsgruppe.VARIG.name}'
+                      )
             """.trimIndent()
             ).apply {
                 setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
