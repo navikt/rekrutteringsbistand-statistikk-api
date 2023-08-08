@@ -63,6 +63,10 @@ class HentStatistikkTest {
         repository.lagreUtfall(
             etKandidatutfall.copy(utfall = FATT_JOBBEN, tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
+        repository.lagreUtfall(
+            etKandidatutfall.copy(aktørId = "1234", utfall = FATT_JOBBEN, tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
+        )
+
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2020, 10, 1),
@@ -70,8 +74,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallFåttJobben).isEqualTo(1)
-        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallFåttJobben).isEqualTo(2)
+        assertThat(actual.antallPresentert).isEqualTo(2)
     }
 
 
