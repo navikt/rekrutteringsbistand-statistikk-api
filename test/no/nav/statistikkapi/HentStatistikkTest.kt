@@ -253,57 +253,55 @@ class HentStatistikkTest {
     @Test
     fun `Statistikk skal også returnere presentert-statistikk for personer i prioritert målgruppe`() {
         val tidspunkt = lagTidspunkt(2023, 8, 1)
-        val presentertPrioritert = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
-            aktørId = "123",
-            utfall = PRESENTERT,
-            tidspunktForHendelsen = tidspunkt
+        val presentertPrioritert1 = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
+            aktørId = "123", utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt
         )
-
+        val presentertPrioritert2 = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
+            aktørId = "456", utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt
+        )
         val presentertIkkePrioritert = etKandidatutfallIkkeIPrioritertMålgruppe.copy(
-            aktørId = "456",
-            utfall = PRESENTERT,
-            tidspunktForHendelsen = tidspunkt
+            aktørId = "789", utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt
         )
 
-        repository.lagreUtfall(presentertPrioritert)
+        repository.lagreUtfall(presentertPrioritert1)
+        repository.lagreUtfall(presentertPrioritert2)
         repository.lagreUtfall(presentertIkkePrioritert)
 
         val statistikk = hentStatistikk(
             fraOgMed = tidspunkt.minusDays(1).toLocalDate(),
             tilOgMed = tidspunkt.plusDays(1).toLocalDate(),
-            navKontor = presentertPrioritert.navKontor
+            navKontor = presentertPrioritert1.navKontor
         )
 
-        assertThat(statistikk.antallPresentert).isEqualTo(2)
-        assertThat(statistikk.antallPresentertIPrioritertMålgruppe).isEqualTo(1)
+        assertThat(statistikk.antallPresentert).isEqualTo(3)
+        assertThat(statistikk.antallPresentertIPrioritertMålgruppe).isEqualTo(2)
     }
 
     @Test
     fun `Statistikk skal også returnere fått jobben-statistikk for personer i prioritert målgruppe`() {
         val tidspunkt = lagTidspunkt(2023, 8, 8)
-        val fåttJobbenPrioritert = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
-            aktørId = "123",
-            utfall = FATT_JOBBEN,
-            tidspunktForHendelsen = tidspunkt
+        val fåttJobbenPrioritert1 = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
+            aktørId = "123", utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt
         )
-
+        val fåttJobbenPrioritert2 = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
+            aktørId = "456", utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt
+        )
         val fåttJobbenIkkePrioritert = etKandidatutfallIkkeIPrioritertMålgruppe.copy(
-            aktørId = "456",
-            utfall = FATT_JOBBEN,
-            tidspunktForHendelsen = tidspunkt
+            aktørId = "789", utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt
         )
 
-        repository.lagreUtfall(fåttJobbenPrioritert)
+        repository.lagreUtfall(fåttJobbenPrioritert1)
+        repository.lagreUtfall(fåttJobbenPrioritert2)
         repository.lagreUtfall(fåttJobbenIkkePrioritert)
 
         val statistikk = hentStatistikk(
             fraOgMed = tidspunkt.minusDays(1).toLocalDate(),
             tilOgMed = tidspunkt.plusDays(1).toLocalDate(),
-            navKontor = fåttJobbenPrioritert.navKontor
+            navKontor = fåttJobbenPrioritert1.navKontor
         )
 
-        assertThat(statistikk.antallFåttJobben).isEqualTo(2)
-        assertThat(statistikk.antallFåttJobbenIPrioritertMålgruppe).isEqualTo(1)
+        assertThat(statistikk.antallFåttJobben).isEqualTo(3)
+        assertThat(statistikk.antallFåttJobbenIPrioritertMålgruppe).isEqualTo(2)
     }
 
     @Test
