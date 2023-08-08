@@ -180,10 +180,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                      WHERE k1.$navkontor = ? 
                       AND k1.$tidspunkt = k2.maksTidspunkt
                       AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                      AND (k1.$innsatsbehov = '${Innsatsgruppe.BATT.name}'
-                        OR k1.$innsatsbehov = '${Innsatsgruppe.BFORM.name}'
-                        OR k1.$innsatsbehov = '${Innsatsgruppe.VARIG.name}'
-                      )
+                      AND k1.$innsatsbehov IN ('${Innsatsgruppe.BATT.name}', '${Innsatsgruppe.BFORM.name}', '${Innsatsgruppe.VARIG.name}')
                 ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
             ).apply {
@@ -277,10 +274,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 WHERE k1.$navkontor = ?
                   AND k1.$tidspunkt = k2.maksTidspunkt
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
-                  AND (k1.$innsatsbehov = '${Innsatsgruppe.BATT.name}'
-                        OR k1.$innsatsbehov = '${Innsatsgruppe.BFORM.name}'
-                        OR k1.$innsatsbehov = '${Innsatsgruppe.VARIG.name}'
-                      )
+                  AND k1.$innsatsbehov IN ('${Innsatsgruppe.BATT.name}', '${Innsatsgruppe.BFORM.name}', '${Innsatsgruppe.VARIG.name}')
             """.trimIndent()
             ).apply {
                 setDate(1, Date.valueOf(hentStatistikk.fraOgMed))
