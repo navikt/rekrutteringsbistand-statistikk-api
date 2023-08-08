@@ -28,7 +28,7 @@ val etKandidatutfall = OpprettKandidatutfall(
     hovedmål = "SKAFFERA"
 )
 
-val etKandidatutfallMedUkjentHullICv = OpprettKandidatutfall(
+val etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv = OpprettKandidatutfall(
     aktørId = "80000254879658",
     utfall = Utfall.PRESENTERT,
     navIdent = enAnnenNavIdent,
