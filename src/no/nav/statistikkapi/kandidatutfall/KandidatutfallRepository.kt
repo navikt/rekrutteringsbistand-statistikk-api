@@ -138,7 +138,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallPresentert(hentStatistikk: HentStatistikk): Int {
+    fun hentAntallPresentasjoner(hentStatistikk: HentStatistikk): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -162,12 +162,14 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             if (resultSet.next()) {
                 return resultSet.getInt(1)
             } else {
-                throw RuntimeException("Prøvde å hente antall presenterte kandidater fra databasen")
+                throw RuntimeException("Prøvde å hente antall presentasjoner fra databasen")
             }
         }
     }
 
-    fun hentAntallPresentertIPrioritertMålgruppe(hentStatistikk: HentStatistikk): Int {
+    fun hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk: HentStatistikk): Int {
+        val prioritertMålgruppeISql = prioritertMålgruppe.map(Innsatsgruppe::name).joinToString("', '", "'", "'")
+
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -180,7 +182,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                      WHERE k1.$navkontor = ? 
                       AND k1.$tidspunkt = k2.maksTidspunkt
                       AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                      AND k1.$innsatsbehov IN ('${Innsatsgruppe.BATT.name}', '${Innsatsgruppe.BFORM.name}', '${Innsatsgruppe.VARIG.name}')
+                      AND k1.$innsatsbehov IN ($prioritertMålgruppeISql)
                 ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
             ).apply {
@@ -192,7 +194,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             if (resultSet.next()) {
                 return resultSet.getInt(1)
             } else {
-                throw RuntimeException("Prøvde å hente antall presenterte kandidater i prioritert målgruppe fra databasen")
+                throw RuntimeException("Prøvde å hente antall presentasjoner i prioritert målgruppe fra databasen")
             }
         }
     }
@@ -383,7 +385,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                     .apply {
                         setString(1, kandidatlisteIdVerdi)
                     }
-                .executeQuery()
+                    .executeQuery()
 
             return generateSequence {
                 if (resultSet.next()) konverterTilKandidatutfall(resultSet)
@@ -433,5 +435,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
                 alder = if (resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
             )
+
+        val prioritertMålgruppe: Set<Innsatsgruppe> =
+            setOf(Innsatsgruppe.BATT, Innsatsgruppe.BFORM, Innsatsgruppe.VARIG)
     }
 }

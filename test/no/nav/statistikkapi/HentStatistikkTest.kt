@@ -1,6 +1,7 @@
 package no.nav.statistikkapi
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -12,6 +13,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
+import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
 import org.junit.After
@@ -558,6 +560,55 @@ class HentStatistikkTest {
 
         assertThat(actual.antallPresentert).isEqualTo(1)
     }
+
+    @Test
+    fun `antall presentasjoner er ikke det samme som antall personer`() {
+        val presentertForStilling1 = etKandidatutfall
+        val presentertForStilling2 = presentertForStilling1.copy(
+            kandidatlisteId = "kandliste2",
+            stillingsId = "stilling2"
+        )
+        assertThat(presentertForStilling2.aktørId).isEqualTo(presentertForStilling1.aktørId)
+        assertThat(presentertForStilling2.tidspunktForHendelsen).isEqualTo(presentertForStilling1.tidspunktForHendelsen)
+        repository.lagreUtfall(presentertForStilling1)
+        repository.lagreUtfall(presentertForStilling2)
+
+        val actual = hentStatistikk(LocalDate.now(), LocalDate.now(), presentertForStilling1.navKontor)
+
+        assertThat(actual.antallPresentert).isEqualTo(2)
+    }
+
+    @Test
+    fun `antall presentasjoner er ikke det samme som antall personer også for prioritert målgruppe`() {
+        val presentertForStilling1 = etKandidatutfall
+        val presentertForStilling2 = presentertForStilling1.copy(
+            kandidatlisteId = "kandliste2",
+            stillingsId = "stilling2"
+        )
+        assertThat(presentertForStilling2.aktørId).isEqualTo(presentertForStilling1.aktørId)
+        assertThat(presentertForStilling2.tidspunktForHendelsen).isEqualTo(presentertForStilling1.tidspunktForHendelsen)
+        val prioritertMålgruppe: List<String> = KandidatutfallRepository.Companion.prioritertMålgruppe.map(Innsatsgruppe::name)
+        assertThat(prioritertMålgruppe).contains(presentertForStilling1.innsatsbehov)
+        assertThat(prioritertMålgruppe).contains(presentertForStilling2.innsatsbehov)
+
+        repository.lagreUtfall(presentertForStilling1)
+        repository.lagreUtfall(presentertForStilling2)
+
+        val actual = hentStatistikk(LocalDate.now(), LocalDate.now(), presentertForStilling1.navKontor)
+
+        assertThat(actual.antallPresentert).isEqualTo(2)
+        assertThat(actual.antallPresentertIPrioritertMålgruppe).isEqualTo(2)
+    }
+
+
+    /**
+    TODO Are
+    Gitt én kandidat K som ble presentert i mai og fikk jobben i juni
+    når henter statistikk for juni
+    så skal antall presentasjoner være 0
+     **/
+
+
 
     private fun hentStatistikk(
         fraOgMed: LocalDate,
