@@ -7,12 +7,19 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class HentStatistikk(
-    val fraOgMed: LocalDate,
-    val tilOgMed: LocalDate,
+    val fraOgMed: LocalDateTime,
+    val tilOgMed: LocalDateTime,
     val navKontor: String
-)
+) {
+    constructor(fraOgMed: LocalDate, tilOgMed: LocalDate, navKontor: String) : this(
+        fraOgMed = fraOgMed.atStartOfDay(),
+        tilOgMed = tilOgMed.plusDays(1).atStartOfDay(),
+        navKontor = navKontor
+    )
+}
 
 class StatistikkParametere {
     companion object {
@@ -44,15 +51,17 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
 
                 val hentStatistikk = HentStatistikk(
                     fraOgMed = LocalDate.parse(fraOgMedParameter),
-                    tilOgMed = LocalDate.parse(tilOgMedParameter).plusDays(1),
+                    tilOgMed = LocalDate.parse(tilOgMedParameter),
                     navKontor = navKontorParameter
                 )
 
                 val antallPresentert = kandidatutfallRepository.hentAntallPresentert(hentStatistikk)
-                val antallPresentertIPrioritertMålgruppe = kandidatutfallRepository.hentAntallPresentertIPrioritertMålgruppe(hentStatistikk)
+                val antallPresentertIPrioritertMålgruppe =
+                    kandidatutfallRepository.hentAntallPresentertIPrioritertMålgruppe(hentStatistikk)
 
                 val fåttJobben = kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk)
-                val fåttJobbenIPrioritertMålgruppe = kandidatutfallRepository.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk)
+                val fåttJobbenIPrioritertMålgruppe =
+                    kandidatutfallRepository.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk)
 
                 call.respond(
                     StatistikkOutboundDto(
