@@ -525,7 +525,8 @@ class HentStatistikkTest {
     fun `Gitt en presentering en gitt dag så skal vi få presentering hvis tilOgMed er samme dag`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
-                utfall = PRESENTERT, navKontor = etKontor1,
+                utfall = PRESENTERT,
+                navKontor = etKontor1,
                 tidspunktForHendelsen = lagTidspunkt(2020, 1, 1).plusHours(13).plusMinutes(55)
             ),
         )
@@ -543,7 +544,8 @@ class HentStatistikkTest {
     fun `Gitt en presentering en gitt dag så skal vi få presentering hvis fraOgMed er samme dag`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(
-                utfall = PRESENTERT, navKontor = etKontor1,
+                utfall = PRESENTERT,
+                navKontor = etKontor1,
                 tidspunktForHendelsen = lagTidspunkt(2020, 1, 1).plusHours(19).plusMinutes(54)
             )
         )
