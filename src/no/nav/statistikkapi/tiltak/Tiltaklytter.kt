@@ -3,7 +3,7 @@ package no.nav.statistikkapi.tiltak
 import no.nav.helse.rapids_rivers.*
 import no.nav.helse.rapids_rivers.River.PacketListener
 import no.nav.statistikkapi.atOslo
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logging.log
 import java.time.ZonedDateTime
 import java.util.UUID
 

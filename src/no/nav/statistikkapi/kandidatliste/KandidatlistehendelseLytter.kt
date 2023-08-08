@@ -3,7 +3,7 @@ package no.nav.statistikkapi.kandidatliste
 import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTimeNullable
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logging.log
 import java.time.ZonedDateTime
 import java.util.*
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -33,8 +32,6 @@ import no.nav.statistikkapi.tiltak.TiltaksRepository
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoLytter
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.time.Instant
 import java.time.LocalDateTime
@@ -42,8 +39,6 @@ import java.time.ZoneId.of
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit.MILLIS
 import javax.sql.DataSource
-
-val log: Logger = LoggerFactory.getLogger("no.nav.rekrutteringsbistand.statistikk")
 
 fun main() {
     val tokenSupportConfig = TokenSupportConfig(
@@ -72,7 +67,6 @@ fun startApp(
     val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
     val kandidatlisteRepository = KandidatlisteRepository(database.dataSource)
     val visningKontaktinfoRepository = VisningKontaktinfoRepository(database.dataSource)
-    val stillingRepository = StillingRepository(database.dataSource)
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
     val metrikkJobb = MetrikkJobb(
@@ -143,7 +137,7 @@ fun startApp(
         )
         SlettetStillingOgKandidatlisteLytter(
             rapidsConnection = this,
-            repository =  KandidatutfallRepository(database.dataSource),
+            repository = KandidatutfallRepository(database.dataSource),
             prometheusMeterRegistry = prometheusMeterRegistry,
             lagreUtfallOgStilling = LagreUtfallOgStilling(
                 KandidatutfallRepository(database.dataSource),
@@ -163,7 +157,7 @@ fun startApp(
         TiltakManglerAktørIdLytter(this)
     }
 
-    metrikkJobb.start();
+    metrikkJobb.start()
     rapid.start()
 }
 
@@ -179,8 +173,6 @@ private fun startDatavarehusScheduler(
 
     datavarehusScheduler.kjørPeriodisk()
 }
-
-val objectMapper = defaultProperties(jacksonObjectMapper())
 
 fun defaultProperties(objectMapper: ObjectMapper) = objectMapper.apply {
     registerModule(JavaTimeModule())
@@ -227,6 +219,7 @@ fun settOppKtor(
         }
 
         log.info("Ktor satt opp i miljø: ${Cluster.current}")
+
     }
 }
 
@@ -237,7 +230,6 @@ fun nowOslo(): ZonedDateTime = ZonedDateTime.now().toOslo()
 
 fun ZonedDateTime.toOslo(): ZonedDateTime = this.truncatedTo(MILLIS).withZoneSameInstant(of("Europe/Oslo"))
 
-fun ZonedDateTime.toOsloSameLocal(): ZonedDateTime = this.truncatedTo(MILLIS).withZoneSameLocal(of("Europe/Oslo"))
-
 fun LocalDateTime.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))
+
 fun Instant.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))

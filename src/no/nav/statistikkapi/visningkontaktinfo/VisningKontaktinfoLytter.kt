@@ -6,7 +6,7 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.statistikkapi.kandidatutfall.asUUID
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logging.log
 
 class VisningKontaktinfoLytter(
     rapidsConnection: RapidsConnection,

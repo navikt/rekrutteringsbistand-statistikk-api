@@ -1,6 +1,6 @@
 package no.nav.statistikkapi.stillinger
 
-import no.nav.statistikkapi.log
+import no.nav.statistikkapi.logging.log
 import org.postgresql.util.PSQLException
 import java.sql.ResultSet
 import java.sql.SQLIntegrityConstraintViolationException
@@ -54,12 +54,14 @@ class StillingRepository(private val dataSource: DataSource) {
         const val stillingtabell = "stilling"
         const val uuidLabel = "uuid"
         const val stillingskategoriLabel = "stillingskategori"
+
+        fun konverterTilStilling(rs: ResultSet) = Stilling(
+            uuid = rs.getString(uuidLabel),
+            stillingskategori = Stillingskategori.fraNavn(rs.getString(stillingskategoriLabel).also {
+                if (it == null) log.info("Stillingskategori var null i databasen for stillingsID $uuidLabel. Tolker det som at dette er en vanlig stilling og bruker verdien ${Stillingskategori.STILLING} videre istedenfor null")
+            })
+        )
+
     }
 }
 
-fun konverterTilStilling(rs: ResultSet) = Stilling(
-    uuid = rs.getString(StillingRepository.uuidLabel),
-    stillingskategori = Stillingskategori.fraNavn(rs.getString(StillingRepository.stillingskategoriLabel).also {
-        if (it == null) log.info("Stillingskategori var null i databasen for stillingsID ${StillingRepository.uuidLabel}. Tolker det som at dette er en vanlig stilling og bruker verdien ${Stillingskategori.STILLING} videre istedenfor null")
-    })
-)
