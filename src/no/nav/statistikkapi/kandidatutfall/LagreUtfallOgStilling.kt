@@ -53,7 +53,7 @@ data class OpprettKandidatutfall(
         fun erIPrioritertMålgruppe(alder: Int?, innsatsgruppe: String?): Boolean =
             erIPrioritertMålgruppe(alder, innsatsgruppe?.let { Innsatsgruppe.valueOf(innsatsgruppe) })
 
-        fun erIPrioritertMålgruppe(alder: Int?, innsatsgruppe: Innsatsgruppe?): Boolean {
+        fun erIPrioritertMålgruppe(alder: Int?, innsatsgruppe: Innsatsgruppe?): Boolean { // TODO Are: Skrive enhetstester på dette?
             fun alderKvalifisererTilPrioritertMålgruppe(alder: Int?): Boolean =
                 if (alder == null) false else alder < 30
 
