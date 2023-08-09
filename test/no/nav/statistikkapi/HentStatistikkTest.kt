@@ -19,30 +19,9 @@ import no.nav.statistikkapi.kandidatutfall.Utfall.*
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
+import java.time.ZonedDateTime
 
 class HentStatistikkTest {
-
-
-    companion object {
-        private val port = randomPort()
-        private val mockOAuth2Server = MockOAuth2Server()
-        private val client = httpKlientMedBearerToken(mockOAuth2Server)
-        private val basePath = basePath(port)
-        private val database = TestDatabase()
-        private val repository = KandidatutfallRepository(database.dataSource)
-        private val testRepository = TestRepository(database.dataSource)
-
-        init {
-            start(
-                database = database,
-                port = port,
-                mockOAuth2Server = mockOAuth2Server
-            )
-        }
-    }
-
-    fun lagTidspunkt(year: Int, month: Int, day: Int) =
-        LocalDate.of(year, month, day).atStartOfDay().atOslo()
 
     @Test
     fun `Siste registrerte presentering på en kandidat og kandidatliste skal telles`() {
@@ -601,26 +580,6 @@ class HentStatistikkTest {
         assertThat(actual.antallPresentertIPrioritertMålgruppe).isEqualTo(2)
     }
 
-    @Test
-    fun `Definisjon av prioritert målgruppe for antall presentasjoner`(){
-// TODO Are
-    }
-
-    @Test
-    fun `Definisjon av prioritert målgruppe for antall fått jobben`(){
-// TODO Are
-    }
-
-
-    private fun hentStatistikk(
-        fraOgMed: LocalDate,
-        tilOgMed: LocalDate,
-        navKontor: String
-    ): StatistikkOutboundDto = runBlocking {
-        client.get("$basePath/statistikk") {
-            leggTilQueryParametere(this, fraOgMed, tilOgMed, navKontor)
-        }.body()
-    }
 
     @After
     fun cleanUp() {
@@ -628,16 +587,48 @@ class HentStatistikkTest {
         mockOAuth2Server.shutdown()
     }
 
-    private fun leggTilQueryParametere(
-        httpRequestBuilder: HttpRequestBuilder,
-        fraOgMed: LocalDate,
-        tilOgMed: LocalDate,
-        navKontor: String
-    ) {
-        httpRequestBuilder.url.parameters.apply {
-            append(StatistikkParametere.fraOgMed, fraOgMed.toString())
-            append(StatistikkParametere.tilOgMed, tilOgMed.toString())
-            append(StatistikkParametere.navKontor, navKontor)
+    companion object {
+        private val port = randomPort()
+        private val mockOAuth2Server = MockOAuth2Server()
+        private val client = httpKlientMedBearerToken(mockOAuth2Server)
+        private val basePath = basePath(port)
+        private val database = TestDatabase()
+        private val repository = KandidatutfallRepository(database.dataSource)
+        private val testRepository = TestRepository(database.dataSource)
+
+        init {
+            start(
+                database = database,
+                port = port,
+                mockOAuth2Server = mockOAuth2Server
+            )
         }
+
+        private fun leggTilQueryParametere(
+            httpRequestBuilder: HttpRequestBuilder,
+            fraOgMed: LocalDate,
+            tilOgMed: LocalDate,
+            navKontor: String
+        ) {
+            httpRequestBuilder.url.parameters.apply {
+                append(StatistikkParametere.fraOgMed, fraOgMed.toString())
+                append(StatistikkParametere.tilOgMed, tilOgMed.toString())
+                append(StatistikkParametere.navKontor, navKontor)
+            }
+        }
+
+        private fun hentStatistikk(
+            fraOgMed: LocalDate,
+            tilOgMed: LocalDate,
+            navKontor: String
+        ): StatistikkOutboundDto = runBlocking {
+            client.get("$basePath/statistikk") {
+                leggTilQueryParametere(this, fraOgMed, tilOgMed, navKontor)
+            }.body()
+        }
+
+        private fun lagTidspunkt(year: Int, month: Int, day: Int): ZonedDateTime =
+            LocalDate.of(year, month, day).atStartOfDay().atOslo()
     }
+
 }
