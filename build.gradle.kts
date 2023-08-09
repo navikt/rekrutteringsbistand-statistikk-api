@@ -35,6 +35,7 @@ plugins {
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
     id("info.solidsoft.pitest") version "1.9.0"
     idea
+    id("com.adarshr.test-logger") version "3.2.0"
 }
 
 pitest {
