@@ -47,5 +47,24 @@ data class OpprettKandidatutfall(
     val hovedmål: String?,
     val alder: Int?,
     val tidspunktForHendelsen: ZonedDateTime,
-    val prioritertMålgruppe: Boolean = alder?.let{ it < 30 || it > 49 } ?: false
-)
+    val prioritertMålgruppe: Boolean = erIPrioritertMålgruppe(alder, innsatsbehov)
+) {
+    companion object {
+        fun erIPrioritertMålgruppe(alder: Int?, innsatsgruppe: String?): Boolean =
+            erIPrioritertMålgruppe(alder, innsatsgruppe?.let { Innsatsgruppe.valueOf(innsatsgruppe) })
+
+        fun erIPrioritertMålgruppe(alder: Int?, innsatsgruppe: Innsatsgruppe?): Boolean {
+            fun alderKvalifisererTilPrioritertMålgruppe(alder: Int?): Boolean =
+                if (alder == null) false else alder < 30
+
+            fun innsatsgruppeKvalifisererTilPrioritertMålgruppe(innsatsgruppe: Innsatsgruppe?): Boolean {
+                if (innsatsgruppe == null) return false
+                val prioritert = setOf(Innsatsgruppe.BATT, Innsatsgruppe.BFORM, Innsatsgruppe.VARIG)
+                return prioritert.contains(innsatsgruppe)
+            }
+
+            return alderKvalifisererTilPrioritertMålgruppe(alder) ||
+                    innsatsgruppeKvalifisererTilPrioritertMålgruppe(innsatsgruppe)
+        }
+    }
+}
