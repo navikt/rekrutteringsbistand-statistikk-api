@@ -601,6 +601,16 @@ class HentStatistikkTest {
         assertThat(actual.antallPresentertIPrioritertMålgruppe).isEqualTo(2)
     }
 
+    @Test
+    fun `Definisjon av prioritert målgruppe for antall presentasjoner`(){
+// TODO Are
+    }
+
+    @Test
+    fun `Definisjon av prioritert målgruppe for antall fått jobben`(){
+// TODO Are
+    }
+
 
     private fun hentStatistikk(
         fraOgMed: LocalDate,
