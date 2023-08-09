@@ -552,7 +552,7 @@ class HentStatistikkTest {
         repository.lagreUtfall(presentertForStilling1)
         repository.lagreUtfall(presentertForStilling2)
 
-        val actual = hentStatistikk(LocalDate.now(), LocalDate.now(), presentertForStilling1.navKontor)
+        val actual = hentStatistikk(presentertForStilling1.navKontor)
 
         assertThat(actual.antallPresentert).isEqualTo(2)
     }
@@ -574,7 +574,7 @@ class HentStatistikkTest {
         repository.lagreUtfall(presentertForStilling1)
         repository.lagreUtfall(presentertForStilling2)
 
-        val actual = hentStatistikk(LocalDate.now(), LocalDate.now(), presentertForStilling1.navKontor)
+        val actual = hentStatistikk(presentertForStilling1.navKontor)
 
         assertThat(actual.antallPresentert).isEqualTo(2)
         assertThat(actual.antallPresentertIPrioritertMålgruppe).isEqualTo(2)
@@ -618,9 +618,9 @@ class HentStatistikkTest {
         }
 
         private fun hentStatistikk(
-            fraOgMed: LocalDate,
-            tilOgMed: LocalDate,
-            navKontor: String
+            navKontor: String,
+            fraOgMed: LocalDate = today,
+            tilOgMed: LocalDate = today
         ): StatistikkOutboundDto = runBlocking {
             client.get("$basePath/statistikk") {
                 leggTilQueryParametere(this, fraOgMed, tilOgMed, navKontor)

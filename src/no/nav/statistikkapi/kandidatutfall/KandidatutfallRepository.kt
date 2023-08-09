@@ -13,9 +13,9 @@ import java.util.*
 import javax.sql.DataSource
 
 class KandidatutfallRepository(private val dataSource: DataSource) {
+    fun lagreUtfall(vararg kandidatutfall: OpprettKandidatutfall) = kandidatutfall.forEach(this::lagre)
 
-    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
-
+    private fun lagre(kandidatutfall: OpprettKandidatutfall) {
         dataSource.connection.use {
             it.prepareStatement(
                 """INSERT INTO $kandidatutfallTabell (
@@ -398,7 +398,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val dbId = "id"
         const val kandidatutfallTabell = "kandidatutfall"
         const val aktorid = "aktorid"
-        const val fnr = "fnr"
         const val utfall = "utfall"
         const val navident = "navident"
         const val navkontor = "navkontor"

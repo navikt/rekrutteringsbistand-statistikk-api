@@ -397,7 +397,6 @@ class KandidatlisteRepositoryTest {
             kandidatutfallRepository.lagreUtfall(it)
         }
         uniktKandidatutfall(nyKandidatlisteId.toString()).also {
-            it.copy(aktørId = "10108000398")
             kandidatutfallRepository.lagreUtfall(it)
         }
 
@@ -798,7 +797,6 @@ class KandidatlisteRepositoryTest {
     @Test
     fun `Telling for antall kandidatlister tilknyttet direktemeldt stilling der minst én kandidat fikk jobben gjelder ikke for formidlingsstillinger`() {
         val kandidatlisteId = UUID.randomUUID()
-        val annenKandidatlisteId = UUID.randomUUID()
         val hendelse = lagOppdatertKandidatlisteHendelse(
             kandidatlisteId = kandidatlisteId,
             erDirektemeldt = true
@@ -821,7 +819,6 @@ class KandidatlisteRepositoryTest {
             .also { kandidatutfallRepository.lagreUtfall(it) }
         uniktKandidatutfall(kandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
             .also { kandidatutfallRepository.lagreUtfall(it) }
-        uniktKandidatutfallIkkeIPrioritertMålgruppe(annenKandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
 
         val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
 

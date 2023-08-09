@@ -1,48 +1,72 @@
 package no.nav.statistikkapi
 
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.isEqualTo
-import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.apache.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.kandidatutfall.Utfall.*
+import no.nav.statistikkapi.kandidatutfall.Utfall
+import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
+import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Test
 import java.time.LocalDate
 import java.time.ZonedDateTime
+import kotlin.test.assertContains
+import kotlin.test.assertEquals
 
 class HentStatistikkPrioritertMålgruppeTest {
 
 
+//    // Ung, under 30
+//    Gitt utfall
+//    presentert 29
+//    fått jobben 29
+//    når henter statistikk
+//    så skal
+//    ant. pres. i målgr == 1
+//    ant. fått jobb i målgr == 1
+    @Test
+    @Ignore // TODO Are: Un-ignore
+    fun `Er prioritert fordi ung`(){
+        val presentasjon = etUtfall(utfall = PRESENTERT, alder = 29, innsatsbehov = null)
+        val fåttJobben = presentasjon.copy(utfall = FATT_JOBBEN, alder = 29)
+        repository.lagreUtfall(presentasjon, fåttJobben)
+
+        val actual = hentStatistikk(presentasjon.navKontor)
+
+        assertThat(actual.antallPresentertIPrioritertMålgruppe).isEqualTo(1)
+        assertThat(actual.antallFåttJobbenIPrioritertMålgruppe).isEqualTo(1)
+    }
+
+//    // Ikke ung, 30+
+//    Gitt utfall
+//    presentert 30
+//    fått jobben 30
+//    når henter statistikk
+//    så skal
+//    ant. pres. i målgr == 0
+//    ant. fått jobb i målgr == 0
+@Test
+fun `Er ikke prioritert fordi ikke ung nok`(){
+    val presentasjon = etUtfall(utfall = PRESENTERT, alder = 30, innsatsbehov = null)
+    val fåttJobben = presentasjon.copy(utfall = FATT_JOBBEN, alder = 30)
+    repository.lagreUtfall(presentasjon, fåttJobben)
+
+    val actual = hentStatistikk(presentasjon.navKontor)
+
+    assertThat(actual.antallPresentert).isEqualTo(1)
+    assertThat(actual.antallFåttJobben).isEqualTo(1)
+    assertThat(actual.antallPresentertIPrioritertMålgruppe).isEqualTo(0)
+    assertThat(actual.antallFåttJobbenIPrioritertMålgruppe).isEqualTo(0)
+}
+
     /*  Tester både presentasjoner og fått jobben i samme testfunksjon, fordi setup, handlig og resultat skal være likt
-
- // Ung, under 30
- Gitt utfall
-     presentert 29
-     fått jobben 29
- når henter statistikk
- så skal
-  ant. pres. i målgr == 1
-  ant. fått jobb i målgr == 1
-
- // Ikk eung, 30+
- Gitt utfall
-     presentert 30
-     fått jobben 30
- når henter statistikk
- så skal
-  ant. pres. i målgr == 0
-  ant. fått jobb i målgr == 0
 
 
  // Senior, 50+
@@ -147,9 +171,9 @@ class HentStatistikkPrioritertMålgruppeTest {
         }
 
         private fun hentStatistikk(
-            fraOgMed: LocalDate,
-            tilOgMed: LocalDate,
-            navKontor: String
+            navKontor: String,
+            fraOgMed: LocalDate = today,
+            tilOgMed: LocalDate = today
         ): StatistikkOutboundDto = runBlocking {
             client.get("$basePath/statistikk") {
                 leggTilQueryParametere(this, fraOgMed, tilOgMed, navKontor)
