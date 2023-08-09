@@ -32,7 +32,6 @@ class HentStatistikkPrioritertMålgruppeTest {
 //    ant. pres. i målgr == 1
 //    ant. fått jobb i målgr == 1
     @Test
-    @Ignore // TODO Are: Un-ignore
     fun `Er prioritert fordi ung`(){
         val presentasjon = etUtfall(utfall = PRESENTERT, alder = 29, innsatsbehov = null)
         val fåttJobben = presentasjon.copy(utfall = FATT_JOBBEN, alder = 29)

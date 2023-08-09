@@ -3,6 +3,7 @@ package no.nav.statistikkapi
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isTrue
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.apache.*
@@ -238,7 +239,7 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Statistikk skal også returnere presentert-statistikk for personer i prioritert målgruppe`() {
+    fun `Statistikk skal også returnere presentert-statistikk for personer i prioritert målgruppe`() { // TODO Are: Se om testen må skrives om eller bli flere tester nå som definisjon av prioritert målgruppe er endret til å inkludere alder
         val tidspunkt = lagTidspunkt(2023, 8, 1)
         val presentertPrioritert1 = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
             aktørId = "123", utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt
@@ -265,7 +266,7 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Statistikk skal også returnere fått jobben-statistikk for personer i prioritert målgruppe`() {
+    fun `Statistikk skal også returnere fått jobben-statistikk for personer i prioritert målgruppe`() { // TODO Are: Se om testen må skrives om eller bli flere tester nå som definisjon av prioritert målgruppe er endret til å inkludere alder
         val tidspunkt = lagTidspunkt(2023, 8, 8)
         val fåttJobbenPrioritert1 = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
             aktørId = "123", utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt
@@ -566,10 +567,8 @@ class HentStatistikkTest {
         )
         assertThat(presentertForStilling2.aktørId).isEqualTo(presentertForStilling1.aktørId)
         assertThat(presentertForStilling2.tidspunktForHendelsen).isEqualTo(presentertForStilling1.tidspunktForHendelsen)
-        val prioritertMålgruppe: List<String> =
-            KandidatutfallRepository.Companion.prioritertMålgruppe.map(Innsatsgruppe::name)
-        assertThat(prioritertMålgruppe).contains(presentertForStilling1.innsatsbehov)
-        assertThat(prioritertMålgruppe).contains(presentertForStilling2.innsatsbehov)
+        assertThat(presentertForStilling1.prioritertMålgruppe).isTrue()
+        assertThat(presentertForStilling2.prioritertMålgruppe).isTrue()
 
         repository.lagreUtfall(presentertForStilling1)
         repository.lagreUtfall(presentertForStilling2)

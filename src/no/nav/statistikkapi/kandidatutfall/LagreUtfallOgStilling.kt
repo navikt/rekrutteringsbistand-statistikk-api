@@ -47,4 +47,5 @@ data class OpprettKandidatutfall(
     val hovedmål: String?,
     val alder: Int?,
     val tidspunktForHendelsen: ZonedDateTime,
+    val prioritertMålgruppe: Boolean = alder?.let{ it < 30 || it > 49 } ?: false
 )

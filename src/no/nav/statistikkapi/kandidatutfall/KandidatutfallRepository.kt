@@ -30,8 +30,9 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                                $hullICv,
                                $alder,
                                $innsatsbehov,
-                               $hovedmål
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                               $hovedmål,
+                               $prioritertMålgruppe
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, kandidatutfall.aktørId)
                 setString(2, kandidatutfall.utfall.name)
@@ -45,6 +46,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
                 setString(11, kandidatutfall.innsatsbehov)
                 setString(12, kandidatutfall.hovedmål)
+                setBoolean(13, kandidatutfall.prioritertMålgruppe)
                 executeUpdate()
             }
         }
@@ -168,8 +170,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
     fun hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk: HentStatistikk): Int {
-        val prioritertMålgruppeISql = prioritertMålgruppe.map(Innsatsgruppe::name).joinToString("', '", "'", "'")
-
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -182,7 +182,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                      WHERE k1.$navkontor = ? 
                       AND k1.$tidspunkt = k2.maksTidspunkt
                       AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                      AND k1.$innsatsbehov IN ($prioritertMålgruppeISql)
+                      AND k1.$prioritertMålgruppe IS TRUE
                 ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
             ).apply {
@@ -276,7 +276,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 WHERE k1.$navkontor = ?
                   AND k1.$tidspunkt = k2.maksTidspunkt
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
-                  AND k1.$innsatsbehov IN ('${Innsatsgruppe.BATT.name}', '${Innsatsgruppe.BFORM.name}', '${Innsatsgruppe.VARIG.name}')
+                  AND k1.$prioritertMålgruppe IS TRUE
             """.trimIndent()
             ).apply {
                 setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
@@ -412,6 +412,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
         const val alder = "alder"
+        const val prioritertMålgruppe = "prioritert_maalgruppe"
 
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
             Kandidatutfall(
@@ -434,8 +435,5 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
                 alder = if (resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
             )
-
-        val prioritertMålgruppe: Set<Innsatsgruppe> =
-            setOf(Innsatsgruppe.BATT, Innsatsgruppe.BFORM, Innsatsgruppe.VARIG)
     }
 }
