@@ -313,6 +313,30 @@ class HentStatistikkTest {
     }
 
     @Test
+    fun `Bare siste hendelse per kandidat-i-kandidatliste skal gjelde, uavhengig om flere registreringer har samme timestamp`() {
+        val tidspunkt1 = lagTidspunkt(2020,1,2)
+        val tidspunkt2 = lagTidspunkt(2020,1,3)
+        val kandidatutfalla = etKandidatutfall.copy(aktørId = "123", utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt1)
+        val kandidatutfallb1 = etKandidatutfall.copy(utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt1)
+        val kandidatutfallb2 = etKandidatutfall.copy(utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt2)
+        assertThat(kandidatutfallb1.stillingsId).isEqualTo(kandidatutfallb2.stillingsId)
+        assertThat(kandidatutfallb1.aktørId).isEqualTo(kandidatutfallb2.aktørId)
+
+        repository.lagreUtfall(kandidatutfalla)
+        repository.lagreUtfall(kandidatutfallb1)
+        repository.lagreUtfall(kandidatutfallb2)
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2020, 1, 1),
+            tilOgMed = LocalDate.of(2020, 1, 4),
+            navKontor = etKandidatutfall.navKontor
+        )
+
+        assertThat(actual.antallPresentert).isEqualTo(2)
+        assertThat(actual.antallFåttJobben).isEqualTo(1)
+    }
+
+    @Test
     fun `Statistikk skal returnere unauthorized hvis man ikke er logget inn`() = runBlocking {
         val uinnloggaClient = HttpClient(Apache) {
             expectSuccess = false

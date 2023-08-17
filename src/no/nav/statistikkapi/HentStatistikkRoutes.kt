@@ -6,6 +6,8 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.logging.log
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -54,8 +56,15 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                     tilOgMed = LocalDate.parse(tilOgMedParameter),
                     navKontor = navKontorParameter
                 )
-
-                val antallPresentasjoner = kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikk)
+                val tidstamp = LocalDateTime.now()
+                val antallPresentasjoner = try{
+                    kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikk)
+                } catch (e:Exception) {
+                    log.error("kallet kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikk) feiler")
+                    throw e
+                } finally {
+                    log.info("hentAntallPresentasjoner sin tidsbruk er: ${Duration.between(tidstamp, LocalDateTime.now())}")
+                }
                 val antallPresentasjonerIPrioritertMålgruppe =
                     kandidatutfallRepository.hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk)
 
