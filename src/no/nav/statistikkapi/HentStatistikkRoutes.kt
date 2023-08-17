@@ -6,6 +6,8 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.logging.log
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -37,6 +39,17 @@ data class StatistikkOutboundDto(
 )
 
 fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
+    fun <T> tidslogg(navn: String, funksjon: () -> T): T {
+        val tidstamp = LocalDateTime.now()
+        return try {
+            funksjon()
+        } catch (e: Exception) {
+            log.error("kallet $navn feiler")
+            throw e
+        } finally {
+            log.info("$navn sin tidsbruk er: ${Duration.between(tidstamp, LocalDateTime.now())}")
+        }
+    }
 
     authenticate {
         get("/statistikk") {
@@ -54,14 +67,20 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                     tilOgMed = LocalDate.parse(tilOgMedParameter),
                     navKontor = navKontorParameter
                 )
+                val antallPresentasjoner = tidslogg("hentAntallPresentasjoner") {
+                    kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikk)
+                }
 
-                val antallPresentasjoner = kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikk)
-                val antallPresentasjonerIPrioritertMålgruppe =
+                val antallPresentasjonerIPrioritertMålgruppe = tidslogg("hentAntallPresentasjonerIPrioritertMålgruppe") {
                     kandidatutfallRepository.hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk)
+                }
 
-                val fåttJobben = kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk)
-                val fåttJobbenIPrioritertMålgruppe =
+                val fåttJobben = tidslogg("hentAktoriderForFåttJobben") {
+                    kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk)
+                }
+                val fåttJobbenIPrioritertMålgruppe = tidslogg("hentAktoriderForFåttJobbenIPrioritertMålgruppe") {
                     kandidatutfallRepository.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk)
+                }
 
                 call.respond(
                     StatistikkOutboundDto(
