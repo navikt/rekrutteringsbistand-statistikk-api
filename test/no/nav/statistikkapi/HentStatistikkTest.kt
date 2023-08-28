@@ -27,6 +27,7 @@ class HentStatistikkTest {
         private val port = randomPort()
         private val mockOAuth2Server = MockOAuth2Server()
         private val client = httpKlientMedBearerToken(mockOAuth2Server)
+
         private val basePath = basePath(port)
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
@@ -50,13 +51,13 @@ class HentStatistikkTest {
             etKandidatutfall.copy(utfall = PRESENTERT, tidspunktForHendelsen = lagTidspunkt(2020, 10, 15))
         )
 
-        val actual = hentStatistikk(
+        val actual: StatistikkOutboundDto = hentStatistikk(
             fraOgMed = LocalDate.of(2020, 10, 1),
             tilOgMed = LocalDate.of(2020, 10, 31),
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
     }
 
 
@@ -80,8 +81,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallFåttJobben).isEqualTo(2)
-        assertThat(actual.antallPresentert).isEqualTo(2)
+        assertThat(actual.antallFåttJobben.totalt).isEqualTo(2)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
     }
 
 
@@ -97,8 +98,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(0)
-        assertThat(actual.antallFåttJobben).isEqualTo(0)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(0)
+        assertThat(actual.antallFåttJobben.totalt).isEqualTo(0)
     }
 
     @Test
@@ -113,7 +114,7 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test
@@ -127,8 +128,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(0)
-        assertThat(actual.antallFåttJobben).isEqualTo(0)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(0)
+        assertThat(actual.antallFåttJobben.totalt).isEqualTo(0)
     }
 
     @Test
@@ -149,7 +150,7 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(2)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
     }
 
     @Test
@@ -167,7 +168,7 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(2)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
     }
 
     @Test
@@ -190,8 +191,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
-        assertThat(actual.antallFåttJobben).isEqualTo(1)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antallFåttJobben.totalt).isEqualTo(1)
     }
 
     @Test
@@ -213,8 +214,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
-        assertThat(actual.antallFåttJobben).isEqualTo(1)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antallFåttJobben.totalt).isEqualTo(1)
     }
 
     @Test
@@ -232,8 +233,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
-        assertThat(actual.antallFåttJobben).isEqualTo(0)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antallFåttJobben.totalt).isEqualTo(0)
     }
 
     @Test
@@ -254,8 +255,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
-        assertThat(actual.antallFåttJobben).isEqualTo(0)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antallFåttJobben.totalt).isEqualTo(0)
     }
 
     @Test
@@ -278,8 +279,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(2)
-        assertThat(actual.antallFåttJobben).isEqualTo(1)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
+        assertThat(actual.antallFåttJobben.totalt).isEqualTo(1)
     }
 
     @Test
@@ -305,8 +306,8 @@ class HentStatistikkTest {
             navKontor = presentertPrioritert1.navKontor
         )
 
-        assertThat(statistikk.antallPresentert).isEqualTo(3)
-        assertThat(statistikk.antallPresentertIPrioritertMålgruppe).isEqualTo(2)
+        assertThat(statistikk.antallPresentasjoner.totalt).isEqualTo(3)
+        assertThat(statistikk.antallPresentasjoner.prioritertMålgruppe).isEqualTo(2)
     }
 
     @Test
@@ -332,8 +333,8 @@ class HentStatistikkTest {
             navKontor = fåttJobbenPrioritert1.navKontor
         )
 
-        assertThat(statistikk.antallFåttJobben).isEqualTo(3)
-        assertThat(statistikk.antallFåttJobbenIPrioritertMålgruppe).isEqualTo(2)
+        assertThat(statistikk.antallFåttJobben.totalt).isEqualTo(3)
+        assertThat(statistikk.antallFåttJobben.prioritertMålgruppe).isEqualTo(2)
     }
 
     @Test
@@ -367,7 +368,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(0)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(0)
     }
 
     @Test
@@ -391,7 +392,7 @@ class HentStatistikkTest {
             navKontor = etKontor2
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test
@@ -415,7 +416,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(0)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(0)
     }
 
     @Test
@@ -439,7 +440,7 @@ class HentStatistikkTest {
             navKontor = etKontor2
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test
@@ -463,7 +464,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(0)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(0)
     }
 
     @Test
@@ -478,7 +479,7 @@ class HentStatistikkTest {
             tilOgMed = LocalDate.of(2020, 10, 31),
             navKontor = etKontor2
         ).run {
-            assertThat(antallPresentert).isEqualTo(0)
+            assertThat(antallPresentasjoner.totalt).isEqualTo(0)
         }
 
         repository.lagreUtfall(
@@ -495,7 +496,7 @@ class HentStatistikkTest {
             navKontor = etKontor2
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
 
     }
 
@@ -520,7 +521,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallFåttJobben).isEqualTo(0)
+        assertThat(actual.antallFåttJobben.totalt).isEqualTo(0)
     }
 
     @Test
@@ -544,7 +545,7 @@ class HentStatistikkTest {
             navKontor = etKontor2
         )
 
-        assertThat(actual.antallFåttJobben).isEqualTo(1)
+        assertThat(actual.antallFåttJobben.totalt).isEqualTo(1)
     }
 
     @Test
@@ -563,7 +564,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test
@@ -582,7 +583,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallPresentert).isEqualTo(1)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test
@@ -599,7 +600,7 @@ class HentStatistikkTest {
 
         val actual = hentStatistikk(LocalDate.now(), LocalDate.now(), presentertForStilling1.navKontor)
 
-        assertThat(actual.antallPresentert).isEqualTo(2)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
     }
 
     @Test
@@ -621,8 +622,8 @@ class HentStatistikkTest {
 
         val actual = hentStatistikk(LocalDate.now(), LocalDate.now(), presentertForStilling1.navKontor)
 
-        assertThat(actual.antallPresentert).isEqualTo(2)
-        assertThat(actual.antallPresentertIPrioritertMålgruppe).isEqualTo(2)
+        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
+        assertThat(actual.antallPresentasjoner.prioritertMålgruppe).isEqualTo(2)
     }
 
 

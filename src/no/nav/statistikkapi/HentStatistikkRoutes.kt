@@ -29,12 +29,19 @@ class StatistikkParametere {
     }
 }
 
-data class StatistikkOutboundDto(
-    val antallPresentert: Int,
-    val antallPresentertIPrioritertMålgruppe: Int,
-    val antallFåttJobben: Int,
-    val antallFåttJobbenIPrioritertMålgruppe: Int,
+data class Antall(
+    val totalt: Int,
+    val under30år: Int,
+    val innsatsgruppeIkkeStandard: Int,
+    val prioritertMålgruppe: Int // TODO Are slett
 )
+
+
+data class StatistikkOutboundDto(
+    val antallPresentasjoner: Antall,
+    val antallFåttJobben: Antall,
+)
+
 
 fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
     authenticate {
@@ -55,22 +62,30 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                 )
                 val antallPresentasjoner =
                     kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikk)
-
                 val antallPresentasjonerIPrioritertMålgruppe =
                     kandidatutfallRepository.hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk)
+                val antPresentasjoner = Antall(
+                    totalt = antallPresentasjoner,
+                    under30år = -1,
+                    innsatsgruppeIkkeStandard = -1,
+                    prioritertMålgruppe = antallPresentasjonerIPrioritertMålgruppe
+                )
 
                 val fåttJobben =
-                    kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk)
-
+                    kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk).size
                 val fåttJobbenIPrioritertMålgruppe =
-                    kandidatutfallRepository.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk)
+                    kandidatutfallRepository.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk).size
+                val antFåttJobben = Antall(
+                    totalt = fåttJobben,
+                    under30år = -1,
+                    innsatsgruppeIkkeStandard = -1,
+                    prioritertMålgruppe = fåttJobbenIPrioritertMålgruppe
+                )
 
                 call.respond(
                     StatistikkOutboundDto(
-                        antallPresentasjoner,
-                        antallPresentasjonerIPrioritertMålgruppe,
-                        fåttJobben.size,
-                        fåttJobbenIPrioritertMålgruppe.size
+                        antallPresentasjoner = antPresentasjoner,
+                        antallFåttJobben = antFåttJobben
                     )
                 )
             }
