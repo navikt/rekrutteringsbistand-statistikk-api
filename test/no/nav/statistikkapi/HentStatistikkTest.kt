@@ -3,6 +3,7 @@ package no.nav.statistikkapi
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import assertk.assertions.isLessThan
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.apache.*
@@ -14,11 +15,15 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe
+import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.*
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.kandidatutfall.OpprettKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
+import kotlin.IllegalArgumentException
+import kotlin.test.assertFalse
 
 class HentStatistikkTest {
 
@@ -40,6 +45,16 @@ class HentStatistikkTest {
                 mockOAuth2Server = mockOAuth2Server
             )
         }
+
+        private fun innsatsgruppeErStandard(opprettKandidatutfall: OpprettKandidatutfall): Boolean =
+            when (opprettKandidatutfall.innsatsbehov) {
+                null -> true
+                in setOf(VARIG.name, BFORM.name, BATT.name) -> false
+                in setOf(IKVAL.name) -> true
+                else -> throw IllegalArgumentException(opprettKandidatutfall.innsatsbehov)
+            }
+
+
     }
 
     fun lagTidspunkt(year: Int, month: Int, day: Int) =
@@ -57,7 +72,7 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
     }
 
 
@@ -81,8 +96,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallFåttJobben.totalt).isEqualTo(2)
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(2)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
     }
 
 
@@ -98,8 +113,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(0)
-        assertThat(actual.antallFåttJobben.totalt).isEqualTo(0)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(0)
     }
 
     @Test
@@ -114,7 +129,7 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test
@@ -128,8 +143,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(0)
-        assertThat(actual.antallFåttJobben.totalt).isEqualTo(0)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(0)
     }
 
     @Test
@@ -150,7 +165,7 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
     }
 
     @Test
@@ -168,7 +183,7 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
     }
 
     @Test
@@ -191,8 +206,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
-        assertThat(actual.antallFåttJobben.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(1)
     }
 
     @Test
@@ -214,8 +229,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
-        assertThat(actual.antallFåttJobben.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(1)
     }
 
     @Test
@@ -233,8 +248,8 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
-        assertThat(actual.antallFåttJobben.totalt).isEqualTo(0)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(0)
     }
 
     @Test
@@ -255,15 +270,16 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
-        assertThat(actual.antallFåttJobben.totalt).isEqualTo(0)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(0)
     }
 
     @Test
     fun `Bare siste hendelse per kandidat-i-kandidatliste skal gjelde, uavhengig om flere registreringer har samme timestamp`() {
-        val tidspunkt1 = lagTidspunkt(2020,1,2)
-        val tidspunkt2 = lagTidspunkt(2020,1,3)
-        val kandidatutfalla = etKandidatutfall.copy(aktørId = "123", utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt1)
+        val tidspunkt1 = lagTidspunkt(2020, 1, 2)
+        val tidspunkt2 = lagTidspunkt(2020, 1, 3)
+        val kandidatutfalla =
+            etKandidatutfall.copy(aktørId = "123", utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt1)
         val kandidatutfallb1 = etKandidatutfall.copy(utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt1)
         val kandidatutfallb2 = etKandidatutfall.copy(utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt2)
         assertThat(kandidatutfallb1.stillingsId).isEqualTo(kandidatutfallb2.stillingsId)
@@ -279,35 +295,37 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
-        assertThat(actual.antallFåttJobben.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(1)
     }
 
     @Test
     fun `Statistikk skal også returnere presentert-statistikk for personer i prioritert målgruppe`() {
         val tidspunkt = lagTidspunkt(2023, 8, 1)
-        val presentertPrioritert1 = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
+        val presentertInnsatsgruppeIkkeStandard = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
             aktørId = "123", utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt
         )
-        val presentertPrioritert2 = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
+        assertFalse(innsatsgruppeErStandard(presentertInnsatsgruppeIkkeStandard))
+        val presentertUnder30År = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
             aktørId = "456", utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt
         )
+        assertThat(presentertUnder30År.alder!!).isLessThan(30)
         val presentertIkkePrioritert = etKandidatutfallIkkeIPrioritertMålgruppe.copy(
             aktørId = "789", utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt
         )
 
-        repository.lagreUtfall(presentertPrioritert1)
-        repository.lagreUtfall(presentertPrioritert2)
+        repository.lagreUtfall(presentertInnsatsgruppeIkkeStandard)
+        repository.lagreUtfall(presentertUnder30År)
         repository.lagreUtfall(presentertIkkePrioritert)
 
         val statistikk = hentStatistikk(
             fraOgMed = tidspunkt.minusDays(1).toLocalDate(),
             tilOgMed = tidspunkt.plusDays(1).toLocalDate(),
-            navKontor = presentertPrioritert1.navKontor
+            navKontor = presentertInnsatsgruppeIkkeStandard.navKontor
         )
 
-        assertThat(statistikk.antallPresentasjoner.totalt).isEqualTo(3)
-        assertThat(statistikk.antallPresentasjoner.prioritertMålgruppe).isEqualTo(2)
+        assertThat(statistikk.antPresentasjoner.totalt).isEqualTo(3)
+        assertThat(statistikk.antPresentasjoner.prioritertMålgruppe).isEqualTo(2)
     }
 
     @Test
@@ -333,8 +351,8 @@ class HentStatistikkTest {
             navKontor = fåttJobbenPrioritert1.navKontor
         )
 
-        assertThat(statistikk.antallFåttJobben.totalt).isEqualTo(3)
-        assertThat(statistikk.antallFåttJobben.prioritertMålgruppe).isEqualTo(2)
+        assertThat(statistikk.antFåttJobben.totalt).isEqualTo(3)
+        assertThat(statistikk.antFåttJobben.prioritertMålgruppe).isEqualTo(2)
     }
 
     @Test
@@ -368,7 +386,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(0)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
     }
 
     @Test
@@ -392,7 +410,7 @@ class HentStatistikkTest {
             navKontor = etKontor2
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test
@@ -416,7 +434,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(0)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
     }
 
     @Test
@@ -440,7 +458,7 @@ class HentStatistikkTest {
             navKontor = etKontor2
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test
@@ -464,7 +482,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(0)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
     }
 
     @Test
@@ -479,7 +497,7 @@ class HentStatistikkTest {
             tilOgMed = LocalDate.of(2020, 10, 31),
             navKontor = etKontor2
         ).run {
-            assertThat(antallPresentasjoner.totalt).isEqualTo(0)
+            assertThat(antPresentasjoner.totalt).isEqualTo(0)
         }
 
         repository.lagreUtfall(
@@ -496,7 +514,7 @@ class HentStatistikkTest {
             navKontor = etKontor2
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
 
     }
 
@@ -521,7 +539,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallFåttJobben.totalt).isEqualTo(0)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(0)
     }
 
     @Test
@@ -545,7 +563,7 @@ class HentStatistikkTest {
             navKontor = etKontor2
         )
 
-        assertThat(actual.antallFåttJobben.totalt).isEqualTo(1)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(1)
     }
 
     @Test
@@ -564,7 +582,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test
@@ -583,7 +601,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test
@@ -600,7 +618,7 @@ class HentStatistikkTest {
 
         val actual = hentStatistikk(LocalDate.now(), LocalDate.now(), presentertForStilling1.navKontor)
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
     }
 
     @Test
@@ -622,8 +640,8 @@ class HentStatistikkTest {
 
         val actual = hentStatistikk(LocalDate.now(), LocalDate.now(), presentertForStilling1.navKontor)
 
-        assertThat(actual.antallPresentasjoner.totalt).isEqualTo(2)
-        assertThat(actual.antallPresentasjoner.prioritertMålgruppe).isEqualTo(2)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
+        assertThat(actual.antPresentasjoner.prioritertMålgruppe).isEqualTo(2)
     }
 
 

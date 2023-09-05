@@ -33,14 +33,17 @@ data class Antall(
     val totalt: Int,
     val under30år: Int,
     val innsatsgruppeIkkeStandard: Int,
-    val prioritertMålgruppe: Int // TODO Are slett
 )
 
 
 data class StatistikkOutboundDto(
-    val antallPresentasjoner: Antall,
-    val antallFåttJobben: Antall,
-)
+    val antPresentasjoner: Antall,
+    val antFåttJobben: Antall,
+    val antallPresentert: Int, // TODO Are: Slett når frontend er oppdatert
+    val antallPresentertIPrioritertMålgruppe: Int, // TODO Are: Slett når frontend er oppdatert
+    val antallFåttJobben: Int, // TODO Are: Slett når frontend er oppdatert
+    val antallFåttJobbenIPrioritertMålgruppe: Int, // TODO Are: Slett når frontend er oppdatert
+    )
 
 
 fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
@@ -68,7 +71,6 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                     totalt = antallPresentasjoner,
                     under30år = -1,
                     innsatsgruppeIkkeStandard = -1,
-                    prioritertMålgruppe = antallPresentasjonerIPrioritertMålgruppe
                 )
 
                 val fåttJobben =
@@ -79,13 +81,18 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                     totalt = fåttJobben,
                     under30år = -1,
                     innsatsgruppeIkkeStandard = -1,
-                    prioritertMålgruppe = fåttJobbenIPrioritertMålgruppe
                 )
 
                 call.respond(
                     StatistikkOutboundDto(
-                        antallPresentasjoner = antPresentasjoner,
-                        antallFåttJobben = antFåttJobben
+                        antPresentasjoner = antPresentasjoner,
+                        antFåttJobben = antFåttJobben,
+
+                        // TODO Are: Slett når frontend er oppdatert
+                        antallPresentert = antPresentasjoner.totalt,
+                        antallPresentertIPrioritertMålgruppe = antPresentasjoner.under30år + antPresentasjoner.innsatsgruppeIkkeStandard,
+                        antallFåttJobben = antFåttJobben.totalt,
+                        antallFåttJobbenIPrioritertMålgruppe = antFåttJobben.under30år + antFåttJobben.innsatsgruppeIkkeStandard
                     )
                 )
             }
