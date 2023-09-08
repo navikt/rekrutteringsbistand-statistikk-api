@@ -22,12 +22,13 @@ val etKandidatutfall = OpprettKandidatutfall(
     stillingsId = enStillingsId.toString(),
     synligKandidat = true,
     harHullICv = true,
-    alder = 54,
+    alder = 35,
     tidspunktForHendelsen = nowOslo(),
-    innsatsbehov = "BFORM",
+    innsatsbehov = "IKVAL",
     hovedmål = "SKAFFERA"
 )
 
+// TODO Are: Slett fordi skal fjerne bruk av begrepet prioritert målgruppe
 val etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv = OpprettKandidatutfall(
     aktørId = "80000254879658",
     utfall = Utfall.PRESENTERT,
@@ -42,6 +43,8 @@ val etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv = OpprettKandidatutfal
     innsatsbehov = "BFORM",
     hovedmål = "SKAFFERA"
 )
+
+// TODO Are: Slett fordi skal fjerne bruk av begrepet prioritert målgruppe
 
 val etKandidatutfallIkkeIPrioritertMålgruppe = OpprettKandidatutfall(
     aktørId = "10000254879658",

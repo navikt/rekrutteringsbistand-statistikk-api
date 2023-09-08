@@ -14,7 +14,11 @@ import javax.sql.DataSource
 
 class KandidatutfallRepository(private val dataSource: DataSource) {
 
-    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
+    fun lagreUtfall(vararg kandidatutfall: OpprettKandidatutfall) {
+        kandidatutfall.forEach(this::lagreUtfall)
+    }
+
+    private fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
 
         dataSource.connection.use {
             it.prepareStatement(

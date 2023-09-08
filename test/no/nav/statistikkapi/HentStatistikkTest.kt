@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isLessThan
+import assertk.assertions.isZero
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.apache.*
@@ -54,7 +55,11 @@ class HentStatistikkTest {
                 else -> throw IllegalArgumentException(opprettKandidatutfall.innsatsbehov)
             }
 
-
+        private fun assertIsZero(ant: Antall) {
+            assertThat(ant.totalt).isZero()
+            assertThat(ant.innsatsgruppeIkkeStandard).isZero()
+            assertThat(ant.under30år).isZero()
+        }
     }
 
     fun lagTidspunkt(year: Int, month: Int, day: Int) =
@@ -301,31 +306,25 @@ class HentStatistikkTest {
 
     @Test
     fun `Statistikk skal også returnere presentert-statistikk for personer i prioritert målgruppe`() {
-        val tidspunkt = lagTidspunkt(2023, 8, 1)
-        val presentertInnsatsgruppeIkkeStandard = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
-            aktørId = "123", utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt
-        )
+        val tidspunkt = lagTidspunkt(2023, 8, 1) // TODO Are: Hvorfor virker dette tidspunltet? utfall-instansen bruker now, som ikke er det samme i det hele tatt
+        val presentertInnsatsgruppeIkkeStandard = etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = BFORM.name)
         assertFalse(innsatsgruppeErStandard(presentertInnsatsgruppeIkkeStandard))
-        val presentertUnder30År = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
-            aktørId = "456", utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt
-        )
+        val presentertUnder30År = etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = null, alder = 29)
         assertThat(presentertUnder30År.alder!!).isLessThan(30)
-        val presentertIkkePrioritert = etKandidatutfallIkkeIPrioritertMålgruppe.copy(
-            aktørId = "789", utfall = PRESENTERT, tidspunktForHendelsen = tidspunkt
-        )
+        val presentertIkkePrioritert = etKandidatutfall
 
-        repository.lagreUtfall(presentertInnsatsgruppeIkkeStandard)
-        repository.lagreUtfall(presentertUnder30År)
-        repository.lagreUtfall(presentertIkkePrioritert)
+        repository.lagreUtfall(presentertInnsatsgruppeIkkeStandard, presentertUnder30År, presentertIkkePrioritert)
 
-        val statistikk = hentStatistikk(
+        val actual = hentStatistikk(
             fraOgMed = tidspunkt.minusDays(1).toLocalDate(),
             tilOgMed = tidspunkt.plusDays(1).toLocalDate(),
             navKontor = presentertInnsatsgruppeIkkeStandard.navKontor
         )
 
-        assertThat(statistikk.antPresentasjoner.totalt).isEqualTo(3)
-        assertThat(statistikk.antPresentasjoner.prioritertMålgruppe).isEqualTo(2)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(3)
+        assertThat(actual.antPresentasjoner.innsatsgruppeIkkeStandard).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.under30år).isEqualTo(1)
+        assertIsZero(actual.antFåttJobben)
     }
 
     @Test
@@ -641,7 +640,7 @@ class HentStatistikkTest {
         val actual = hentStatistikk(LocalDate.now(), LocalDate.now(), presentertForStilling1.navKontor)
 
         assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
-        assertThat(actual.antPresentasjoner.prioritertMålgruppe).isEqualTo(2)
+        //assertThat(actual.antPresentasjoner.prioritertMålgruppe).isEqualTo(2) // todo
     }
 
 

@@ -41,8 +41,8 @@ enum class Utfall {
 }
 
 enum class Innsatsgruppe {
-    BATT,
-    BFORM,
-    VARIG,
-    IKVAL
+    BATT, // spesielt tilpasset innsats
+    BFORM, // situasjonsbestemt innsats
+    VARIG, // varig tilpasset eller gradert varig tilpasset innsats
+    IKVAL // standard innsats
 }
