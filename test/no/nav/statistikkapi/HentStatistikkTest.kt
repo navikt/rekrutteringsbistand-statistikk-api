@@ -3,7 +3,6 @@ package no.nav.statistikkapi
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
-import assertk.assertions.isLessThan
 import assertk.assertions.isZero
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -23,6 +22,7 @@ import no.nav.statistikkapi.kandidatutfall.Utfall.*
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import kotlin.IllegalArgumentException
 import kotlin.test.assertFalse
 
@@ -62,7 +62,7 @@ class HentStatistikkTest {
         }
     }
 
-    fun lagTidspunkt(year: Int, month: Int, day: Int) =
+    fun lagTidspunkt(year: Int, month: Int, day: Int): ZonedDateTime =
         LocalDate.of(year, month, day).atStartOfDay().atOslo()
 
     @Test
@@ -306,52 +306,44 @@ class HentStatistikkTest {
 
     @Test
     fun `Statistikk skal også returnere presentert-statistikk for personer i prioritert målgruppe`() {
-        val tidspunkt = lagTidspunkt(2023, 8, 1) // TODO Are: Hvorfor virker dette tidspunltet? utfall-instansen bruker now, som ikke er det samme i det hele tatt
-        val presentertInnsatsgruppeIkkeStandard = etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = BFORM.name)
-        assertFalse(innsatsgruppeErStandard(presentertInnsatsgruppeIkkeStandard))
-        val presentertUnder30År = etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = null, alder = 29)
-        assertThat(presentertUnder30År.alder!!).isLessThan(30)
-        val presentertIkkePrioritert = etKandidatutfall
+        val innsatsgruppeIkkeStandard = etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = BFORM.name)
+        assertFalse(innsatsgruppeErStandard(innsatsgruppeIkkeStandard))
+        val under30År = etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = null, alder = 29)
+        val ikkePrioritert = etKandidatutfall.copy(utfall = PRESENTERT)
 
-        repository.lagreUtfall(presentertInnsatsgruppeIkkeStandard, presentertUnder30År, presentertIkkePrioritert)
+        repository.lagreUtfall(innsatsgruppeIkkeStandard, under30År, ikkePrioritert)
 
         val actual = hentStatistikk(
-            fraOgMed = tidspunkt.minusDays(1).toLocalDate(),
-            tilOgMed = tidspunkt.plusDays(1).toLocalDate(),
-            navKontor = presentertInnsatsgruppeIkkeStandard.navKontor
+            fraOgMed = ikkePrioritert.tidspunktForHendelsen.toLocalDate(),
+            tilOgMed = ikkePrioritert.tidspunktForHendelsen.toLocalDate(),
+            navKontor = innsatsgruppeIkkeStandard.navKontor
         )
 
-        assertThat(actual.antPresentasjoner.totalt).isEqualTo(3)
         assertThat(actual.antPresentasjoner.innsatsgruppeIkkeStandard).isEqualTo(1)
         assertThat(actual.antPresentasjoner.under30år).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(3)
         assertIsZero(actual.antFåttJobben)
     }
 
     @Test
     fun `Statistikk skal også returnere fått jobben-statistikk for personer i prioritert målgruppe`() {
-        val tidspunkt = lagTidspunkt(2023, 8, 8)
-        val fåttJobbenPrioritert1 = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
-            aktørId = "123", utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt
-        )
-        val fåttJobbenPrioritert2 = etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv.copy(
-            aktørId = "456", utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt
-        )
-        val fåttJobbenIkkePrioritert = etKandidatutfallIkkeIPrioritertMålgruppe.copy(
-            aktørId = "789", utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt
+        val innsatsgruppeIkkeStandard = etKandidatutfall.copy(utfall = FATT_JOBBEN, innsatsbehov = BFORM.name)
+        assertFalse(innsatsgruppeErStandard(innsatsgruppeIkkeStandard))
+        val under30År = etKandidatutfall.copy(utfall = FATT_JOBBEN, innsatsbehov = null, alder = 29)
+        val ikkePrioritert = etKandidatutfall.copy(utfall = FATT_JOBBEN)
+
+        repository.lagreUtfall(innsatsgruppeIkkeStandard, under30År, ikkePrioritert)
+
+        val actual = hentStatistikk(
+            fraOgMed = ikkePrioritert.tidspunktForHendelsen.toLocalDate(),
+            tilOgMed = ikkePrioritert.tidspunktForHendelsen.toLocalDate(),
+            navKontor = innsatsgruppeIkkeStandard.navKontor
         )
 
-        repository.lagreUtfall(fåttJobbenPrioritert1)
-        repository.lagreUtfall(fåttJobbenPrioritert2)
-        repository.lagreUtfall(fåttJobbenIkkePrioritert)
-
-        val statistikk = hentStatistikk(
-            fraOgMed = tidspunkt.minusDays(1).toLocalDate(),
-            tilOgMed = tidspunkt.plusDays(1).toLocalDate(),
-            navKontor = fåttJobbenPrioritert1.navKontor
-        )
-
-        assertThat(statistikk.antFåttJobben.totalt).isEqualTo(3)
-        assertThat(statistikk.antFåttJobben.prioritertMålgruppe).isEqualTo(2)
+        assertThat(actual.antFåttJobben.innsatsgruppeIkkeStandard).isEqualTo(1)
+        assertThat(actual.antFåttJobben.under30år).isEqualTo(1)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(3)
+        assertIsZero(actual.antPresentasjoner)
     }
 
     @Test

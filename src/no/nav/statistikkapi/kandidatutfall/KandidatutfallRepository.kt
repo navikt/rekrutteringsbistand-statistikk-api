@@ -4,6 +4,7 @@ import no.nav.statistikkapi.HentStatistikk
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
+import no.nav.statistikkapi.logging.log
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -143,26 +144,41 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
     fun hentAntallPresentasjoner(hentStatistikk: HentStatistikk): Int {
+        val sql = "SELECT COUNT(*) FROM ($sql_unikePresentasjonerPerPersonOgListe)"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    fun hentAntallPresentasjonerUnder30År(hentStatistikk: HentStatistikk): Int {
+        val sql = "SELECT COUNT(*) FROM ($sql_unikePresentasjonerPerPersonOgListe) AND k1.$alder < 30"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    fun hentAntallPresentasjonerInnsatsgruppeIkkeStandard(hentStatistikk: HentStatistikk): Int {
+        val sql_innsatsgruppeIkkeStandard = prioritertMålgruppe.map(Innsatsgruppe::name).joinToString("', '", "'", "'")
+        val sql =
+            "SELECT COUNT(*) FROM ($sql_unikePresentasjonerPerPersonOgListe) AND k1.$innsatsbehov IN ($sql_innsatsgruppeIkkeStandard)"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    private val sql_unikePresentasjonerPerPersonOgListe = """
+            SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
+                (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
+                    WHERE k2.$tidspunkt BETWEEN ? AND ?
+                    GROUP BY $aktorid, $kandidatlisteid
+                ) as k2
+             WHERE k1.$navkontor = ?
+              AND k1.$dbId = k2.maksDbid
+              AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
+        """.trimIndent()
+
+    private fun executeHentStatistikkQuery(sqlQuery: String, hentStatistikk: HentStatistikk): Int {
+        log.debug("Skal forsøke å kjøre spørring: " + sqlQuery)
         dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
-                    SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                        (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
-                            WHERE k2.$tidspunkt BETWEEN ? AND ?
-                            GROUP BY $aktorid, $kandidatlisteid
-                        ) as k2
-                     WHERE k1.$navkontor = ? 
-                      AND k1.$dbId = k2.maksDbid
-                      AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                ) as unike_presenteringer_per_person_og_liste
-            """.trimIndent()
-            ).apply {
+            val resultSet = it. prepareStatement(sqlQuery).apply {
                 setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
                 setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
                 setString(3, hentStatistikk.navKontor)
             }.executeQuery()
-
             if (resultSet.next()) {
                 return resultSet.getInt(1)
             } else {
@@ -183,7 +199,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                             WHERE k2.$tidspunkt BETWEEN ? AND ?
                             GROUP BY $aktorid, $kandidatlisteid
                         ) as k2
-                     WHERE k1.$navkontor = ? 
+                     WHERE k1.$navkontor = ?
                       AND k1.$dbId = k2.maksDbid
                       AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
                       AND k1.$innsatsbehov IN ($prioritertMålgruppeISql)
@@ -249,7 +265,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                   (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktorid, $kandidatlisteid) as k2
-                     
+
                 WHERE k1.$navkontor = ?
                   AND k1.$dbId = k2.maksDbid
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
@@ -276,7 +292,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                   (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
                      WHERE k2.$tidspunkt BETWEEN ? AND ?
                      GROUP BY $aktorid, $kandidatlisteid) as k2
-                     
+
                 WHERE k1.$navkontor = ?
                   AND k1.$dbId = k2.maksDbid
                   AND k1.$utfall = '${FATT_JOBBEN.name}'
@@ -357,12 +373,12 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$tidspunkt, telleliste.$synligKandidat FROM $kandidatutfallTabell telleliste,
                   (SELECT MIN($dbId) as minId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon,
                     (SELECT MAX($dbId) as maksId, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
-                      (SELECT senesteUtfallITidsromOgFåttJobben.$aktorid, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
+                      (SELECT senesteUtfallITidsromOgFåttJobben.$aktorid, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,
                           (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
                           WHERE senesteUtfallITidsrom.$tidspunkt >= ?
                           GROUP BY senesteUtfallITidsrom.$aktorid, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
                       WHERE senesteUtfallITidsromOgFåttJobben.$dbId = senesteUtfallITidsrom.maksId
-                      AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben                  
+                      AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben
                     WHERE tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktorid = senesteUtfallITidsromOgFåttJobben.$aktorid
                     AND tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid = senesteUtfallITidsromOgFåttJobben.$kandidatlisteid
                     GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktorid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$utfall, senesteUtfallITidsromOgFåttJobben.$tidspunkt) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon

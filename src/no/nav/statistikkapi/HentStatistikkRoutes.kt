@@ -58,15 +58,15 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                 call.respond(HttpStatusCode.BadRequest, "Alle parametere må ha verdi")
             } else {
 
-                val hentStatistikk = HentStatistikk(
+                val hentStatistikkParams = HentStatistikk(
                     fraOgMed = LocalDate.parse(fraOgMedParameter),
                     tilOgMed = LocalDate.parse(tilOgMedParameter),
                     navKontor = navKontorParameter
                 )
                 val antallPresentasjoner =
-                    kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikk)
+                    kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikkParams)
                 val antallPresentasjonerIPrioritertMålgruppe =
-                    kandidatutfallRepository.hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk)
+                    kandidatutfallRepository.hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikkParams)
                 val antPresentasjoner = Antall(
                     totalt = antallPresentasjoner,
                     under30år = -1,
@@ -74,9 +74,9 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                 )
 
                 val fåttJobben =
-                    kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk).size
+                    kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikkParams).size
                 val fåttJobbenIPrioritertMålgruppe =
-                    kandidatutfallRepository.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk).size
+                    kandidatutfallRepository.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikkParams).size
                 val antFåttJobben = Antall(
                     totalt = fåttJobben,
                     under30år = -1,

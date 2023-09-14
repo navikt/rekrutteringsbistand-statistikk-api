@@ -226,10 +226,10 @@ fun settOppKtor(
 /**
  * Tidspunkt uten nanosekunder, for å unngå at to like tidspunkter blir ulike pga at database og Microsoft Windws håndterer nanos annerledes enn Mac og Linux.
  */
-fun nowOslo(): ZonedDateTime = ZonedDateTime.now().toOslo()
+fun nowOslo(): ZonedDateTime = ZonedDateTime.now().atOslo()
 
-fun ZonedDateTime.toOslo(): ZonedDateTime = this.truncatedTo(MILLIS).withZoneSameInstant(of("Europe/Oslo"))
+fun ZonedDateTime.atOslo(): ZonedDateTime = this.withZoneSameInstant(of("Europe/Oslo")).truncatedTo(MILLIS)
 
-fun LocalDateTime.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))
+fun LocalDateTime.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo")).truncatedTo(MILLIS)
 
-fun Instant.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo"))
+fun Instant.atOslo(): ZonedDateTime = this.atZone(of("Europe/Oslo")).truncatedTo(MILLIS)
