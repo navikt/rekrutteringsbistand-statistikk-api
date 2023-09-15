@@ -29,7 +29,7 @@ class StatistikkParametere {
     }
 }
 
-data class Antall(
+data class AntallDto(
     val totalt: Int,
     val under30år: Int,
     val innsatsgruppeIkkeStandard: Int,
@@ -37,16 +37,16 @@ data class Antall(
 
 
 data class StatistikkOutboundDto(
-    val antPresentasjoner: Antall,
-    val antFåttJobben: Antall,
+    val antPresentasjoner: AntallDto,
+    val antFåttJobben: AntallDto,
     val antallPresentert: Int, // TODO Are: Slett når frontend er oppdatert
     val antallPresentertIPrioritertMålgruppe: Int, // TODO Are: Slett når frontend er oppdatert
     val antallFåttJobben: Int, // TODO Are: Slett når frontend er oppdatert
     val antallFåttJobbenIPrioritertMålgruppe: Int, // TODO Are: Slett når frontend er oppdatert
-    )
+)
 
 
-fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
+fun Route.hentStatistikk(repo: KandidatutfallRepository) {
     authenticate {
         get("/statistikk") {
             val queryParameters = call.parameters
@@ -63,21 +63,19 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                     tilOgMed = LocalDate.parse(tilOgMedParameter),
                     navKontor = navKontorParameter
                 )
-                val antallPresentasjoner =
-                    kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikkParams)
-                val antallPresentasjonerIPrioritertMålgruppe =
-                    kandidatutfallRepository.hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikkParams)
-                val antPresentasjoner = Antall(
-                    totalt = antallPresentasjoner,
-                    under30år = -1,
-                    innsatsgruppeIkkeStandard = -1,
+                val antPresentasjoner = AntallDto(
+                    totalt = repo.hentAntallPresentasjoner(hentStatistikkParams),
+                    under30år = repo.hentAntallPresentasjonerUnder30År(hentStatistikkParams),
+                    innsatsgruppeIkkeStandard = repo.hentAntallPresentasjonerInnsatsgruppeIkkeStandard(
+                        hentStatistikkParams
+                    ),
                 )
 
                 val fåttJobben =
-                    kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikkParams).size
+                    repo.hentAktoriderForFåttJobben(hentStatistikkParams).size
                 val fåttJobbenIPrioritertMålgruppe =
-                    kandidatutfallRepository.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikkParams).size
-                val antFåttJobben = Antall(
+                    repo.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikkParams).size
+                val antFåttJobben = AntallDto(
                     totalt = fåttJobben,
                     under30år = -1,
                     innsatsgruppeIkkeStandard = -1,

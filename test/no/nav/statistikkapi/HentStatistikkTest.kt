@@ -14,8 +14,8 @@ import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe
 import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.*
+import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.Companion.innsatsgrupperSomIkkeErStandardinnsats
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.OpprettKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
@@ -23,7 +23,6 @@ import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
 import java.time.ZonedDateTime
-import kotlin.IllegalArgumentException
 import kotlin.test.assertFalse
 
 class HentStatistikkTest {
@@ -55,7 +54,7 @@ class HentStatistikkTest {
                 else -> throw IllegalArgumentException(opprettKandidatutfall.innsatsbehov)
             }
 
-        private fun assertIsZero(ant: Antall) {
+        private fun assertIsZero(ant: AntallDto) {
             assertThat(ant.totalt).isZero()
             assertThat(ant.innsatsgruppeIkkeStandard).isZero()
             assertThat(ant.under30år).isZero()
@@ -306,38 +305,38 @@ class HentStatistikkTest {
 
     @Test
     fun `Statistikk skal også returnere presentert-statistikk for personer i prioritert målgruppe`() {
-        val innsatsgruppeIkkeStandard = etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = BFORM.name)
-        assertFalse(innsatsgruppeErStandard(innsatsgruppeIkkeStandard))
-        val under30År = etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = null, alder = 29)
         val ikkePrioritert = etKandidatutfall.copy(utfall = PRESENTERT)
+        val innsatsgruppeIkkeStandard = etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = BFORM.name, kandidatlisteId = "ikkeStandard")
+        assertFalse(innsatsgruppeErStandard(innsatsgruppeIkkeStandard))
+        val under30År = etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = null, alder = 29, kandidatlisteId = "under30")
 
         repository.lagreUtfall(innsatsgruppeIkkeStandard, under30År, ikkePrioritert)
 
         val actual = hentStatistikk(
-            fraOgMed = ikkePrioritert.tidspunktForHendelsen.toLocalDate(),
-            tilOgMed = ikkePrioritert.tidspunktForHendelsen.toLocalDate(),
-            navKontor = innsatsgruppeIkkeStandard.navKontor
+            fraOgMed = ikkePrioritert.tidspunktForHendelsen,
+            tilOgMed = ikkePrioritert.tidspunktForHendelsen,
+            navKontor = ikkePrioritert.navKontor
         )
 
-        assertThat(actual.antPresentasjoner.innsatsgruppeIkkeStandard).isEqualTo(1)
-        assertThat(actual.antPresentasjoner.under30år).isEqualTo(1)
         assertThat(actual.antPresentasjoner.totalt).isEqualTo(3)
+        assertThat(actual.antPresentasjoner.under30år).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.innsatsgruppeIkkeStandard).isEqualTo(1)
         assertIsZero(actual.antFåttJobben)
     }
 
     @Test
     fun `Statistikk skal også returnere fått jobben-statistikk for personer i prioritert målgruppe`() {
-        val innsatsgruppeIkkeStandard = etKandidatutfall.copy(utfall = FATT_JOBBEN, innsatsbehov = BFORM.name)
-        assertFalse(innsatsgruppeErStandard(innsatsgruppeIkkeStandard))
-        val under30År = etKandidatutfall.copy(utfall = FATT_JOBBEN, innsatsbehov = null, alder = 29)
         val ikkePrioritert = etKandidatutfall.copy(utfall = FATT_JOBBEN)
+        val innsatsgruppeIkkeStandard = etKandidatutfall.copy(utfall = FATT_JOBBEN, innsatsbehov = BFORM.name, kandidatlisteId = "ikkeStandard")
+        assertFalse(innsatsgruppeErStandard(innsatsgruppeIkkeStandard))
+        val under30År = etKandidatutfall.copy(utfall = FATT_JOBBEN, innsatsbehov = null, alder = 29, kandidatlisteId = "under30")
 
         repository.lagreUtfall(innsatsgruppeIkkeStandard, under30År, ikkePrioritert)
 
         val actual = hentStatistikk(
-            fraOgMed = ikkePrioritert.tidspunktForHendelsen.toLocalDate(),
-            tilOgMed = ikkePrioritert.tidspunktForHendelsen.toLocalDate(),
-            navKontor = innsatsgruppeIkkeStandard.navKontor
+            fraOgMed = ikkePrioritert.tidspunktForHendelsen,
+            tilOgMed = ikkePrioritert.tidspunktForHendelsen,
+            navKontor = ikkePrioritert.navKontor
         )
 
         assertThat(actual.antFåttJobben.innsatsgruppeIkkeStandard).isEqualTo(1)
@@ -621,10 +620,8 @@ class HentStatistikkTest {
         )
         assertThat(presentertForStilling2.aktørId).isEqualTo(presentertForStilling1.aktørId)
         assertThat(presentertForStilling2.tidspunktForHendelsen).isEqualTo(presentertForStilling1.tidspunktForHendelsen)
-        val prioritertMålgruppe: List<String> =
-            KandidatutfallRepository.Companion.prioritertMålgruppe.map(Innsatsgruppe::name)
-        assertThat(prioritertMålgruppe).contains(presentertForStilling1.innsatsbehov)
-        assertThat(prioritertMålgruppe).contains(presentertForStilling2.innsatsbehov)
+        assertThat(innsatsgrupperSomIkkeErStandardinnsats).contains(presentertForStilling1.innsatsbehov)
+        assertThat(innsatsgrupperSomIkkeErStandardinnsats).contains(presentertForStilling2.innsatsbehov)
 
         repository.lagreUtfall(presentertForStilling1)
         repository.lagreUtfall(presentertForStilling2)
@@ -635,6 +632,12 @@ class HentStatistikkTest {
         //assertThat(actual.antPresentasjoner.prioritertMålgruppe).isEqualTo(2) // todo
     }
 
+    private fun hentStatistikk(
+        fraOgMed: ZonedDateTime,
+        tilOgMed: ZonedDateTime,
+        navKontor: String
+    ): StatistikkOutboundDto =
+        hentStatistikk(fraOgMed.toLocalDate(), tilOgMed.toLocalDate(), navKontor)
 
     private fun hentStatistikk(
         fraOgMed: LocalDate,

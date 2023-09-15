@@ -1,6 +1,7 @@
 package no.nav.statistikkapi.kandidatutfall
 
 import no.nav.statistikkapi.HentStatistikk
+import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.Companion.innsatsgrupperSomIkkeErStandardinnsats
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
@@ -144,19 +145,20 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
     fun hentAntallPresentasjoner(hentStatistikk: HentStatistikk): Int {
-        val sql = "SELECT COUNT(*) FROM ($sql_unikePresentasjonerPerPersonOgListe)"
+        val sql = "SELECT COUNT(presentasjoner.*) FROM ($sql_unikePresentasjonerPerPersonOgListe) AS presentasjoner"
         return executeHentStatistikkQuery(sql, hentStatistikk)
     }
 
     fun hentAntallPresentasjonerUnder30År(hentStatistikk: HentStatistikk): Int {
-        val sql = "SELECT COUNT(*) FROM ($sql_unikePresentasjonerPerPersonOgListe) AND k1.$alder < 30"
+        val sql =
+            "SELECT COUNT(presentasjoner.*) FROM ($sql_unikePresentasjonerPerPersonOgListe AND k1.$alder < 30) AS presentasjoner"
         return executeHentStatistikkQuery(sql, hentStatistikk)
     }
 
     fun hentAntallPresentasjonerInnsatsgruppeIkkeStandard(hentStatistikk: HentStatistikk): Int {
-        val sql_innsatsgruppeIkkeStandard = prioritertMålgruppe.map(Innsatsgruppe::name).joinToString("', '", "'", "'")
+        val sql_innsatsgruppeIkkeStandard = innsatsgrupperSomIkkeErStandardinnsats.joinToString("', '", "'", "'")
         val sql =
-            "SELECT COUNT(*) FROM ($sql_unikePresentasjonerPerPersonOgListe) AND k1.$innsatsbehov IN ($sql_innsatsgruppeIkkeStandard)"
+            "SELECT COUNT(presentasjoner.*) FROM ($sql_unikePresentasjonerPerPersonOgListe AND k1.$innsatsbehov IN ($sql_innsatsgruppeIkkeStandard)) AS presentasjoner"
         return executeHentStatistikkQuery(sql, hentStatistikk)
     }
 
@@ -174,7 +176,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     private fun executeHentStatistikkQuery(sqlQuery: String, hentStatistikk: HentStatistikk): Int {
         log.debug("Skal forsøke å kjøre spørring: " + sqlQuery)
         dataSource.connection.use {
-            val resultSet = it. prepareStatement(sqlQuery).apply {
+            val resultSet = it.prepareStatement(sqlQuery).apply {
                 setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
                 setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
                 setString(3, hentStatistikk.navKontor)
@@ -188,7 +190,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
     fun hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk: HentStatistikk): Int {
-        val prioritertMålgruppeISql = prioritertMålgruppe.map(Innsatsgruppe::name).joinToString("', '", "'", "'")
+        val prioritertMålgruppeISql = innsatsgrupperSomIkkeErStandardinnsats.joinToString("', '", "'", "'")
 
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
@@ -455,8 +457,5 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
                 alder = if (resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
             )
-
-        val prioritertMålgruppe: Set<Innsatsgruppe> =
-            setOf(Innsatsgruppe.BATT, Innsatsgruppe.BFORM, Innsatsgruppe.VARIG)
     }
 }

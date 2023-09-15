@@ -44,5 +44,10 @@ enum class Innsatsgruppe {
     BATT, // spesielt tilpasset innsats
     BFORM, // situasjonsbestemt innsats
     VARIG, // varig tilpasset eller gradert varig tilpasset innsats
-    IKVAL // standard innsats
+    IKVAL; // standard innsats
+
+    companion object {
+        val innsatsgrupperSomIkkeErStandardinnsats: Set<String> =
+            setOf(BATT.name, BFORM.name, VARIG.name)
+    }
 }
