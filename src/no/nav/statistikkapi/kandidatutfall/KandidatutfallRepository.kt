@@ -219,38 +219,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk: HentStatistikk): Int {
-        val prioritertMålgruppeISql = innsatsgrupperSomIkkeErStandardinnsats.joinToString("', '", "'", "'")
-
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
-                    SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                        (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
-                            WHERE k2.$tidspunkt BETWEEN ? AND ?
-                            GROUP BY $aktorid, $kandidatlisteid
-                        ) as k2
-                     WHERE k1.$navkontor = ?
-                      AND k1.$dbId = k2.maksDbid
-                      AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                      AND k1.$innsatsbehov IN ($prioritertMålgruppeISql)
-                ) as unike_presenteringer_per_person_og_liste
-            """.trimIndent()
-            ).apply {
-                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
-                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
-                setString(3, hentStatistikk.navKontor)
-            }.executeQuery()
-
-            if (resultSet.next()) {
-                return resultSet.getInt(1)
-            } else {
-                throw RuntimeException("Prøvde å hente antall presentasjoner i prioritert målgruppe fra databasen")
-            }
-        }
-    }
-
     fun hentAntallPresentertForAlleNavKontor(): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
@@ -286,61 +254,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             } else {
                 throw RuntimeException("Prøvde å hente antall presenterte kandidater fra databasen")
             }
-        }
-    }
-
-    fun hentAktoriderForFåttJobben(hentStatistikk: HentStatistikk): List<String> {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                  (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
-                     WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktorid, $kandidatlisteid) as k2
-
-                WHERE k1.$navkontor = ?
-                  AND k1.$dbId = k2.maksDbid
-                  AND k1.$utfall = '${FATT_JOBBEN.name}'
-            """.trimIndent()
-            ).apply {
-                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
-                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
-                setString(3, hentStatistikk.navKontor)
-            }.executeQuery()
-
-            return generateSequence {
-                if (!resultSet.next()) null
-                else resultSet.getString(aktorid)
-            }.toList()
-
-        }
-    }
-
-    fun hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk: HentStatistikk): List<String> {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                  (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
-                     WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktorid, $kandidatlisteid) as k2
-
-                WHERE k1.$navkontor = ?
-                  AND k1.$dbId = k2.maksDbid
-                  AND k1.$utfall = '${FATT_JOBBEN.name}'
-                  AND k1.$innsatsbehov IN ('${Innsatsgruppe.BATT.name}', '${Innsatsgruppe.BFORM.name}', '${Innsatsgruppe.VARIG.name}')
-            """.trimIndent()
-            ).apply {
-                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
-                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
-                setString(3, hentStatistikk.navKontor)
-            }.executeQuery()
-
-            return generateSequence {
-                if (!resultSet.next()) null
-                else resultSet.getString(aktorid)
-            }.toList()
-
         }
     }
 
@@ -450,7 +363,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val dbId = "id"
         const val kandidatutfallTabell = "kandidatutfall"
         const val aktorid = "aktorid"
-        const val fnr = "fnr"
         const val utfall = "utfall"
         const val navident = "navident"
         const val navkontor = "navkontor"
@@ -475,9 +387,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 navKontor = resultSet.getString(navkontor),
                 kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteid)),
                 stillingsId = UUID.fromString(resultSet.getString(stillingsid)),
-                synligKandidat = if (resultSet.getObject(synligKandidat) == null) null else resultSet.getBoolean(
-                    synligKandidat
-                ),
+                synligKandidat = if (resultSet.getObject(synligKandidat) == null) null else
+                    resultSet.getBoolean(synligKandidat),
                 hullICv = if (resultSet.getObject(hullICv) == null) null else resultSet.getBoolean(hullICv),
                 innsatsbehov = resultSet.getString(innsatsbehov),
                 hovedmål = resultSet.getString(hovedmål),
