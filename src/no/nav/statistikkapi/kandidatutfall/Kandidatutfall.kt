@@ -47,7 +47,13 @@ enum class Innsatsgruppe {
     IKVAL; // standard innsats
 
     companion object {
+        fun erIkkeStandardinnsats(innsatsgruppe: Innsatsgruppe): Boolean =
+            setOf(BATT, BFORM, VARIG).contains(innsatsgruppe)
+
+        fun erIkkeStandardinnsats(innsatsgruppe: String): Boolean =
+            erIkkeStandardinnsats(Innsatsgruppe.valueOf(innsatsgruppe))
+
         val innsatsgrupperSomIkkeErStandardinnsats: Set<String> =
-            setOf(BATT.name, BFORM.name, VARIG.name)
+            Innsatsgruppe.values().filter(this::erIkkeStandardinnsats).map(Innsatsgruppe::name).toSet()
     }
 }

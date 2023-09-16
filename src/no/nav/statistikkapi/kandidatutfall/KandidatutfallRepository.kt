@@ -162,6 +162,24 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         return executeHentStatistikkQuery(sql, hentStatistikk)
     }
 
+    fun hentAntallFåttJobben(hentStatistikk: HentStatistikk): Int {
+        val sql = "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe) AS fåttjobben"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    fun hentAntallFåttJobbenUnder30År(hentStatistikk: HentStatistikk): Int {
+        val sql =
+            "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe AND k1.$alder < 30) AS fåttjobben"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    fun hentAntallFåttJobbenInnsatsgruppeIkkeStandard(hentStatistikk: HentStatistikk): Int {
+        val sql_innsatsgruppeIkkeStandard = innsatsgrupperSomIkkeErStandardinnsats.joinToString("', '", "'", "'")
+        val sql =
+            "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe AND k1.$innsatsbehov IN ($sql_innsatsgruppeIkkeStandard)) AS fåttjobben"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
     private val sql_unikePresentasjonerPerPersonOgListe = """
             SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
                 (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
@@ -173,8 +191,20 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
               AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
         """.trimIndent()
 
+    private val sql_unikeFåttjobbenPerPersonOgListe = """
+            SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
+                (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
+                    WHERE k2.$tidspunkt BETWEEN ? AND ?
+                    GROUP BY $aktorid, $kandidatlisteid
+                ) as k2
+             WHERE k1.$navkontor = ?
+              AND k1.$dbId = k2.maksDbid
+              AND k1.$utfall = '${FATT_JOBBEN.name}'
+        """.trimIndent()
+
+
     private fun executeHentStatistikkQuery(sqlQuery: String, hentStatistikk: HentStatistikk): Int {
-        log.debug("Skal forsøke å kjøre spørring: " + sqlQuery)
+        log.debug("Skal forsøke å kjøre spørring: $sqlQuery")
         dataSource.connection.use {
             val resultSet = it.prepareStatement(sqlQuery).apply {
                 setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
@@ -184,7 +214,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             if (resultSet.next()) {
                 return resultSet.getInt(1)
             } else {
-                throw RuntimeException("Prøvde å hente antall presentasjoner fra databasen")
+                throw RuntimeException("Databasespørringen ga ingen rader")
             }
         }
     }

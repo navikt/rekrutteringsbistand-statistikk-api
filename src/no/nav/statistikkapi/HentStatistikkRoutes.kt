@@ -70,15 +70,10 @@ fun Route.hentStatistikk(repo: KandidatutfallRepository) {
                         hentStatistikkParams
                     ),
                 )
-
-                val fåttJobben =
-                    repo.hentAktoriderForFåttJobben(hentStatistikkParams).size
-                val fåttJobbenIPrioritertMålgruppe =
-                    repo.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikkParams).size
                 val antFåttJobben = AntallDto(
-                    totalt = fåttJobben,
-                    under30år = -1,
-                    innsatsgruppeIkkeStandard = -1,
+                    totalt = repo.hentAntallFåttJobben(hentStatistikkParams),
+                    under30år = repo.hentAntallFåttJobbenUnder30År(hentStatistikkParams),
+                    innsatsgruppeIkkeStandard = repo.hentAntallFåttJobbenInnsatsgruppeIkkeStandard(hentStatistikkParams),
                 )
 
                 call.respond(
