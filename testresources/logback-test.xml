@@ -10,7 +10,7 @@
     <logger name="com.zaxxer.hikari" level="WARN"/>
     <logger name="no.nav.security" level="INFO"/>
     <logger name="org.testcontainers" level="WARN"/>
-    <logger name="no.nav.statistikkapi.kandidatutfall" level="TRACE"/>
+    <logger name="no.nav.statistikkapi.kandidatutfall" level="INFO"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>

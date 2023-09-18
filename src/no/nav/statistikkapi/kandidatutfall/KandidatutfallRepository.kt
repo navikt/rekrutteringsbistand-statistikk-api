@@ -174,34 +174,15 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
     fun hentAntallFåttJobbenInnsatsgruppeIkkeStandard(hentStatistikk: HentStatistikk): Int {
-        val sql_innsatsgruppeIkkeStandard = innsatsgrupperSomIkkeErStandardinnsats.joinToString("', '", "'", "'")
+        val sql_innsatsgruppeIkkeStandard = innsatsgrupperSomIkkeErStandardinnsats.joinToString(
+            separator = "', '",
+            prefix = "'",
+            postfix = "'"
+        )
         val sql =
             "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe AND k1.$innsatsbehov IN ($sql_innsatsgruppeIkkeStandard)) AS fåttjobben"
         return executeHentStatistikkQuery(sql, hentStatistikk)
     }
-
-    private val sql_unikePresentasjonerPerPersonOgListe = """
-            SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
-                    WHERE k2.$tidspunkt BETWEEN ? AND ?
-                    GROUP BY $aktorid, $kandidatlisteid
-                ) as k2
-             WHERE k1.$navkontor = ?
-              AND k1.$dbId = k2.maksDbid
-              AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-        """.trimIndent()
-
-    private val sql_unikeFåttjobbenPerPersonOgListe = """
-            SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
-                    WHERE k2.$tidspunkt BETWEEN ? AND ?
-                    GROUP BY $aktorid, $kandidatlisteid
-                ) as k2
-             WHERE k1.$navkontor = ?
-              AND k1.$dbId = k2.maksDbid
-              AND k1.$utfall = '${FATT_JOBBEN.name}'
-        """.trimIndent()
-
 
     private fun executeHentStatistikkQuery(sqlQuery: String, hentStatistikk: HentStatistikk): Int {
         log.debug("Skal forsøke å kjøre spørring: $sqlQuery")
@@ -214,7 +195,9 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             if (resultSet.next()) {
                 return resultSet.getInt(1)
             } else {
-                throw RuntimeException("Databasespørringen ga ingen rader")
+                val msg =
+                    "Databasespørringen ga ingen rader, og det burde ikke skje fordi spørringen skal være en 'select count(...) ...'. Spørringen var: $sqlQuery"
+                throw RuntimeException(msg)
             }
         }
     }
@@ -398,5 +381,21 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
                 alder = if (resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
             )
+
+        private val sq_unikeUtfallPerPersonOgListe = """
+            SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
+                (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
+                    WHERE k2.$tidspunkt BETWEEN ? AND ?
+                    GROUP BY $aktorid, $kandidatlisteid
+                ) as k2
+             WHERE k1.$navkontor = ?
+              AND k1.$dbId = k2.maksDbid
+    """.trimIndent()
+
+        private val sql_unikeFåttjobbenPerPersonOgListe =
+            "$sq_unikeUtfallPerPersonOgListe AND k1.$utfall = '${FATT_JOBBEN.name}'"
+
+        private val sql_unikePresentasjonerPerPersonOgListe =
+            "$sq_unikeUtfallPerPersonOgListe AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')"
     }
 }

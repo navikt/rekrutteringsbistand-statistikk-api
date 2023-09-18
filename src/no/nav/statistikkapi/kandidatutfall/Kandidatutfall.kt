@@ -46,6 +46,7 @@ enum class Innsatsgruppe {
     VARIG, // varig tilpasset eller gradert varig tilpasset innsats
     IKVAL; // standard innsats
 
+
     companion object {
         fun erIkkeStandardinnsats(innsatsgruppe: Innsatsgruppe): Boolean =
             setOf(BATT, BFORM, VARIG).contains(innsatsgruppe)

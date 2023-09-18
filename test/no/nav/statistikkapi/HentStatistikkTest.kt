@@ -2,6 +2,7 @@ package no.nav.statistikkapi
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isLessThan
 import assertk.assertions.isZero
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -597,12 +598,13 @@ class HentStatistikkTest {
             kandidatlisteId = "kandliste2",
             stillingsId = "stilling2"
         )
-        val antallPersoner = setOf(presentertForStilling1.aktørId, presentertForStilling2.aktørId).size
         assertThat(presentertForStilling2.tidspunktForHendelsen).isEqualTo(presentertForStilling1.tidspunktForHendelsen)
         repository.lagreUtfall(presentertForStilling1, presentertForStilling2)
 
         val actual = hentStatistikk(now(), now(), presentertForStilling1.navKontor)
 
+        val antallPersoner = setOf(presentertForStilling1.aktørId, presentertForStilling2.aktørId).size
+        assertThat(antallPersoner).isLessThan(actual.antPresentasjoner.totalt)
         assertThat(antallPersoner).isEqualTo(1)
         assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
     }
@@ -616,7 +618,6 @@ class HentStatistikkTest {
             innsatsbehov = IKVAL.name,
             alder = 29
         )
-        val antallPersoner = setOf(presentertForStilling1.aktørId, presentertForStilling2.aktørId).size
         assertThat(presentertForStilling2.tidspunktForHendelsen).isEqualTo(presentertForStilling1.tidspunktForHendelsen)
         assertTrue(erIkkeStandardinnsats(presentertForStilling1.innsatsbehov!!))
         assertFalse(erIkkeStandardinnsats(presentertForStilling2.innsatsbehov!!))
@@ -624,6 +625,8 @@ class HentStatistikkTest {
 
         val actual = hentStatistikk(now(), now(), presentertForStilling1.navKontor)
 
+        val antallPersoner = setOf(presentertForStilling1.aktørId, presentertForStilling2.aktørId).size
+        assertThat(antallPersoner).isLessThan(actual.antPresentasjoner.totalt)
         assertThat(antallPersoner).isEqualTo(1)
         assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
     }
