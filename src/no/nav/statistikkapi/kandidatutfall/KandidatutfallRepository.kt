@@ -1,9 +1,11 @@
 package no.nav.statistikkapi.kandidatutfall
 
 import no.nav.statistikkapi.HentStatistikk
+import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.Companion.innsatsgrupperSomIkkeErStandardinnsats
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
+import no.nav.statistikkapi.logging.log
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -14,7 +16,11 @@ import javax.sql.DataSource
 
 class KandidatutfallRepository(private val dataSource: DataSource) {
 
-    fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
+    fun lagreUtfall(vararg kandidatutfall: OpprettKandidatutfall) {
+        kandidatutfall.forEach(this::lagreUtfall)
+    }
+
+    private fun lagreUtfall(kandidatutfall: OpprettKandidatutfall) {
 
         dataSource.connection.use {
             it.prepareStatement(
@@ -139,62 +145,59 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
     fun hentAntallPresentasjoner(hentStatistikk: HentStatistikk): Int {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
-                    SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                        (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
-                            WHERE k2.$tidspunkt BETWEEN ? AND ?
-                            GROUP BY $aktorid, $kandidatlisteid
-                        ) as k2
-                     WHERE k1.$navkontor = ? 
-                      AND k1.$dbId = k2.maksDbid
-                      AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                ) as unike_presenteringer_per_person_og_liste
-            """.trimIndent()
-            ).apply {
-                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
-                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
-                setString(3, hentStatistikk.navKontor)
-            }.executeQuery()
-
-            if (resultSet.next()) {
-                return resultSet.getInt(1)
-            } else {
-                throw RuntimeException("Prøvde å hente antall presentasjoner fra databasen")
-            }
-        }
+        val sql = "SELECT COUNT(presentasjoner.*) FROM ($sql_unikePresentasjonerPerPersonOgListe) AS presentasjoner"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
     }
 
-    fun hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk: HentStatistikk): Int {
-        val prioritertMålgruppeISql = prioritertMålgruppe.map(Innsatsgruppe::name).joinToString("', '", "'", "'")
+    fun hentAntallPresentasjonerUnder30År(hentStatistikk: HentStatistikk): Int {
+        val sql =
+            "SELECT COUNT(presentasjoner.*) FROM ($sql_unikePresentasjonerPerPersonOgListe AND k1.$alder < 30) AS presentasjoner"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
 
+    fun hentAntallPresentasjonerInnsatsgruppeIkkeStandard(hentStatistikk: HentStatistikk): Int {
+        val sql_innsatsgruppeIkkeStandard = innsatsgrupperSomIkkeErStandardinnsats.joinToString("', '", "'", "'")
+        val sql =
+            "SELECT COUNT(presentasjoner.*) FROM ($sql_unikePresentasjonerPerPersonOgListe AND k1.$innsatsbehov IN ($sql_innsatsgruppeIkkeStandard)) AS presentasjoner"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    fun hentAntallFåttJobben(hentStatistikk: HentStatistikk): Int {
+        val sql = "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe) AS fåttjobben"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    fun hentAntallFåttJobbenUnder30År(hentStatistikk: HentStatistikk): Int {
+        val sql =
+            "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe AND k1.$alder < 30) AS fåttjobben"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    fun hentAntallFåttJobbenInnsatsgruppeIkkeStandard(hentStatistikk: HentStatistikk): Int {
+        val sql_innsatsgruppeIkkeStandard = innsatsgrupperSomIkkeErStandardinnsats.joinToString(
+            separator = "', '",
+            prefix = "'",
+            postfix = "'"
+        )
+        val sql =
+            "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe AND k1.$innsatsbehov IN ($sql_innsatsgruppeIkkeStandard)) AS fåttjobben"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    private fun executeHentStatistikkQuery(sqlQuery: String, hentStatistikk: HentStatistikk): Int {
+        log.debug("Skal forsøke å kjøre spørring: $sqlQuery")
         dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
-                    SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                        (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
-                            WHERE k2.$tidspunkt BETWEEN ? AND ?
-                            GROUP BY $aktorid, $kandidatlisteid
-                        ) as k2
-                     WHERE k1.$navkontor = ? 
-                      AND k1.$dbId = k2.maksDbid
-                      AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')
-                      AND k1.$innsatsbehov IN ($prioritertMålgruppeISql)
-                ) as unike_presenteringer_per_person_og_liste
-            """.trimIndent()
-            ).apply {
+            val resultSet = it.prepareStatement(sqlQuery).apply {
                 setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
                 setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
                 setString(3, hentStatistikk.navKontor)
             }.executeQuery()
-
             if (resultSet.next()) {
                 return resultSet.getInt(1)
             } else {
-                throw RuntimeException("Prøvde å hente antall presentasjoner i prioritert målgruppe fra databasen")
+                val msg =
+                    "Databasespørringen ga ingen rader, og det burde ikke skje fordi spørringen skal være en 'select count(...) ...'. Spørringen var: $sqlQuery"
+                throw RuntimeException(msg)
             }
         }
     }
@@ -234,61 +237,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             } else {
                 throw RuntimeException("Prøvde å hente antall presenterte kandidater fra databasen")
             }
-        }
-    }
-
-    fun hentAktoriderForFåttJobben(hentStatistikk: HentStatistikk): List<String> {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                  (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
-                     WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktorid, $kandidatlisteid) as k2
-                     
-                WHERE k1.$navkontor = ?
-                  AND k1.$dbId = k2.maksDbid
-                  AND k1.$utfall = '${FATT_JOBBEN.name}'
-            """.trimIndent()
-            ).apply {
-                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
-                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
-                setString(3, hentStatistikk.navKontor)
-            }.executeQuery()
-
-            return generateSequence {
-                if (!resultSet.next()) null
-                else resultSet.getString(aktorid)
-            }.toList()
-
-        }
-    }
-
-    fun hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk: HentStatistikk): List<String> {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
-                  (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
-                     WHERE k2.$tidspunkt BETWEEN ? AND ?
-                     GROUP BY $aktorid, $kandidatlisteid) as k2
-                     
-                WHERE k1.$navkontor = ?
-                  AND k1.$dbId = k2.maksDbid
-                  AND k1.$utfall = '${FATT_JOBBEN.name}'
-                  AND k1.$innsatsbehov IN ('${Innsatsgruppe.BATT.name}', '${Innsatsgruppe.BFORM.name}', '${Innsatsgruppe.VARIG.name}')
-            """.trimIndent()
-            ).apply {
-                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
-                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
-                setString(3, hentStatistikk.navKontor)
-            }.executeQuery()
-
-            return generateSequence {
-                if (!resultSet.next()) null
-                else resultSet.getString(aktorid)
-            }.toList()
-
         }
     }
 
@@ -353,12 +301,12 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 SELECT telleliste.$hullICv, telleliste.$alder, tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon.$tidspunkt, telleliste.$synligKandidat FROM $kandidatutfallTabell telleliste,
                   (SELECT MIN($dbId) as minId, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteUtfallKombinasjon,
                     (SELECT MAX($dbId) as maksId, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon,
-                      (SELECT senesteUtfallITidsromOgFåttJobben.$aktorid, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,  
+                      (SELECT senesteUtfallITidsromOgFåttJobben.$aktorid, senesteUtfallITidsromOgFåttJobben.$kandidatlisteid, senesteUtfallITidsromOgFåttJobben.$tidspunkt FROM $kandidatutfallTabell senesteUtfallITidsromOgFåttJobben,
                           (SELECT MAX($dbId) as maksId FROM $kandidatutfallTabell senesteUtfallITidsrom
                           WHERE senesteUtfallITidsrom.$tidspunkt >= ?
                           GROUP BY senesteUtfallITidsrom.$aktorid, senesteUtfallITidsrom.$kandidatlisteid) as senesteUtfallITidsrom
                       WHERE senesteUtfallITidsromOgFåttJobben.$dbId = senesteUtfallITidsrom.maksId
-                      AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben                  
+                      AND senesteUtfallITidsromOgFåttJobben.$utfall = '${FATT_JOBBEN.name}') as senesteUtfallITidsromOgFåttJobben
                     WHERE tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktorid = senesteUtfallITidsromOgFåttJobben.$aktorid
                     AND tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid = senesteUtfallITidsromOgFåttJobben.$kandidatlisteid
                     GROUP BY tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$aktorid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$kandidatlisteid, tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon.$utfall, senesteUtfallITidsromOgFåttJobben.$tidspunkt) as tidligsteUtfallPaaAktorIdKandidatlisteKombinasjon
@@ -398,7 +346,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val dbId = "id"
         const val kandidatutfallTabell = "kandidatutfall"
         const val aktorid = "aktorid"
-        const val fnr = "fnr"
         const val utfall = "utfall"
         const val navident = "navident"
         const val navkontor = "navkontor"
@@ -423,9 +370,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 navKontor = resultSet.getString(navkontor),
                 kandidatlisteId = UUID.fromString(resultSet.getString(kandidatlisteid)),
                 stillingsId = UUID.fromString(resultSet.getString(stillingsid)),
-                synligKandidat = if (resultSet.getObject(synligKandidat) == null) null else resultSet.getBoolean(
-                    synligKandidat
-                ),
+                synligKandidat = if (resultSet.getObject(synligKandidat) == null) null else
+                    resultSet.getBoolean(synligKandidat),
                 hullICv = if (resultSet.getObject(hullICv) == null) null else resultSet.getBoolean(hullICv),
                 innsatsbehov = resultSet.getString(innsatsbehov),
                 hovedmål = resultSet.getString(hovedmål),
@@ -436,7 +382,20 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 alder = if (resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
             )
 
-        val prioritertMålgruppe: Set<Innsatsgruppe> =
-            setOf(Innsatsgruppe.BATT, Innsatsgruppe.BFORM, Innsatsgruppe.VARIG)
+        private val sq_unikeUtfallPerPersonOgListe = """
+            SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
+                (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
+                    WHERE k2.$tidspunkt BETWEEN ? AND ?
+                    GROUP BY $aktorid, $kandidatlisteid
+                ) as k2
+             WHERE k1.$navkontor = ?
+              AND k1.$dbId = k2.maksDbid
+    """.trimIndent()
+
+        private val sql_unikeFåttjobbenPerPersonOgListe =
+            "$sq_unikeUtfallPerPersonOgListe AND k1.$utfall = '${FATT_JOBBEN.name}'"
+
+        private val sql_unikePresentasjonerPerPersonOgListe =
+            "$sq_unikeUtfallPerPersonOgListe AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')"
     }
 }

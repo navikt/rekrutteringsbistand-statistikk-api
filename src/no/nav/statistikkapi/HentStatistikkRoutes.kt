@@ -29,14 +29,24 @@ class StatistikkParametere {
     }
 }
 
-data class StatistikkOutboundDto(
-    val antallPresentert: Int,
-    val antallPresentertIPrioritertMålgruppe: Int,
-    val antallFåttJobben: Int,
-    val antallFåttJobbenIPrioritertMålgruppe: Int,
+data class AntallDto(
+    val totalt: Int,
+    val under30år: Int,
+    val innsatsgruppeIkkeStandard: Int,
 )
 
-fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
+
+data class StatistikkOutboundDto(
+    val antPresentasjoner: AntallDto,
+    val antFåttJobben: AntallDto,
+    val antallPresentert: Int, // TODO Are: Slett når frontend er oppdatert
+    val antallPresentertIPrioritertMålgruppe: Int, // TODO Are: Slett når frontend er oppdatert
+    val antallFåttJobben: Int, // TODO Are: Slett når frontend er oppdatert
+    val antallFåttJobbenIPrioritertMålgruppe: Int, // TODO Are: Slett når frontend er oppdatert
+)
+
+
+fun Route.hentStatistikk(repo: KandidatutfallRepository) {
     authenticate {
         get("/statistikk") {
             val queryParameters = call.parameters
@@ -48,29 +58,34 @@ fun Route.hentStatistikk(kandidatutfallRepository: KandidatutfallRepository) {
                 call.respond(HttpStatusCode.BadRequest, "Alle parametere må ha verdi")
             } else {
 
-                val hentStatistikk = HentStatistikk(
+                val hentStatistikkParams = HentStatistikk(
                     fraOgMed = LocalDate.parse(fraOgMedParameter),
                     tilOgMed = LocalDate.parse(tilOgMedParameter),
                     navKontor = navKontorParameter
                 )
-                val antallPresentasjoner =
-                    kandidatutfallRepository.hentAntallPresentasjoner(hentStatistikk)
-
-                val antallPresentasjonerIPrioritertMålgruppe =
-                    kandidatutfallRepository.hentAntallPresentasjonerIPrioritertMålgruppe(hentStatistikk)
-
-                val fåttJobben =
-                    kandidatutfallRepository.hentAktoriderForFåttJobben(hentStatistikk)
-
-                val fåttJobbenIPrioritertMålgruppe =
-                    kandidatutfallRepository.hentAktoriderForFåttJobbenIPrioritertMålgruppe(hentStatistikk)
+                val antPresentasjoner = AntallDto(
+                    totalt = repo.hentAntallPresentasjoner(hentStatistikkParams),
+                    under30år = repo.hentAntallPresentasjonerUnder30År(hentStatistikkParams),
+                    innsatsgruppeIkkeStandard = repo.hentAntallPresentasjonerInnsatsgruppeIkkeStandard(
+                        hentStatistikkParams
+                    ),
+                )
+                val antFåttJobben = AntallDto(
+                    totalt = repo.hentAntallFåttJobben(hentStatistikkParams),
+                    under30år = repo.hentAntallFåttJobbenUnder30År(hentStatistikkParams),
+                    innsatsgruppeIkkeStandard = repo.hentAntallFåttJobbenInnsatsgruppeIkkeStandard(hentStatistikkParams),
+                )
 
                 call.respond(
                     StatistikkOutboundDto(
-                        antallPresentasjoner,
-                        antallPresentasjonerIPrioritertMålgruppe,
-                        fåttJobben.size,
-                        fåttJobbenIPrioritertMålgruppe.size
+                        antPresentasjoner = antPresentasjoner,
+                        antFåttJobben = antFåttJobben,
+
+                        // TODO Are: Slett når frontend er oppdatert
+                        antallPresentert = antPresentasjoner.totalt,
+                        antallPresentertIPrioritertMålgruppe = antPresentasjoner.under30år + antPresentasjoner.innsatsgruppeIkkeStandard,
+                        antallFåttJobben = antFåttJobben.totalt,
+                        antallFåttJobbenIPrioritertMålgruppe = antFåttJobben.under30år + antFåttJobben.innsatsgruppeIkkeStandard
                     )
                 )
             }

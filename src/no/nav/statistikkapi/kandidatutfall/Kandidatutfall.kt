@@ -41,8 +41,20 @@ enum class Utfall {
 }
 
 enum class Innsatsgruppe {
-    BATT,
-    BFORM,
-    VARIG,
-    IKVAL
+    BATT, // spesielt tilpasset innsats
+    BFORM, // situasjonsbestemt innsats
+    VARIG, // varig tilpasset eller gradert varig tilpasset innsats
+    IKVAL; // standard innsats
+
+
+    companion object {
+        fun erIkkeStandardinnsats(innsatsgruppe: Innsatsgruppe): Boolean =
+            setOf(BATT, BFORM, VARIG).contains(innsatsgruppe)
+
+        fun erIkkeStandardinnsats(innsatsgruppe: String): Boolean =
+            erIkkeStandardinnsats(Innsatsgruppe.valueOf(innsatsgruppe))
+
+        val innsatsgrupperSomIkkeErStandardinnsats: Set<String> =
+            Innsatsgruppe.values().filter(this::erIkkeStandardinnsats).map(Innsatsgruppe::name).toSet()
+    }
 }

@@ -29,10 +29,12 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: test
+    permissions:
+      packages: write
     #########################
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/statistikk-prioritert-målgruppe'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/fjerne-begrepet-prioritertmaalgruppe'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

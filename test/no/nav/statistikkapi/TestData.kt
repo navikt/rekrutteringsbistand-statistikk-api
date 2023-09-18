@@ -22,27 +22,14 @@ val etKandidatutfall = OpprettKandidatutfall(
     stillingsId = enStillingsId.toString(),
     synligKandidat = true,
     harHullICv = true,
-    alder = 54,
+    alder = 35,
     tidspunktForHendelsen = nowOslo(),
-    innsatsbehov = "BFORM",
+    innsatsbehov = "IKVAL",
     hovedmål = "SKAFFERA"
 )
 
-val etKandidatutfallIPrioritertMålgruppeMedUkjentHullICv = OpprettKandidatutfall(
-    aktørId = "80000254879658",
-    utfall = Utfall.PRESENTERT,
-    navIdent = enAnnenNavIdent,
-    navKontor = etKontor1,
-    kandidatlisteId = "385c74d1-0d14-48d7-9a9b-b219beff22c8",
-    stillingsId = enStillingsId.toString(),
-    synligKandidat = true,
-    harHullICv = null,
-    alder = null,
-    tidspunktForHendelsen = nowOslo(),
-    innsatsbehov = "BFORM",
-    hovedmål = "SKAFFERA"
-)
 
+// TODO Are: Utfall som ikke er prioritert målgruppe bør være default, dvs. vi bør kunne gjenbruke "etKandidatutfall" ovenfor, men noen tester ble røde da jeg prøvde. Hvis det er viktig og relevant for en test bør det være asserts i testmetoden som verifiserer alder og innsatsgruppe der.
 val etKandidatutfallIkkeIPrioritertMålgruppe = OpprettKandidatutfall(
     aktørId = "10000254879658",
     utfall = Utfall.PRESENTERT,
