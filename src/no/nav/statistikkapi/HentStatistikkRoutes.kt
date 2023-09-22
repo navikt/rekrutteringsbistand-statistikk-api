@@ -39,10 +39,6 @@ data class AntallDto(
 data class StatistikkOutboundDto(
     val antPresentasjoner: AntallDto,
     val antFåttJobben: AntallDto,
-    val antallPresentert: Int, // TODO Are: Slett når frontend er oppdatert
-    val antallPresentertIPrioritertMålgruppe: Int, // TODO Are: Slett når frontend er oppdatert
-    val antallFåttJobben: Int, // TODO Are: Slett når frontend er oppdatert
-    val antallFåttJobbenIPrioritertMålgruppe: Int, // TODO Are: Slett når frontend er oppdatert
 )
 
 
@@ -80,12 +76,6 @@ fun Route.hentStatistikk(repo: KandidatutfallRepository) {
                     StatistikkOutboundDto(
                         antPresentasjoner = antPresentasjoner,
                         antFåttJobben = antFåttJobben,
-
-                        // TODO Are: Slett når frontend er oppdatert
-                        antallPresentert = antPresentasjoner.totalt,
-                        antallPresentertIPrioritertMålgruppe = antPresentasjoner.under30år + antPresentasjoner.innsatsgruppeIkkeStandard,
-                        antallFåttJobben = antFåttJobben.totalt,
-                        antallFåttJobbenIPrioritertMålgruppe = antFåttJobben.under30år + antFåttJobben.innsatsgruppeIkkeStandard
                     )
                 )
             }
