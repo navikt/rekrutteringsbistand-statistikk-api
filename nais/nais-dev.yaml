@@ -51,7 +51,7 @@ spec:
     - name: KAFKA_RAPID_TOPIC
       value: toi.rapid-1
     - name: KAFKA_CONSUMER_GROUP_ID
-      value: "rekrutteringsbistand-statistikk-api-rapidconsumer-4"
+      value: "rekrutteringsbistand-statistikk-api-rapidconsumer-5"
     - name: KAFKA_EXTRA_TOPIC
       value: arbeidsgiver.tiltak-avtale-hendelse
     - name: KAFKA_RESET_POLICY
