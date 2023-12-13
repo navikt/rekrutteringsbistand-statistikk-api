@@ -20,7 +20,6 @@ class SendtTilArbeidsgiverKandidaterLytter(
                 it.demandValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
                 it.requireKey(
                     "stillingsId",
-                    "stillingstittel",
                     "organisasjonsnummer",
                     "kandidatlisteId",
                     "tidspunkt",
@@ -37,7 +36,6 @@ class SendtTilArbeidsgiverKandidaterLytter(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val stillingsId = packet["stillingsId"].asTextNullable()
-        val stillingstittel = packet["stillingstittel"].asText()
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
@@ -56,7 +54,6 @@ class SendtTilArbeidsgiverKandidaterLytter(
             secure(log).info(
                 """
             stillingsId: $stillingsId
-            stillingstittel: $stillingstittel
             stillingskategori: $stillingskategori
             organisasjonsnummer: $organisasjonsnummer
             kandidatlisteId: $kandidatlisteId
