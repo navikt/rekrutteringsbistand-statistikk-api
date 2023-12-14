@@ -3,7 +3,7 @@
 Aggregering, lagring og behandling av formidlingsstatistikk og annen statistikk knyttet til inkludering.
 
 Starte appen lokalt: 
-Høyreklikk på `LokalApplication.kt` i IntelliJ og velg `Run`.
+Høyreklikk på `LokalApplication.kt` i IntelliJ og velg `Run`. 
 
 Får statistikk fra to hendelser i Rekrutteringsbistand sitt GUI:
 
