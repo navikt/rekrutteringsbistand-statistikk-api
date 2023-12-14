@@ -92,9 +92,6 @@ class SendtTilArbeidsgiverKandidaterLytter(
                 stillingskategori = Stillingskategori.fraNavn(stillingskategori)
             )
 
-
-            prometheusMeterRegistry.incrementUtfallLagret(opprettKandidatutfall.utfall)
-
             packet["@slutt_av_hendelseskjede"] = true
             context.publish(packet.toJson())
         }

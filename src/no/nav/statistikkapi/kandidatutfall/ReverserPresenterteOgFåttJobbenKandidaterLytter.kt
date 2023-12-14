@@ -99,8 +99,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             stillingskategori
         )
 
-        prometheusMeterRegistry.incrementUtfallLagret(opprettKandidatutfall.utfall)
-
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())
     }

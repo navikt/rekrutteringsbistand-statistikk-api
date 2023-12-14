@@ -70,7 +70,6 @@ class SlettetStillingOgKandidatlisteLytter(
                     tidspunktForHendelsen = tidspunkt
                 )
                 lagreUtfallOgStilling.lagreUtfallOgStilling(nyttUtfall, stillingsId, stillingskategori)
-                prometheusMeterRegistry.incrementUtfallLagret(Utfall.IKKE_PRESENTERT)
             }
         }
 

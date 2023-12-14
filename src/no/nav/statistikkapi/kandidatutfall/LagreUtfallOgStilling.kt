@@ -24,12 +24,6 @@ class LagreUtfallOgStilling(
         } else {
             kandidatutfallRepository.lagreUtfall(kandidatutfall)
             log.info("Lagrer kandidathendelse som kandidatutfall")
-
-            Metrics.counter(
-                "rekrutteringsbistand.statistikk.utfall.lagret",
-                "utfall",
-                kandidatutfall.utfall.name
-            ).increment()
         }
     }
 }

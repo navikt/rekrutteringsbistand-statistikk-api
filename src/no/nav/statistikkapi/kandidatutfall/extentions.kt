@@ -19,11 +19,4 @@ fun JsonNode.asBooleanNullable() = asTextNullable()?.toBoolean()
 
 fun JsonNode.asUUID() = UUID.fromString(asText())
 
-fun PrometheusMeterRegistry.incrementUtfallLagret(utfall: Utfall) =
-    this
-        .counter(
-            "rekrutteringsbistand.statistikk.utfall.lagret",
-            "utfall", utfall.name
-        ).increment()
-
 
