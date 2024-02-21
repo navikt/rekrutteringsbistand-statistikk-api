@@ -21,9 +21,6 @@ spec:
     - team: toi
       application: rekrutteringsbistand-statistikk-api
       access: readwrite
-    - team: dvh-arbeid
-      application: dvh-arb-rekruttering-konsument
-      access: read
     - team: teamoppfolging
       application: teamoppfolging-kafka
       access: read
