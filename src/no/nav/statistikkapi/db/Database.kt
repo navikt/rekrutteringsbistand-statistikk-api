@@ -14,7 +14,7 @@ class Database(cluster: Cluster) {
     private val config = when (cluster) {
         Cluster.DEV_FSS -> DbConf(
             mountPath = "postgresql/preprod-fss",
-            jdbcUrl = "jdbc:postgresql://b27dbvl009.preprod.local:5432/rekrutteringsbistand-statistikk"
+            jdbcUrl = "jdbc:postgresql://b27dbvl033.preprod.local:5432/rekrutteringsbistand-statistikk"
         )
         Cluster.PROD_FSS -> DbConf(
             mountPath = "postgresql/prod-fss",
