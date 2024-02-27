@@ -7,6 +7,8 @@ import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.flywaydb.core.Flyway
 import javax.sql.DataSource
 
+private const val databaseNavn = "rekrutteringsbistand-statistikk-pg15"
+
 class Database(cluster: Cluster) {
 
     data class DbConf(val mountPath: String, val jdbcUrl: String)
@@ -14,11 +16,11 @@ class Database(cluster: Cluster) {
     private val config = when (cluster) {
         Cluster.DEV_FSS -> DbConf(
             mountPath = "postgresql/preprod-fss",
-            jdbcUrl = "jdbc:postgresql://b27dbvl033.preprod.local:5432/rekrutteringsbistand-statistikk"
+            jdbcUrl = "jdbc:postgresql://b27dbvl033.preprod.local:5432/$databaseNavn"
         )
         Cluster.PROD_FSS -> DbConf(
             mountPath = "postgresql/prod-fss",
-            jdbcUrl = "jdbc:postgresql://a01dbvl011.adeo.no:5432/rekrutteringsbistand-statistikk"
+            jdbcUrl = "jdbc:postgresql://a01dbvl011.adeo.no:5432/$databaseNavn"
         )
         Cluster.LOKAL -> throw UnsupportedOperationException()
     }
@@ -41,14 +43,14 @@ class Database(cluster: Cluster) {
         return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
             hikariConfig,
             config.mountPath,
-            "rekrutteringsbistand-statistikk-$role"
+            "$databaseNavn-$role"
         )
     }
 
     private fun kjørFlywayMigreringer() {
         Flyway.configure()
             .dataSource(opprettDataSource(role = "admin"))
-            .initSql("SET ROLE \"rekrutteringsbistand-statistikk-admin\"")
+            .initSql("SET ROLE \"$databaseNavn-admin\"")
             .load()
             .migrate()
     }
