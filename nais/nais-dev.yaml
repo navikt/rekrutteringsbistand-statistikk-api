@@ -12,9 +12,6 @@ spec:
       # TODO: Fjern arbeidsgiver.nais.preprod.local-ingress og context-path
     - https://arbeidsgiver.nais.preprod.local/rekrutteringsbistand-statistikk-api/
     - https://rekrutteringsbistand-statistikk-api.dev-fss-pub.nais.io
-  replicas:
-    min: 0
-    max: 0
   liveness:
     path: /isalive
   readiness:
