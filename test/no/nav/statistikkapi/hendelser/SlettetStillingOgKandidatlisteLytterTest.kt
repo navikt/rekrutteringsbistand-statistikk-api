@@ -130,7 +130,6 @@ class SlettetStillingOgKandidatlisteLytterTest {
 
     private fun slettetStillingOgKandidatlisteMelding(kandidatlisteId: String) = """
         {
-          "organisasjonsnummer": "312113341",
           "kandidatlisteId": "$kandidatlisteId",
           "tidspunkt": "${nowOslo()}",
           "stillingsId": "b5919e46-9882-4b3c-8089-53ad02f26023",

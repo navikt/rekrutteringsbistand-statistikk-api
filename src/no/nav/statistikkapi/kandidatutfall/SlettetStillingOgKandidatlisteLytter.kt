@@ -23,7 +23,6 @@ class SlettetStillingOgKandidatlisteLytter(
                 it.interestedIn("stillingsinfo.stillingskategori")
 
                 it.requireKey(
-                    "organisasjonsnummer",
                     "kandidatlisteId",
                     "tidspunkt",
                     "utførtAvNavIdent",
