@@ -22,7 +22,7 @@ Kan sjekke formidlingene tre plasser:
   - Gå i Vault: https://vault.adeo.no/
   - Åpne console i Vault og kjør: `vault read postgresql/prod-fss/creds/rekrutteringsbistand-statistikk-pg15-readonly`
   - Bruk favoritt SQL-reader i tynnklient
-  - JDBC-URL: `jdbc:postgresql://A01DBVL011.adeo.no:5432/rekrutteringsbistand-statistikk`
+  - JDBC-URL: `jdbc:postgresql://prod-pg.intern.nav.no:5432/rekrutteringsbistand-statistikk`
   - Logg inn med brukernavn og passord fra Vault
 
 Diverse dokumentasjon ligger i [doc mappa](./doc).
