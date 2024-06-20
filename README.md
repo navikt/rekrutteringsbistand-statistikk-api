@@ -20,7 +20,7 @@ Kan sjekke formidlingene tre plasser:
 - Grafana: https://grafana.adeo.no/d/GhdRa3mMz/rekrutteringsbistand-statistikk-api
 - Sjekke i databasen:
   - Gå i Vault: https://vault.adeo.no/
-  - Åpne console i Vault og kjør: `vault read postgresql/prod-fss/creds/rekrutteringsbistand-statistikk-admin`
+  - Åpne console i Vault og kjør: `vault read postgresql/prod-fss/creds/rekrutteringsbistand-statistikk-pg15-readonly`
   - Bruk favoritt SQL-reader i tynnklient
   - JDBC-URL: `jdbc:postgresql://A01DBVL011.adeo.no:5432/rekrutteringsbistand-statistikk`
   - Logg inn med brukernavn og passord fra Vault
