@@ -48,10 +48,10 @@ spec:
         extra:
           - NAVident
         groups:
-          - id: "67a06857-0028-4a90-bf4c-9c9a92c7d733"
-          - id: "0dba8374-bf36-4d89-bbba-662447d57b94"
-          - id: "52bc2af7-38d1-468b-b68d-0f3a4de45af2"
-          - id: "a1749d9a-52e0-4116-bb9f-935c38f6c74a"
+          - id: "67a06857-0028-4a90-bf4c-9c9a92c7d733"   # adGruppeModiaGenerellTilgang
+          - id: "0dba8374-bf36-4d89-bbba-662447d57b94"   # adGruppeJobbsøkerrettet
+          - id: "52bc2af7-38d1-468b-b68d-0f3a4de45af2"   # adGruppeArbeidsgiverrettet
+          - id: "a1749d9a-52e0-4116-bb9f-935c38f6c74a"   # adGruppeUtvikler
   env:
     - name: KAFKA_RAPID_TOPIC
       value: toi.rapid-1
