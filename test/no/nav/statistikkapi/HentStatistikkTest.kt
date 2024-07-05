@@ -4,12 +4,17 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isLessThan
 import assertk.assertions.isZero
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.apache.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
@@ -19,6 +24,7 @@ import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.Companion.erIkkeStandar
 import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.IKVAL
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
+import org.apache.http.HttpHeaders
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
@@ -646,6 +652,71 @@ class HentStatistikkTest {
         client.get("$basePath/statistikk") {
             leggTilQueryParametere(this, fraOgMed, tilOgMed, navKontor)
         }.body()
+    }
+
+    @Test
+    fun `Kall med token skal få 200 OK`() {
+        assertThat(hentStatistikkStatus().status).isEqualTo(HttpStatusCode.OK)
+    }
+
+    @Test
+    fun `Kall uten token skal få 401 Unauthorized`() {
+        assertThat(hentStatistikkStatus(token = null).status).isEqualTo(HttpStatusCode.Unauthorized)
+    }
+
+    @Test
+    fun `Kall med utdatert token skal få 401 Unauthorized`() {
+        assertThat(hentStatistikkStatus(token = hentToken(mockOAuth2Server, "azuread", expiry = -60)).status).isEqualTo(HttpStatusCode.Unauthorized)
+    }
+
+    @Test
+    fun `Kall med feil audience skal få 401 Unauthorized`() {
+        assertThat(hentStatistikkStatus(token = hentToken(mockOAuth2Server, "azuread", audience = "feilaudience")).status).isEqualTo(HttpStatusCode.Unauthorized)
+    }
+
+    @Test
+    fun `Kall med feil algoritme skal få 401 Unauthorized`() {
+        val token = hentToken(mockOAuth2Server, "azuread").split(".")
+        val falskToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.${token[1]}."
+        assertThat(hentStatistikkStatus(token = falskToken).status).isEqualTo(HttpStatusCode.Unauthorized)
+    }
+
+    @Test
+    fun `Kall med feil issuer skal få 401 Unauthorized`() {
+        val feilOauthserver = MockOAuth2Server()
+        try {
+            feilOauthserver.start(port = randomPort())
+            assertThat(hentStatistikkStatus(token = hentToken(feilOauthserver, "azuread")).status).isEqualTo(HttpStatusCode.Unauthorized)
+        } finally {
+            feilOauthserver.shutdown()
+        }
+    }
+
+
+    private fun hentStatistikkStatus(
+        fraOgMed: LocalDate = LocalDate.of(2020, 10, 1),
+        tilOgMed: LocalDate = LocalDate.of(2020, 10, 31),
+        navKontor: String = etKandidatutfall.navKontor,
+        token: String? = hentToken(mockOAuth2Server, "azuread")
+    ) = runBlocking {
+        httpKlient().get("${basePath}/statistikk") {
+            token?.let {
+                header(HttpHeaders.AUTHORIZATION, "Bearer $it")
+            }
+            leggTilQueryParametere(this, fraOgMed, tilOgMed, navKontor)
+        }
+    }
+
+    fun httpKlient() = HttpClient(Apache) {
+        install(ContentNegotiation) {
+            jackson {
+                registerModule(JavaTimeModule())
+                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            }
+        }
+        defaultRequest {
+            contentType(ContentType.Application.Json)
+        }
     }
 
     @After

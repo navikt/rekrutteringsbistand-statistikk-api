@@ -14,13 +14,14 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import kotlin.random.Random
 
-fun hentToken(mockOAuth2Server: MockOAuth2Server, issuerId: String): String = mockOAuth2Server.issueToken(issuerId, "klient",
+fun hentToken(mockOAuth2Server: MockOAuth2Server, issuerId: String, expiry: Long = 3600, audience: String = "statistikk-api"): String = mockOAuth2Server.issueToken(issuerId, "klient",
     DefaultOAuth2TokenCallback(
         issuerId = issuerId,
         claims = mapOf(
             Pair("NAVident", enNavIdent),
         ),
-        audience = listOf("statistikk-api")
+        audience = listOf(audience),
+        expiry = expiry
     )
 ).serialize()
 
