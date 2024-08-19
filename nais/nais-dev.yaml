@@ -31,6 +31,8 @@ spec:
           cluster: dev-gcp
         - application: rekrutteringsbistand-container
           cluster: dev-gcp
+        - application: rekrutteringsbistand-next
+          cluster: dev-gcp
         - application: rekrutteringsbistand
           cluster: dev-gcp
         - application: rekrutteringsbistand-kandidat-api
