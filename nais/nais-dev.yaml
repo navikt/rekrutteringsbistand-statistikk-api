@@ -33,7 +33,7 @@ spec:
           cluster: dev-gcp
         - application: rekrutteringsbistand
           cluster: dev-gcp
-        - application: rekrutteringsbistand-next
+        - application: rekrutteringsbistand-frontend
           cluster: dev-gcp
         - application: rekrutteringsbistand-kandidat-api
           cluster: dev-fss
