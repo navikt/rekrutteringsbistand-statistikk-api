@@ -5,7 +5,7 @@ on: [ push ]
 permissions:
   contents: read
   id-token: write
-      
+
 jobs:
   test:
     name: Run tests
@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
       - uses: actions/cache@v3
         with:
           path: |
@@ -33,7 +33,7 @@ jobs:
     #########################
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/endret_tilgang_på_rest'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/java21'
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
       - uses: actions/cache@v3
         with:
           path: |
