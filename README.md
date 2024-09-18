@@ -2,9 +2,6 @@
 
 Aggregering, lagring og behandling av formidlingsstatistikk og annen statistikk knyttet til inkludering.
 
-Starte appen lokalt: 
-Høyreklikk på `LokalApplication.kt` i IntelliJ og velg `Run`. 
-
 Får statistikk fra to hendelser i Rekrutteringsbistand sitt GUI:
 
 - Presentering av kandidater for arbeidsgiver
@@ -26,6 +23,15 @@ Kan sjekke formidlingene tre plasser:
   - Logg inn med brukernavn og passord fra Vault
 
 Diverse dokumentasjon ligger i [doc mappa](./doc).
+
+
+## Lokal bygging og kjøring
+
+Kjøring av tester lokalt med f.eks. `./gradlew check` forutsetter at [Docker Engine](https://docs.docker.com/engine/) er installert på maskina di.
+
+Starte appen lokalt:
+Høyreklikk på `LokalApplication.kt` i IntelliJ og velg `Run`.
+
 
 ## Avro-skjema-kompabilitet
 
@@ -60,16 +66,11 @@ med innehold i datapakke.json: {"title":"Hull i cv","description":"Vise hull i c
 - Hvis man gir jobben til kandidat, og så sjekke i databasen at PRESENTERT og FIKK_JOBBEN ble lagret og at de ble sendt til datavarehus
 
 
-# Henvendelser
+## Henvendelser
 
-## For Nav-ansatte
+### For Nav-ansatte
+* Dette Git-repositoriet eies av [team Toi](https://teamkatalog.nav.no/team/76f378c5-eb35-42db-9f4d-0e8197be0131).
+* Slack: [#arbeidsgiver-toi-dev](https://nav-it.slack.com/archives/C02HTU8DBSR)
 
-* Dette Git-repositoriet eies
-  av [team Toi i produktområde Arbeidsgiver](https://teamkatalog.nav.no/team/76f378c5-eb35-42db-9f4d-0e8197be0131).
-* Slack-kanaler:
-    * [#arbeidsgiver-toi-dev](https://nav-it.slack.com/archives/C02HTU8DBSR)
-    * [#rekrutteringsbistand-værsågod](https://nav-it.slack.com/archives/C02HWV01P54)
-
-## For folk utenfor Nav
-
-IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
+### For folk utenfor Nav
+* IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
