@@ -1,0 +1,14 @@
+name: Build and deploy
+on: [ push, workflow_dispatch ]
+
+jobs:
+  call-build-and-deploy:
+    uses: navikt/toi-github-actions-workflows/.github/workflows/build-and-deploy.yaml@main
+    with:
+      java-version: '21'
+      deploy-to-dev-if-branch-name-is: 'reusable-workflow'
+    permissions:
+      contents: read
+      id-token: write
+      security-events: write
+    secrets: inherit
