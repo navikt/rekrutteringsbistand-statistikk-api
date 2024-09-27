@@ -82,7 +82,7 @@ class HentStatistikkTest {
 
 
     @Test
-    fun `Siste registrerte fått jobben på en kandidat og kandidatliste skal telles som presentert og fått jobben`() {
+    fun `Siste registrerte fått jobben på en kandidat og kandidatliste skal telles som kun fått jobben`() {
         repository.lagreUtfall(
             etKandidatutfall.copy(utfall = FATT_JOBBEN, tidspunktForHendelsen = tidspunkt(2020, 10, 15))
         )
@@ -102,7 +102,7 @@ class HentStatistikkTest {
         )
 
         assertThat(actual.antFåttJobben.totalt).isEqualTo(2)
-        assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
     }
 
 
@@ -193,16 +193,17 @@ class HentStatistikkTest {
 
     @Test
     fun `Presentert og fått jobben på samme kandidat, samme kandidatliste og samme tidspunkt skal telles som presentert og fått jobben`() {
-        val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT)
-        val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN)
-        assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
-        assertThat(kandidatutfall1.aktørId).isEqualTo(kandidatutfall2.aktørId)
+        val kandidatutfallPresentert = etKandidatutfall.copy(utfall = PRESENTERT)
+            .copy(tidspunktForHendelsen = tidspunkt(2020, 1, 1))
+        val kandidatutfallFåttJobben = etKandidatutfall.copy(utfall = FATT_JOBBEN)
+        assertThat(kandidatutfallPresentert.stillingsId).isEqualTo(kandidatutfallFåttJobben.stillingsId)
+        assertThat(kandidatutfallPresentert.aktørId).isEqualTo(kandidatutfallFåttJobben.aktørId)
 
         repository.lagreUtfall(
-            kandidatutfall1.copy(tidspunktForHendelsen = tidspunkt(2020, 1, 1))
+            kandidatutfallPresentert.copy(tidspunktForHendelsen = tidspunkt(2020, 1, 1))
         )
         repository.lagreUtfall(
-            kandidatutfall2.copy(tidspunktForHendelsen = tidspunkt(2020, 1, 1))
+            kandidatutfallFåttJobben.copy(tidspunktForHendelsen = tidspunkt(2020, 1, 1))
         )
 
         val actual = hentStatistikk(
@@ -234,7 +235,7 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
         assertThat(actual.antFåttJobben.totalt).isEqualTo(1)
     }
 
@@ -300,7 +301,7 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antPresentasjoner.totalt).isEqualTo(2)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
         assertThat(actual.antFåttJobben.totalt).isEqualTo(1)
     }
 
@@ -345,7 +346,7 @@ class HentStatistikkTest {
         assertThat(actual.antFåttJobben.innsatsgruppeIkkeStandard).isEqualTo(1)
         assertThat(actual.antFåttJobben.under30år).isEqualTo(1)
         assertThat(actual.antFåttJobben.totalt).isEqualTo(3)
-        assertThat(actual.antPresentasjoner.totalt).isEqualTo(actual.antFåttJobben.totalt)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
     }
 
     @Test
@@ -431,7 +432,7 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 1`() {
+    fun `Gitt fått jobb med kontor 1 og deretter med kontor 2 så skal antall presentert for kontor 2 være 0`() {
         val kandidatutfall1 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor1)
         val kandidatutfall2 = etKandidatutfall.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
@@ -451,7 +452,7 @@ class HentStatistikkTest {
             navKontor = etKontor2
         )
 
-        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
     }
 
     @Test
@@ -479,7 +480,7 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 2 være 1`() {
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 2 være 0`() {
         val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
         val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
@@ -507,7 +508,7 @@ class HentStatistikkTest {
             navKontor = etKontor2
         )
 
-        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
 
     }
 
