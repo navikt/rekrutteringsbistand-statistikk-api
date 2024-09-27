@@ -456,7 +456,7 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 1 være 0`() {
+    fun `Gitt presentert med kontor 1 og deretter fått jobb med kontor 2 så skal antall presentert for kontor 1 være 1`() {
         val kandidatutfall1 = etKandidatutfall.copy(utfall = PRESENTERT, navKontor = etKontor1)
         val kandidatutfall2 = kandidatutfall1.copy(utfall = FATT_JOBBEN, navKontor = etKontor2)
         assertThat(kandidatutfall1.stillingsId).isEqualTo(kandidatutfall2.stillingsId)
@@ -476,7 +476,7 @@ class HentStatistikkTest {
             navKontor = etKontor1
         )
 
-        assertThat(actual.antPresentasjoner.totalt).isEqualTo(0)
+        assertThat(actual.antPresentasjoner.totalt).isEqualTo(1)
     }
 
     @Test

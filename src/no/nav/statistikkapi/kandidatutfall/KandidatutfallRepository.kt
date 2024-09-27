@@ -392,10 +392,20 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
               AND k1.$dbId = k2.maksDbid
     """.trimIndent()
 
+        private val sq_unikeUtfallPresentertPerPersonOgListe = """
+            SELECT DISTINCT k1.$aktorid, k1.$kandidatlisteid FROM $kandidatutfallTabell k1,
+                (SELECT MAX($dbId) as maksDbid FROM $kandidatutfallTabell k2
+                    WHERE k2.$tidspunkt BETWEEN ? AND ? AND $utfall = '${PRESENTERT.name}'
+                    GROUP BY $aktorid, $kandidatlisteid
+                ) as k2
+             WHERE k1.$navkontor = ?
+              AND k1.$dbId = k2.maksDbid
+    """.trimIndent()
+
         private val sql_unikeFåttjobbenPerPersonOgListe =
             "$sq_unikeUtfallPerPersonOgListe AND k1.$utfall = '${FATT_JOBBEN.name}'"
 
         private val sql_unikePresentasjonerPerPersonOgListe =
-            "$sq_unikeUtfallPerPersonOgListe AND k1.$utfall = '${PRESENTERT.name}'"
+            "$sq_unikeUtfallPresentertPerPersonOgListe AND k1.$utfall = '${PRESENTERT.name}'"
     }
 }
