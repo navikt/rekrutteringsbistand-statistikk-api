@@ -208,7 +208,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 """
                 SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
                     SELECT DISTINCT $aktorid, $kandidatlisteid FROM $kandidatutfallTabell
-                      WHERE ($utfall = '${FATT_JOBBEN.name}' OR $utfall = '${PRESENTERT.name}')
+                      WHERE $utfall = '${PRESENTERT.name}'
                 ) as unike_presenteringer_per_person_og_liste
             """.trimIndent()
             ).executeQuery()
@@ -225,10 +225,10 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                SELECT COUNT(unike_presenteringer_per_person_og_liste.*) FROM (
+                SELECT COUNT(unike_fatt_jobben_per_person_og_liste.*) FROM (
                     SELECT DISTINCT $aktorid, $kandidatlisteid FROM $kandidatutfallTabell
                       WHERE ($utfall = '${FATT_JOBBEN.name}')
-                ) as unike_presenteringer_per_person_og_liste
+                ) as unike_fatt_jobben_per_person_og_liste
             """.trimIndent()
             ).executeQuery()
 
@@ -396,6 +396,6 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
             "$sq_unikeUtfallPerPersonOgListe AND k1.$utfall = '${FATT_JOBBEN.name}'"
 
         private val sql_unikePresentasjonerPerPersonOgListe =
-            "$sq_unikeUtfallPerPersonOgListe AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')"
+            "$sq_unikeUtfallPerPersonOgListe AND k1.$utfall = '${PRESENTERT.name}'"
     }
 }

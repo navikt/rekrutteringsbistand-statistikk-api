@@ -356,7 +356,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 presentert_utfall as (
                     select * from kandidatutfall 
                     where id in (select * from id_siste_utfall_per_kandidat_per_liste)
-                    and (utfall = 'FATT_JOBBEN' or utfall = 'PRESENTERT')
+                    and utfall = 'PRESENTERT'
                 )
                 select count(distinct $kandidatlisteIdKolonne)
                 from $kandidatlisteTabell
@@ -388,7 +388,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 presentert_utfall as (
                     select * from kandidatutfall
                     where id in (select * from id_siste_utfall_per_kandidat_per_liste)
-                      and (utfall = 'FATT_JOBBEN' or utfall = 'PRESENTERT')
+                      and utfall = 'PRESENTERT'
                 )
                 select (
                     concat(
