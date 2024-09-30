@@ -32,7 +32,6 @@ Kjøring av tester lokalt med f.eks. `./gradlew check` forutsetter at [Docker En
 Starte appen lokalt:
 Høyreklikk på `LokalApplication.kt` i IntelliJ og velg `Run`.
 
-
 ## Avro-skjema-kompabilitet
 
 Schema-registryet på topicet er bruker ikke standard backward-compatibility, men bruker heller "forward transitive".
@@ -57,6 +56,7 @@ https://analytics.amplitude.com/nav/dashboard/rp6el7n (nederst på siden)
 Datapakke-id ble opprettet ved å kalle kjøre: curl -X 'POST' -d @datapakke.json 'https://datakatalog-api.dev.intern.nav.no/v1/datapackage'
 med innehold i datapakke.json: {"title":"Hull i cv","description":"Vise hull i cv","views":[],"resources":[]}
 (Id genereres basert på verdien av title)
+
 
 # Testing av applikasjonen i Rekrutteringsbistand
 - Del stilling med kandidat

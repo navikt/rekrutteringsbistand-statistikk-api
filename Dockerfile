@@ -1,5 +1,3 @@
-FROM ghcr.io/navikt/baseimages/temurin:21
-COPY ./nais/init.sh /init-scripts/init.sh
-COPY ./build/libs/rekrutteringsbistand-statistikk-api-all.jar app.jar
-
-EXPOSE 8111
+FROM gcr.io/distroless/java21-debian12:nonroot
+ADD build/distributions/rekrutteringsbistand-statistikk-api.tar /
+ENTRYPOINT ["java", "-cp", "/rekrutteringsbistand-statistikk-api/lib/*", "no.nav.statistikkapi.ApplicationKt"]

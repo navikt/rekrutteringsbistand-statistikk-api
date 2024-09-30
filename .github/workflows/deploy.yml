@@ -7,63 +7,29 @@ permissions:
   id-token: write
 
 jobs:
-  test:
-    name: Run tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Run tests
-        run: ./gradlew --no-daemon check --info
+  call-build-java-gradlew:
+    uses: navikt/toi-github-actions-workflows/.github/workflows/build-java-gradlew.yaml@main
+    with:
+      java-version: '21'
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit
 
   deploy-to-dev:
     name: Deploy to dev
-    needs: test
+    needs: call-build-java-gradlew
     #########################
     ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
     #########################
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/java21'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/reusable-workflow'
     runs-on: ubuntu-latest
-    outputs:
-      image: ${{ steps.docker-build-push.outputs.image }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Build jar with Gradle
-        run: ./gradlew --no-daemon shadowJar
-      - name: Push docker image to GAR
-        uses: nais/docker-build-push@v0
-        id: docker-build-push
-        with:
-          team: toi
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-fss
-          VAR: version=${{ steps.docker-build-push.outputs.image }}
+          VAR: version=${{ needs.call-build-java-gradlew.outputs.image }}
           RESOURCE: nais/nais-dev.yaml
 
   deploy-to-prod:
@@ -76,5 +42,15 @@ jobs:
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-fss
-          VAR: version=${{ needs.deploy-to-dev.outputs.image }}
+          VAR: version=${{ needs.call-build-java-gradlew.outputs.image }}
           RESOURCE: nais/nais-prod.yaml,nais/alerts.yml
+
+  call-trivy-security-scan:
+    needs: call-build-java-gradlew
+    uses: navikt/toi-github-actions-workflows/.github/workflows/trivy-security-scan.yaml@main
+    with:
+      image: ${{ needs.call-build-java-gradlew.outputs.image }}
+    permissions:
+      id-token: write
+      security-events: write
+    secrets: inherit
