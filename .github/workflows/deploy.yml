@@ -34,7 +34,9 @@ jobs:
 
   deploy-to-prod:
     name: Deploy to prod
-    needs: deploy-to-dev
+    needs:
+      - deploy-to-dev
+      - call-build-java-gradlew
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
