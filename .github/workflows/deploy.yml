@@ -80,3 +80,13 @@ jobs:
           CLUSTER: prod-fss
           VAR: version=${{ needs.deploy-to-dev.outputs.image }}
           RESOURCE: nais/nais-prod.yaml,nais/alerts.yml
+
+  call-trivy-security-scan:
+    needs: deploy-to-dev
+    uses: navikt/toi-github-actions-workflows/.github/workflows/trivy-security-scan.yaml@main
+    with:
+      image: ${{ needs.deploy-to-dev.outputs.image }}
+    permissions:
+      id-token: write
+      security-events: write
+    secrets: inherit
