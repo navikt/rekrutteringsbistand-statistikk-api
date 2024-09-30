@@ -52,7 +52,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Build jar with Gradle
-        run: ./gradlew --no-daemon shadowJar
+        run: ./gradlew --no-daemon build
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push
