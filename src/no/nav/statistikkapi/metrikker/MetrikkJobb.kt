@@ -12,6 +12,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
+// TODO Are: Slett hele klassen, erstattes av AresMetrikkJobb
 class MetrikkJobb(
     private val kandidatutfallRepository: KandidatutfallRepository,
     private val kandidatlisteRepository: KandidatlisteRepository,
