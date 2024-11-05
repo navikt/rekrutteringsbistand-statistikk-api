@@ -161,8 +161,9 @@ fun startApp(
             repository = visningKontaktinfoRepository
         )
 
-        Tiltaklytter(this, TiltaksRepository(database.dataSource))
-        TiltakManglerAktørIdLytter(this)
+        //TODO Fjern tiltak
+        //Tiltaklytter(this, TiltaksRepository(database.dataSource))
+        //TiltakManglerAktørIdLytter(this)
     }
 
     metrikkJobb.start()
