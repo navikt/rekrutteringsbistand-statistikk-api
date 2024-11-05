@@ -24,6 +24,7 @@ import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlistehendelseLytter
 import no.nav.statistikkapi.kandidatutfall.*
+import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.metrikker.MetrikkJobb
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
@@ -32,6 +33,7 @@ import no.nav.statistikkapi.tiltak.TiltaksRepository
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoLytter
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
 import org.apache.kafka.clients.producer.KafkaProducer
+import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.time.Instant
 import java.time.LocalDateTime
@@ -41,16 +43,22 @@ import java.time.temporal.ChronoUnit.MILLIS
 import javax.sql.DataSource
 
 fun main() {
-    val tokenSupportConfig = TokenSupportConfig(
-        IssuerConfig(
-            name = "azuread",
-            discoveryUrl = System.getenv("AZURE_APP_WELL_KNOWN_URL"),
-            acceptedAudience = listOf(System.getenv("AZURE_APP_CLIENT_ID")),
-            cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
+    try {
+        val tokenSupportConfig = TokenSupportConfig(
+            IssuerConfig(
+                name = "azuread",
+                discoveryUrl = System.getenv("AZURE_APP_WELL_KNOWN_URL"),
+                acceptedAudience = listOf(System.getenv("AZURE_APP_CLIENT_ID")),
+                cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
+            )
         )
-    )
-    val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaProducer(KafkaConfig.producerConfig()))
-    startApp(Database(Cluster.current), tokenSupportConfig, datavarehusKafkaProducer)
+        val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaProducer(KafkaConfig.producerConfig()))
+        startApp(Database(Cluster.current), tokenSupportConfig, datavarehusKafkaProducer)
+    } catch (e: Exception) {
+        val log = LoggerFactory.getLogger("no.nav.statistikkapi.applicationKt")
+        log.error("Feil i applikasjon", e)
+        throw e
+    }
 }
 
 fun startApp(
