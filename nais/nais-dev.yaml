@@ -14,8 +14,10 @@ spec:
     - https://rekrutteringsbistand-statistikk-api.dev-fss-pub.nais.io
   liveness:
     path: /isalive
+    initialDelay: 70
   readiness:
     path: /isready
+    initialDelay: 70
   prometheus:
     enabled: true
     path: /rekrutteringsbistand-statistikk-api/metrics
