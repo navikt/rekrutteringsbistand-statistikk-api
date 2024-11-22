@@ -1,6 +1,6 @@
 name: Build & deploy
 
-on: [ push ]
+on: [ push, workflow_dispatch ]
 
 permissions:
   contents: read
@@ -19,9 +19,6 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: call-build-java-gradlew
-    #########################
-    ### DEVELOPERS: Insert your feature branch name below (in addition to master) if you want to deploy it to dev
-    #########################
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/reusable-workflow'
     runs-on: ubuntu-latest
     steps:
