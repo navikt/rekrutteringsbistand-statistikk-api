@@ -70,13 +70,13 @@ class SendtTilArbeidsgiverTest {
         utfallFraDb.find { u -> u.aktorId == "2452127907551" }!!.apply {
             assertThat(alder).isEqualTo(51)
             assertThat(hullICv!!).isFalse()
-            assertThat(innsatsbehov).isEqualTo("BFORM")
+            assertThat(innsatsbehov).isEqualTo("SITUASJONSBESTEMT_INNSATS")
             assertThat(hovedmål).isEqualTo("BEHOLDEA")
         }
         utfallFraDb.find { it.aktorId == "2452127907123" }!!.apply {
             assertThat(alder).isEqualTo(24)
             assertThat(hullICv!!).isTrue()
-            assertThat(innsatsbehov).isEqualTo("VARIG")
+            assertThat(innsatsbehov).isEqualTo("VARIG_TILPASSET_INNSATS")
             assertThat(hovedmål).isEqualTo("SKAFFERA")
 
         }
@@ -108,13 +108,13 @@ class SendtTilArbeidsgiverTest {
         utfallFraDb.find { u -> u.aktorId == "2452127907551" }!!.apply {
             assertThat(alder).isEqualTo(51)
             assertThat(hullICv!!).isFalse()
-            assertThat(innsatsbehov).isEqualTo("BFORM")
+            assertThat(innsatsbehov).isEqualTo("SITUASJONSBESTEMT_INNSATS")
             assertThat(hovedmål).isEqualTo("BEHOLDEA")
         }
         utfallFraDb.find { it.aktorId == "2452127907123" }!!.apply {
             assertThat(alder).isEqualTo(24)
             assertThat(hullICv!!).isTrue()
-            assertThat(innsatsbehov).isEqualTo("VARIG")
+            assertThat(innsatsbehov).isEqualTo("VARIG_TILPASSET_INNSATS")
             assertThat(hovedmål).isEqualTo("SKAFFERA")
 
         }
@@ -167,13 +167,13 @@ class SendtTilArbeidsgiverTest {
               "harHullICv": false,
               "alder": 51,
               "tilretteleggingsbehov": [],
-              "innsatsbehov": "BFORM",
+              "innsatsbehov": "SITUASJONSBESTEMT_INNSATS",
               "hovedmål": "BEHOLDEA"
             },
             "2452127907123": {
               "harHullICv": true,
               "alder": 24,
-              "innsatsbehov": "VARIG",
+              "innsatsbehov": "VARIG_TILPASSET_INNSATS",
               "hovedmål": "SKAFFERA"
             }
           },
@@ -236,14 +236,14 @@ class SendtTilArbeidsgiverTest {
               "harHullICv": false,
               "alder": 51,
               "tilretteleggingsbehov": ["arbeidstid"],
-              "innsatsbehov": "BFORM",
+              "innsatsbehov": "SITUASJONSBESTEMT_INNSATS",
               "hovedmål": "BEHOLDEA"
             },
             "2452127907123": {
               "harHullICv": true,
               "alder": 24,
               "tilretteleggingsbehov": ["arbeidstid"],
-              "innsatsbehov": "VARIG",
+              "innsatsbehov": "VARIG_TILPASSET_INNSATS",
               "hovedmål": "SKAFFERA"
             }
           },
@@ -305,14 +305,14 @@ class SendtTilArbeidsgiverTest {
             "2920221987929": {
               "harHullICv": true,
               "alder": 53,
-              "innsatsbehov": "BATT",
+              "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
               "hovedmål": "SKAFFEA"
             },
             "2398700201334": {
               "harHullICv": false,
               "alder": 43,
               "tilretteleggingsbehov": [],
-              "innsatsbehov": "BATT",
+              "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
               "hovedmål": "SKAFFEA"
             }
           },

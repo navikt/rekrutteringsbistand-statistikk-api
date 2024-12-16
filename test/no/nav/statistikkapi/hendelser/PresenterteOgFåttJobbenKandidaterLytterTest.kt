@@ -88,7 +88,7 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(aktorId).isEqualTo("2133747575903")
             assertThat(alder).isEqualTo(53)
             assertThat(hullICv!!).isTrue()
-            assertThat(innsatsbehov).isEqualTo("BATT")
+            assertThat(innsatsbehov).isEqualTo("SPESIELT_TILPASSET_INNSATS")
             assertThat(hovedmål).isEqualTo("SKAFFEA")
         }
         stillingFraDb[0].apply {
@@ -164,7 +164,7 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(aktorId).isEqualTo("2133747575903")
             assertThat(alder).isEqualTo(53)
             assertThat(hullICv!!).isTrue()
-            assertThat(innsatsbehov).isEqualTo("BATT")
+            assertThat(innsatsbehov).isEqualTo("SPESIELT_TILPASSET_INNSATS")
             assertThat(hovedmål).isEqualTo("SKAFFEA")
         }
 
@@ -202,7 +202,7 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(aktorId).isEqualTo("2133747575903")
             assertThat(alder).isEqualTo(53)
             assertThat(hullICv!!).isTrue()
-            assertThat(innsatsbehov).isEqualTo("BATT")
+            assertThat(innsatsbehov).isEqualTo("SPESIELT_TILPASSET_INNSATS")
             assertThat(hovedmål).isEqualTo("SKAFFEA")
         }
         stillingFraDb[0].apply {
@@ -225,7 +225,7 @@ private fun registrertDeltCvmelding(tidspunkt: ZonedDateTime = ZonedDateTime.par
           "inkludering": {
             "harHullICv": true,
             "alder": 53,
-            "innsatsbehov": "BATT",
+            "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
             "hovedmål": "SKAFFEA"
           },
           "@event_name": "kandidat_v2.RegistrertDeltCv",
@@ -285,7 +285,7 @@ private fun registrertDeltCvMeldingMedDeprecatedTilretteleggingsbehov(tidspunkt:
             "harHullICv": true,
             "alder": 53,
             "tilretteleggingsbehov": ["arbeidstid"],
-            "innsatsbehov": "BATT",
+            "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
             "hovedmål": "SKAFFEA"
           },
           "@event_name": "kandidat_v2.RegistrertDeltCv",
@@ -437,7 +437,7 @@ private val registrerDeltCVMeldingUtenStillingberikelse = """
       "inkludering": {
         "harHullICv": true,
         "alder": 53,
-        "innsatsbehov": "BATT",
+        "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
         "hovedmål": "SKAFFEA"
       },
       "@event_name": "kandidat_v2.RegistrertDeltCv"
@@ -458,7 +458,7 @@ private val registrertFåttJobbenMelding = """
       "inkludering": {
         "harHullICv": true,
         "alder": 53,
-        "innsatsbehov": "BATT",
+        "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
         "hovedmål": "SKAFFEA"
       },
       "@event_name": "kandidat_v2.RegistrertFåttJobben",
@@ -517,7 +517,7 @@ val registrertFåttJobbenMeldingUtenStillingberikelse = """
       "inkludering": {
         "harHullICv": true,
         "alder": 53,
-        "innsatsbehov": "BATT",
+        "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
         "hovedmål": "SKAFFEA"
       },
       "@event_name": "kandidat_v2.RegistrertFåttJobben"
