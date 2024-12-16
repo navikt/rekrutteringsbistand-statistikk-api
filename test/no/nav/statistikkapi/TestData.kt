@@ -24,7 +24,7 @@ val etKandidatutfall = OpprettKandidatutfall(
     harHullICv = true,
     alder = 35,
     tidspunktForHendelsen = nowOslo(),
-    innsatsbehov = "IKVAL",
+    innsatsbehov = "STANDARD_INNSATS",
     hovedmål = "SKAFFERA"
 )
 
@@ -41,7 +41,7 @@ val etKandidatutfallIkkeIPrioritertMålgruppe = OpprettKandidatutfall(
     harHullICv = false,
     alder = 35,
     tidspunktForHendelsen = nowOslo(),
-    innsatsbehov = "IKVAL",
+    innsatsbehov = "STANDARD_INNSATS",
     hovedmål = "SKAFFERA"
 )
 

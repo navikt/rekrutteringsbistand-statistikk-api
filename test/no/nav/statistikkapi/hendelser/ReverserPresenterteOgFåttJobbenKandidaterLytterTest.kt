@@ -53,7 +53,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 aktørId = "2258757075176",
                 kandidatlisteId = "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
                 stillingsId = "b5919e46-9882-4b3c-8089-53ad02f26023",
-                innsatsbehov = "BATT",
+                innsatsbehov = "SPESIELT_TILPASSET_INNSATS",
                 hovedmål = "SKAFFEA",
                 alder = 55,
             )
@@ -72,7 +72,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 aktørId = "2258757075176",
                 kandidatlisteId = "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
                 stillingsId = "b5919e46-9882-4b3c-8089-53ad02f26023",
-                innsatsbehov = "BATT",
+                innsatsbehov = "SPESIELT_TILPASSET_INNSATS",
                 hovedmål = "SKAFFEA",
                 alder = 55,
             )
@@ -95,7 +95,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 aktørId = "2258757075176",
                 kandidatlisteId = "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
                 stillingsId = "b5919e46-9882-4b3c-8089-53ad02f26023",
-                innsatsbehov = "BATT",
+                innsatsbehov = "SPESIELT_TILPASSET_INNSATS",
                 hovedmål = "SKAFFEA",
                 alder = 55,
             )
@@ -115,7 +115,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(aktorId).isEqualTo("2258757075176")
             assertThat(alder).isEqualTo(55)
             assertThat(hullICv!!).isTrue()
-            assertThat(innsatsbehov).isEqualTo("BATT")
+            assertThat(innsatsbehov).isEqualTo("SPESIELT_TILPASSET_INNSATS")
             assertThat(hovedmål).isEqualTo("SKAFFEA")
 
             assertThat(utfall).isEqualTo(Utfall.IKKE_PRESENTERT)
@@ -134,7 +134,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 aktørId = "2258757075176",
                 kandidatlisteId = "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
                 stillingsId = "b5919e46-9882-4b3c-8089-53ad02f26023",
-                innsatsbehov = "BATT",
+                innsatsbehov = "SPESIELT_TILPASSET_INNSATS",
                 hovedmål = "SKAFFEA",
                 alder = 55,
             )
@@ -157,7 +157,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 aktørId = "2258757075176",
                 kandidatlisteId = "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
                 stillingsId = "b5919e46-9882-4b3c-8089-53ad02f26023",
-                innsatsbehov = "BATT",
+                innsatsbehov = "SPESIELT_TILPASSET_INNSATS",
                 hovedmål = "SKAFFEA",
                 alder = 55,
             )
@@ -180,7 +180,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
                 aktørId = "2258757075176",
                 kandidatlisteId = "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
                 stillingsId = "b5919e46-9882-4b3c-8089-53ad02f26023",
-                innsatsbehov = "BATT",
+                innsatsbehov = "SPESIELT_TILPASSET_INNSATS",
                 hovedmål = "SKAFFEA",
                 alder = 55,
             )
@@ -200,7 +200,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(aktorId).isEqualTo("2258757075176")
             assertThat(alder).isEqualTo(55)
             assertThat(hullICv!!).isTrue()
-            assertThat(innsatsbehov).isEqualTo("BATT")
+            assertThat(innsatsbehov).isEqualTo("SPESIELT_TILPASSET_INNSATS")
             assertThat(hovedmål).isEqualTo("SKAFFEA")
 
             assertThat(utfall).isEqualTo(Utfall.PRESENTERT)

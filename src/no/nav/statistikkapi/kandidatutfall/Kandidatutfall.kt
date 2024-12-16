@@ -44,12 +44,20 @@ enum class Innsatsgruppe {
     BATT, // spesielt tilpasset innsats
     BFORM, // situasjonsbestemt innsats
     VARIG, // varig tilpasset eller gradert varig tilpasset innsats
-    IKVAL; // standard innsats
+    IKVAL, // standard innsats
+    SPESIELT_TILPASSET_INNSATS,
+    SITUASJONSBESTEMT_INNSATS,
+    STANDARD_INNSATS,
+    VARIG_TILPASSET_INNSATS,
+    HAR_IKKE_GJELDENDE_14A_VEDTAK,
+    GRADERT_VARIG_TILPASSET_INNSATS;
+
 
 
     companion object {
         fun erIkkeStandardinnsats(innsatsgruppe: Innsatsgruppe): Boolean =
-            setOf(BATT, BFORM, VARIG).contains(innsatsgruppe)
+            setOf(BATT, BFORM, VARIG, SPESIELT_TILPASSET_INNSATS, SITUASJONSBESTEMT_INNSATS, VARIG_TILPASSET_INNSATS, GRADERT_VARIG_TILPASSET_INNSATS)
+                .contains(innsatsgruppe)
 
         fun erIkkeStandardinnsats(innsatsgruppe: String): Boolean =
             erIkkeStandardinnsats(Innsatsgruppe.valueOf(innsatsgruppe))

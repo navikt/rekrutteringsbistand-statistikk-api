@@ -318,7 +318,7 @@ class VisningKontaktinfoRepositoryTest {
 
     @Test
     fun `Kandidat med innsatsgruppe situasjonsbestemt innsats skal telles i prioritert målgruppe`() {
-        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "BFORM")
+        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "SITUASJONSBESTEMT_INNSATS")
         kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
         visningKontaktinfoRepo.lagre(
             kandidatUtfallIPrioritertMålgruppe.aktørId,
@@ -333,7 +333,7 @@ class VisningKontaktinfoRepositoryTest {
 
     @Test
     fun `Kandidat med innsatsgruppe spesielt tilpasset innsats skal telles i prioritert målgruppe`() {
-        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "BATT")
+        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "SPESIELT_TILPASSET_INNSATS")
         kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
         visningKontaktinfoRepo.lagre(
             kandidatUtfallIPrioritertMålgruppe.aktørId,
@@ -348,7 +348,7 @@ class VisningKontaktinfoRepositoryTest {
 
     @Test
     fun `Kandidat med innsatsgruppe varig tilpasset innsats skal telles i prioritert målgruppe`() {
-        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "VARIG")
+        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "VARIG_TILPASSET_INNSATS")
         kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
         visningKontaktinfoRepo.lagre(
             kandidatUtfallIPrioritertMålgruppe.aktørId,
@@ -363,7 +363,7 @@ class VisningKontaktinfoRepositoryTest {
 
     @Test
     fun `Kandidat med innsatsgruppe standardinnsats skal ikke telles i prioritert målgruppe`() {
-        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "IKVAL")
+        val kandidatUtfallIPrioritertMålgruppe = kandidatutfallIkkeIPrioritertMålgruppe.copy(innsatsbehov = "STANDARD_INNSATS")
         kandidatutfallRepository.lagreUtfall(kandidatUtfallIPrioritertMålgruppe)
         visningKontaktinfoRepo.lagre(
             kandidatUtfallIPrioritertMålgruppe.aktørId,
@@ -608,7 +608,7 @@ class VisningKontaktinfoRepositoryTest {
         utfall = Utfall.PRESENTERT,
         harHullICv = false,
         alder = 33,
-        innsatsbehov = "IKVAL"
+        innsatsbehov = "STANDARD_INNSATS"
     )
 
     private fun uniktKandidatutfallIPrioritertMålgruppe() =
