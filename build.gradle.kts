@@ -1,8 +1,3 @@
-/** Det er minst sannsynlighet for dependency-plunder når vi bruker samme versjon av Kotlin som den som er bundlet med Gradle via gradlew.
-For å se hvilken versjon det er, kjør "./gradlew --version".
-Kotlin-versjonen oppgraderes slik: https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:upgrading_wrapper
- */
-val kotlinCodeStyle = "official"
 val logbackVersion = "1.4.4"
 val ktorVersion = "2.1.3"
 val ktorLesserVersion = "1.6.8"
@@ -20,7 +15,6 @@ val mockkVersion = "1.13.2"
 val kafkaAvroSerializerVersion = "7.3.0"
 val shedlockVersion = "4.42.0"
 val pitestVersion = "1.9.0"
-val elasticSearchClientVersion = "7.10.1"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.1"
 val mockOAuth2ServerVersion = "0.5.6"
@@ -29,7 +23,7 @@ val avroVersion = "1.11.1"
 
 plugins {
     application
-    kotlin("jvm") version embeddedKotlinVersion // Kotlinversjon styres av gradlew, se https://blog.nishtahir.com/how-to-properly-update-the-gradle-wrapper/
+    kotlin("jvm") version "2.1.0"
     id("com.github.ben-manes.versions") version "0.43.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
     id("info.solidsoft.pitest") version "1.9.0"
