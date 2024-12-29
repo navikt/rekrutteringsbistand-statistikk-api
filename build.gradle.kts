@@ -1,8 +1,3 @@
-/** Det er minst sannsynlighet for dependency-plunder når vi bruker samme versjon av Kotlin som den som er bundlet med Gradle via gradlew.
-For å se hvilken versjon det er, kjør "./gradlew --version".
-Kotlin-versjonen oppgraderes slik: https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:upgrading_wrapper
- */
-val kotlinCodeStyle = "official"
 val logbackVersion = "1.4.4"
 val ktorVersion = "2.1.3"
 val ktorLesserVersion = "1.6.8"
@@ -10,26 +5,25 @@ val flywayVersion = "9.7.0"
 val hikariVersion = "5.0.1"
 val logstashEncoderVersion = "7.2"
 val vaultJdbcVersion = "1.3.10"
-val postgresVersion = "42.5.1"
+val postgresVersion = "42.7.4"
 val tokenValidationVersion = "2.1.7"
 val jacksonVersion = "2.14.0"
 val assertkVersion = "0.25"
 val micrometerPrometheusVersion = "1.10.0"
-val kafkaClientsVersion = "3.3.1"
+val kafkaClientsVersion = "3.9.0"
 val mockkVersion = "1.13.2"
-val kafkaAvroSerializerVersion = "7.3.0"
+val kafkaAvroSerializerVersion = "7.8.0"
 val shedlockVersion = "4.42.0"
 val pitestVersion = "1.9.0"
-val elasticSearchClientVersion = "7.10.1"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.1"
 val mockOAuth2ServerVersion = "0.5.6"
-val avroVersion = "1.11.1"
+val avroVersion = "1.12.0"
 
 
 plugins {
     application
-    kotlin("jvm") version embeddedKotlinVersion // Kotlinversjon styres av gradlew, se https://blog.nishtahir.com/how-to-properly-update-the-gradle-wrapper/
+    kotlin("jvm") version "2.1.0"
     id("com.github.ben-manes.versions") version "0.43.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
     id("info.solidsoft.pitest") version "1.9.0"

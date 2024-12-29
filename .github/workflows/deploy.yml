@@ -19,7 +19,7 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: call-build-java-gradlew
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/reusable-workflow'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/oppgrader-avhengigheter'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
