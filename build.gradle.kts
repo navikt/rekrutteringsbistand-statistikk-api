@@ -10,15 +10,15 @@ val tokenValidationVersion = "2.1.7"
 val jacksonVersion = "2.14.0"
 val assertkVersion = "0.25"
 val micrometerPrometheusVersion = "1.10.0"
-val kafkaClientsVersion = "3.3.1"
+val kafkaClientsVersion = "3.9.0"
 val mockkVersion = "1.13.2"
-val kafkaAvroSerializerVersion = "7.3.0"
+val kafkaAvroSerializerVersion = "7.8.0"
 val shedlockVersion = "4.42.0"
 val pitestVersion = "1.9.0"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.1"
 val mockOAuth2ServerVersion = "0.5.6"
-val avroVersion = "1.11.1"
+val avroVersion = "1.12.0"
 
 
 plugins {
