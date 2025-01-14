@@ -1,5 +1,5 @@
 val logbackVersion = "1.4.4"
-val ktorVersion = "2.1.3"
+val ktorVersion = "2.3.13"
 val ktorLesserVersion = "1.6.8"
 val flywayVersion = "9.7.0"
 val hikariVersion = "5.0.1"
@@ -63,7 +63,8 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
 
-    implementation("com.github.navikt:rapids-and-rivers:2023041310341681374880.67ced5ad4dda")
+    implementation("com.github.navikt:rapids-and-rivers:2025010715371736260653.d465d681c420")
+    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad")
 
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -72,21 +73,19 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
-    implementation("io.ktor:ktor-jackson:$ktorLesserVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
-    implementation("io.ktor:ktor-auth:$ktorLesserVersion")
+    runtimeOnly("io.ktor:ktor-client-auth:${ktorVersion}")
     implementation("no.nav.security:token-validation-ktor-v2:$tokenValidationVersion") {
         exclude(group = "io.ktor", module = "ktor-auth")
     }
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
-    implementation("io.micrometer:micrometer-registry-prometheus:$micrometerPrometheusVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
     implementation("org.apache.avro:avro:$avroVersion")
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
@@ -111,6 +110,22 @@ dependencies {
 
 configurations.all {
     resolutionStrategy {
-        force("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
+        force(
+            "io.github.microutils:kotlin-logging:$kotlinLoggingVersion",
+
+            // Overrides som trengs så lenge tokensupport er på ktor 2, mens rapids and rivers er på ktor3
+            "io.ktor:ktor-server-core:${ktorVersion}",
+            "io.ktor:ktor-server-cio:${ktorVersion}",
+            "io.ktor:ktor-server-host-common:${ktorVersion}",
+            "io.ktor:ktor-server-auth:${ktorVersion}",
+            "io.ktor:ktor-server-metrics-micrometer:${ktorVersion}",
+            "io.ktor:ktor-websockets:${ktorVersion}",
+            "io.ktor:ktor-serialization:${ktorVersion}",
+            "io.ktor:ktor-events:${ktorVersion}",
+            "io.ktor:ktor-http-cio:${ktorVersion}",
+            "io.ktor:ktor-utils:${ktorVersion}",
+            "io.ktor:ktor-http:${ktorVersion}",
+            "io.ktor:ktor-io:${ktorVersion}"
+        )
     }
 }

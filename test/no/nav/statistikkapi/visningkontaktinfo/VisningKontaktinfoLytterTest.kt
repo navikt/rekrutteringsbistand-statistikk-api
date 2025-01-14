@@ -2,7 +2,7 @@ package no.nav.statistikkapi.visningkontaktinfo
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
 import no.nav.statistikkapi.nowOslo

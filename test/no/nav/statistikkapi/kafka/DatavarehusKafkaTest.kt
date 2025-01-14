@@ -5,8 +5,8 @@ import assertk.assertions.isBetween
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.*

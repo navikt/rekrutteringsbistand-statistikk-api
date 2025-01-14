@@ -1,12 +1,12 @@
 package no.nav.statistikkapi
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.v2.IssuerConfig
 import no.nav.security.token.support.v2.TokenSupportConfig

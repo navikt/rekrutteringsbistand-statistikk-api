@@ -1,16 +1,23 @@
 package no.nav.statistikkapi.tiltak
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.helse.rapids_rivers.*
-import no.nav.helse.rapids_rivers.River.PacketListener
 import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.logging.log
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 
 class Tiltaklytter(
     rapidsConnection: RapidsConnection,
     private val repo: TiltaksRepository,
-) : PacketListener {
+) : River.PacketListener {
     init {
         River(rapidsConnection).apply {
             validate {
@@ -25,7 +32,13 @@ class Tiltaklytter(
             }
         }.register(this)
     }
-    override fun onPacket(packet: JsonMessage, context: MessageContext) {
+
+    override fun onPacket(
+        packet: JsonMessage,
+        context: MessageContext,
+        metadata: MessageMetadata,
+        meterRegistry: MeterRegistry
+    ) {
         val avtaleId = UUID.fromString(packet["avtaleId"].asText())
         val deltakerAktørId = packet["aktørId"].asText()
         val deltakerFnr = packet["deltakerFnr"].asText()
@@ -52,7 +65,8 @@ class Tiltaklytter(
         context.publish(packet.toJson())
     }
 
-    override fun onError(problems: MessageProblems, context: MessageContext) {
+    override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
         log.error("Mangler oblligatorisk felt $problems")
+        super.onError(problems, context, metadata)
     }
 }

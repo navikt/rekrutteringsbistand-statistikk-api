@@ -1,8 +1,15 @@
 package no.nav.statistikkapi.kandidatutfall
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.helse.rapids_rivers.*
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers.isMissingOrNull
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
@@ -46,8 +53,12 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         }.register(this)
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext) {
-
+    override fun onPacket(
+        packet: JsonMessage,
+        context: MessageContext,
+        metadata: MessageMetadata,
+        meterRegistry: MeterRegistry
+    ) {
         if (!erEntenKomplettStillingEllerIngenStilling(packet)) return
 
         val aktørId = packet["aktørId"].asText()
@@ -118,8 +129,9 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         packet["stillingsId"].isMissingOrNull() ||
                 (packet["stilling"].exists() && packet["stillingsinfo"].exists())
 
-    override fun onError(problems: MessageProblems, context: MessageContext) {
+    override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
         log.error("Feil ved lesing av melding\n$problems")
+        super.onError(problems, context, metadata)
     }
 
     override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {

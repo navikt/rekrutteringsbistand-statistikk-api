@@ -4,8 +4,8 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
 import assertk.assertions.isZero
-import no.nav.helse.rapids_rivers.asLocalDateTime
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.statistikkapi.atOslo
 import no.nav.statistikkapi.randomPort
 import no.nav.statistikkapi.start
