@@ -46,7 +46,6 @@ fun main() {
                 name = "azuread",
                 discoveryUrl = System.getenv("AZURE_APP_WELL_KNOWN_URL"),
                 acceptedAudience = listOf(System.getenv("AZURE_APP_CLIENT_ID")),
-                cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
             )
         )
         val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaProducer(KafkaConfig.producerConfig()))
