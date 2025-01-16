@@ -150,4 +150,3 @@ configurations.all {
         )
     }
 }
-}
