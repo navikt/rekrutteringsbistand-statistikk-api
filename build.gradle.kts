@@ -62,8 +62,12 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
 
-    implementation("com.github.navikt:rapids-and-rivers:2025010715371736260653.d465d681c420")
-    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad")
+    implementation("com.github.navikt:rapids-and-rivers:2025010715371736260653.d465d681c420") {
+        exclude("io.ktor")
+    }
+    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad") {
+        exclude("io.ktor")
+    }
 
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -79,8 +83,10 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
     runtimeOnly("io.ktor:ktor-client-auth:${ktorVersion}")
+    runtimeOnly("io.ktor:ktor-server-auth-jvm:${ktorVersion}")
+
     implementation("no.nav.security:token-validation-ktor-v2:$tokenValidationVersion") {
-        exclude(group = "io.ktor", module = "ktor-auth")
+        exclude(group = "io.ktor")
     }
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
