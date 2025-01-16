@@ -121,10 +121,5 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
 
     override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
         log.error("Feil ved lesing av melding\n$problems")
-        super.onError(problems, context, metadata)
-    }
-
-    override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {
-        super.onSevere(error, context)
     }
 }

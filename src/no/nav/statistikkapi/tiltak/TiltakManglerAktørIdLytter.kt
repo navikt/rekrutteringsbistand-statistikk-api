@@ -40,6 +40,5 @@ class TiltakManglerAktørIdLytter(
 
     override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
         log.error("Mangler obligatorisk felt $problems")
-        super.onError(problems, context, metadata)
     }
 }
