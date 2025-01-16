@@ -8,9 +8,9 @@ import io.ktor.server.engine.*
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.security.token.support.v2.IssuerConfig
-import no.nav.security.token.support.v2.TokenSupportConfig
-import no.nav.security.token.support.v2.tokenValidationSupport
+import no.nav.security.token.support.v3.IssuerConfig
+import no.nav.security.token.support.v3.TokenSupportConfig
+import no.nav.security.token.support.v3.tokenValidationSupport
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlistehendelseLytter

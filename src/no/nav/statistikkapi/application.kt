@@ -7,7 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -16,9 +16,9 @@ import io.micrometer.core.instrument.Metrics
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.RapidApplication
-import no.nav.security.token.support.v2.IssuerConfig
-import no.nav.security.token.support.v2.TokenSupportConfig
-import no.nav.security.token.support.v2.tokenValidationSupport
+import no.nav.security.token.support.v3.IssuerConfig
+import no.nav.security.token.support.v3.TokenSupportConfig
+import no.nav.security.token.support.v3.tokenValidationSupport
 import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository

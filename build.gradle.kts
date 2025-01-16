@@ -1,5 +1,5 @@
 val logbackVersion = "1.4.4"
-val ktorVersion = "2.3.13"
+val ktorVersion = "3.0.1"
 val flywayVersion = "9.7.0"
 val hikariVersion = "5.0.1"
 val logstashEncoderVersion = "7.2"
@@ -62,12 +62,8 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
 
-    implementation("com.github.navikt:rapids-and-rivers:2025010715371736260653.d465d681c420") {
-        exclude(group = "io.ktor")
-    }
-    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad") {
-        exclude(group = "io.ktor")
-    }
+    implementation("com.github.navikt:rapids-and-rivers:2025010715371736260653.d465d681c420")
+    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad")
 
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -85,9 +81,7 @@ dependencies {
     runtimeOnly("io.ktor:ktor-client-auth:${ktorVersion}")
     implementation("io.ktor:ktor-server-auth-jvm:${ktorVersion}")
 
-    implementation("no.nav.security:token-validation-ktor-v2:$tokenValidationVersion") {
-        exclude(group = "io.ktor")
-    }
+    implementation("no.nav.security:token-validation-ktor-v3:$tokenValidationVersion")
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
@@ -114,46 +108,3 @@ dependencies {
     testImplementation("io.ktor:ktor-server-cio:$ktorVersion")
 }
 
-configurations.all {
-    resolutionStrategy {
-        force(
-            // Force kotlin-logging
-            "io.github.microutils:kotlin-logging:$kotlinLoggingVersion",
-            "io.ktor:ktor-server:$ktorVersion",
-            "io.ktor:ktor-server-jvm:$ktorVersion",
-            "io.ktor:ktor-server-core:$ktorVersion",
-            "io.ktor:ktor-server-cio:$ktorVersion",
-            "io.ktor:ktor-server-host-common:$ktorVersion",
-            "io.ktor:ktor-server-auth:$ktorVersion",
-            "io.ktor:ktor-server-auth-jvm:$ktorVersion",
-            "io.ktor:ktor-server-sessions:$ktorVersion",
-            "io.ktor:ktor-server-sessions-jvm:$ktorVersion",
-            "io.ktor:ktor-server-compression:$ktorVersion",
-            "io.ktor:ktor-server-caching-headers:$ktorVersion",
-            "io.ktor:ktor-server-conditional-headers:$ktorVersion",
-            "io.ktor:ktor-server-default-headers:$ktorVersion",
-            "io.ktor:ktor-server-auto-head-response:$ktorVersion",
-            "io.ktor:ktor-server-call-id:$ktorVersion",
-            "io.ktor:ktor-server-cors:$ktorVersion",
-            "io.ktor:ktor-server-data-conversion:$ktorVersion",
-            "io.ktor:ktor-server-double-receive:$ktorVersion",
-            "io.ktor:ktor-server-forwarded-header:$ktorVersion",
-            "io.ktor:ktor-server-hsts:$ktorVersion",
-            "io.ktor:ktor-server-http-redirect:$ktorVersion",
-            "io.ktor:ktor-server-partial-content:$ktorVersion",
-            "io.ktor:ktor-server-status-pages:$ktorVersion",
-            "io.ktor:ktor-server-method-override:$ktorVersion",
-            "io.ktor:ktor-server-call-logging:$ktorVersion",
-            "io.ktor:ktor-server-content-negotiation:$ktorVersion",
-            "io.ktor:ktor-server-metrics-micrometer:$ktorVersion",
-
-            "io.ktor:ktor-websockets:$ktorVersion",
-            "io.ktor:ktor-serialization:$ktorVersion",
-            "io.ktor:ktor-events:$ktorVersion",
-            "io.ktor:ktor-http-cio:$ktorVersion",
-            "io.ktor:ktor-utils:$ktorVersion",
-            "io.ktor:ktor-http:$ktorVersion",
-            "io.ktor:ktor-io:$ktorVersion"
-        )
-    }
-}
