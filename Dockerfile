@@ -1,3 +1,7 @@
+ENV HOME=/usr/app
+RUN mkdir -p $HOME
+WORKDIR $HOME
+
 FROM gcr.io/distroless/java21-debian12:nonroot
 
 WORKDIR /app
