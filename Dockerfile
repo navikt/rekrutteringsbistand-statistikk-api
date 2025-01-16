@@ -1,9 +1,6 @@
 FROM gcr.io/distroless/java21-debian12:debug-nonroot
 
-
-RUN mkdir -p /test
-WORKDIR test
-
+WORKDIR /rekrutteringsbistand-statistikk-api
 
 ADD build/distributions/rekrutteringsbistand-statistikk-api.tar /
 
