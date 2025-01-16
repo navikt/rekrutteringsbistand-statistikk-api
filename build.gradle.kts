@@ -110,21 +110,44 @@ dependencies {
 configurations.all {
     resolutionStrategy {
         force(
+            // Force kotlin-logging
             "io.github.microutils:kotlin-logging:$kotlinLoggingVersion",
+            "io.ktor:ktor-server:$ktorVersion",
+            "io.ktor:ktor-server-jvm:$ktorVersion",
+            "io.ktor:ktor-server-core:$ktorVersion",
+            "io.ktor:ktor-server-cio:$ktorVersion",
+            "io.ktor:ktor-server-host-common:$ktorVersion",
+            "io.ktor:ktor-server-auth:$ktorVersion",
+            "io.ktor:ktor-server-auth-jvm:$ktorVersion",
+            "io.ktor:ktor-server-sessions:$ktorVersion",
+            "io.ktor:ktor-server-sessions-jvm:$ktorVersion",
+            "io.ktor:ktor-server-compression:$ktorVersion",
+            "io.ktor:ktor-server-caching-headers:$ktorVersion",
+            "io.ktor:ktor-server-conditional-headers:$ktorVersion",
+            "io.ktor:ktor-server-default-headers:$ktorVersion",
+            "io.ktor:ktor-server-auto-head-response:$ktorVersion",
+            "io.ktor:ktor-server-call-id:$ktorVersion",
+            "io.ktor:ktor-server-cors:$ktorVersion",
+            "io.ktor:ktor-server-data-conversion:$ktorVersion",
+            "io.ktor:ktor-server-double-receive:$ktorVersion",
+            "io.ktor:ktor-server-forwarded-header:$ktorVersion",
+            "io.ktor:ktor-server-hsts:$ktorVersion",
+            "io.ktor:ktor-server-http-redirect:$ktorVersion",
+            "io.ktor:ktor-server-partial-content:$ktorVersion",
+            "io.ktor:ktor-server-status-pages:$ktorVersion",
+            "io.ktor:ktor-server-method-override:$ktorVersion",
+            "io.ktor:ktor-server-call-logging:$ktorVersion",
+            "io.ktor:ktor-server-content-negotiation:$ktorVersion",
+            "io.ktor:ktor-server-metrics-micrometer:$ktorVersion",
 
-            // Overrides som trengs så lenge tokensupport er på ktor 2, mens rapids and rivers er på ktor3
-            "io.ktor:ktor-server-core:${ktorVersion}",
-            "io.ktor:ktor-server-cio:${ktorVersion}",
-            "io.ktor:ktor-server-host-common:${ktorVersion}",
-            "io.ktor:ktor-server-auth:${ktorVersion}",
-            "io.ktor:ktor-server-metrics-micrometer:${ktorVersion}",
-            "io.ktor:ktor-websockets:${ktorVersion}",
-            "io.ktor:ktor-serialization:${ktorVersion}",
-            "io.ktor:ktor-events:${ktorVersion}",
-            "io.ktor:ktor-http-cio:${ktorVersion}",
-            "io.ktor:ktor-utils:${ktorVersion}",
-            "io.ktor:ktor-http:${ktorVersion}",
-            "io.ktor:ktor-io:${ktorVersion}"
+            "io.ktor:ktor-websockets:$ktorVersion",
+            "io.ktor:ktor-serialization:$ktorVersion",
+            "io.ktor:ktor-events:$ktorVersion",
+            "io.ktor:ktor-http-cio:$ktorVersion",
+            "io.ktor:ktor-utils:$ktorVersion",
+            "io.ktor:ktor-http:$ktorVersion",
+            "io.ktor:ktor-io:$ktorVersion"
         )
     }
+}
 }
