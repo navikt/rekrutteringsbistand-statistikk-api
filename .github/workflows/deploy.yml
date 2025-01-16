@@ -11,6 +11,8 @@ jobs:
     uses: navikt/toi-github-actions-workflows/.github/workflows/build-java-gradlew.yaml@main
     with:
       java-version: '21'
+      docker-build-args: |
+        APP_NAME=rekrutteringsbistand-statistikk-api
     permissions:
       contents: read
       id-token: write
@@ -21,8 +23,6 @@ jobs:
     needs: call-build-java-gradlew
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/oppgrader-rapids-and-rivers'
     runs-on: ubuntu-latest
-    with:
-      app_name: ${{ github.workflow }}
     steps:
       - uses: actions/checkout@v3
       - uses: nais/deploy/actions/deploy@v2
