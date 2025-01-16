@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java21-debian12:nonroot
+FROM gcr.io/distroless/java21-debian12:debug-nonroot
 ADD build/distributions/rekrutteringsbistand-statistikk-api.tar /
 
 USER nonroot
