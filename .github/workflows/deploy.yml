@@ -21,6 +21,8 @@ jobs:
     needs: call-build-java-gradlew
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/oppgrader-rapids-and-rivers'
     runs-on: ubuntu-latest
+    with:
+      app_name: ${{ github.workflow }}
     steps:
       - uses: actions/checkout@v3
       - uses: nais/deploy/actions/deploy@v2
