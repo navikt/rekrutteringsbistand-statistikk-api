@@ -11,8 +11,6 @@ jobs:
     uses: navikt/toi-github-actions-workflows/.github/workflows/build-java-gradlew.yaml@main
     with:
       java-version: '21'
-      docker-build-args: |
-        APP_NAME=rekrutteringsbistand-statistikk-api
     permissions:
       contents: read
       id-token: write
