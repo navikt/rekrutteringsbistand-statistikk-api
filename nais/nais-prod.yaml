@@ -7,7 +7,7 @@ metadata:
     team: toi
 spec:
   image: {{version}}
-  port: 8111
+  port: 8080
   ingresses:
     - https://arbeidsgiver.nais.adeo.no/rekrutteringsbistand-statistikk-api/
     - https://rekrutteringsbistand-statistikk-api.prod-fss-pub.nais.io
