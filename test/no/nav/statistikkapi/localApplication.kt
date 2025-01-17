@@ -1,16 +1,16 @@
 package no.nav.statistikkapi
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.ktor.server.auth.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.security.token.support.v2.IssuerConfig
-import no.nav.security.token.support.v2.TokenSupportConfig
-import no.nav.security.token.support.v2.tokenValidationSupport
+import no.nav.security.token.support.v3.IssuerConfig
+import no.nav.security.token.support.v3.TokenSupportConfig
+import no.nav.security.token.support.v3.tokenValidationSupport
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlistehendelseLytter
@@ -30,7 +30,7 @@ fun main() {
 
 fun start(
     database: TestDatabase = TestDatabase(),
-    port: Int = 8111,
+    port: Int = 8080,
     mockOAuth2Server: MockOAuth2Server = MockOAuth2Server(),
     rapid: RapidsConnection = TestRapid()
 ) {
