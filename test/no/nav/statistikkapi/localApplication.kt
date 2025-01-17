@@ -30,7 +30,7 @@ fun main() {
 
 fun start(
     database: TestDatabase = TestDatabase(),
-    port: Int = 8111,
+    port: Int = 8080,
     mockOAuth2Server: MockOAuth2Server = MockOAuth2Server(),
     rapid: RapidsConnection = TestRapid()
 ) {

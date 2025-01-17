@@ -66,4 +66,4 @@ spec:
     - name: KAFKA_RESET_POLICY
       value: "earliest"
     - name: HTTP_PORT
-      value: "8111"
+      value: "8080"
