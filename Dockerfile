@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java21-debian12:debug-nonroot
+FROM gcr.io/distroless/java21-debian12:nonroot
 
 WORKDIR /rekrutteringsbistand-statistikk-api
 

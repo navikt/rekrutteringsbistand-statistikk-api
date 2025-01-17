@@ -91,7 +91,6 @@ fun startApp(
                     prometheusMeterRegistry = prometheusMeterRegistry
                 )
             }
-                .withHttpPort( 8080)
                 .build().apply {
                     PresenterteOgFåttJobbenKandidaterLytter(
                         this,
