@@ -90,72 +90,74 @@ fun startApp(
                     dataSource = database.dataSource,
                     prometheusMeterRegistry = prometheusMeterRegistry
                 )
-            }.build().apply {
-                PresenterteOgFåttJobbenKandidaterLytter(
-                    this,
-                    LagreUtfallOgStilling(
-                        KandidatutfallRepository(database.dataSource),
-                        StillingRepository(database.dataSource)
-                    ),
-                    "RegistrertDeltCv",
-                    prometheusMeterRegistry = prometheusMeterRegistry
-                )
-                PresenterteOgFåttJobbenKandidaterLytter(
-                    this,
-                    LagreUtfallOgStilling(
-                        KandidatutfallRepository(database.dataSource),
-                        StillingRepository(database.dataSource)
-                    ),
-                    "RegistrertFåttJobben",
-                    prometheusMeterRegistry = prometheusMeterRegistry
-                )
-                ReverserPresenterteOgFåttJobbenKandidaterLytter(
-                    this,
-                    LagreUtfallOgStilling(
-                        KandidatutfallRepository(database.dataSource),
-                        StillingRepository(database.dataSource)
-                    ),
-                    utfallRepository = kandidatutfallRepository,
-                    "FjernetRegistreringDeltCv",
-                    prometheusMeterRegistry = prometheusMeterRegistry
-                )
-                ReverserPresenterteOgFåttJobbenKandidaterLytter(
-                    this,
-                    LagreUtfallOgStilling(
-                        KandidatutfallRepository(database.dataSource),
-                        StillingRepository(database.dataSource)
-                    ),
-                    utfallRepository = kandidatutfallRepository,
-                    "FjernetRegistreringFåttJobben",
-                    prometheusMeterRegistry = prometheusMeterRegistry
-                )
-                SendtTilArbeidsgiverKandidaterLytter(
-                    this,
-                    LagreUtfallOgStilling(
-                        KandidatutfallRepository(database.dataSource),
-                        StillingRepository(database.dataSource)
-                    ),
-                    prometheusMeterRegistry = prometheusMeterRegistry
-                )
-                SlettetStillingOgKandidatlisteLytter(
-                    rapidsConnection = this,
-                    repository = KandidatutfallRepository(database.dataSource),
-                    prometheusMeterRegistry = prometheusMeterRegistry,
-                    lagreUtfallOgStilling = LagreUtfallOgStilling(
-                        KandidatutfallRepository(database.dataSource),
-                        StillingRepository(database.dataSource)
-                    )
-                )
-                KandidatlistehendelseLytter(
-                    rapidsConnection = this,
-                    repository = KandidatlisteRepository(database.dataSource)
-                )
-                VisningKontaktinfoLytter(
-                    rapidsConnection = this,
-                    repository = visningKontaktinfoRepository
-                )
-
             }
+                .withHttpPort( 8080)
+                .build().apply {
+                    PresenterteOgFåttJobbenKandidaterLytter(
+                        this,
+                        LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        ),
+                        "RegistrertDeltCv",
+                        prometheusMeterRegistry = prometheusMeterRegistry
+                    )
+                    PresenterteOgFåttJobbenKandidaterLytter(
+                        this,
+                        LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        ),
+                        "RegistrertFåttJobben",
+                        prometheusMeterRegistry = prometheusMeterRegistry
+                    )
+                    ReverserPresenterteOgFåttJobbenKandidaterLytter(
+                        this,
+                        LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        ),
+                        utfallRepository = kandidatutfallRepository,
+                        "FjernetRegistreringDeltCv",
+                        prometheusMeterRegistry = prometheusMeterRegistry
+                    )
+                    ReverserPresenterteOgFåttJobbenKandidaterLytter(
+                        this,
+                        LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        ),
+                        utfallRepository = kandidatutfallRepository,
+                        "FjernetRegistreringFåttJobben",
+                        prometheusMeterRegistry = prometheusMeterRegistry
+                    )
+                    SendtTilArbeidsgiverKandidaterLytter(
+                        this,
+                        LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        ),
+                        prometheusMeterRegistry = prometheusMeterRegistry
+                    )
+                    SlettetStillingOgKandidatlisteLytter(
+                        rapidsConnection = this,
+                        repository = KandidatutfallRepository(database.dataSource),
+                        prometheusMeterRegistry = prometheusMeterRegistry,
+                        lagreUtfallOgStilling = LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        )
+                    )
+                    KandidatlistehendelseLytter(
+                        rapidsConnection = this,
+                        repository = KandidatlisteRepository(database.dataSource)
+                    )
+                    VisningKontaktinfoLytter(
+                        rapidsConnection = this,
+                        repository = visningKontaktinfoRepository
+                    )
+
+                }
         }
     )
 
