@@ -16,9 +16,6 @@ import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlistehendelseLytter
 import no.nav.statistikkapi.kandidatutfall.*
 import no.nav.statistikkapi.stillinger.StillingRepository
-import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
-import no.nav.statistikkapi.tiltak.Tiltaklytter
-import no.nav.statistikkapi.tiltak.TiltaksRepository
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoLytter
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
 import org.slf4j.LoggerFactory
@@ -114,10 +111,6 @@ fun start(
         rapidsConnection = rapid,
         repository = VisningKontaktinfoRepository(database.dataSource)
     )
-
-    Tiltaklytter(rapid, TiltaksRepository(database.dataSource))
-    TiltakManglerAktørIdLytter(rapid)
-
 
     val ktorServer = embeddedServer(CIO, port = port) {}
     val ktorApplication = ktorServer.application
