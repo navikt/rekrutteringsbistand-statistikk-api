@@ -34,6 +34,8 @@ spec:
           cluster: prod-gcp
         - application: rekrutteringsbistand
           cluster: prod-gcp
+        - application: rekrutteringsbistand-frontend
+          cluster: prod-gcp
         - application: rekrutteringsbistand-kandidat-api
           cluster: prod-fss
   webproxy: true
