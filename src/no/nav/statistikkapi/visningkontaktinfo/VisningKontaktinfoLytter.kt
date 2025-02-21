@@ -1,9 +1,11 @@
 package no.nav.statistikkapi.visningkontaktinfo
 
-import no.nav.helse.rapids_rivers.JsonMessage
-import no.nav.helse.rapids_rivers.MessageContext
-import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.helse.rapids_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.statistikkapi.kandidatutfall.asUUID
 import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
 import no.nav.statistikkapi.logging.log
@@ -18,12 +20,17 @@ class VisningKontaktinfoLytter(
             validate {
                 it.rejectValue("@slutt_av_hendelseskjede", true)
                 it.demandValue("@event_name", "arbeidsgiversKandidatliste.VisningKontaktinfo")
-                it.requireKey( "aktørId", "stillingsId", "tidspunkt")
+                it.requireKey("aktørId", "stillingsId", "tidspunkt")
             }
         }.register(this)
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext) {
+    override fun onPacket(
+        packet: JsonMessage,
+        context: MessageContext,
+        metadata: MessageMetadata,
+        meterRegistry: MeterRegistry
+    ) {
         val aktørId = packet["aktørId"].asText()
         val stillingsId = packet["stillingsId"].asUUID()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()

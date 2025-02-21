@@ -7,18 +7,18 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.micrometer.core.instrument.Metrics
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.RapidApplication
-import no.nav.security.token.support.v2.IssuerConfig
-import no.nav.security.token.support.v2.TokenSupportConfig
-import no.nav.security.token.support.v2.tokenValidationSupport
+import no.nav.security.token.support.v3.IssuerConfig
+import no.nav.security.token.support.v3.TokenSupportConfig
+import no.nav.security.token.support.v3.tokenValidationSupport
 import no.nav.statistikkapi.db.Database
 import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
@@ -27,9 +27,6 @@ import no.nav.statistikkapi.kandidatutfall.*
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.metrikker.MetrikkJobb
 import no.nav.statistikkapi.stillinger.StillingRepository
-import no.nav.statistikkapi.tiltak.TiltakManglerAktørIdLytter
-import no.nav.statistikkapi.tiltak.Tiltaklytter
-import no.nav.statistikkapi.tiltak.TiltaksRepository
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoLytter
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -49,7 +46,6 @@ fun main() {
                 name = "azuread",
                 discoveryUrl = System.getenv("AZURE_APP_WELL_KNOWN_URL"),
                 acceptedAudience = listOf(System.getenv("AZURE_APP_CLIENT_ID")),
-                cookieName = System.getenv("AZURE_OPENID_CONFIG_ISSUER")
             )
         )
         val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaProducer(KafkaConfig.producerConfig()))
@@ -84,87 +80,85 @@ fun startApp(
         prometheusMeterRegistry
     )
 
-    val rapid = RapidApplication.Builder(
-        RapidApplication.RapidApplicationConfig.fromEnv(
-            System.getenv()
-        )
-    ).withKtorModule {
-        settOppKtor(
-            application = this,
-            tokenValidationConfig = tokenValidationConfig,
-            dataSource = database.dataSource,
-            prometheusMeterRegistry = prometheusMeterRegistry
-        )
-    }.build().apply {
+    val rapid = RapidApplication.create(
+        System.getenv(),
+        builder = {
+            withKtorModule {
+                settOppKtor(
+                    application = this,
+                    tokenValidationConfig = tokenValidationConfig,
+                    dataSource = database.dataSource,
+                    prometheusMeterRegistry = prometheusMeterRegistry
+                )
+            }
+                .build().apply {
+                    PresenterteOgFåttJobbenKandidaterLytter(
+                        this,
+                        LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        ),
+                        "RegistrertDeltCv",
+                        prometheusMeterRegistry = prometheusMeterRegistry
+                    )
+                    PresenterteOgFåttJobbenKandidaterLytter(
+                        this,
+                        LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        ),
+                        "RegistrertFåttJobben",
+                        prometheusMeterRegistry = prometheusMeterRegistry
+                    )
+                    ReverserPresenterteOgFåttJobbenKandidaterLytter(
+                        this,
+                        LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        ),
+                        utfallRepository = kandidatutfallRepository,
+                        "FjernetRegistreringDeltCv",
+                        prometheusMeterRegistry = prometheusMeterRegistry
+                    )
+                    ReverserPresenterteOgFåttJobbenKandidaterLytter(
+                        this,
+                        LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        ),
+                        utfallRepository = kandidatutfallRepository,
+                        "FjernetRegistreringFåttJobben",
+                        prometheusMeterRegistry = prometheusMeterRegistry
+                    )
+                    SendtTilArbeidsgiverKandidaterLytter(
+                        this,
+                        LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        ),
+                        prometheusMeterRegistry = prometheusMeterRegistry
+                    )
+                    SlettetStillingOgKandidatlisteLytter(
+                        rapidsConnection = this,
+                        repository = KandidatutfallRepository(database.dataSource),
+                        prometheusMeterRegistry = prometheusMeterRegistry,
+                        lagreUtfallOgStilling = LagreUtfallOgStilling(
+                            KandidatutfallRepository(database.dataSource),
+                            StillingRepository(database.dataSource)
+                        )
+                    )
+                    KandidatlistehendelseLytter(
+                        rapidsConnection = this,
+                        repository = KandidatlisteRepository(database.dataSource)
+                    )
+                    VisningKontaktinfoLytter(
+                        rapidsConnection = this,
+                        repository = visningKontaktinfoRepository
+                    )
 
-        PresenterteOgFåttJobbenKandidaterLytter(
-            this,
-            LagreUtfallOgStilling(
-                KandidatutfallRepository(database.dataSource),
-                StillingRepository(database.dataSource)
-            ),
-            "RegistrertDeltCv",
-            prometheusMeterRegistry = prometheusMeterRegistry
-        )
-        PresenterteOgFåttJobbenKandidaterLytter(
-            this,
-            LagreUtfallOgStilling(
-                KandidatutfallRepository(database.dataSource),
-                StillingRepository(database.dataSource)
-            ),
-            "RegistrertFåttJobben",
-            prometheusMeterRegistry = prometheusMeterRegistry
-        )
-        ReverserPresenterteOgFåttJobbenKandidaterLytter(
-            this,
-            LagreUtfallOgStilling(
-                KandidatutfallRepository(database.dataSource),
-                StillingRepository(database.dataSource)
-            ),
-            utfallRepository = kandidatutfallRepository,
-            "FjernetRegistreringDeltCv",
-            prometheusMeterRegistry = prometheusMeterRegistry
-        )
-        ReverserPresenterteOgFåttJobbenKandidaterLytter(
-            this,
-            LagreUtfallOgStilling(
-                KandidatutfallRepository(database.dataSource),
-                StillingRepository(database.dataSource)
-            ),
-            utfallRepository = kandidatutfallRepository,
-            "FjernetRegistreringFåttJobben",
-            prometheusMeterRegistry = prometheusMeterRegistry
-        )
-        SendtTilArbeidsgiverKandidaterLytter(
-            this,
-            LagreUtfallOgStilling(
-                KandidatutfallRepository(database.dataSource),
-                StillingRepository(database.dataSource)
-            ),
-            prometheusMeterRegistry = prometheusMeterRegistry
-        )
-        SlettetStillingOgKandidatlisteLytter(
-            rapidsConnection = this,
-            repository = KandidatutfallRepository(database.dataSource),
-            prometheusMeterRegistry = prometheusMeterRegistry,
-            lagreUtfallOgStilling = LagreUtfallOgStilling(
-                KandidatutfallRepository(database.dataSource),
-                StillingRepository(database.dataSource)
-            )
-        )
-        KandidatlistehendelseLytter(
-            rapidsConnection = this,
-            repository = KandidatlisteRepository(database.dataSource)
-        )
-        VisningKontaktinfoLytter(
-            rapidsConnection = this,
-            repository = visningKontaktinfoRepository
-        )
-
-        //TODO Fjern tiltak
-        //Tiltaklytter(this, TiltaksRepository(database.dataSource))
-        //TiltakManglerAktørIdLytter(this)
-    }
+                }
+        }
+    )
 
     metrikkJobb.start()
     rapid.start()
