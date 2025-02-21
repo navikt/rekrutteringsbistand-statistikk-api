@@ -19,9 +19,9 @@ import kotlinx.coroutines.runBlocking
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
-import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.BFORM
+import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.SITUASJONSBESTEMT_INNSATS
 import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.Companion.erIkkeStandardinnsats
-import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.IKVAL
+import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.STANDARD_INNSATS
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
 import org.apache.http.HttpHeaders
@@ -308,7 +308,7 @@ class HentStatistikkTest {
     fun `Statistikk skal også returnere presentert-statistikk for personer i prioritert målgruppe`() {
         val ikkePrioritert = etKandidatutfall.copy(utfall = PRESENTERT)
         val innsatsgruppeIkkeStandard =
-            etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = BFORM.name, kandidatlisteId = "ikkeStandard")
+            etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = SITUASJONSBESTEMT_INNSATS.name, kandidatlisteId = "ikkeStandard")
         assertTrue(erIkkeStandardinnsats(innsatsgruppeIkkeStandard.innsatsbehov!!))
         val under30År =
             etKandidatutfall.copy(utfall = PRESENTERT, innsatsbehov = null, alder = 29, kandidatlisteId = "under30")
@@ -330,7 +330,7 @@ class HentStatistikkTest {
     fun `Statistikk skal også returnere fått jobben-statistikk for personer i prioritert målgruppe`() {
         val ikkePrioritert = etKandidatutfall.copy(utfall = FATT_JOBBEN)
         val innsatsgruppeIkkeStandard =
-            etKandidatutfall.copy(utfall = FATT_JOBBEN, innsatsbehov = BFORM.name, kandidatlisteId = "ikkeStandard")
+            etKandidatutfall.copy(utfall = FATT_JOBBEN, innsatsbehov = SITUASJONSBESTEMT_INNSATS.name, kandidatlisteId = "ikkeStandard")
         assertTrue(erIkkeStandardinnsats(innsatsgruppeIkkeStandard.innsatsbehov!!))
         val under30År =
             etKandidatutfall.copy(utfall = FATT_JOBBEN, innsatsbehov = null, alder = 29, kandidatlisteId = "under30")
@@ -617,11 +617,11 @@ class HentStatistikkTest {
 
     @Test
     fun `antall presentasjoner er ikke det samme som antall personer også for prioritert målgruppe`() {
-        val presentertForStilling1 = etKandidatutfall.copy(innsatsbehov = BFORM.name)
+        val presentertForStilling1 = etKandidatutfall.copy(innsatsbehov = SITUASJONSBESTEMT_INNSATS.name)
         val presentertForStilling2 = presentertForStilling1.copy(
             kandidatlisteId = "kandliste2",
             stillingsId = "stilling2",
-            innsatsbehov = IKVAL.name,
+            innsatsbehov = STANDARD_INNSATS.name,
             alder = 29
         )
         assertThat(presentertForStilling2.tidspunktForHendelsen).isEqualTo(presentertForStilling1.tidspunktForHendelsen)

@@ -1,5 +1,6 @@
 package no.nav.statistikkapi.kandidatliste
 
+import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe
 import java.sql.SQLException
 import java.sql.Timestamp
 import java.time.ZonedDateTime
@@ -12,6 +13,8 @@ import javax.sql.DataSource
  * gjelder kandidatlister tilknyttet stillinger med stillingskategori STILLING eller null.
  */
 class KandidatlisteRepository(private val dataSource: DataSource) {
+
+    private val ikkestandardInnsatsBehov = Innsatsgruppe.innsatsgrupperSomIkkeErStandardinnsats.joinToString { "'$it'" }
 
     fun lagreKandidatlistehendelse(hendelse: Kandidatlistehendelse) {
         val stillingOpprettet = hendelse.stillingOpprettetTidspunkt?.let {
@@ -447,7 +450,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                     and (
                         (fått_jobben_utfall.alder < 30 or fått_jobben_utfall.alder > 49) or 
                         (fått_jobben_utfall.hull_i_cv is true) or 
-                        (fått_jobben_utfall.innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                        (fått_jobben_utfall.innsatsbehov in ($ikkestandardInnsatsBehov))
                     )
             """.trimIndent()).executeQuery()
 
@@ -491,7 +494,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                     and (
                         (fått_jobben_utfall.alder < 30 or fått_jobben_utfall.alder > 49) or 
                         (fått_jobben_utfall.hull_i_cv is true) or 
-                        (fått_jobben_utfall.innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                        (fått_jobben_utfall.innsatsbehov in ($ikkestandardInnsatsBehov))
                     )
                 group by maaned
             """.trimIndent()).executeQuery()

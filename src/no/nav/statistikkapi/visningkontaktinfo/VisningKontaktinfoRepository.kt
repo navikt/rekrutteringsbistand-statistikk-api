@@ -1,5 +1,6 @@
 package no.nav.statistikkapi.visningkontaktinfo
 
+import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 import java.util.*
@@ -39,6 +40,8 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
         }
     }
 
+    private val ikkestandardInnsatsBehov = Innsatsgruppe.innsatsgrupperSomIkkeErStandardinnsats.joinToString { "'$it'" }
+
     fun hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo(): Int {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
@@ -58,7 +61,7 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
                         and (
                             (alder < 30 or alder > 49) or 
                             (hull_i_cv is true) or 
-                            (innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                            (innsatsbehov in ($ikkestandardInnsatsBehov))
                         )
                     group by aktorid, stillingsid
                 )
@@ -92,7 +95,7 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
                 where (
                     (alder < 30 or alder > 49) or
                     (hull_i_cv is true) or
-                    (innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                    (innsatsbehov in ($ikkestandardInnsatsBehov))
                 );
             """.trimIndent()
             ).executeQuery()
@@ -129,7 +132,7 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
                   and (
                         (alder < 30 or alder > 49) or
                         (hull_i_cv is true) or
-                        (innsatsbehov in ('VARIG', 'BATT', 'BFORM'))
+                        (innsatsbehov in ($ikkestandardInnsatsBehov))
                     )
                 group by maaned;
             """.trimIndent()
