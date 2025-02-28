@@ -11,7 +11,7 @@ private const val databaseNavn = "rekrutteringsbistand-statistikk-pg15"
 
 class Database(cluster: Cluster) {
 
-    data class DbConf(val mountPath: String, val jdbcUrl: String)
+    private data class DbConf(val mountPath: String, val jdbcUrl: String)
 
     private val config = when (cluster) {
         Cluster.DEV_FSS -> DbConf(

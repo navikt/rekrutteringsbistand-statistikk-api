@@ -1,4 +1,7 @@
 <configuration>
+    <!-- Log detailed information about the Logback initialization process. -->
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+
     <appender name="appLog" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
