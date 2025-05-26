@@ -62,3 +62,9 @@ spec:
       value: "rekrutteringsbistand-statistikk-api-rapidconsumer-2"
     - name: KAFKA_RESET_POLICY
       value: "earliest"
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+      enabled: true
