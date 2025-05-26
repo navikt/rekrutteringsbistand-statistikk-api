@@ -65,3 +65,9 @@ spec:
       value: "earliest"
     - name: HTTP_PORT
       value: "8080"
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+      enabled: true
