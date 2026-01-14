@@ -11,6 +11,8 @@ on:
 
 jobs:
   deploy-kandidat-topic-to-dev:
+    permissions:
+      id-token: write
     name: Deploy dvh-topic to dev
     runs-on: ubuntu-latest
     steps:
