@@ -8,8 +8,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.helse.rapids_rivers.*
-import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
+import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
@@ -19,8 +18,8 @@ class SlettetStillingOgKandidatlisteLytter(
     private val repository: KandidatutfallRepository,
     private val prometheusMeterRegistry: PrometheusMeterRegistry,
     private val lagreUtfallOgStilling: LagreUtfallOgStilling
-) :
-    River.PacketListener {
+) : River.PacketListener {
+    private val secureLog = SecureLog(log)
     init {
         River(rapidsConnection).apply {
             validate {
@@ -52,7 +51,7 @@ class SlettetStillingOgKandidatlisteLytter(
         val stillingskategori: Stillingskategori =
             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
 
-        secure(log).info(
+        secureLog.info(
             """
             kandidatlisteId: $kandidatlisteId
             tidspunkt: $tidspunkt

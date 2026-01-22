@@ -19,7 +19,7 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: call-build-java-gradlew
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/14a-innsatsgrupper-hovedmål'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/fiks_alert_og_securelog'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

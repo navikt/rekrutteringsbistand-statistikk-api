@@ -8,7 +8,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
+import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
@@ -19,8 +19,9 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
     private val utfallRepository: KandidatutfallRepository,
     private val eventNamePostfix: String,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
-) :
-    River.PacketListener {
+) : River.PacketListener {
+    private val secureLog = SecureLog(log)
+
     init {
         River(rapidsConnection).apply {
             validate {
@@ -63,7 +64,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         val utfall: Utfall =
             if (eventNamePostfix == "FjernetRegistreringDeltCv") Utfall.IKKE_PRESENTERT else Utfall.PRESENTERT
 
-        secure(log).info(
+        secureLog.info(
             """
             aktørId: $aktørId
             organisasjonsnummer: $organisasjonsnummer
@@ -85,7 +86,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         }
         if (!erForventetUtfall(eventNamePostfix, utfallFraDb.utfall)) {
             log.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, sjekk secureLog for mer informasjon")
-            secure(log).warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, aktørId: $aktørId, kandidatlisteId: $kandidatlisteId")
+            secureLog.warn("Uventet utfall i databasen for event: $eventNamePostfix, utfallet er ${utfallFraDb.utfall}, aktørId: $aktørId, kandidatlisteId: $kandidatlisteId")
             return
         }
 

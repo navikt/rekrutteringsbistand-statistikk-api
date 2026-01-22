@@ -10,7 +10,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
+import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
@@ -20,8 +20,9 @@ class PresenterteOgFåttJobbenKandidaterLytter(
     private val lagreUtfallOgStilling: LagreUtfallOgStilling,
     private val eventNamePostfix: String,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
-) :
-    River.PacketListener {
+) : River.PacketListener {
+    private val secureLog = SecureLog(log)
+
     init {
         River(rapidsConnection).apply {
             validate {
@@ -76,7 +77,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val hovedmål = packet["inkludering.hovedmål"].asTextNullable()
         val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
 
-        secure(log).info(
+        secureLog.info(
             """
             aktørId: $aktørId
             organisasjonsnummer: $organisasjonsnummer

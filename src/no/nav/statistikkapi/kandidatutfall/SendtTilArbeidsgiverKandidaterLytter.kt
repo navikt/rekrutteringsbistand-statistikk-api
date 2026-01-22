@@ -10,7 +10,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.helse.rapids_rivers.*
-import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
+import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
 
@@ -18,8 +18,9 @@ class SendtTilArbeidsgiverKandidaterLytter(
     rapidsConnection: RapidsConnection,
     private val lagreUtfallOgStilling: LagreUtfallOgStilling,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
-) :
-    River.PacketListener {
+) : River.PacketListener {
+    private val secureLog = SecureLog(log)
+
     init {
         River(rapidsConnection).apply {
             validate {
@@ -63,7 +64,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
             val innsatsbehov = node["innsatsbehov"].asText()
             val hovedmål = node["hovedmål"].asTextNullable()
 
-            secure(log).info(
+            secureLog.info(
                 """
             stillingsId: $stillingsId
             stillingskategori: $stillingskategori

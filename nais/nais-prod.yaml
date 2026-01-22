@@ -38,11 +38,14 @@ spec:
           cluster: prod-gcp
         - application: rekrutteringsbistand-kandidat-api
           cluster: prod-fss
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+          cluster: prod-gcp
   webproxy: true
   kafka:
     pool: nav-prod
-  secureLogs:
-    enabled: true
   azure:
     application:
       enabled: true
