@@ -24,6 +24,7 @@ import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlistehendelseLytter
 import no.nav.statistikkapi.kandidatutfall.*
+import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.metrikker.MetrikkJobb
 import no.nav.statistikkapi.stillinger.StillingRepository
@@ -40,6 +41,10 @@ import java.time.temporal.ChronoUnit.MILLIS
 import javax.sql.DataSource
 
 fun main() {
+    val log = LoggerFactory.getLogger("no.nav.statistikkapi.applicationKt")
+    val secureLog = SecureLog(log)
+    log.info("Starter app.")
+    secureLog.info("Starter app. Dette er ment å logges til Securelogs. Hvis du ser dette i den ordinære apploggen er noe galt, og sensitive data kan havne i feil logg.")
     try {
         val tokenSupportConfig = TokenSupportConfig(
             IssuerConfig(
@@ -51,7 +56,6 @@ fun main() {
         val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaProducer(KafkaConfig.producerConfig()))
         startApp(Database(Cluster.current), tokenSupportConfig, datavarehusKafkaProducer)
     } catch (e: Exception) {
-        val log = LoggerFactory.getLogger("no.nav.statistikkapi.applicationKt")
         log.error("Feil i applikasjon", e)
         throw e
     }
