@@ -10,6 +10,8 @@ on:
 
 jobs:
   deploy-kandidat-topic-to-prod:
+    permissions:
+      id-token: write
     name: Deploy dvh-topic to prod
     runs-on: ubuntu-latest
     steps:
