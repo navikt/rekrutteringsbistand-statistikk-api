@@ -37,6 +37,8 @@ spec:
           cluster: dev-gcp
         - application: rekrutteringsbistand-frontend
           cluster: dev-gcp
+        - application: rekrutteringsbistand-frontend2
+          cluster: dev-gcp
         - application: rekrutteringsbistand-kandidat-api
           cluster: dev-fss
     outbound:
