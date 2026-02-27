@@ -12,7 +12,6 @@ spec:
   pool: nav-dev
   config:
     cleanupPolicy: delete
-    minimumInSyncReplicas: 1
     partitions: 1
     replication: 3
     retentionBytes: -1
