@@ -4,7 +4,7 @@ val flywayVersion = "9.7.0"
 val hikariVersion = "5.0.1"
 val logstashEncoderVersion = "9.0"
 val vaultJdbcVersion = "1.3.10"
-val postgresVersion = "42.7.4"
+val postgresVersion = "42.7.10"
 val tokenValidationVersion = "5.0.14"
 val jacksonVersion = "2.14.0"
 val assertkVersion = "0.25"
@@ -87,9 +87,12 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
     implementation("org.apache.avro:avro:$avroVersion")
-    implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
+    implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion") {
+        exclude(group = "org.apache.kafka", module = "kafka-clients")
+    }
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
+    implementation("org.apache.kafka:kafka-clients:4.2.0")
 
     testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:$mockkVersion")

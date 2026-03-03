@@ -99,7 +99,7 @@ class DatavarehusKafkaTest {
         private val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
         private val stillingRepository = StillingRepository(database.dataSource)
         private val dummyAvroKandidatutfallSerializer = { _: String, _: AvroKandidatutfall -> ByteArray(0) }
-        private val mockProducer = MockProducer(true, StringSerializer(), dummyAvroKandidatutfallSerializer)
+        private val mockProducer = MockProducer(true, null, StringSerializer(), dummyAvroKandidatutfallSerializer)
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(mockProducer)
         private val testHentUsendteUtfallOgSendPåKafka =
             hentUsendteUtfallOgSendPåKafka(
