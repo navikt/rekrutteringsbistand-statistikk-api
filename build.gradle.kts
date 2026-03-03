@@ -1,5 +1,5 @@
 val logbackVersion = "1.5.25"
-val ktorVersion = "3.0.1"
+val ktorVersion = "3.4.0"
 val flywayVersion = "9.7.0"
 val hikariVersion = "5.0.1"
 val logstashEncoderVersion = "9.0"
@@ -22,7 +22,7 @@ val avroVersion = "1.12.0"
 
 plugins {
     application
-    kotlin("jvm") version "2.1.0"
+    kotlin("jvm") version "2.3.0"
     id("com.github.ben-manes.versions") version "0.43.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
     id("info.solidsoft.pitest") version "1.9.0"
@@ -62,7 +62,7 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
 
-    implementation("com.github.navikt:rapids-and-rivers:2025010715371736260653.d465d681c420")
+    implementation("com.github.navikt:rapids-and-rivers:2026021921161771532161.7a37f8c9e0cc")
     testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad")
 
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
