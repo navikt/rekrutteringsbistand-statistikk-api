@@ -74,3 +74,6 @@ med innehold i datapakke.json: {"title":"Hull i cv","description":"Vise hull i c
 
 ### For folk utenfor Nav
 * IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
+
+## Kode generert av GitHub Copilot
+Dette repoet bruker GitHub Copilot til å generere kode.
