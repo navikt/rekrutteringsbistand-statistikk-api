@@ -16,7 +16,7 @@ val shedlockVersion = "4.42.0"
 val pitestVersion = "1.9.0"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.1"
-val mockOAuth2ServerVersion = "0.5.6"
+val mockOAuth2ServerVersion = "3.0.3"
 val avroVersion = "1.12.0"
 
 
