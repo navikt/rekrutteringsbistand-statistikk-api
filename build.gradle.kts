@@ -1,5 +1,5 @@
 val logbackVersion = "1.5.25"
-val ktorVersion = "3.4.0"
+val ktorVersion = "3.4.3"
 val flywayVersion = "9.7.0"
 val hikariVersion = "5.0.1"
 val logstashEncoderVersion = "9.0"
@@ -16,7 +16,7 @@ val shedlockVersion = "4.42.0"
 val pitestVersion = "1.9.0"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.1"
-val mockOAuth2ServerVersion = "0.5.6"
+val mockOAuth2ServerVersion = "3.0.3"
 val avroVersion = "1.12.0"
 
 
