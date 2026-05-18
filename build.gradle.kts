@@ -26,14 +26,14 @@ plugins {
     kotlin("jvm") version "2.3.0"
     id("com.github.ben-manes.versions") version "0.43.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
-    id("info.solidsoft.pitest") version "1.9.0"
+    id("info.solidsoft.pitest") version "1.19.0"
     idea
 }
 
 pitest {
-    targetClasses.set(setOf("no.nav.statistikkapi.*"))
-    targetTests.set(setOf("no.nav.statistikkapi.*"))
-    useClasspathFile.set(true)
+    setProperty("targetClasses", setOf("no.nav.statistikkapi.*"))
+    setProperty("targetTests", setOf("no.nav.statistikkapi.*"))
+    setProperty("useClasspathFile", true)
 }
 
 java {
