@@ -18,6 +18,7 @@ val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.1"
 val mockOAuth2ServerVersion = "3.0.3"
 val avroVersion = "1.12.0"
+val testcontainersVersion = "1.21.4"
 
 
 plugins {
@@ -106,8 +107,8 @@ dependencies {
 
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
 
-    testImplementation("org.testcontainers:testcontainers:1.17.5")
-    testImplementation("org.testcontainers:postgresql:1.17.5")
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
     testImplementation("io.ktor:ktor-server-cio:$ktorVersion")
 }
 
