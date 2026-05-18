@@ -18,6 +18,7 @@ val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.1"
 val mockOAuth2ServerVersion = "3.0.3"
 val avroVersion = "1.12.0"
+val testcontainersVersion = "1.21.4"
 
 
 plugins {
@@ -25,14 +26,14 @@ plugins {
     kotlin("jvm") version "2.3.0"
     id("com.github.ben-manes.versions") version "0.43.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
-    id("info.solidsoft.pitest") version "1.9.0"
+    id("info.solidsoft.pitest") version "1.19.0"
     idea
 }
 
 pitest {
-    targetClasses.set(setOf("no.nav.statistikkapi.*"))
-    targetTests.set(setOf("no.nav.statistikkapi.*"))
-    useClasspathFile.set(true)
+    setProperty("targetClasses", setOf("no.nav.statistikkapi.*"))
+    setProperty("targetTests", setOf("no.nav.statistikkapi.*"))
+    setProperty("useClasspathFile", true)
 }
 
 java {
@@ -106,8 +107,8 @@ dependencies {
 
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
 
-    testImplementation("org.testcontainers:testcontainers:1.17.5")
-    testImplementation("org.testcontainers:postgresql:1.17.5")
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
     testImplementation("io.ktor:ktor-server-cio:$ktorVersion")
 }
 
