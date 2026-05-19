@@ -31,7 +31,11 @@ plugins {
     idea
 }
 
-apply(from = "gradle/pitest.gradle") // Konfigurasjon for pitest, som ikke støtter kotlin-dsl fordi den er skrevet i Groovy
+pitest {
+    targetClasses = setOf("no.nav.statistikkapi.*")
+    targetTests = setOf("no.nav.statistikkapi.*")
+    useClasspathFile = true
+}
 
 kotlin {
     jvmToolchain(jvmVersion)
@@ -110,4 +114,3 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
     testImplementation("io.ktor:ktor-server-cio:$ktorVersion")
 }
-
