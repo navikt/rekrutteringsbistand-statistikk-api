@@ -1,23 +1,23 @@
-val logbackVersion = "1.5.25"
+val logbackVersion = "1.5.32"
 val ktorVersion = "3.4.3"
-val flywayVersion = "9.7.0"
-val hikariVersion = "5.0.1"
+val flywayVersion = "12.6.1"
+val hikariVersion = "7.0.2"
 val logstashEncoderVersion = "9.0"
 val vaultJdbcVersion = "1.3.10"
-val postgresVersion = "42.7.10"
-val tokenValidationVersion = "5.0.14"
-val jacksonVersion = "2.14.0"
-val assertkVersion = "0.25"
+val postgresVersion = "42.7.11"
+val tokenValidationVersion = "5.0.30"
+val jacksonVersion = "2.21.3"
+val assertkVersion = "0.28.1"
 val micrometerPrometheusVersion = "1.10.0"
 val kafkaClientsVersion = "4.2.0"
-val mockkVersion = "1.13.2"
-val kafkaAvroSerializerVersion = "7.8.0"
-val shedlockVersion = "4.42.0"
-val pitestVersion = "1.9.0"
+val mockkVersion = "1.14.9"
+val kafkaAvroSerializerVersion = "8.2.1"
+val shedlockVersion = "7.7.0"
+val pitestVersion = "1.15.0"
 val kotlinLoggingVersion = "2.0.11"
 val jsonassertVersion = "1.5.1"
-val mockOAuth2ServerVersion = "3.0.3"
-val avroVersion = "1.12.0"
+val mockOAuth2ServerVersion = "4.0.0"
+val avroVersion = "1.12.1"
 val testcontainersVersion = "1.21.4"
 val jvmVersion = 25
 
@@ -25,7 +25,7 @@ val jvmVersion = 25
 plugins {
     application
     kotlin("jvm") version "2.3.21"
-    id("com.github.ben-manes.versions") version "0.52.0"
+    id("com.github.ben-manes.versions") version "0.54.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
     id("info.solidsoft.pitest") version "1.19.0"
     idea
@@ -95,6 +95,7 @@ dependencies {
     implementation("org.apache.avro:avro:$avroVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
     runtimeOnly("io.ktor:ktor-client-auth")
 
