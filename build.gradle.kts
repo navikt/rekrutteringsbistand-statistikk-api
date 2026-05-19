@@ -8,14 +8,11 @@ val postgresVersion = "42.7.11"
 val tokenValidationVersion = "5.0.30"
 val jacksonVersion = "2.21.3"
 val assertkVersion = "0.28.1"
-val micrometerPrometheusVersion = "1.10.0"
 val kafkaClientsVersion = "4.2.0"
 val mockkVersion = "1.14.9"
 val kafkaAvroSerializerVersion = "8.2.1"
 val shedlockVersion = "7.7.0"
 val pitestVersion = "1.15.0"
-val kotlinLoggingVersion = "2.0.11"
-val jsonassertVersion = "1.5.1"
 val mockOAuth2ServerVersion = "4.0.0"
 val avroVersion = "1.12.1"
 val testcontainersVersion = "1.21.4"
@@ -110,7 +107,6 @@ dependencies {
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation(kotlin("test"))
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
-    testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:testcontainers")
 }
