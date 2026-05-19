@@ -19,25 +19,25 @@ val jsonassertVersion = "1.5.1"
 val mockOAuth2ServerVersion = "3.0.3"
 val avroVersion = "1.12.0"
 val testcontainersVersion = "1.21.4"
+val jvmVersion = 25
 
 
 plugins {
     application
-    kotlin("jvm") version "2.3.0"
-    id("com.github.ben-manes.versions") version "0.43.0"
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
+    kotlin("jvm") version "2.3.21"
+    id("com.github.ben-manes.versions") version "0.52.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
     id("info.solidsoft.pitest") version "1.19.0"
     idea
 }
 
-pitest {
-    setProperty("targetClasses", setOf("no.nav.statistikkapi.*"))
-    setProperty("targetTests", setOf("no.nav.statistikkapi.*"))
-    setProperty("useClasspathFile", true)
-}
+apply(from = "gradle/pitest.gradle") // Konfigurasjon for pitest, som ikke støtter kotlin-dsl fordi den er skrevet i Groovy
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+kotlin {
+    jvmToolchain(jvmVersion)
+}
+java { // Nødvendig fordi Avro genererer Java kildekode
+    toolchain.languageVersion.set(JavaLanguageVersion.of(jvmVersion))
 }
 
 application {
@@ -93,7 +93,6 @@ dependencies {
     }
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
-    implementation("org.apache.kafka:kafka-clients:4.2.0")
 
     testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:$mockkVersion")

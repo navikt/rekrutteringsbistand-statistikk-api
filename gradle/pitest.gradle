@@ -1,0 +1,6 @@
+pitest {
+    targetClasses = ['no.nav.statistikkapi.*']
+    targetTests = ['no.nav.statistikkapi.*']
+    useClasspathFile = true
+}
+
