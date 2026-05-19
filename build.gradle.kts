@@ -33,12 +33,11 @@ plugins {
 
 apply(from = "gradle/pitest.gradle")
 
-java { // Nødvendig fordi Avro genererer Java kildekode
-    toolchain.languageVersion.set(JavaLanguageVersion.of(jvmVersion))
-}
-
 kotlin {
     jvmToolchain(jvmVersion)
+}
+java { // Nødvendig fordi Avro genererer Java kildekode
+    toolchain.languageVersion.set(JavaLanguageVersion.of(jvmVersion))
 }
 
 application {
@@ -94,7 +93,6 @@ dependencies {
     }
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
-    implementation("org.apache.kafka:kafka-clients:4.2.0")
 
     testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:$mockkVersion")
