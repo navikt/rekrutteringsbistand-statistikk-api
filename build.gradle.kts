@@ -31,7 +31,7 @@ plugins {
     idea
 }
 
-apply(from = "gradle/pitest.gradle")
+apply(from = "gradle/pitest.gradle") // Konfigurasjon for pitest, som ikke støtter kotlin-dsl fordi den er skrevet i Groovy
 
 kotlin {
     jvmToolchain(jvmVersion)
