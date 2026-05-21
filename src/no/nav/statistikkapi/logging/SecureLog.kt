@@ -3,11 +3,10 @@ package no.nav.statistikkapi.logging
 import org.slf4j.Logger
 import org.slf4j.Marker
 import org.slf4j.MarkerFactory
-import kotlin.TODO
 
 private val teamLogsMarker: Marker = MarkerFactory.getMarker("TEAM_LOGS")
 
-class SecureLog(private val logger: Logger): Logger {
+class SecureLog(private val logger: Logger) : Logger {
     override fun getName() = logger.name
     override fun isTraceEnabled() = logger.isTraceEnabled
     override fun trace(msg: String?) = logger.trace(teamLogsMarker, msg)

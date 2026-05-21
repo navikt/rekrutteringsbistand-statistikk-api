@@ -56,26 +56,26 @@ class SendtTilArbeidsgiverKandidaterLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-         val stillingsId = packet["stillingsId"].asTextNullable()
-         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
-         val organisasjonsnummer = packet["organisasjonsnummer"].asString()
-         val kandidatlisteId = packet["kandidatlisteId"].asString()
-         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
-         val utførtAvNavIdent = packet["utførtAvNavIdent"].asString()
-         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asString()
-         val arbeidsgiversEpostadresser = packet["arbeidsgiversEpostadresser"].toList().map(JsonNode::asString)
-         val meldingTilArbeidsgiver = packet["meldingTilArbeidsgiver"].asString()
+        val stillingsId = packet["stillingsId"].asTextNullable()
+        val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
+        val organisasjonsnummer = packet["organisasjonsnummer"].asString()
+        val kandidatlisteId = packet["kandidatlisteId"].asString()
+        val tidspunkt = packet["tidspunkt"].asZonedDateTime()
+        val utførtAvNavIdent = packet["utførtAvNavIdent"].asString()
+        val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asString()
+        val arbeidsgiversEpostadresser = packet["arbeidsgiversEpostadresser"].toList().map(JsonNode::asString)
+        val meldingTilArbeidsgiver = packet["meldingTilArbeidsgiver"].asString()
 
         if (stillingsId == null) {
             log.info("Behandler ikke melding fordi den er uten stillingsId")
             return
         }
 
-         packet["kandidater"].properties().forEach { (aktørId, node) ->
-             val harHullICv = node["harHullICv"].booleanValue()
-             val alder = node["alder"].intValue()
-             val innsatsbehov = node["innsatsbehov"].asString()
-             val hovedmål = node["hovedmål"].asTextNullable()
+        packet["kandidater"].properties().forEach { (aktørId, node) ->
+            val harHullICv = node["harHullICv"].booleanValue()
+            val alder = node["alder"].intValue()
+            val innsatsbehov = node["innsatsbehov"].asString()
+            val hovedmål = node["hovedmål"].asTextNullable()
 
             secureLog.info(
                 """

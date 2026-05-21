@@ -35,9 +35,9 @@ class VisningKontaktinfoLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-         val aktørId = packet["aktørId"].asString()
-         val stillingsId = packet["stillingsId"].asUUID()
-         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
+        val aktørId = packet["aktørId"].asString()
+        val stillingsId = packet["stillingsId"].asUUID()
+        val tidspunkt = packet["tidspunkt"].asZonedDateTime()
 
         val alleredeLagret = repository.harAlleredeBlittLagret(aktørId, stillingsId, tidspunkt)
 

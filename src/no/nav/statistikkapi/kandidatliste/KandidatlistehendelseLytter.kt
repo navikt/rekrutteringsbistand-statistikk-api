@@ -24,7 +24,10 @@ class KandidatlistehendelseLytter(
     init {
         River(rapidsConnection).apply {
             precondition { packet ->
-                packet.requireAny("@event_name", listOf(opprettetKandidatlisteEventName, oppdaterteKandidatlisteEventName))
+                packet.requireAny(
+                    "@event_name",
+                    listOf(opprettetKandidatlisteEventName, oppdaterteKandidatlisteEventName)
+                )
                 packet.requireKey("stilling", "stilling.stillingensPubliseringstidspunkt")
                 packet.requireValueIfPresent("@slutt_av_hendelseskjede", false)
             }

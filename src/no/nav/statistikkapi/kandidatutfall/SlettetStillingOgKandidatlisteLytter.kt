@@ -22,6 +22,7 @@ class SlettetStillingOgKandidatlisteLytter(
     private val lagreUtfallOgStilling: LagreUtfallOgStilling
 ) : River.PacketListener {
     private val secureLog = SecureLog(log)
+
     init {
         River(rapidsConnection).apply {
             precondition { packet ->
@@ -53,12 +54,12 @@ class SlettetStillingOgKandidatlisteLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-         val kandidatlisteId: String = packet["kandidatlisteId"].asString()
-         val tidspunkt: ZonedDateTime = ZonedDateTime.parse(packet["tidspunkt"].asString())
-         val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asString()
-         val stillingsId: String = packet["stillingsId"].asString()
-         val stillingskategori: Stillingskategori =
-             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
+        val kandidatlisteId: String = packet["kandidatlisteId"].asString()
+        val tidspunkt: ZonedDateTime = ZonedDateTime.parse(packet["tidspunkt"].asString())
+        val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asString()
+        val stillingsId: String = packet["stillingsId"].asString()
+        val stillingskategori: Stillingskategori =
+            Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
 
         secureLog.info(
             """

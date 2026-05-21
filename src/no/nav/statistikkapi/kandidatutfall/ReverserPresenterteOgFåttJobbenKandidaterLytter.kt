@@ -59,15 +59,15 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-     val aktørId: String = packet["aktørId"].asString()
-         val organisasjonsnummer: String = packet["organisasjonsnummer"].asString()
-         val kandidatlisteId: String = packet["kandidatlisteId"].asString()
-         val tidspunkt: ZonedDateTime = ZonedDateTime.parse(packet["tidspunkt"].asString())
-         val stillingsId: String = packet["stillingsId"].asString()
-         val stillingskategori: Stillingskategori =
-             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
-         val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asString()
-         val utførtAvNavKontorKode: String = packet["utførtAvNavKontorKode"].asString()
+        val aktørId: String = packet["aktørId"].asString()
+        val organisasjonsnummer: String = packet["organisasjonsnummer"].asString()
+        val kandidatlisteId: String = packet["kandidatlisteId"].asString()
+        val tidspunkt: ZonedDateTime = ZonedDateTime.parse(packet["tidspunkt"].asString())
+        val stillingsId: String = packet["stillingsId"].asString()
+        val stillingskategori: Stillingskategori =
+            Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
+        val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asString()
+        val utførtAvNavKontorKode: String = packet["utførtAvNavKontorKode"].asString()
         val utfall: Utfall =
             if (eventNamePostfix == "FjernetRegistreringDeltCv") Utfall.IKKE_PRESENTERT else Utfall.PRESENTERT
 

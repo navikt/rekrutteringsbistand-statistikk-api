@@ -16,8 +16,8 @@ import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import no.nav.statistikkapi.stillinger.Stillingskategori
-import java.time.ZonedDateTime
 import tools.jackson.databind.JsonNode
+import java.time.ZonedDateTime
 
 class PresenterteOgFåttJobbenKandidaterLytter(
     rapidsConnection: RapidsConnection,
@@ -66,17 +66,17 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-         if (!erEntenKomplettStillingEllerIngenStilling(packet)) return
+        if (!erEntenKomplettStillingEllerIngenStilling(packet)) return
 
-         val aktørId = packet["aktørId"].asString()
-         val organisasjonsnummer = packet["organisasjonsnummer"].asString()
-         val kandidatlisteId = packet["kandidatlisteId"].asString()
-         val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asString())
-         val stillingsId = packet["stillingsId"].asTextNullable()
-         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
-         val utførtAvNavIdent = packet["utførtAvNavIdent"].asString()
-         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asString()
-         val synligKandidat = packet["synligKandidat"].booleanValue()
+        val aktørId = packet["aktørId"].asString()
+        val organisasjonsnummer = packet["organisasjonsnummer"].asString()
+        val kandidatlisteId = packet["kandidatlisteId"].asString()
+        val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asString())
+        val stillingsId = packet["stillingsId"].asTextNullable()
+        val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
+        val utførtAvNavIdent = packet["utførtAvNavIdent"].asString()
+        val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asString()
+        val synligKandidat = packet["synligKandidat"].booleanValue()
         val harHullICv = packet["inkludering.harHullICv"].asBooleanNullable()
         val alder = packet["inkludering.alder"].asIntNullable()
         val innsatsbehov = packet["inkludering.innsatsbehov"].asTextNullable()

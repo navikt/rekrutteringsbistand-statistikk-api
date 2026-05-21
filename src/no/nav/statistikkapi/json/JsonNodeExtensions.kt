@@ -2,7 +2,7 @@ package no.nav.statistikkapi.json
 
 import tools.jackson.databind.JsonNode
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 
 fun JsonNode.asZonedDateTime(): ZonedDateTime =
     asString().let(ZonedDateTime::parse)
