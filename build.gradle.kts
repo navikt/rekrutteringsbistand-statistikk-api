@@ -67,7 +67,7 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("com.github.navikt:rapidsandrivers-and-rivers:2026051812441779101082")
+    implementation("com.github.navikt:rapids-and-rivers:2026051812441779101082")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion") {
         exclude(group = "org.apache.kafka", module = "kafka-clients")
@@ -97,7 +97,7 @@ dependencies {
     runtimeOnly("io.ktor:ktor-client-auth")
 
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
-    testImplementation("com.github.navikt.tbd-libs:rapidsandrivers-and-rivers-test:2025.01.10-08.49-9e6f64ad")
+    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad")
     testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
     testImplementation("io.ktor:ktor-client-mock")
     testImplementation("io.ktor:ktor-client-apache5")
