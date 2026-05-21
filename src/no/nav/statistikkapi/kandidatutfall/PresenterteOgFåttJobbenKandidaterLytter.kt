@@ -9,8 +9,12 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.statistikkapi.json.asBooleanNullable
+import no.nav.statistikkapi.json.asIntNullable
+import no.nav.statistikkapi.json.asTextNullable
 import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
+import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
 import tools.jackson.databind.JsonNode
@@ -25,11 +29,11 @@ class PresenterteOgFåttJobbenKandidaterLytter(
 
     init {
         River(rapidsConnection).apply {
+            precondition { packet ->
+                packet.requireValue("@event_name", "kandidat_v2.$eventNamePostfix")
+                packet.requireValueIfPresent("@slutt_av_hendelseskjede", false)
+            }
             validate {
-                it.rejectValue("@slutt_av_hendelseskjede", true)
-
-                it.demandValue("@event_name", "kandidat_v2.$eventNamePostfix")
-
                 it.requireKey(
                     "tidspunkt",
                     "aktørId",
@@ -41,6 +45,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
                 )
 
                 it.interestedIn(
+                    "@event_name",
+                    "@slutt_av_hendelseskjede",
                     "stillingsinfo",
                     "stilling",
                     "stillingsId",
@@ -60,17 +66,17 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-        if (!erEntenKomplettStillingEllerIngenStilling(packet)) return
+         if (!erEntenKomplettStillingEllerIngenStilling(packet)) return
 
-        val aktørId = packet["aktørId"].asText()
-        val organisasjonsnummer = packet["organisasjonsnummer"].asText()
-        val kandidatlisteId = packet["kandidatlisteId"].asText()
-        val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asText())
-        val stillingsId = packet["stillingsId"].asTextNullable()
-        val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
-        val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
-        val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
-        val synligKandidat = packet["synligKandidat"].asBoolean()
+         val aktørId = packet["aktørId"].asString()
+         val organisasjonsnummer = packet["organisasjonsnummer"].asString()
+         val kandidatlisteId = packet["kandidatlisteId"].asString()
+         val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asString())
+         val stillingsId = packet["stillingsId"].asTextNullable()
+         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
+         val utførtAvNavIdent = packet["utførtAvNavIdent"].asString()
+         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asString()
+         val synligKandidat = packet["synligKandidat"].booleanValue()
         val harHullICv = packet["inkludering.harHullICv"].asBooleanNullable()
         val alder = packet["inkludering.alder"].asIntNullable()
         val innsatsbehov = packet["inkludering.innsatsbehov"].asTextNullable()

@@ -8,8 +8,10 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.statistikkapi.json.asTextNullable
 import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
+import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
 
@@ -24,11 +26,12 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
 
     init {
         River(rapidsConnection).apply {
+            precondition { packet ->
+                packet.requireValue("@event_name", "kandidat_v2.$eventNamePostfix")
+                packet.requireKey("stillingsinfo")
+                packet.requireValueIfPresent("@slutt_av_hendelseskjede", false)
+            }
             validate {
-                it.rejectValue("@slutt_av_hendelseskjede", true)
-
-                it.demandValue("@event_name", "kandidat_v2.$eventNamePostfix")
-
                 it.requireKey(
                     "tidspunkt",
                     "aktørId",
@@ -39,8 +42,12 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
                     "stillingsId"
                 )
 
-                it.demandKey("stillingsinfo")
-                it.interestedIn("stillingsinfo.stillingskategori")
+                it.interestedIn(
+                    "@event_name",
+                    "@slutt_av_hendelseskjede",
+                    "stillingsinfo",
+                    "stillingsinfo.stillingskategori"
+                )
 
             }
         }.register(this)
@@ -52,15 +59,15 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-        val aktørId: String = packet["aktørId"].asText()
-        val organisasjonsnummer: String = packet["organisasjonsnummer"].asText()
-        val kandidatlisteId: String = packet["kandidatlisteId"].asText()
-        val tidspunkt: ZonedDateTime = ZonedDateTime.parse(packet["tidspunkt"].asText())
-        val stillingsId: String = packet["stillingsId"].asText()
-        val stillingskategori: Stillingskategori =
-            Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
-        val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asText()
-        val utførtAvNavKontorKode: String = packet["utførtAvNavKontorKode"].asText()
+     val aktørId: String = packet["aktørId"].asString()
+         val organisasjonsnummer: String = packet["organisasjonsnummer"].asString()
+         val kandidatlisteId: String = packet["kandidatlisteId"].asString()
+         val tidspunkt: ZonedDateTime = ZonedDateTime.parse(packet["tidspunkt"].asString())
+         val stillingsId: String = packet["stillingsId"].asString()
+         val stillingskategori: Stillingskategori =
+             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
+         val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asString()
+         val utførtAvNavKontorKode: String = packet["utførtAvNavKontorKode"].asString()
         val utfall: Utfall =
             if (eventNamePostfix == "FjernetRegistreringDeltCv") Utfall.IKKE_PRESENTERT else Utfall.PRESENTERT
 

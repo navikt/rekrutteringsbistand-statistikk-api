@@ -8,8 +8,11 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.statistikkapi.json.asTextNullable
+import no.nav.statistikkapi.json.asZonedDateTime
 import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
+import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import tools.jackson.databind.JsonNode
 
@@ -22,9 +25,11 @@ class SendtTilArbeidsgiverKandidaterLytter(
 
     init {
         River(rapidsConnection).apply {
+            precondition { packet ->
+                packet.requireValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
+                packet.requireValueIfPresent("@slutt_av_hendelseskjede", false)
+            }
             validate {
-                it.rejectValue("@slutt_av_hendelseskjede", true)
-                it.demandValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
                 it.requireKey(
                     "stillingsId",
                     "organisasjonsnummer",
@@ -36,7 +41,11 @@ class SendtTilArbeidsgiverKandidaterLytter(
                     "meldingTilArbeidsgiver",
                     "kandidater"
                 )
-                it.interestedIn("stillingsinfo.stillingskategori")
+                it.interestedIn(
+                    "@event_name",
+                    "@slutt_av_hendelseskjede",
+                    "stillingsinfo.stillingskategori"
+                )
             }
         }.register(this)
     }
@@ -47,21 +56,26 @@ class SendtTilArbeidsgiverKandidaterLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-        val stillingsId = packet["stillingsId"].asTextNullable()
-        val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
-        val organisasjonsnummer = packet["organisasjonsnummer"].asText()
-        val kandidatlisteId = packet["kandidatlisteId"].asText()
-        val tidspunkt = packet["tidspunkt"].asZonedDateTime()
-        val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
-        val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
-        val arbeidsgiversEpostadresser = packet["arbeidsgiversEpostadresser"].toList().map(JsonNode::asText)
-        val meldingTilArbeidsgiver = packet["meldingTilArbeidsgiver"].asText()
+         val stillingsId = packet["stillingsId"].asTextNullable()
+         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
+         val organisasjonsnummer = packet["organisasjonsnummer"].asString()
+         val kandidatlisteId = packet["kandidatlisteId"].asString()
+         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
+         val utførtAvNavIdent = packet["utførtAvNavIdent"].asString()
+         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asString()
+         val arbeidsgiversEpostadresser = packet["arbeidsgiversEpostadresser"].toList().map(JsonNode::asString)
+         val meldingTilArbeidsgiver = packet["meldingTilArbeidsgiver"].asString()
 
-        packet["kandidater"].properties().forEach { (aktørId, node) ->
-            val harHullICv = node["harHullICv"].asBoolean()
-            val alder = node["alder"].asInt()
-            val innsatsbehov = node["innsatsbehov"].asText()
-            val hovedmål = node["hovedmål"].asTextNullable()
+        if (stillingsId == null) {
+            log.info("Behandler ikke melding fordi den er uten stillingsId")
+            return
+        }
+
+         packet["kandidater"].properties().forEach { (aktørId, node) ->
+             val harHullICv = node["harHullICv"].booleanValue()
+             val alder = node["alder"].intValue()
+             val innsatsbehov = node["innsatsbehov"].asString()
+             val hovedmål = node["hovedmål"].asTextNullable()
 
             secureLog.info(
                 """

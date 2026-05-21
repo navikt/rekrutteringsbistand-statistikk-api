@@ -7,9 +7,10 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
-import no.nav.statistikkapi.kandidatutfall.asZonedDateTimeNullable
+import no.nav.statistikkapi.json.asZonedDateTime
+import no.nav.statistikkapi.json.asZonedDateTimeNullable
 import no.nav.statistikkapi.logging.log
+import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -22,16 +23,12 @@ class KandidatlistehendelseLytter(
 ) : River.PacketListener {
     init {
         River(rapidsConnection).apply {
+            precondition { packet ->
+                packet.requireAny("@event_name", listOf(opprettetKandidatlisteEventName, oppdaterteKandidatlisteEventName))
+                packet.requireKey("stilling", "stilling.stillingensPubliseringstidspunkt")
+                packet.requireValueIfPresent("@slutt_av_hendelseskjede", false)
+            }
             validate {
-                it.rejectValue("@slutt_av_hendelseskjede", true)
-                it.demandAny(
-                    "@event_name",
-                    listOf(opprettetKandidatlisteEventName, oppdaterteKandidatlisteEventName)
-                )
-
-                it.demandKey("stilling")
-                it.demandKey("stilling.stillingensPubliseringstidspunkt")
-
                 it.requireKey(
                     "stilling.antallStillinger",
                     "stilling.erDirektemeldt",
@@ -43,7 +40,11 @@ class KandidatlistehendelseLytter(
                     "utførtAvNavIdent",
                 )
 
-                it.interestedIn("stilling.stillingOpprettetTidspunkt")
+                it.interestedIn(
+                    "@event_name",
+                    "@slutt_av_hendelseskjede",
+                    "stilling.stillingOpprettetTidspunkt"
+                )
             }
         }.register(this)
     }
@@ -56,15 +57,15 @@ class KandidatlistehendelseLytter(
     ) {
         val stillingOpprettetTidspunkt = packet["stilling.stillingOpprettetTidspunkt"].asZonedDateTimeNullable()
         val stillingensPubliseringstidspunkt = packet["stilling.stillingensPubliseringstidspunkt"].asZonedDateTime()
-        val antallStillinger = packet["stilling.antallStillinger"].asInt()
-        val erDirektemeldt = packet["stilling.erDirektemeldt"].asBoolean()
-        val antallKandidater = packet["antallKandidater"].asInt()
-        val organisasjonsnummer = packet["organisasjonsnummer"].asText()
-        val kandidatlisteId = packet["kandidatlisteId"].asText()
+        val antallStillinger = packet["stilling.antallStillinger"].intValue()
+        val erDirektemeldt = packet["stilling.erDirektemeldt"].booleanValue()
+        val antallKandidater = packet["antallKandidater"].intValue()
+        val organisasjonsnummer = packet["organisasjonsnummer"].asString()
+        val kandidatlisteId = packet["kandidatlisteId"].asString()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
-        val stillingsId = packet["stillingsId"].asText()
-        val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
-        val eventName = packet["@event_name"].asText()
+        val stillingsId = packet["stillingsId"].asString()
+        val utførtAvNavIdent = packet["utførtAvNavIdent"].asString()
+        val eventName = packet["@event_name"].asString()
 
         val hendelse = Kandidatlistehendelse(
             stillingOpprettetTidspunkt = stillingOpprettetTidspunkt,

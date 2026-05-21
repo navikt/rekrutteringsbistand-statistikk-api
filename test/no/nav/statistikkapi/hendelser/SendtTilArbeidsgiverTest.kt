@@ -91,7 +91,6 @@ class SendtTilArbeidsgiverTest {
         }
 
         stillingFraDb[0].apply {
-            this!!
             assertThat(uuid).isEqualTo("b5919e46-9882-4b3c-8089-53ad02f26023")
             assertThat(stillingskategori).isEqualTo(Stillingskategori.STILLING)
         }
@@ -129,7 +128,6 @@ class SendtTilArbeidsgiverTest {
         }
 
         stillingFraDb[0].apply {
-            this!!
             assertThat(uuid).isEqualTo("b5919e46-9882-4b3c-8089-53ad02f26023")
             assertThat(stillingskategori).isEqualTo(Stillingskategori.STILLING)
         }
