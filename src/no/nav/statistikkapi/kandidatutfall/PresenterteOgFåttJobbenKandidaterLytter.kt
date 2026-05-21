@@ -1,6 +1,5 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.isMissingOrNull
@@ -14,6 +13,7 @@ import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
+import tools.jackson.databind.JsonNode
 
 class PresenterteOgFåttJobbenKandidaterLytter(
     rapidsConnection: RapidsConnection,

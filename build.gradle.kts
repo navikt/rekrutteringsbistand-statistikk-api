@@ -67,7 +67,7 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("com.github.navikt:rapids-and-rivers:2026021921161771532161.7a37f8c9e0cc")
+    implementation("com.github.navikt:rapids-and-rivers:2026051812441779101082")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion") {
         exclude(group = "org.apache.kafka", module = "kafka-clients")

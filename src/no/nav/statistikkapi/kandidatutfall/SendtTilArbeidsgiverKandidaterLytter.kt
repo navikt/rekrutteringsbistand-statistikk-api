@@ -1,6 +1,5 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
@@ -9,10 +8,10 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.helse.rapids_rivers.*
 import no.nav.statistikkapi.logging.SecureLog
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
+import tools.jackson.databind.JsonNode
 
 class SendtTilArbeidsgiverKandidaterLytter(
     rapidsConnection: RapidsConnection,
@@ -55,10 +54,10 @@ class SendtTilArbeidsgiverKandidaterLytter(
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
-        val arbeidsgiversEpostadresser = packet["arbeidsgiversEpostadresser"].map(JsonNode::asText)
+        val arbeidsgiversEpostadresser = packet["arbeidsgiversEpostadresser"].toList().map(JsonNode::asText)
         val meldingTilArbeidsgiver = packet["meldingTilArbeidsgiver"].asText()
 
-        packet["kandidater"].fields().forEach { (aktørId, node) ->
+        packet["kandidater"].properties().forEach { (aktørId, node) ->
             val harHullICv = node["harHullICv"].asBoolean()
             val alder = node["alder"].asInt()
             val innsatsbehov = node["innsatsbehov"].asText()
