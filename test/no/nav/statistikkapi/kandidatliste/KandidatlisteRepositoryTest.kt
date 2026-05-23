@@ -36,6 +36,12 @@ class KandidatlisteRepositoryTest {
 
     @Test
     fun `Tell antall kandidatlister tilknyttet direktemeldte stillinger`() {
+/* TODO Are:
+Low/Medium – test name does not match method under test
+Test name says it counts direct listings, but it calls hentAntallKandidatlisterForOpprettedeStillinger() (broader metric):
+name at :38 vs call at :45 in test/no/nav/statistikkapi/kandidatliste/KandidatlisteRepositoryTest.kt
+This increases maintenance confusion and can hide regressions in the specific direct-listing method.
+ */
         val opprettetKandidatlistehendelse =
             lagOpprettetKandidatlisteHendelse(stillingOpprettetTidspunkt = null, erDirektemeldt = true)
         val oppdatertKandidatlistehendelse = lagOppdatertKandidatlisteHendelse(erDirektemeldt = true)
@@ -54,6 +60,13 @@ class KandidatlisteRepositoryTest {
 
         val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned()
 
+        /* TODO Are:
+        High – false-positive tests due to missing boolean assertion
+In two tests, assertThat(...) is called with a boolean but no terminal assertion (isTrue()/isFalse()), so these tests can pass even when wrong:
+test/no/nav/statistikkapi/kandidatliste/KandidatlisteRepositoryTest.kt:57
+test/no/nav/statistikkapi/kandidatliste/KandidatlisteRepositoryTest.kt:67
+Example: assertThat(antallKandidatlister.values.contains(2)) currently does not verify outcome.
+         */
         assertThat(antallKandidatlister.values.contains(2))
     }
 
@@ -64,6 +77,13 @@ class KandidatlisteRepositoryTest {
 
         val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned()
 
+/* TODO Are:
+High – false-positive tests due to missing boolean assertion
+In two tests, assertThat(...) is called with a boolean but no terminal assertion (isTrue()/isFalse()), so these tests can pass even when wrong:
+test/no/nav/statistikkapi/kandidatliste/KandidatlisteRepositoryTest.kt:57
+test/no/nav/statistikkapi/kandidatliste/KandidatlisteRepositoryTest.kt:67
+Example: assertThat(antallKandidatlister.values.contains(2)) currently does not verify outcome.
+ */
         assertThat(antallKandidatlister.values.contains(1))
     }
 
@@ -397,6 +417,11 @@ class KandidatlisteRepositoryTest {
             kandidatutfallRepository.lagreUtfall(it)
         }
         uniktKandidatutfall(nyKandidatlisteId.toString()).also {
+/* TODO Are:
+Medium – another no-op copy likely hides intended distinct actor test
+Same pattern earlier: copied value is ignored and original object is saved, so test data may not be what author intended:
+test/no/nav/statistikkapi/kandidatliste/KandidatlisteRepositoryTest.kt:400-401
+ */
             it.copy(aktørId = "10108000398")  // TODO Are: Blir ikke brukt til noe. Bug?
             kandidatutfallRepository.lagreUtfall(it)
         }
@@ -803,6 +828,11 @@ class KandidatlisteRepositoryTest {
             kandidatlisteId = kandidatlisteId,
             erDirektemeldt = true
         )
+/* TODO Are:
+High – broken test setup (wrong kandidatlisteId) weakens intent
+In Telling ... gjelder ikke for formidlingsstillinger, annenHendelse is created with kandidatlisteId = kandidatlisteId instead of annenKandidatlisteId, so both events target the same list id and scenario coverage is reduced:
+test/no/nav/statistikkapi/kandidatliste/KandidatlisteRepositoryTest.kt:806-809
+ */
         val annenHendelse = lagOppdatertKandidatlisteHendelse(
             kandidatlisteId = kandidatlisteId,
             erDirektemeldt = false
@@ -821,6 +851,12 @@ class KandidatlisteRepositoryTest {
             .also { kandidatutfallRepository.lagreUtfall(it) }
         uniktKandidatutfall(kandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
             .also { kandidatutfallRepository.lagreUtfall(it) }
+/* TODO Are:
+Medium – no-op setup line, likely intended insert never happens
+This line creates a copied utfall but does not persist/use it:
+test/no/nav/statistikkapi/kandidatliste/KandidatlisteRepositoryTest.kt:824
+(copy(...) result is discarded; no .also { lagreUtfall(...) })
+ */
         uniktKandidatutfallIkkeIPrioritertMålgruppe(annenKandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN) // TODO Are: Blir ikke brukt til noe. Bug?
 
         val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
