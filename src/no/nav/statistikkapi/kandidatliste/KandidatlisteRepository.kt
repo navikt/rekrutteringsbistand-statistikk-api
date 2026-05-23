@@ -5,7 +5,6 @@ import java.sql.SQLException
 import java.sql.Timestamp
 import java.time.ZonedDateTime
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
 import javax.sql.DataSource
 
 /**
@@ -216,7 +215,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 return antallStillinger
 
             } catch (e: SQLException) {
-                throw RuntimeException("Prøvde å hente antall stillinger tilknyttet eksterne stillingsannonser fra databasen")
+                throw RuntimeException("Prøvde å hente antall stillinger tilknyttet eksterne stillingsannonser fra databasen", e)
             }
         }
     }
@@ -250,7 +249,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 return antallStillinger
 
             } catch (e: SQLException) {
-                throw RuntimeException("Prøvde å hente antall stillinger tilknyttet direktemeldte stillingsannonser fra databasen")
+                throw RuntimeException("Prøvde å hente antall stillinger tilknyttet direktemeldte stillingsannonser fra databasen", e)
             }
         }
     }
@@ -284,7 +283,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 return antallStillinger
 
             } catch (e: SQLException) {
-                throw RuntimeException("Prøvde å hente antall stillinger tilknyttet stillingsannonser med kandidatliste fra databasen")
+                throw RuntimeException("Prøvde å hente antall stillinger tilknyttet stillingsannonser med kandidatliste fra databasen", e)
             }
         }
     }
@@ -369,7 +368,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                                     on $kandidatlisteTabell.$stillingsIdKolonne = stilling.uuid
                 where $kandidatlisteTabell.$erDirektemeldtKolonne is true 
                     and $kandidatlisteTabell.$stillingOpprettetTidspunktKolonne is not null
-                    and stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null;
+                    and (stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null);
             """.trimIndent()).executeQuery()
 
             return if (resultSet.next()) {
@@ -410,7 +409,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                             on kandidatliste.stillings_id = stilling.uuid
                     where kandidatliste.er_direktemeldt is true
                         and kandidatliste.stilling_opprettet_tidspunkt is not null
-                        and stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null
+                        and (stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null)
                 ) as unike_kandidatlister
                 where unike_kandidatlister.stilling_opprettet_tidspunkt >= '2023-03-01'
                 group by maaned;
