@@ -9,8 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
-import no.nav.helse.rapids_rivers.*
-import no.nav.statistikkapi.logging.SecureLog
+import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
 
@@ -19,7 +18,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
     private val lagreUtfallOgStilling: LagreUtfallOgStilling,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) : River.PacketListener {
-    private val secureLog = SecureLog(log)
+    private val secureLog = secure(log)
 
     init {
         River(rapidsConnection).apply {
