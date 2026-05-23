@@ -5,16 +5,17 @@ import assertk.assertions.isEqualTo
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.Marker
 
-class SecureLogTest {
+class SecureLogLoggerTest {
 
     @Test
     fun `info bruker TEAM_LOGS marker`() {
         val logger = mockk<Logger>(relaxed = true)
-        val secureLog = SecureLog(logger)
+        val secureLog = secure(logger)
         val marker = slot<Marker>()
 
         secureLog.info("en melding")
@@ -28,7 +29,7 @@ class SecureLogTest {
     @Test
     fun `warn bruker TEAM_LOGS marker`() {
         val logger = mockk<Logger>(relaxed = true)
-        val secureLog = SecureLog(logger)
+        val secureLog = secure(logger)
         val marker = slot<Marker>()
 
         secureLog.warn("en advarsel")
@@ -42,7 +43,7 @@ class SecureLogTest {
     @Test
     fun `error bruker TEAM_LOGS marker`() {
         val logger = mockk<Logger>(relaxed = true)
-        val secureLog = SecureLog(logger)
+        val secureLog = secure(logger)
         val marker = slot<Marker>()
 
         secureLog.error("en feil")
@@ -56,7 +57,7 @@ class SecureLogTest {
     @Test
     fun `info med exception bruker TEAM_LOGS marker`() {
         val logger = mockk<Logger>(relaxed = true)
-        val secureLog = SecureLog(logger)
+        val secureLog = secure(logger)
         val marker = slot<Marker>()
         val e = RuntimeException("boom")
 
@@ -71,7 +72,7 @@ class SecureLogTest {
     @Test
     fun `warn med exception bruker TEAM_LOGS marker`() {
         val logger = mockk<Logger>(relaxed = true)
-        val secureLog = SecureLog(logger)
+        val secureLog = secure(logger)
         val marker = slot<Marker>()
         val e = RuntimeException("boom")
 
@@ -86,7 +87,7 @@ class SecureLogTest {
     @Test
     fun `error med exception bruker TEAM_LOGS marker`() {
         val logger = mockk<Logger>(relaxed = true)
-        val secureLog = SecureLog(logger)
+        val secureLog = secure(logger)
         val marker = slot<Marker>()
         val e = RuntimeException("boom")
 
