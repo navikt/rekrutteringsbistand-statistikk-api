@@ -15,11 +15,13 @@ import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlistehendelseLytter
 import no.nav.statistikkapi.kandidatutfall.*
+import no.nav.statistikkapi.logging.noClassLogger
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoLytter
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
-import org.slf4j.LoggerFactory
 import java.net.InetAddress
+
+private val log = noClassLogger()
 
 fun main() {
     start()
@@ -124,6 +126,5 @@ fun start(
 
     ktorServer.start()
 
-    val loggerWithoutClassname = LoggerFactory.getLogger("no.nav.statistikkapi.start")
-    loggerWithoutClassname.info("Applikasjon startet")
+    log.info("Applikasjon startet")
 }

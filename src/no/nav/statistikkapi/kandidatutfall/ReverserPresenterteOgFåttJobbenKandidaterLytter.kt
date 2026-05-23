@@ -9,7 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.statistikkapi.json.asTextNullable
-import no.nav.statistikkapi.logging.SecureLog
+import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import no.nav.statistikkapi.stillinger.Stillingskategori
@@ -22,7 +22,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
     private val eventNamePostfix: String,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) : River.PacketListener {
-    private val secureLog = SecureLog(log)
+    private val secureLog = secure(log)
 
     init {
         River(rapidsConnection).apply {

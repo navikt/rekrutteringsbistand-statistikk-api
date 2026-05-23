@@ -10,7 +10,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.statistikkapi.json.asTextNullable
 import no.nav.statistikkapi.json.asZonedDateTime
-import no.nav.statistikkapi.logging.SecureLog
+import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import no.nav.statistikkapi.stillinger.Stillingskategori
@@ -21,7 +21,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
     private val lagreUtfallOgStilling: LagreUtfallOgStilling,
     private val prometheusMeterRegistry: PrometheusMeterRegistry
 ) : River.PacketListener {
-    private val secureLog = SecureLog(log)
+    private val secureLog = secure(log)
 
     init {
         River(rapidsConnection).apply {
