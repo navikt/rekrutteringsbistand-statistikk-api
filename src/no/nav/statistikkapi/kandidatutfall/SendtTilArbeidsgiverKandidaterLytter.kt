@@ -36,7 +36,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
                     "meldingTilArbeidsgiver",
                     "kandidater"
                 )
-                it.interestedIn("stillingsinfo.stillingskategori")
+                it.interestedIn("stillingsinfo.stillingskategori", "stillingsinfo.rekrutteringstreffId")
             }
         }.register(this)
     }
@@ -49,6 +49,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
     ) {
         val stillingsId = packet["stillingsId"].asTextNullable()
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asTextNullable()
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val kandidatlisteId = packet["kandidatlisteId"].asText()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
@@ -67,6 +68,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
                 """
             stillingsId: $stillingsId
             stillingskategori: $stillingskategori
+            rekrutteringstreffId: $rekrutteringstreffId
             organisasjonsnummer: $organisasjonsnummer
             kandidatlisteId: $kandidatlisteId
             tidspunkt: $tidspunkt
@@ -95,7 +97,8 @@ class SendtTilArbeidsgiverKandidaterLytter(
                 alder = alder,
                 tidspunktForHendelsen = tidspunkt,
                 innsatsbehov = innsatsbehov,
-                hovedmål = hovedmål
+                hovedmål = hovedmål,
+                rekrutteringstreffId = rekrutteringstreffId,
             )
 
             lagreUtfallOgStilling.lagreUtfallOgStilling(

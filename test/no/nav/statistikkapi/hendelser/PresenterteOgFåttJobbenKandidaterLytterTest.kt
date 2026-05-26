@@ -210,7 +210,25 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(stillingskategori).isEqualTo(Stillingskategori.STILLING)
         }
     }
+
+    @Test
+    fun `Kan opprette kandidatutfall med rekrutteringstreffId`() {
+        rapid.sendTestMessage(registrertDeltCvMeldingMedRekrutteringstreffId)
+
+        val utfallFraDb = testRepository.hentUtfall()
+        val stillingFraDb = testRepository.hentStilling()
+        assertThat(utfallFraDb).hasSize(1)
+        assertThat(stillingFraDb).hasSize(1)
+        utfallFraDb[0].apply {
+            assertThat(rekrutteringstreffId).isEqualTo(UUID.fromString(etRekrutteringstreffId))
+        }
+        stillingFraDb[0].apply {
+            assertThat(stillingskategori).isEqualTo(Stillingskategori.REKRUTTERINGSTREFF)
+        }
+    }
 }
+
+private const val etRekrutteringstreffId = "2cb83e65-4fd3-4a62-bdc7-64d4a9fc335c"
 
 private fun registrertDeltCvmelding(tidspunkt: ZonedDateTime = ZonedDateTime.parse( "2023-02-13T09:57:34.643+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
         {
@@ -521,5 +539,43 @@ val registrertFåttJobbenMeldingUtenStillingberikelse = """
         "hovedmål": "SKAFFEA"
       },
       "@event_name": "kandidat_v2.RegistrertFåttJobben"
+    }
+""".trimIndent()
+
+private val registrertDeltCvMeldingMedRekrutteringstreffId = """
+    {
+      "aktørId": "2133747575903",
+      "organisasjonsnummer": "894822082",
+      "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
+      "tidspunkt": "2023-02-13T09:57:34.643+01:00",
+      "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+      "utførtAvNavIdent": "Z990281",
+      "utførtAvNavKontorKode": "0314",
+      "synligKandidat": true,
+      "inkludering": {
+        "harHullICv": true,
+        "alder": 53,
+        "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
+        "hovedmål": "SKAFFEA"
+      },
+      "@event_name": "kandidat_v2.RegistrertDeltCv",
+      "@id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
+      "@opprettet": "2023-02-13T09:58:03.191128099",
+      "stillingsinfo": {
+        "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+        "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+        "eier": null,
+        "notat": "sds",
+        "stillingskategori": "REKRUTTERINGSTREFF",
+        "rekrutteringstreffId": "$etRekrutteringstreffId"
+      },
+      "stilling": {
+        "stillingstittel": "Rekrutteringstreff",
+        "erDirektemeldt": true,
+        "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
+        "antallStillinger": 1,
+        "organisasjonsnummer": "923282556",
+        "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
+      }
     }
 """.trimIndent()

@@ -41,4 +41,5 @@ data class OpprettKandidatutfall(
     val hovedmål: String?,
     val alder: Int?,
     val tidspunktForHendelsen: ZonedDateTime,
+    val rekrutteringstreffId: String? = null,
 )
