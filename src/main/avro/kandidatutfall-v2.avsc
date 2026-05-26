@@ -1,0 +1,16 @@
+{
+  "namespace": "no.nav.rekrutteringsbistand",
+  "type": "record",
+  "name": "AvroKandidatutfallV2",
+  "fields": [
+    { "name": "aktørId", "type": "string" },
+    { "name": "utfall", "type": "string" },
+    { "name": "navIdent", "type": "string" },
+    { "name": "navKontor", "type": "string" },
+    { "name": "kandidatlisteId", "type": "string" },
+    { "name": "stillingsId", "type": "string" },
+    { "name": "rekrutteringstreffId", "type": ["null", "string"], "default": null },
+    { "name": "tidspunkt", "type": "string" },
+    { "name": "stillingskategori", "type": "string" }
+  ]
+}

@@ -7,7 +7,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import kotlinx.coroutines.runBlocking
-import no.nav.rekrutteringsbistand.AvroKandidatutfall
+import no.nav.rekrutteringsbistand.AvroKandidatutfallV2
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
@@ -29,19 +29,24 @@ class DatavarehusKafkaTest {
     @Test
     fun `Kandidatutfall hendelse skal produsere melding på Kafka-topic`() = runBlocking {
         val utfall1 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo(), utfall = Utfall.PRESENTERT)
-        val utfall2 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo().plusDays(1), utfall = Utfall.FATT_JOBBEN)
+        val utfall2 = etKandidatutfall.copy(
+            tidspunktForHendelsen = nowOslo().plusDays(1),
+            utfall = Utfall.FATT_JOBBEN,
+            stillingsId = "e313e51b-7b59-4f90-942a-f5a78249329d"
+        )
 
 
         val expected = listOf(utfall1, utfall2)
+        val expectedStillingskategorier = listOf(Stillingskategori.STILLING, Stillingskategori.REKRUTTERINGSTREFF)
 
-        expected.forEach {
-            stillingRepository.lagreStilling(it.stillingsId, Stillingskategori.STILLING)
-            kandidatutfallRepository.lagreUtfall(it)
+        expected.forEachIndexed { index, kandidatutfall ->
+            stillingRepository.lagreStilling(kandidatutfall.stillingsId, expectedStillingskategorier[index])
+            kandidatutfallRepository.lagreUtfall(kandidatutfall)
         }
 
         testHentUsendteUtfallOgSendPåKafka.run()
 
-        val actuals: List<AvroKandidatutfall> = mockProducer.history().map { it.value() }
+        val actuals: List<AvroKandidatutfallV2> = mockProducer.history().map { it.value() }
 
         assertThat(actuals.count()).isEqualTo(2)
         actuals.forEachIndexed { index, actual ->
@@ -51,6 +56,8 @@ class DatavarehusKafkaTest {
             assertThat(actual.getNavKontor()).isEqualTo(expected[index].navKontor)
             assertThat(actual.getKandidatlisteId()).isEqualTo(expected[index].kandidatlisteId)
             assertThat(actual.getStillingsId()).isEqualTo(expected[index].stillingsId)
+            assertThat(actual.getRekrutteringstreffId()).isNull()
+            assertThat(actual.getStillingskategori()).isEqualTo(expectedStillingskategorier[index].name)
 
             val expectedTidspunkt = if (index == 0) utfall1.tidspunktForHendelsen else utfall2.tidspunktForHendelsen
             assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(
@@ -98,7 +105,7 @@ class DatavarehusKafkaTest {
         private val port = randomPort()
         private val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
         private val stillingRepository = StillingRepository(database.dataSource)
-        private val dummyAvroKandidatutfallSerializer = { _: String, _: AvroKandidatutfall -> ByteArray(0) }
+        private val dummyAvroKandidatutfallSerializer = { _: String, _: AvroKandidatutfallV2 -> ByteArray(0) }
         private val mockProducer = MockProducer(true, StringSerializer(), dummyAvroKandidatutfallSerializer)
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(mockProducer)
         private val testHentUsendteUtfallOgSendPåKafka =
