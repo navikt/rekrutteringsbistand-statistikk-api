@@ -1,42 +1,44 @@
-val logbackVersion = "1.5.25"
-val ktorVersion = "3.0.1"
-val flywayVersion = "9.7.0"
-val hikariVersion = "5.0.1"
+val logbackVersion = "1.5.32"
+val ktorVersion = "3.4.3"
+val flywayVersion = "12.6.1"
+val hikariVersion = "7.0.2"
 val logstashEncoderVersion = "9.0"
 val vaultJdbcVersion = "1.3.10"
-val postgresVersion = "42.7.4"
-val tokenValidationVersion = "5.0.14"
-val jacksonVersion = "2.14.0"
-val assertkVersion = "0.25"
-val micrometerPrometheusVersion = "1.10.0"
-val kafkaClientsVersion = "3.9.0"
-val mockkVersion = "1.13.2"
-val kafkaAvroSerializerVersion = "7.8.0"
-val shedlockVersion = "4.42.0"
-val pitestVersion = "1.9.0"
-val kotlinLoggingVersion = "2.0.11"
-val jsonassertVersion = "1.5.1"
-val mockOAuth2ServerVersion = "0.5.6"
-val avroVersion = "1.12.0"
+val postgresVersion = "42.7.11"
+val tokenValidationVersion = "5.0.30"
+val jacksonVersion = "2.21.3"
+val assertkVersion = "0.28.1"
+val kafkaClientsVersion = "4.2.0"
+val mockkVersion = "1.14.9"
+val kafkaAvroSerializerVersion = "8.2.1"
+val shedlockVersion = "7.7.0"
+val pitestVersion = "1.15.0"
+val mockOAuth2ServerVersion = "4.0.0"
+val avroVersion = "1.12.1"
+val testcontainersVersion = "1.21.4"
+val jvmVersion = 25
 
 
 plugins {
     application
-    kotlin("jvm") version "2.1.0"
-    id("com.github.ben-manes.versions") version "0.43.0"
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
-    id("info.solidsoft.pitest") version "1.9.0"
+    kotlin("jvm") version "2.3.21"
+    id("com.github.ben-manes.versions") version "0.54.0"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
+    id("info.solidsoft.pitest") version "1.19.0"
     idea
 }
 
 pitest {
-    targetClasses.set(setOf("no.nav.statistikkapi.*"))
-    targetTests.set(setOf("no.nav.statistikkapi.*"))
-    useClasspathFile.set(true)
+    targetClasses = setOf("no.nav.statistikkapi.*")
+    targetTests = setOf("no.nav.statistikkapi.*")
+    useClasspathFile = true
 }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+kotlin {
+    jvmToolchain(jvmVersion)
+}
+java { // Nødvendig fordi Avro genererer Java kildekode
+    toolchain.languageVersion.set(JavaLanguageVersion.of(jvmVersion))
 }
 
 application {
@@ -59,52 +61,52 @@ repositories {
 }
 
 dependencies {
+    // BOMs
+    implementation(platform("io.ktor:ktor-bom:$ktorVersion"))
+    testImplementation(platform("org.testcontainers:testcontainers-bom:$testcontainersVersion"))
+
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    implementation("com.github.navikt:rapids-and-rivers:2026021921161771532161.7a37f8c9e0cc")
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
+    implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion") {
+        exclude(group = "org.apache.kafka", module = "kafka-clients")
+    }
+    implementation("io.ktor:ktor-client-apache")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-jackson")
+    implementation("io.ktor:ktor-serialization-jackson")
+    implementation("io.ktor:ktor-server-auth-jvm")
+    implementation("io.ktor:ktor-server-call-logging")
+    implementation("io.ktor:ktor-server-content-negotiation")
+    implementation("io.ktor:ktor-server-metrics-micrometer")
+    implementation("io.ktor:ktor-server-netty")
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
-
-    implementation("com.github.navikt:rapids-and-rivers:2025010715371736260653.d465d681c420")
-    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad")
-
-    implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
-    implementation("io.ktor:ktor-client-jackson:$ktorVersion")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
-    implementation("org.postgresql:postgresql:$postgresVersion")
-    implementation("com.zaxxer:HikariCP:$hikariVersion")
-    implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
-    runtimeOnly("io.ktor:ktor-client-auth:${ktorVersion}")
-    implementation("io.ktor:ktor-server-auth-jvm:${ktorVersion}")
-
-    implementation("no.nav.security:token-validation-ktor-v3:$tokenValidationVersion")
-    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
-    implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
-    implementation("org.apache.avro:avro:$avroVersion")
-    implementation("io.confluent:kafka-avro-serializer:$kafkaAvroSerializerVersion")
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
+    implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
+    implementation("no.nav.security:token-validation-ktor-v3:$tokenValidationVersion")
+    implementation("org.apache.avro:avro:$avroVersion")
+    implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
+    implementation("org.postgresql:postgresql:$postgresVersion")
+    runtimeOnly("io.ktor:ktor-client-auth")
 
-    testImplementation(kotlin("test"))
-    testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
+    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad")
+    testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
+    testImplementation("io.ktor:ktor-client-mock")
+    testImplementation("io.ktor:ktor-server-cio")
+    testImplementation("io.ktor:ktor-server-test-host") {
         exclude(group = "org.eclipse.jetty")
     }
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:$assertkVersion")
-    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
-    testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
-    testImplementation("info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestVersion")
-
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation(kotlin("test"))
     testImplementation("no.nav.security:mock-oauth2-server:$mockOAuth2ServerVersion")
-
-    testImplementation("org.testcontainers:testcontainers:1.17.5")
-    testImplementation("org.testcontainers:postgresql:1.17.5")
-    testImplementation("io.ktor:ktor-server-cio:$ktorVersion")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:testcontainers")
 }
-

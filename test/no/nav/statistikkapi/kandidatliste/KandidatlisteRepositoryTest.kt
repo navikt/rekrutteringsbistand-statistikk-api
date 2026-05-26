@@ -397,7 +397,7 @@ class KandidatlisteRepositoryTest {
             kandidatutfallRepository.lagreUtfall(it)
         }
         uniktKandidatutfall(nyKandidatlisteId.toString()).also {
-            it.copy(aktørId = "10108000398")
+            it.copy(aktørId = "10108000398")  // TODO Are: Blir ikke brukt til noe. Bug?
             kandidatutfallRepository.lagreUtfall(it)
         }
 
@@ -821,11 +821,65 @@ class KandidatlisteRepositoryTest {
             .also { kandidatutfallRepository.lagreUtfall(it) }
         uniktKandidatutfall(kandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
             .also { kandidatutfallRepository.lagreUtfall(it) }
-        uniktKandidatutfallIkkeIPrioritertMålgruppe(annenKandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
+        uniktKandidatutfallIkkeIPrioritertMålgruppe(annenKandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN) // TODO Are: Blir ikke brukt til noe. Bug?
 
         val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
 
         assertThat(antall).isEqualTo(0)
+    }
+
+    @Test
+    fun `hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat skal ikke telle kandidatliste tilknyttet ikke-direktemeldt stilling selv om stillingskategori er null`() {
+        // Bug scenario: due to missing parentheses around the OR condition,
+        // a kandidatliste with er_direktemeldt=false (or stilling_opprettet_tidspunkt=null)
+        // was incorrectly included when stillingskategori IS NULL.
+        val kandidatlisteId = UUID.randomUUID()
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = false  // NOT direktemeldt — must not be counted
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = null  // null triggered the OR-arm that bypassed other filters
+            )
+        }
+        uniktKandidatutfall(kandidatlisteId.toString()).also {
+            kandidatutfallRepository.lagreUtfall(it)
+        }
+
+        val antall = kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat()
+
+        // Expected: 0  (not direktemeldt → must not be counted)
+        // With the operator-precedence bug: 1 (stillingskategori IS NULL bypassed filter)
+        assertThat(antall).isEqualTo(0)
+    }
+
+    @Test
+    fun `hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned skal ikke telle kandidatliste tilknyttet ikke-direktemeldt stilling selv om stillingskategori er null`() {
+        // Bug scenario: due to missing parentheses around the OR condition,
+        // a kandidatliste with er_direktemeldt=false (or stilling_opprettet_tidspunkt=null)
+        // was incorrectly included when stillingskategori IS NULL.
+        val kandidatlisteId = UUID.randomUUID()
+        lagOppdatertKandidatlisteHendelse(
+            kandidatlisteId = kandidatlisteId,
+            erDirektemeldt = false  // NOT direktemeldt — must not be counted
+        ).also {
+            kandidatlisteRepository.lagreKandidatlistehendelse(it)
+            stillingRepository.lagreStilling(
+                stillingsuuid = it.stillingsId,
+                stillingskategori = null  // null triggered the OR-arm that bypassed other filters
+            )
+        }
+        uniktKandidatutfall(kandidatlisteId.toString()).also {
+            kandidatutfallRepository.lagreUtfall(it)
+        }
+
+        val perMåned = kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned()
+
+        // Expected: empty map (no direktemeldte kandidatlister)
+        // With the operator-precedence bug: map contains an entry with count = 1
+        assertThat(perMåned).isEqualTo(emptyMap<String, Int>())
     }
 
     @Test

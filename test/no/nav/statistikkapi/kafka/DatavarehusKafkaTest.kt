@@ -29,27 +29,24 @@ class DatavarehusKafkaTest {
     @Test
     fun `Kandidatutfall hendelse skal produsere melding på Kafka-topic`() = runBlocking {
         val utfall1 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo(), utfall = Utfall.PRESENTERT)
-        val utfall2 = etKandidatutfall.copy(
-            tidspunktForHendelsen = nowOslo().plusDays(1),
-            utfall = Utfall.FATT_JOBBEN,
-            stillingsId = "e313e51b-7b59-4f90-942a-f5a78249329d"
-        )
+        val utfall2 = etKandidatutfall.copy(tidspunktForHendelsen = nowOslo().plusDays(1), utfall = Utfall.FATT_JOBBEN)
 
 
         val expected = listOf(utfall1, utfall2)
-        val expectedStillingskategorier = listOf(Stillingskategori.STILLING, Stillingskategori.REKRUTTERINGSTREFF)
 
-        expected.forEachIndexed { index, kandidatutfall ->
-            stillingRepository.lagreStilling(kandidatutfall.stillingsId, expectedStillingskategorier[index])
-            kandidatutfallRepository.lagreUtfall(kandidatutfall)
+        expected.forEach {
+            stillingRepository.lagreStilling(it.stillingsId, Stillingskategori.STILLING)
+            kandidatutfallRepository.lagreUtfall(it)
         }
 
         testHentUsendteUtfallOgSendPåKafka.run()
 
-        val actuals: List<AvroKandidatutfallV2> = mockProducer.history().map { it.value() }
+        val actualRecords = mockProducer.history()
+        val actuals: List<AvroKandidatutfallV2> = actualRecords.map { it.value() }
 
         assertThat(actuals.count()).isEqualTo(2)
         actuals.forEachIndexed { index, actual ->
+            assertThat(actualRecords[index].topic()).isEqualTo(DatavarehusKafkaProducerImpl.topic)
             assertThat(actual.getAktørId()).isEqualTo(expected[index].aktørId)
             assertThat(actual.getUtfall()).isEqualTo(expected[index].utfall.name)
             assertThat(actual.getNavIdent()).isEqualTo(expected[index].navIdent)
@@ -57,7 +54,7 @@ class DatavarehusKafkaTest {
             assertThat(actual.getKandidatlisteId()).isEqualTo(expected[index].kandidatlisteId)
             assertThat(actual.getStillingsId()).isEqualTo(expected[index].stillingsId)
             assertThat(actual.getRekrutteringstreffId()).isNull()
-            assertThat(actual.getStillingskategori()).isEqualTo(expectedStillingskategorier[index].name)
+            assertThat(actual.getStillingskategori()).isEqualTo(Stillingskategori.STILLING.name)
 
             val expectedTidspunkt = if (index == 0) utfall1.tidspunktForHendelsen else utfall2.tidspunktForHendelsen
             assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(
@@ -106,7 +103,7 @@ class DatavarehusKafkaTest {
         private val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
         private val stillingRepository = StillingRepository(database.dataSource)
         private val dummyAvroKandidatutfallSerializer = { _: String, _: AvroKandidatutfallV2 -> ByteArray(0) }
-        private val mockProducer = MockProducer(true, StringSerializer(), dummyAvroKandidatutfallSerializer)
+        private val mockProducer = MockProducer(true, null, StringSerializer(), dummyAvroKandidatutfallSerializer)
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(mockProducer)
         private val testHentUsendteUtfallOgSendPåKafka =
             hentUsendteUtfallOgSendPåKafka(

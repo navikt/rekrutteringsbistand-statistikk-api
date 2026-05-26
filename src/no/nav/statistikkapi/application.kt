@@ -24,14 +24,14 @@ import no.nav.statistikkapi.kafka.*
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatliste.KandidatlistehendelseLytter
 import no.nav.statistikkapi.kandidatutfall.*
-import no.nav.statistikkapi.logging.SecureLog
+import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
+import no.nav.statistikkapi.logging.noClassLogger
 import no.nav.statistikkapi.metrikker.MetrikkJobb
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoLytter
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
 import org.apache.kafka.clients.producer.KafkaProducer
-import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import java.time.Instant
 import java.time.LocalDateTime
@@ -41,8 +41,8 @@ import java.time.temporal.ChronoUnit.MILLIS
 import javax.sql.DataSource
 
 fun main() {
-    val log = LoggerFactory.getLogger("no.nav.statistikkapi.applicationKt")
-    val secureLog = SecureLog(log)
+    val log = noClassLogger()
+    val secureLog = secure(log)
     log.info("Starter app.")
     secureLog.info("Starter app. Dette er ment å logges til Securelogs. Hvis du ser dette i den ordinære apploggen er noe galt, og sensitive data kan havne i feil logg.")
     try {
