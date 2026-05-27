@@ -69,7 +69,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asText())
         val stillingsId = packet["stillingsId"].asTextNullable()
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
-        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asTextNullable()
+        val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDTextNullable()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
         val synligKandidat = packet["synligKandidat"].asBoolean()
@@ -77,7 +78,6 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val alder = packet["inkludering.alder"].asIntNullable()
         val innsatsbehov = packet["inkludering.innsatsbehov"].asTextNullable()
         val hovedmål = packet["inkludering.hovedmål"].asTextNullable()
-        val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
 
         secureLog.info(
             """

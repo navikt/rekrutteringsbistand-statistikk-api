@@ -383,7 +383,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
                 alder = if (resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
-                rekrutteringstreffId = resultSet.getString(rekrutteringstreffid)?.let(UUID::fromString),
+                rekrutteringstreffId = resultSet.getString(rekrutteringstreffid).asUUIDNullable(),
             )
 
         private val sq_unikeUtfallPerPersonOgListe = """

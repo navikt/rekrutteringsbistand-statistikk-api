@@ -16,6 +16,7 @@ import org.junit.Test
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
+import kotlin.test.assertFailsWith
 
 class PresenterteOgFåttJobbenKandidaterLytterTest {
 
@@ -212,19 +213,29 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
     }
 
     @Test
-    fun `Kan opprette kandidatutfall med rekrutteringstreffId`() {
-        rapid.sendTestMessage(registrertDeltCvMeldingMedRekrutteringstreffId)
+    fun `Kan opprette kandidatutfall med rekrutteringstreffId for FåttJobben`() {
+        rapid.sendTestMessage(registrertFåttJobbenMeldingMedRekrutteringstreffId)
 
         val utfallFraDb = testRepository.hentUtfall()
         val stillingFraDb = testRepository.hentStilling()
         assertThat(utfallFraDb).hasSize(1)
         assertThat(stillingFraDb).hasSize(1)
         utfallFraDb[0].apply {
+            assertThat(utfall).isEqualTo(Utfall.FATT_JOBBEN)
             assertThat(rekrutteringstreffId).isEqualTo(UUID.fromString(etRekrutteringstreffId))
         }
         stillingFraDb[0].apply {
             assertThat(stillingskategori).isEqualTo(Stillingskategori.REKRUTTERINGSTREFF)
         }
+    }
+
+    @Test
+    fun `Ugyldig rekrutteringstreffId kaster exception`() {
+        assertFailsWith<IllegalArgumentException> {
+            rapid.sendTestMessage(registrertFåttJobbenMeldingMedUgyldigRekrutteringstreffId)
+        }
+
+        assertThat(testRepository.hentUtfall()).hasSize(0)
     }
 }
 
@@ -320,6 +331,7 @@ private fun registrertDeltCvMeldingMedDeprecatedTilretteleggingsbehov(
     """.trimIndent()
 )
 
+
 private val registrertDeltCvmeldingUsynligKandidatUtenInkludering = byggMelding(
     synligKandidat = false,
     inkludering = null
@@ -349,7 +361,20 @@ val registrertFåttJobbenMeldingUtenStillingberikelse = byggMelding(
     stilling = null
 )
 
-private val registrertDeltCvMeldingMedRekrutteringstreffId = byggMelding(
+private val standardRekrutteringstreffStilling = """
+    {
+      "stillingstittel": "Rekrutteringstreff",
+      "erDirektemeldt": true,
+      "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
+      "antallStillinger": 1,
+      "organisasjonsnummer": "923282556",
+      "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
+    }
+""".trimIndent()
+
+private val registrertFåttJobbenMeldingMedRekrutteringstreffId = byggMelding(
+    eventName = "kandidat_v2.RegistrertFåttJobben",
+    tidspunkt = "2023-02-13T12:39:52.205+01:00",
     stillingsinfo = """
         {
           "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
@@ -360,14 +385,21 @@ private val registrertDeltCvMeldingMedRekrutteringstreffId = byggMelding(
           "rekrutteringstreffId": "$etRekrutteringstreffId"
         }
     """.trimIndent(),
-    stilling = """
+    stilling = standardRekrutteringstreffStilling,
+)
+
+private val registrertFåttJobbenMeldingMedUgyldigRekrutteringstreffId = byggMelding(
+    eventName = "kandidat_v2.RegistrertFåttJobben",
+    tidspunkt = "2023-02-13T12:39:52.205+01:00",
+    stillingsinfo = """
         {
-          "stillingstittel": "Rekrutteringstreff",
-          "erDirektemeldt": true,
-          "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
-          "antallStillinger": 1,
-          "organisasjonsnummer": "923282556",
-          "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
+          "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+          "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+          "eier": null,
+          "notat": "sds",
+          "stillingskategori": "REKRUTTERINGSTREFF",
+          "rekrutteringstreffId": "ikke-en-uuid"
         }
-    """.trimIndent()
+    """.trimIndent(),
+    stilling = standardRekrutteringstreffStilling,
 )
