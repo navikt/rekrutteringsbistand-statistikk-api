@@ -40,7 +40,8 @@ class DatavarehusKafkaTest {
 
 
         val expected = listOf(utfall1, utfall2)
-        val forventedeStillingskategorier = listOf(Stillingskategori.STILLING, Stillingskategori.REKRUTTERINGSTREFF)
+        val forventedeStillingskategorier =
+            listOf(Stillingskategori.STILLING, Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING)
 
         expected.forEachIndexed { index, it ->
             stillingRepository.lagreStilling(it.stillingsId, forventedeStillingskategorier[index])

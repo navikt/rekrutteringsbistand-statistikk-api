@@ -6,7 +6,7 @@ data class Stilling(
 )
 
 enum class Stillingskategori {
-    STILLING, FORMIDLING, JOBBMESSE, REKRUTTERINGSTREFF;
+    STILLING, FORMIDLING, JOBBMESSE, REKRUTTERINGSTREFF_FORMIDLING;
 
     fun tilAvro() = name
 

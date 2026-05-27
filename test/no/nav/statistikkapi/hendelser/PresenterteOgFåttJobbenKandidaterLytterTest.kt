@@ -225,7 +225,7 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(rekrutteringstreffId).isEqualTo(UUID.fromString(etRekrutteringstreffId))
         }
         stillingFraDb[0].apply {
-            assertThat(stillingskategori).isEqualTo(Stillingskategori.REKRUTTERINGSTREFF)
+            assertThat(stillingskategori).isEqualTo(Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING)
         }
     }
 
@@ -381,7 +381,7 @@ private val registrertFåttJobbenMeldingMedRekrutteringstreffId = byggMelding(
           "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
           "eier": null,
           "notat": "sds",
-          "stillingskategori": "REKRUTTERINGSTREFF",
+          "stillingskategori": "REKRUTTERINGSTREFF_FORMIDLING",
           "rekrutteringstreffId": "$etRekrutteringstreffId"
         }
     """.trimIndent(),
@@ -397,7 +397,7 @@ private val registrertFåttJobbenMeldingMedUgyldigRekrutteringstreffId = byggMel
           "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
           "eier": null,
           "notat": "sds",
-          "stillingskategori": "REKRUTTERINGSTREFF",
+          "stillingskategori": "REKRUTTERINGSTREFF_FORMIDLING",
           "rekrutteringstreffId": "ikke-en-uuid"
         }
     """.trimIndent(),
