@@ -35,7 +35,7 @@ class DatavarehusKafkaTest {
             tidspunktForHendelsen = nowOslo().plusDays(1),
             utfall = Utfall.FATT_JOBBEN,
             stillingsId = UUID.randomUUID().toString(),
-            rekrutteringstreffId = rekrutteringstreffId.toString(),
+            rekrutteringstreffId = rekrutteringstreffId,
         )
 
 
@@ -62,7 +62,7 @@ class DatavarehusKafkaTest {
             assertThat(actual.getNavKontor()).isEqualTo(expected[index].navKontor)
             assertThat(actual.getKandidatlisteId()).isEqualTo(expected[index].kandidatlisteId)
             assertThat(actual.getStillingsId()).isEqualTo(expected[index].stillingsId)
-            assertThat(actual.getRekrutteringstreffId()).isEqualTo(expected[index].rekrutteringstreffId)
+            assertThat(actual.getRekrutteringstreffId()).isEqualTo(expected[index].rekrutteringstreffId?.toString())
             assertThat(actual.getStillingskategori()).isEqualTo(forventedeStillingskategorier[index].name)
 
             val expectedTidspunkt = if (index == 0) utfall1.tidspunktForHendelsen else utfall2.tidspunktForHendelsen

@@ -5,6 +5,7 @@ import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
+import java.util.UUID
 
 class LagreUtfallOgStilling(
     private val kandidatutfallRepository: KandidatutfallRepository,
@@ -41,5 +42,5 @@ data class OpprettKandidatutfall(
     val hovedmål: String?,
     val alder: Int?,
     val tidspunktForHendelsen: ZonedDateTime,
-    val rekrutteringstreffId: String? = null,
+    val rekrutteringstreffId: UUID? = null,
 )

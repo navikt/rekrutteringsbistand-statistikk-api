@@ -53,11 +53,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
                 setString(11, kandidatutfall.innsatsbehov)
                 setString(12, kandidatutfall.hovedmål)
-                if (kandidatutfall.rekrutteringstreffId != null) {
-                    setObject(13, UUID.fromString(kandidatutfall.rekrutteringstreffId))
-                } else {
-                    setNull(13, Types.OTHER)
-                }
+                setObject(13, kandidatutfall.rekrutteringstreffId, Types.OTHER)
                 executeUpdate()
             }
         }

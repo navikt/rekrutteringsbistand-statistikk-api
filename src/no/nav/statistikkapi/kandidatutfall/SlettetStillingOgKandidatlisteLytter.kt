@@ -51,7 +51,7 @@ class SlettetStillingOgKandidatlisteLytter(
         val stillingsId: String = packet["stillingsId"].asText()
         val stillingskategori: Stillingskategori =
             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
-        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asTextNullable()
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()
 
         secureLog.info(
             """
@@ -81,7 +81,7 @@ class SlettetStillingOgKandidatlisteLytter(
                     hovedmål = null,
                     alder = null,
                     tidspunktForHendelsen = tidspunkt,
-                    rekrutteringstreffId = rekrutteringstreffId ?: it.rekrutteringstreffId?.toString(),
+                    rekrutteringstreffId = rekrutteringstreffId ?: it.rekrutteringstreffId,
                 )
                 lagreUtfallOgStilling.lagreUtfallOgStilling(nyttUtfall, stillingsId, stillingskategori)
             }

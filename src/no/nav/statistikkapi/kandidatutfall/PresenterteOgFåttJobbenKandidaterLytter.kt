@@ -70,7 +70,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val stillingsId = packet["stillingsId"].asTextNullable()
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
         val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
-        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDTextNullable()
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
         val synligKandidat = packet["synligKandidat"].asBoolean()

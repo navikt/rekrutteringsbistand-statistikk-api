@@ -59,7 +59,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         val stillingsId: String = packet["stillingsId"].asText()
         val stillingskategori: Stillingskategori =
             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
-        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asTextNullable()
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()
         val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode: String = packet["utførtAvNavKontorKode"].asText()
         val utfall: Utfall =
@@ -105,7 +105,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             tidspunktForHendelsen = tidspunkt,
             innsatsbehov = utfallFraDb.innsatsbehov,
             hovedmål = utfallFraDb.hovedmål,
-            rekrutteringstreffId = rekrutteringstreffId ?: utfallFraDb.rekrutteringstreffId?.toString(),
+            rekrutteringstreffId = rekrutteringstreffId ?: utfallFraDb.rekrutteringstreffId,
         )
 
 
