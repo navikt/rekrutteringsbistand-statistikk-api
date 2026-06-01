@@ -7,7 +7,6 @@ on:
     paths:
       - .github/workflows/deploy-dvh-topic-to-prod.yaml
       - nais/dvh-topic-prod.yaml
-      - nais/kandidatutfall-topic-v2-prod.yaml
 
 jobs:
   deploy-kandidat-topic-to-prod:
@@ -21,4 +20,4 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: nais/dvh-topic-prod.yaml,nais/kandidatutfall-topic-v2-prod.yaml
+          RESOURCE: nais/dvh-topic-prod.yaml

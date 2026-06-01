@@ -7,7 +7,7 @@ import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import kotlinx.coroutines.runBlocking
-import no.nav.rekrutteringsbistand.AvroKandidatutfallV2
+import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
@@ -51,7 +51,7 @@ class DatavarehusKafkaTest {
         testHentUsendteUtfallOgSendPåKafka.run()
 
         val actualRecords = mockProducer.history()
-        val actuals: List<AvroKandidatutfallV2> = actualRecords.map { it.value() }
+        val actuals: List<AvroKandidatutfall> = actualRecords.map { it.value() }
 
         assertThat(actuals.count()).isEqualTo(2)
         actuals.forEachIndexed { index, actual ->
@@ -63,7 +63,7 @@ class DatavarehusKafkaTest {
             assertThat(actual.getKandidatlisteId()).isEqualTo(expected[index].kandidatlisteId)
             assertThat(actual.getStillingsId()).isEqualTo(expected[index].stillingsId)
             assertThat(actual.getRekrutteringstreffId()).isEqualTo(expected[index].rekrutteringstreffId?.toString())
-            assertThat(actual.getStillingskategori()).isEqualTo(forventedeStillingskategorier[index].name)
+            assertThat(actual.getStillingskategori().name).isEqualTo(forventedeStillingskategorier[index].name)
 
             val expectedTidspunkt = if (index == 0) utfall1.tidspunktForHendelsen else utfall2.tidspunktForHendelsen
             assertThat(LocalDateTime.parse(actual.getTidspunkt())).isBetween(
@@ -111,7 +111,7 @@ class DatavarehusKafkaTest {
         private val port = randomPort()
         private val kandidatutfallRepository = KandidatutfallRepository(database.dataSource)
         private val stillingRepository = StillingRepository(database.dataSource)
-        private val dummyAvroKandidatutfallSerializer = { _: String, _: AvroKandidatutfallV2 -> ByteArray(0) }
+        private val dummyAvroKandidatutfallSerializer = { _: String, _: AvroKandidatutfall -> ByteArray(0) }
         private val mockProducer = MockProducer(true, null, StringSerializer(), dummyAvroKandidatutfallSerializer)
         private val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(mockProducer)
         private val testHentUsendteUtfallOgSendPåKafka =

@@ -1,6 +1,6 @@
 package no.nav.statistikkapi.kafka
 
-import no.nav.rekrutteringsbistand.AvroKandidatutfallV2
+import no.nav.rekrutteringsbistand.AvroKandidatutfall
 import no.nav.statistikkapi.kandidatutfall.Kandidatutfall
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
@@ -12,16 +12,16 @@ interface DatavarehusKafkaProducer {
     fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori)
 }
 
-class DatavarehusKafkaProducerImpl(private val producer: Producer<String, AvroKandidatutfallV2>) :
+class DatavarehusKafkaProducerImpl(private val producer: Producer<String, AvroKandidatutfall>) :
     DatavarehusKafkaProducer {
 
     companion object {
-        const val topic = "toi.kandidatutfall-v2"
+        const val topic = "toi.kandidatutfall"
     }
 
     override fun send(kandidatutfall: Kandidatutfall, stillingskategori: Stillingskategori) {
 
-        val melding = AvroKandidatutfallV2(
+        val melding = AvroKandidatutfall(
             kandidatutfall.aktorId,
             kandidatutfall.utfall.name,
             kandidatutfall.navIdent,
