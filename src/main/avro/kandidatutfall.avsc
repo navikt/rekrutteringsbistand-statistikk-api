@@ -1,22 +1,33 @@
-[{
-  "namespace": "no.nav.rekrutteringsbistand",
-  "name": "AvroStillingskategori",
-  "type": "enum",
-  "symbols": ["STILLING", "FORMIDLING", "JOBBMESSE", "REKRUTTERINGSTREFF_FORMIDLING"]
-},
-{
-  "namespace": "no.nav.rekrutteringsbistand",
-  "type": "record",
-  "name": "AvroKandidatutfall",
-  "fields": [
-    { "name": "aktørId", "type": "string" },
-    { "name": "utfall", "type": "string" },
-    { "name": "navIdent", "type": "string" },
-    { "name": "navKontor", "type": "string" },
-    { "name": "kandidatlisteId", "type": "string" },
-    { "name": "stillingsId", "type": "string" },
-    { "name": "rekrutteringstreffId", "type": ["null", "string"], "default": null },
-    { "name": "tidspunkt", "type": "string" },
-    { "name": "stillingskategori", "type": "AvroStillingskategori" }
-  ]
-}]
+[
+  {
+    "namespace": "no.nav.rekrutteringsbistand",
+    "name": "AvroStillingskategori",
+    "type": "enum",
+    "symbols": [
+      "STILLING",
+      "FORMIDLING",
+      "JOBBMESSE",
+      "REKRUTTERINGSTREFF_FORMIDLING"
+    ]
+  },
+  {
+    "namespace": "no.nav.rekrutteringsbistand",
+    "type": "record",
+    "name": "AvroKandidatutfall",
+    "fields": [
+      { "name": "aktørId", "type": "string" },
+      { "name": "utfall", "type": "string" },
+      { "name": "navIdent", "type": "string" },
+      { "name": "navKontor", "type": "string" },
+      { "name": "kandidatlisteId", "type": "string" },
+      { "name": "stillingsId", "type": "string" },
+      {
+        "name": "rekrutteringstreffId",
+        "type": ["null", "string"],
+        "default": null
+      },
+      { "name": "tidspunkt", "type": "string" },
+      { "name": "stillingskategori", "type": "AvroStillingskategori" }
+    ]
+  }
+]
