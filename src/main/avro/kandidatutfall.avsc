@@ -2,8 +2,7 @@
   "namespace": "no.nav.rekrutteringsbistand",
   "name": "AvroStillingskategori",
   "type": "enum",
-  "symbols": ["STILLING", "FORMIDLING", "JOBBMESSE", "REKRUTTERINGSTREFF_FORMIDLING"],
-  "default": "STILLING"
+  "symbols": ["STILLING", "FORMIDLING", "JOBBMESSE", "REKRUTTERINGSTREFF_FORMIDLING"]
 },
 {
   "namespace": "no.nav.rekrutteringsbistand",
