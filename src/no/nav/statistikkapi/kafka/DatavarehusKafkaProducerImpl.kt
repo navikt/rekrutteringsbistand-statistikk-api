@@ -28,6 +28,7 @@ class DatavarehusKafkaProducerImpl(private val producer: Producer<String, AvroKa
             kandidatutfall.navKontor,
             kandidatutfall.kandidatlisteId.toString(),
             kandidatutfall.stillingsId.toString(),
+            null,
             kandidatutfall.tidspunkt.toString(),
             stillingskategori.tilAvro()
         )
