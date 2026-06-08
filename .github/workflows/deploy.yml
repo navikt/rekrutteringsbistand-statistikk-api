@@ -1,6 +1,6 @@
 name: Build & deploy
 
-on: [ push, workflow_dispatch ]
+on: [push, workflow_dispatch]
 
 permissions:
   contents: read
@@ -10,7 +10,7 @@ jobs:
   call-build-java-gradlew:
     uses: navikt/toi-github-actions-workflows/.github/workflows/build-java-gradlew.yaml@v2
     with:
-      java-version: '25'
+      java-version: "25"
     permissions:
       contents: read
       id-token: write
@@ -19,7 +19,7 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: call-build-java-gradlew
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/bug-i-sql'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/ny-avro-treff'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
