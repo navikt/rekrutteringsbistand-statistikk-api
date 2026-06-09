@@ -22,7 +22,7 @@ spec:
       access: readwrite
     - team: toi
       application: toi-kafkamanager
-      access: readwrite
+      access: read
     - team: teamoppfolging
       application: teamoppfolging-kafka
       access: read
