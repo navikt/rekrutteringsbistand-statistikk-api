@@ -9,6 +9,7 @@ import no.nav.statistikkapi.logging.log
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
+import java.sql.Types
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -36,8 +37,9 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                                $hullICv,
                                $alder,
                                $innsatsbehov,
-                               $hovedmål
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                               $hovedmål,
+                               $rekrutteringstreffId
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, kandidatutfall.aktørId)
                 setString(2, kandidatutfall.utfall.name)
@@ -51,6 +53,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
                 setString(11, kandidatutfall.innsatsbehov)
                 setString(12, kandidatutfall.hovedmål)
+                setObject(13, kandidatutfall.rekrutteringstreffId, Types.OTHER)
                 executeUpdate()
             }
         }
@@ -360,6 +363,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
         const val alder = "alder"
+        const val rekrutteringstreffId = "rekrutteringstreff_id"
 
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
             Kandidatutfall(
@@ -380,6 +384,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
                 alder = if (resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
+                rekrutteringstreffId = resultSet.getObject(rekrutteringstreffId, UUID::class.java),
             )
 
         private val sq_unikeUtfallPerPersonOgListe = """

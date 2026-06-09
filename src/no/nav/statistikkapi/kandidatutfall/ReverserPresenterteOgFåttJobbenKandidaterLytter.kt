@@ -40,7 +40,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
                 )
 
                 it.demandKey("stillingsinfo")
-                it.interestedIn("stillingsinfo.stillingskategori")
+                it.interestedIn("stillingsinfo.stillingskategori", "stillingsinfo.rekrutteringstreffId")
 
             }
         }.register(this)
@@ -59,6 +59,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         val stillingsId: String = packet["stillingsId"].asText()
         val stillingskategori: Stillingskategori =
             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()
         val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode: String = packet["utførtAvNavKontorKode"].asText()
         val utfall: Utfall =
@@ -72,6 +73,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             tidspunkt: $tidspunkt
             stillingsId: $stillingsId
             stillingskategori: $stillingskategori
+            rekrutteringstreffId: $rekrutteringstreffId
             utførtAvNavIdent: $utførtAvNavIdent
             utførtAvNavKontorKode: $utførtAvNavKontorKode
             utfall: $utfall
@@ -102,7 +104,8 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             alder = utfallFraDb.alder,
             tidspunktForHendelsen = tidspunkt,
             innsatsbehov = utfallFraDb.innsatsbehov,
-            hovedmål = utfallFraDb.hovedmål
+            hovedmål = utfallFraDb.hovedmål,
+            rekrutteringstreffId = rekrutteringstreffId ?: utfallFraDb.rekrutteringstreffId,
         )
 
 

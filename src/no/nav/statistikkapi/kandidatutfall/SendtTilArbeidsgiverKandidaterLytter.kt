@@ -95,7 +95,8 @@ class SendtTilArbeidsgiverKandidaterLytter(
                 alder = alder,
                 tidspunktForHendelsen = tidspunkt,
                 innsatsbehov = innsatsbehov,
-                hovedmål = hovedmål
+                hovedmål = hovedmål,
+                rekrutteringstreffId = null,
             )
 
             lagreUtfallOgStilling.lagreUtfallOgStilling(

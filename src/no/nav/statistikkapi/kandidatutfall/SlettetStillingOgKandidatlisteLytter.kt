@@ -27,7 +27,7 @@ class SlettetStillingOgKandidatlisteLytter(
                 it.demandValue("@event_name", "kandidat_v2.SlettetStillingOgKandidatliste")
                 it.rejectValue("@slutt_av_hendelseskjede", true)
                 it.demandKey("stillingsinfo")
-                it.interestedIn("stillingsinfo.stillingskategori")
+                it.interestedIn("stillingsinfo.stillingskategori", "stillingsinfo.rekrutteringstreffId")
 
                 it.requireKey(
                     "kandidatlisteId",
@@ -51,12 +51,14 @@ class SlettetStillingOgKandidatlisteLytter(
         val stillingsId: String = packet["stillingsId"].asText()
         val stillingskategori: Stillingskategori =
             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()
 
         secureLog.info(
             """
             kandidatlisteId: $kandidatlisteId
             tidspunkt: $tidspunkt
             utførtAvNavIdent: $utførtAvNavIdent
+            rekrutteringstreffId: $rekrutteringstreffId
             """.trimIndent()
         )
 
@@ -78,7 +80,8 @@ class SlettetStillingOgKandidatlisteLytter(
                     innsatsbehov = null,
                     hovedmål = null,
                     alder = null,
-                    tidspunktForHendelsen = tidspunkt
+                    tidspunktForHendelsen = tidspunkt,
+                    rekrutteringstreffId = rekrutteringstreffId ?: it.rekrutteringstreffId,
                 )
                 lagreUtfallOgStilling.lagreUtfallOgStilling(nyttUtfall, stillingsId, stillingskategori)
             }

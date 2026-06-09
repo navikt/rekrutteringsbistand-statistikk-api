@@ -18,4 +18,5 @@ fun JsonNode.asBooleanNullable() = asTextNullable()?.toBoolean()
 
 fun JsonNode.asUUID() = UUID.fromString(asText())
 
+fun JsonNode.asUUIDNullable() = asTextNullable()?.let(UUID::fromString)
 

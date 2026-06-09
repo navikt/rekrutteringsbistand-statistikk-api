@@ -45,6 +45,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
                     "stilling",
                     "stillingsId",
                     "stillingsinfo.stillingskategori",
+                    "stillingsinfo.rekrutteringstreffId",
                     "inkludering.harHullICv",
                     "inkludering.alder",
                     "inkludering.innsatsbehov",
@@ -68,6 +69,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asText())
         val stillingsId = packet["stillingsId"].asTextNullable()
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
+        val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asText()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asText()
         val synligKandidat = packet["synligKandidat"].asBoolean()
@@ -75,7 +78,6 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val alder = packet["inkludering.alder"].asIntNullable()
         val innsatsbehov = packet["inkludering.innsatsbehov"].asTextNullable()
         val hovedmål = packet["inkludering.hovedmål"].asTextNullable()
-        val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
 
         secureLog.info(
             """
@@ -85,6 +87,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             tidspunkt: $tidspunkt
             stillingsId: $stillingsId
             stillingskategori: $stillingskategori
+            rekrutteringstreffId: $rekrutteringstreffId
             utførtAvNavIdent: $utførtAvNavIdent
             utførtAvNavKontorKode: $utførtAvNavKontorKode
             synligKandidat: $synligKandidat
@@ -113,7 +116,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             alder = alder,
             tidspunktForHendelsen = tidspunkt,
             innsatsbehov = innsatsbehov,
-            hovedmål = hovedmål
+            hovedmål = hovedmål,
+            rekrutteringstreffId = rekrutteringstreffId,
         )
 
         lagreUtfallOgStilling.lagreUtfallOgStilling(

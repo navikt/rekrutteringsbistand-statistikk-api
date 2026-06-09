@@ -8,13 +8,9 @@ data class Stilling(
 )
 
 enum class Stillingskategori {
-    STILLING, FORMIDLING, JOBBMESSE;
+    STILLING, FORMIDLING, JOBBMESSE, REKRUTTERINGSTREFF_FORMIDLING;
 
-    fun tilAvro() = when (this) {
-        STILLING -> AvroStillingskategori.STILLING
-        FORMIDLING -> AvroStillingskategori.FORMIDLING
-        JOBBMESSE -> AvroStillingskategori.JOBBMESSE
-    }
+    fun tilAvro() = AvroStillingskategori.valueOf(name)
 
     companion object {
         fun fraNavn(s: String?) = if (s == null) STILLING else valueOf(s)
