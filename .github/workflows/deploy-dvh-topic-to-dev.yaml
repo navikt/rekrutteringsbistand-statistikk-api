@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - ny-aiventopic-til-dvh
+      - rekrutteringstreff-kategori
     paths:
       - .github/workflows/deploy-dvh-topic-to-dev.yaml
       - nais/dvh-topic-dev.yaml
