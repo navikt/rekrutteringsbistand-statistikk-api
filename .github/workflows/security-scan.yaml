@@ -6,7 +6,7 @@ on:
 
 jobs:
   call-trivy-security-scan:
-    uses: navikt/toi-github-actions-workflows/.github/workflows/trivy-security-scan.yaml@main
+    uses: navikt/toi-github-actions-workflows/.github/workflows/trivy-security-scan.yaml@v15
     permissions:
       id-token: write
       security-events: write
