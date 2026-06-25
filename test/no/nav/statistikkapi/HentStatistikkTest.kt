@@ -24,12 +24,15 @@ import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.Companion.erIkkeStandar
 import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.STANDARD_INNSATS
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.kandidatutfall.Utfall.*
+import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import org.apache.http.HttpHeaders
 import org.junit.After
 import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.ZonedDateTime
+import java.util.UUID
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -43,6 +46,7 @@ class HentStatistikkTest {
         private val basePath = basePath(port)
         private val database = TestDatabase()
         private val repository = KandidatutfallRepository(database.dataSource)
+        private val stillingRepository = StillingRepository(database.dataSource)
         private val testRepository = TestRepository(database.dataSource)
 
         init {
@@ -346,6 +350,48 @@ class HentStatistikkTest {
         assertThat(actual.antFåttJobben.under30år).isEqualTo(1)
         assertThat(actual.antFåttJobben.totalt).isEqualTo(3)
         assertThat(actual.antPresentasjoner.totalt).isEqualTo(actual.antFåttJobben.totalt)
+    }
+
+    @Test
+    fun `Fått jobben fordeles på kategoriene stilling, etterregistrering og rekrutteringstreff`() {
+        val tid = tidspunkt(2026, 6, 15)
+        val stilling = etKandidatutfall.copy(
+            utfall = FATT_JOBBEN,
+            kandidatlisteId = "stilling-liste",
+            stillingsId = UUID.randomUUID().toString(),
+            tidspunktForHendelsen = tid,
+            alder = 29,
+            innsatsbehov = SITUASJONSBESTEMT_INNSATS.name,
+        )
+        val formidlingStillingsId = UUID.randomUUID()
+        stillingRepository.lagreStilling(formidlingStillingsId.toString(), Stillingskategori.FORMIDLING)
+        val etterregistrering = etKandidatutfall.copy(
+            utfall = FATT_JOBBEN,
+            kandidatlisteId = "etterreg-liste",
+            stillingsId = formidlingStillingsId.toString(),
+            tidspunktForHendelsen = tid,
+        )
+        val rekrutteringstreff = etKandidatutfall.copy(
+            utfall = FATT_JOBBEN,
+            kandidatlisteId = "treff-liste",
+            stillingsId = UUID.randomUUID().toString(),
+            tidspunktForHendelsen = tid,
+            rekrutteringstreffId = UUID.randomUUID(),
+        )
+        repository.lagreUtfall(stilling, etterregistrering, rekrutteringstreff)
+
+        val actual = hentStatistikk(
+            fraOgMed = LocalDate.of(2026, 6, 1),
+            tilOgMed = LocalDate.of(2026, 6, 30),
+            navKontor = etKandidatutfall.navKontor
+        )
+
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(3)
+        assertThat(actual.fåttJobbenPerKategori.stilling.totalt).isEqualTo(1)
+        assertThat(actual.fåttJobbenPerKategori.stilling.under30år).isEqualTo(1)
+        assertThat(actual.fåttJobbenPerKategori.stilling.innsatsgruppeIkkeStandard).isEqualTo(1)
+        assertThat(actual.fåttJobbenPerKategori.etterregistrering.totalt).isEqualTo(1)
+        assertThat(actual.fåttJobbenPerKategori.rekrutteringstreff.totalt).isEqualTo(1)
     }
 
     @Test
