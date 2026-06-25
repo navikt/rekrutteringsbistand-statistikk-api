@@ -6,7 +6,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
-import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -37,17 +36,9 @@ data class AntallDto(
 )
 
 
-data class FåttJobbenPerKategoriDto(
-    val stilling: AntallDto,
-    val etterregistrering: AntallDto,
-    val rekrutteringstreff: AntallDto,
-)
-
-
 data class StatistikkOutboundDto(
     val antPresentasjoner: AntallDto,
     val antFåttJobben: AntallDto,
-    val fåttJobbenPerKategori: FåttJobbenPerKategoriDto,
 )
 
 
@@ -81,20 +72,10 @@ fun Route.hentStatistikk(repo: KandidatutfallRepository) {
                     innsatsgruppeIkkeStandard = repo.hentAntallFåttJobbenInnsatsgruppeIkkeStandard(hentStatistikkParams),
                 )
 
-                val fåttJobbenPerKategori = FåttJobbenPerKategoriDto(
-                    stilling = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.STILLING),
-                    etterregistrering = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.FORMIDLING),
-                    rekrutteringstreff = repo.hentAntallFåttJobben(
-                        hentStatistikkParams,
-                        Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING
-                    ),
-                )
-
                 call.respond(
                     StatistikkOutboundDto(
                         antPresentasjoner = antPresentasjoner,
                         antFåttJobben = antFåttJobben,
-                        fåttJobbenPerKategori = fåttJobbenPerKategori,
                     )
                 )
             }
