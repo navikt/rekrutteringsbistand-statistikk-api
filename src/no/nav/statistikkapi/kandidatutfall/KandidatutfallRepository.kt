@@ -1,11 +1,14 @@
 package no.nav.statistikkapi.kandidatutfall
 
+import no.nav.statistikkapi.AntallDto
 import no.nav.statistikkapi.HentStatistikk
 import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.Companion.innsatsgrupperSomIkkeErStandardinnsats
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
 import no.nav.statistikkapi.logging.log
+import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -185,6 +188,35 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         val sql =
             "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe AND k1.$innsatsbehov IN ($sql_innsatsgruppeIkkeStandard)) AS fåttjobben"
         return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    fun hentAntallFåttJobben(hentStatistikk: HentStatistikk, kategori: Stillingskategori): AntallDto {
+        val kategoriFilter = kategoriFilter(kategori)
+        return AntallDto(
+            totalt = antallFåttJobben(hentStatistikk, kategoriFilter, ekstraFilter = ""),
+            under30år = antallFåttJobben(hentStatistikk, kategoriFilter, ekstraFilter = " AND k1.$alder < 30"),
+            innsatsgruppeIkkeStandard = antallFåttJobben(
+                hentStatistikk,
+                kategoriFilter,
+                ekstraFilter = " AND k1.$innsatsbehov IN ($sqlInnsatsgrupperIkkeStandard)"
+            ),
+        )
+    }
+
+    private fun antallFåttJobben(hentStatistikk: HentStatistikk, kategoriFilter: String, ekstraFilter: String): Int {
+        val sql =
+            "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe$kategoriFilter$ekstraFilter) AS fåttjobben"
+        return executeHentStatistikkQuery(sql, hentStatistikk)
+    }
+
+    private fun kategoriFilter(kategori: Stillingskategori): String {
+        val erFormidling =
+            "k1.$stillingsid IN (SELECT ${StillingRepository.uuidLabel} FROM ${StillingRepository.stillingtabell} WHERE ${StillingRepository.stillingskategoriLabel} = '${Stillingskategori.FORMIDLING.name}')"
+        return when (kategori) {
+            Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING -> " AND k1.$rekrutteringstreffId IS NOT NULL"
+            Stillingskategori.FORMIDLING -> " AND k1.$rekrutteringstreffId IS NULL AND $erFormidling"
+            else -> " AND k1.$rekrutteringstreffId IS NULL AND (k1.$stillingsid IS NULL OR NOT $erFormidling)"
+        }
     }
 
     private fun executeHentStatistikkQuery(sqlQuery: String, hentStatistikk: HentStatistikk): Int {
@@ -399,6 +431,9 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
 
         private val sql_unikeFåttjobbenPerPersonOgListe =
             "$sq_unikeUtfallPerPersonOgListe AND k1.$utfall = '${FATT_JOBBEN.name}'"
+
+        private val sqlInnsatsgrupperIkkeStandard =
+            innsatsgrupperSomIkkeErStandardinnsats.joinToString(separator = "', '", prefix = "'", postfix = "'")
 
         private val sql_unikePresentasjonerPerPersonOgListe =
             "$sq_unikeUtfallPerPersonOgListe AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')"
