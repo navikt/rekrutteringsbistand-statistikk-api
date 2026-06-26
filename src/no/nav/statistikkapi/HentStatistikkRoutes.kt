@@ -47,7 +47,6 @@ private fun AntallFåttJobben.tilDto() = AntallDto(
 data class FåttJobbenPerKategoriDto(
     val stilling: AntallDto,
     val rekrutteringstreff: AntallDto,
-    val jobbmesse: AntallDto,
     val etterregistrering: AntallDto,
 )
 
@@ -95,7 +94,6 @@ fun Route.hentStatistikk(repo: KandidatutfallRepository) {
                         hentStatistikkParams,
                         Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING
                     ).tilDto(),
-                    jobbmesse = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.JOBBMESSE).tilDto(),
                     etterregistrering = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.FORMIDLING).tilDto(),
                 )
 

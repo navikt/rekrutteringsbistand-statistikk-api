@@ -353,7 +353,7 @@ class HentStatistikkTest {
     }
 
     @Test
-    fun `Fått jobben fordeles på kategoriene stilling, etterregistrering, jobbmesse og rekrutteringstreff`() {
+    fun `Fått jobben fordeles på kategoriene stilling, etterregistrering og rekrutteringstreff`() {
         val tid = tidspunkt(2026, 6, 15)
         val stilling = etKandidatutfall.copy(
             utfall = FATT_JOBBEN,
@@ -371,14 +371,6 @@ class HentStatistikkTest {
             stillingsId = formidlingStillingsId.toString(),
             tidspunktForHendelsen = tid,
         )
-        val jobbmesseStillingsId = UUID.randomUUID()
-        stillingRepository.lagreStilling(jobbmesseStillingsId.toString(), Stillingskategori.JOBBMESSE)
-        val jobbmesse = etKandidatutfall.copy(
-            utfall = FATT_JOBBEN,
-            kandidatlisteId = "jobbmesse-liste",
-            stillingsId = jobbmesseStillingsId.toString(),
-            tidspunktForHendelsen = tid,
-        )
         val rekrutteringstreff = etKandidatutfall.copy(
             utfall = FATT_JOBBEN,
             kandidatlisteId = "treff-liste",
@@ -386,7 +378,7 @@ class HentStatistikkTest {
             tidspunktForHendelsen = tid,
             rekrutteringstreffId = UUID.randomUUID(),
         )
-        repository.lagreUtfall(stilling, etterregistrering, jobbmesse, rekrutteringstreff)
+        repository.lagreUtfall(stilling, etterregistrering, rekrutteringstreff)
 
         val actual = hentStatistikk(
             fraOgMed = LocalDate.of(2026, 6, 1),
@@ -394,12 +386,11 @@ class HentStatistikkTest {
             navKontor = etKandidatutfall.navKontor
         )
 
-        assertThat(actual.antFåttJobben.totalt).isEqualTo(4)
+        assertThat(actual.antFåttJobben.totalt).isEqualTo(3)
         assertThat(actual.fåttJobbenPerKategori.stilling.totalt).isEqualTo(1)
         assertThat(actual.fåttJobbenPerKategori.stilling.under30år).isEqualTo(1)
         assertThat(actual.fåttJobbenPerKategori.stilling.innsatsgruppeIkkeStandard).isEqualTo(1)
         assertThat(actual.fåttJobbenPerKategori.etterregistrering.totalt).isEqualTo(1)
-        assertThat(actual.fåttJobbenPerKategori.jobbmesse.totalt).isEqualTo(1)
         assertThat(actual.fåttJobbenPerKategori.rekrutteringstreff.totalt).isEqualTo(1)
     }
 

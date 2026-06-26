@@ -216,12 +216,11 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
 
     private fun kategoriFilter(kategori: Stillingskategori): String {
         val erFormidling = erStillingskategori(Stillingskategori.FORMIDLING)
-        val erJobbmesse = erStillingskategori(Stillingskategori.JOBBMESSE)
         return when (kategori) {
             Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING -> " AND k1.$rekrutteringstreffId IS NOT NULL"
             Stillingskategori.FORMIDLING -> " AND k1.$rekrutteringstreffId IS NULL AND $erFormidling"
-            Stillingskategori.JOBBMESSE -> " AND k1.$rekrutteringstreffId IS NULL AND $erJobbmesse"
-            Stillingskategori.STILLING -> " AND k1.$rekrutteringstreffId IS NULL AND (k1.$stillingsid IS NULL OR (NOT ($erFormidling) AND NOT ($erJobbmesse)))"
+            Stillingskategori.STILLING,
+            Stillingskategori.JOBBMESSE -> " AND k1.$rekrutteringstreffId IS NULL AND (k1.$stillingsid IS NULL OR NOT ($erFormidling))"
         }
     }
 
