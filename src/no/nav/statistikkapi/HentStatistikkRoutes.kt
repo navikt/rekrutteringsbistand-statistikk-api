@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.statistikkapi.kandidatutfall.AntallFåttJobben
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.LocalDate
@@ -36,11 +37,18 @@ data class AntallDto(
     val innsatsgruppeIkkeStandard: Int,
 )
 
+private fun AntallFåttJobben.tilDto() = AntallDto(
+    totalt = totalt,
+    under30år = under30år,
+    innsatsgruppeIkkeStandard = innsatsgruppeIkkeStandard,
+)
+
 
 data class FåttJobbenPerKategoriDto(
     val stilling: AntallDto,
-    val etterregistrering: AntallDto,
     val rekrutteringstreff: AntallDto,
+    val jobbmesse: AntallDto,
+    val etterregistrering: AntallDto,
 )
 
 
@@ -82,12 +90,13 @@ fun Route.hentStatistikk(repo: KandidatutfallRepository) {
                 )
 
                 val fåttJobbenPerKategori = FåttJobbenPerKategoriDto(
-                    stilling = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.STILLING),
-                    etterregistrering = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.FORMIDLING),
+                    stilling = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.STILLING).tilDto(),
                     rekrutteringstreff = repo.hentAntallFåttJobben(
                         hentStatistikkParams,
                         Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING
-                    ),
+                    ).tilDto(),
+                    jobbmesse = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.JOBBMESSE).tilDto(),
+                    etterregistrering = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.FORMIDLING).tilDto(),
                 )
 
                 call.respond(

@@ -1,6 +1,5 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import no.nav.statistikkapi.AntallDto
 import no.nav.statistikkapi.HentStatistikk
 import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.Companion.innsatsgrupperSomIkkeErStandardinnsats
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
@@ -17,6 +16,12 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import javax.sql.DataSource
+
+data class AntallFåttJobben(
+    val totalt: Int,
+    val under30år: Int,
+    val innsatsgruppeIkkeStandard: Int,
+)
 
 class KandidatutfallRepository(private val dataSource: DataSource) {
 
@@ -190,9 +195,9 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         return executeHentStatistikkQuery(sql, hentStatistikk)
     }
 
-    fun hentAntallFåttJobben(hentStatistikk: HentStatistikk, kategori: Stillingskategori): AntallDto {
+    fun hentAntallFåttJobben(hentStatistikk: HentStatistikk, kategori: Stillingskategori): AntallFåttJobben {
         val kategoriFilter = kategoriFilter(kategori)
-        return AntallDto(
+        return AntallFåttJobben(
             totalt = antallFåttJobben(hentStatistikk, kategoriFilter, ekstraFilter = ""),
             under30år = antallFåttJobben(hentStatistikk, kategoriFilter, ekstraFilter = " AND k1.$alder < 30"),
             innsatsgruppeIkkeStandard = antallFåttJobben(
@@ -210,15 +215,18 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
     }
 
     private fun kategoriFilter(kategori: Stillingskategori): String {
-        val erFormidling =
-            "k1.$stillingsid IN (SELECT ${StillingRepository.uuidLabel} FROM ${StillingRepository.stillingtabell} WHERE ${StillingRepository.stillingskategoriLabel} = '${Stillingskategori.FORMIDLING.name}')"
+        val erFormidling = erStillingskategori(Stillingskategori.FORMIDLING)
+        val erJobbmesse = erStillingskategori(Stillingskategori.JOBBMESSE)
         return when (kategori) {
             Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING -> " AND k1.$rekrutteringstreffId IS NOT NULL"
             Stillingskategori.FORMIDLING -> " AND k1.$rekrutteringstreffId IS NULL AND $erFormidling"
-            Stillingskategori.STILLING,
-            Stillingskategori.JOBBMESSE -> " AND k1.$rekrutteringstreffId IS NULL AND (k1.$stillingsid IS NULL OR NOT ($erFormidling))"
+            Stillingskategori.JOBBMESSE -> " AND k1.$rekrutteringstreffId IS NULL AND $erJobbmesse"
+            Stillingskategori.STILLING -> " AND k1.$rekrutteringstreffId IS NULL AND (k1.$stillingsid IS NULL OR (NOT ($erFormidling) AND NOT ($erJobbmesse)))"
         }
     }
+
+    private fun erStillingskategori(kategori: Stillingskategori): String =
+        "k1.$stillingsid IN (SELECT ${StillingRepository.uuidLabel} FROM ${StillingRepository.stillingtabell} WHERE ${StillingRepository.stillingskategoriLabel} = '${kategori.name}')"
 
     private fun executeHentStatistikkQuery(sqlQuery: String, hentStatistikk: HentStatistikk): Int {
         log.debug("Skal forsøke å kjøre spørring: $sqlQuery")
