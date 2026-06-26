@@ -215,7 +215,8 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         return when (kategori) {
             Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING -> " AND k1.$rekrutteringstreffId IS NOT NULL"
             Stillingskategori.FORMIDLING -> " AND k1.$rekrutteringstreffId IS NULL AND $erFormidling"
-            else -> " AND k1.$rekrutteringstreffId IS NULL AND (k1.$stillingsid IS NULL OR NOT $erFormidling)"
+            Stillingskategori.STILLING,
+            Stillingskategori.JOBBMESSE -> " AND k1.$rekrutteringstreffId IS NULL AND (k1.$stillingsid IS NULL OR NOT ($erFormidling))"
         }
     }
 

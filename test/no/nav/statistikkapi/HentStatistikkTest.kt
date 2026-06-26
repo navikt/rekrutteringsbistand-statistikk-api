@@ -768,6 +768,7 @@ class HentStatistikkTest {
     @After
     fun cleanUp() {
         testRepository.slettAlleUtfall()
+        testRepository.slettAlleStillinger()
         mockOAuth2Server.shutdown()
     }
 
