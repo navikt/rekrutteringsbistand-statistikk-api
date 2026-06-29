@@ -1,7 +1,6 @@
 package no.nav.statistikkapi
 
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -23,7 +22,7 @@ data class StatistikkForespørsel(
     )
 }
 
-object StatistikkParameterNavn {
+object StatistikkParameternavn {
     const val fraOgMed = "fraOgMed"
     const val tilOgMed = "tilOgMed"
     const val navKontor = "navKontor"
@@ -60,9 +59,9 @@ fun Route.hentStatistikk(repo: KandidatutfallRepository) {
     authenticate {
         get("/statistikk") {
             val queryParameters = call.parameters
-            val fraOgMedParameter = queryParameters[StatistikkParameterNavn.fraOgMed]
-            val tilOgMedParameter = queryParameters[StatistikkParameterNavn.tilOgMed]
-            val navKontorParameter = queryParameters[StatistikkParameterNavn.navKontor]
+            val fraOgMedParameter = queryParameters[StatistikkParameternavn.fraOgMed]
+            val tilOgMedParameter = queryParameters[StatistikkParameternavn.tilOgMed]
+            val navKontorParameter = queryParameters[StatistikkParameternavn.navKontor]
 
             if (fraOgMedParameter.isNullOrBlank() || tilOgMedParameter.isNullOrBlank() || navKontorParameter.isNullOrBlank()) {
                 call.respond(HttpStatusCode.BadRequest, "Alle parametere må ha verdi")
