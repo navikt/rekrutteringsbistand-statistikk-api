@@ -11,7 +11,7 @@ import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class HentStatistikk(
+data class StatistikkForespørsel(
     val fra: LocalDateTime,
     val til: LocalDateTime,
     val navKontor: String
@@ -23,12 +23,10 @@ data class HentStatistikk(
     )
 }
 
-class StatistikkParametere {
-    companion object {
-        const val fraOgMed = "fraOgMed"
-        const val tilOgMed = "tilOgMed"
-        const val navKontor = "navKontor"
-    }
+object StatistikkParameterNavn {
+    const val fraOgMed = "fraOgMed"
+    const val tilOgMed = "tilOgMed"
+    const val navKontor = "navKontor"
 }
 
 data class AntallDto(
@@ -62,39 +60,39 @@ fun Route.hentStatistikk(repo: KandidatutfallRepository) {
     authenticate {
         get("/statistikk") {
             val queryParameters = call.parameters
-            val fraOgMedParameter = queryParameters[StatistikkParametere.fraOgMed]
-            val tilOgMedParameter = queryParameters[StatistikkParametere.tilOgMed]
-            val navKontorParameter = queryParameters[StatistikkParametere.navKontor]
+            val fraOgMedParameter = queryParameters[StatistikkParameterNavn.fraOgMed]
+            val tilOgMedParameter = queryParameters[StatistikkParameterNavn.tilOgMed]
+            val navKontorParameter = queryParameters[StatistikkParameterNavn.navKontor]
 
             if (fraOgMedParameter.isNullOrBlank() || tilOgMedParameter.isNullOrBlank() || navKontorParameter.isNullOrBlank()) {
                 call.respond(HttpStatusCode.BadRequest, "Alle parametere må ha verdi")
             } else {
 
-                val hentStatistikkParams = HentStatistikk(
+                val forespørsel = StatistikkForespørsel(
                     fraOgMed = LocalDate.parse(fraOgMedParameter),
                     tilOgMed = LocalDate.parse(tilOgMedParameter),
                     navKontor = navKontorParameter
                 )
                 val antPresentasjoner = AntallDto(
-                    totalt = repo.hentAntallPresentasjoner(hentStatistikkParams),
-                    under30år = repo.hentAntallPresentasjonerUnder30År(hentStatistikkParams),
+                    totalt = repo.hentAntallPresentasjoner(forespørsel),
+                    under30år = repo.hentAntallPresentasjonerUnder30År(forespørsel),
                     innsatsgruppeIkkeStandard = repo.hentAntallPresentasjonerInnsatsgruppeIkkeStandard(
-                        hentStatistikkParams
+                        forespørsel
                     ),
                 )
                 val antFåttJobben = AntallDto(
-                    totalt = repo.hentAntallFåttJobben(hentStatistikkParams),
-                    under30år = repo.hentAntallFåttJobbenUnder30År(hentStatistikkParams),
-                    innsatsgruppeIkkeStandard = repo.hentAntallFåttJobbenInnsatsgruppeIkkeStandard(hentStatistikkParams),
+                    totalt = repo.hentAntallFåttJobben(forespørsel),
+                    under30år = repo.hentAntallFåttJobbenUnder30År(forespørsel),
+                    innsatsgruppeIkkeStandard = repo.hentAntallFåttJobbenInnsatsgruppeIkkeStandard(forespørsel),
                 )
 
                 val fåttJobbenPerKategori = FåttJobbenPerKategoriDto(
-                    stilling = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.STILLING).tilDto(),
+                    stilling = repo.hentAntallFåttJobben(forespørsel, Stillingskategori.STILLING).tilDto(),
                     rekrutteringstreff = repo.hentAntallFåttJobben(
-                        hentStatistikkParams,
+                        forespørsel,
                         Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING
                     ).tilDto(),
-                    etterregistrering = repo.hentAntallFåttJobben(hentStatistikkParams, Stillingskategori.FORMIDLING).tilDto(),
+                    etterregistrering = repo.hentAntallFåttJobben(forespørsel, Stillingskategori.FORMIDLING).tilDto(),
                 )
 
                 call.respond(

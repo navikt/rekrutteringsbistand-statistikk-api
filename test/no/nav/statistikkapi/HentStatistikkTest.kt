@@ -779,9 +779,9 @@ class HentStatistikkTest {
         navKontor: String
     ) {
         httpRequestBuilder.url.parameters.apply {
-            append(StatistikkParametere.fraOgMed, fraOgMed.toString())
-            append(StatistikkParametere.tilOgMed, tilOgMed.toString())
-            append(StatistikkParametere.navKontor, navKontor)
+            append(StatistikkParameterNavn.fraOgMed, fraOgMed.toString())
+            append(StatistikkParameterNavn.tilOgMed, tilOgMed.toString())
+            append(StatistikkParameterNavn.navKontor, navKontor)
         }
     }
 }
