@@ -199,18 +199,18 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         val kategoriFilter = kategoriFilter(kategori)
         return AntallFåttJobben(
             totalt = antallFåttJobben(forespørsel, kategoriFilter, ekstraFilter = ""),
-            under30år = antallFåttJobben(forespørsel, kategoriFilter, ekstraFilter = " AND k1.$alder < 30"),
+            under30år = antallFåttJobben(forespørsel, kategoriFilter, ekstraFilter = "AND k1.$alder < 30"),
             innsatsgruppeIkkeStandard = antallFåttJobben(
                 forespørsel,
                 kategoriFilter,
-                ekstraFilter = " AND k1.$innsatsbehov IN ($sqlInnsatsgrupperIkkeStandard)"
+                ekstraFilter = "AND k1.$innsatsbehov IN ($sqlInnsatsgrupperIkkeStandard)"
             ),
         )
     }
 
     private fun antallFåttJobben(forespørsel: StatistikkForespørsel, kategoriFilter: String, ekstraFilter: String): Int {
         val sql =
-            "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe$kategoriFilter$ekstraFilter) AS fåttjobben"
+            "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe $kategoriFilter $ekstraFilter) AS fåttjobben"
         return executeHentStatistikkQuery(sql, forespørsel)
     }
 
