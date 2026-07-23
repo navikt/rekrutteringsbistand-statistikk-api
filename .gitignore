@@ -8,3 +8,11 @@
 .DS_Store
 .project
 /bin
+
+# Følgende er generert av nav-pilot. Team Toi sin policy per juli 2026 er at vi ikke comitter disse filene, fordi
+# utviklere kan ønske å ha ulike AI-agent konfigurasjoner lokalt.
+.github/.nav-pilot-state.json
+.github/agents/
+.github/instructions/
+.github/prompts/
+.github/skills/
