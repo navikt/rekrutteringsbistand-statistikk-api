@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - rekrutteringstreff-kategori
+      - oppgrader-workflows-og-shapin-versjonene
     paths:
       - .github/workflows/deploy-dvh-topic-to-dev.yaml
       - nais/dvh-topic-dev.yaml
@@ -16,8 +16,10 @@ jobs:
     name: Deploy dvh-topic to dev
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: nais/deploy/actions/deploy@master
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: nais/deploy/actions/deploy@fc3eae3edebabdf67f7592102ae16176d5ba3b5f # v2
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
