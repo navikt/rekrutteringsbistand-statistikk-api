@@ -17,7 +17,7 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: call-build-java-gradlew
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/oppgrader-workflows-og-shapin-versjonene'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/fiks-flere-zizmor-issues'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
