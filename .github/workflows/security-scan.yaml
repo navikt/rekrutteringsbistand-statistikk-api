@@ -6,9 +6,8 @@ on:
 
 jobs:
   call-trivy-security-scan:
-    uses: navikt/toi-github-actions-workflows/.github/workflows/trivy-security-scan.yaml@v15
+    uses: navikt/toi-github-actions-workflows/.github/workflows/trivy-security-scan.yaml@v15 # zizmor: ignore[ref-confusion,unpinned-uses]
     permissions:
       id-token: write
       security-events: write
-    secrets: inherit
 
