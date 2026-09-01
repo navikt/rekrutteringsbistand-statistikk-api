@@ -9,6 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.statistikkapi.json.asTextNullable
+import no.nav.statistikkapi.json.asUUIDNullable
 import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
@@ -46,7 +47,8 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
                     "@event_name",
                     "@slutt_av_hendelseskjede",
                     "stillingsinfo",
-                    "stillingsinfo.stillingskategori"
+                    "stillingsinfo.stillingskategori",
+                    "stillingsinfo.rekrutteringstreffId"
                 )
 
             }
@@ -66,6 +68,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
         val stillingsId: String = packet["stillingsId"].asString()
         val stillingskategori: Stillingskategori =
             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()
         val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asString()
         val utførtAvNavKontorKode: String = packet["utførtAvNavKontorKode"].asString()
         val utfall: Utfall =
@@ -79,6 +82,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             tidspunkt: $tidspunkt
             stillingsId: $stillingsId
             stillingskategori: $stillingskategori
+            rekrutteringstreffId: $rekrutteringstreffId
             utførtAvNavIdent: $utførtAvNavIdent
             utførtAvNavKontorKode: $utførtAvNavKontorKode
             utfall: $utfall
@@ -109,7 +113,8 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             alder = utfallFraDb.alder,
             tidspunktForHendelsen = tidspunkt,
             innsatsbehov = utfallFraDb.innsatsbehov,
-            hovedmål = utfallFraDb.hovedmål
+            hovedmål = utfallFraDb.hovedmål,
+            rekrutteringstreffId = rekrutteringstreffId ?: utfallFraDb.rekrutteringstreffId,
         )
 
 

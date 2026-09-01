@@ -12,6 +12,7 @@ import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.statistikkapi.json.asBooleanNullable
 import no.nav.statistikkapi.json.asIntNullable
 import no.nav.statistikkapi.json.asTextNullable
+import no.nav.statistikkapi.json.asUUIDNullable
 import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
@@ -51,6 +52,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
                     "stilling",
                     "stillingsId",
                     "stillingsinfo.stillingskategori",
+                    "stillingsinfo.rekrutteringstreffId",
                     "inkludering.harHullICv",
                     "inkludering.alder",
                     "inkludering.innsatsbehov",
@@ -74,6 +76,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asString())
         val stillingsId = packet["stillingsId"].asTextNullable()
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
+        val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()
         val utførtAvNavIdent = packet["utførtAvNavIdent"].asString()
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asString()
         val synligKandidat = packet["synligKandidat"].booleanValue()
@@ -81,7 +85,6 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         val alder = packet["inkludering.alder"].asIntNullable()
         val innsatsbehov = packet["inkludering.innsatsbehov"].asTextNullable()
         val hovedmål = packet["inkludering.hovedmål"].asTextNullable()
-        val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
 
         secureLog.info(
             """
@@ -91,6 +94,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             tidspunkt: $tidspunkt
             stillingsId: $stillingsId
             stillingskategori: $stillingskategori
+            rekrutteringstreffId: $rekrutteringstreffId
             utførtAvNavIdent: $utførtAvNavIdent
             utførtAvNavKontorKode: $utførtAvNavKontorKode
             synligKandidat: $synligKandidat
@@ -119,7 +123,8 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             alder = alder,
             tidspunktForHendelsen = tidspunkt,
             innsatsbehov = innsatsbehov,
-            hovedmål = hovedmål
+            hovedmål = hovedmål,
+            rekrutteringstreffId = rekrutteringstreffId,
         )
 
         lagreUtfallOgStilling.lagreUtfallOgStilling(

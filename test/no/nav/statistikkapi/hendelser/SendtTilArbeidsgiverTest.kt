@@ -88,6 +88,7 @@ class SendtTilArbeidsgiverTest {
             assertThat(it.tidspunkt).isEqualTo(LocalDateTime.of(2023, 2, 9, 9, 45, 53, 649_000_000))
             assertThat(it.utfall).isEqualTo(Utfall.PRESENTERT)
             assertThat(it.synligKandidat).isNotNull().isTrue()
+            assertThat(it.rekrutteringstreffId).isNull()
         }
 
         stillingFraDb[0].apply {
@@ -144,7 +145,11 @@ class SendtTilArbeidsgiverTest {
         assertThat(stillingFraDb[0].stillingskategori).isEqualTo(Stillingskategori.STILLING)
     }
 
-    private fun melding(tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-09T09:45:53.649+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
+    private fun melding(
+        tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-09T09:45:53.649+01:00")
+            .withZoneSameInstant(ZoneId.of("Europe/Oslo")),
+    ): String {
+        return """
         {
           "stillingstittel": "En fantastisk stilling",
           "organisasjonsnummer": "312113341",
@@ -212,6 +217,7 @@ class SendtTilArbeidsgiverTest {
           }
         }
     """.trimIndent()
+    }
 
     private fun meldingMedTilretteleggingsbehovSomErDeprecated(tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-09T09:45:53.649+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
         {

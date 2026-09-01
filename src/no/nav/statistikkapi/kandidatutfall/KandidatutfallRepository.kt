@@ -1,18 +1,27 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import no.nav.statistikkapi.HentStatistikk
+import no.nav.statistikkapi.StatistikkForespørsel
 import no.nav.statistikkapi.kandidatutfall.Innsatsgruppe.Companion.innsatsgrupperSomIkkeErStandardinnsats
 import no.nav.statistikkapi.kandidatutfall.SendtStatus.IKKE_SENDT
 import no.nav.statistikkapi.kandidatutfall.Utfall.FATT_JOBBEN
 import no.nav.statistikkapi.kandidatutfall.Utfall.PRESENTERT
 import no.nav.statistikkapi.logging.log
+import no.nav.statistikkapi.stillinger.StillingRepository
+import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
+import java.sql.Types
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import javax.sql.DataSource
+
+data class AntallFåttJobben(
+    val totalt: Int,
+    val under30år: Int,
+    val innsatsgruppeIkkeStandard: Int,
+)
 
 class KandidatutfallRepository(private val dataSource: DataSource) {
 
@@ -36,8 +45,9 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                                $hullICv,
                                $alder,
                                $innsatsbehov,
-                               $hovedmål
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                               $hovedmål,
+                               $rekrutteringstreffId
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
             ).apply {
                 setString(1, kandidatutfall.aktørId)
                 setString(2, kandidatutfall.utfall.name)
@@ -51,6 +61,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 if (kandidatutfall.alder != null) setInt(10, kandidatutfall.alder) else setNull(10, 0)
                 setString(11, kandidatutfall.innsatsbehov)
                 setString(12, kandidatutfall.hovedmål)
+                setObject(13, kandidatutfall.rekrutteringstreffId, Types.OTHER)
                 executeUpdate()
             }
         }
@@ -144,36 +155,36 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAntallPresentasjoner(hentStatistikk: HentStatistikk): Int {
+    fun hentAntallPresentasjoner(forespørsel: StatistikkForespørsel): Int {
         val sql = "SELECT COUNT(presentasjoner.*) FROM ($sql_unikePresentasjonerPerPersonOgListe) AS presentasjoner"
-        return executeHentStatistikkQuery(sql, hentStatistikk)
+        return executeHentStatistikkQuery(sql, forespørsel)
     }
 
-    fun hentAntallPresentasjonerUnder30År(hentStatistikk: HentStatistikk): Int {
+    fun hentAntallPresentasjonerUnder30År(forespørsel: StatistikkForespørsel): Int {
         val sql =
             "SELECT COUNT(presentasjoner.*) FROM ($sql_unikePresentasjonerPerPersonOgListe AND k1.$alder < 30) AS presentasjoner"
-        return executeHentStatistikkQuery(sql, hentStatistikk)
+        return executeHentStatistikkQuery(sql, forespørsel)
     }
 
-    fun hentAntallPresentasjonerInnsatsgruppeIkkeStandard(hentStatistikk: HentStatistikk): Int {
+    fun hentAntallPresentasjonerInnsatsgruppeIkkeStandard(forespørsel: StatistikkForespørsel): Int {
         val sql_innsatsgruppeIkkeStandard = innsatsgrupperSomIkkeErStandardinnsats.joinToString("', '", "'", "'")
         val sql =
             "SELECT COUNT(presentasjoner.*) FROM ($sql_unikePresentasjonerPerPersonOgListe AND k1.$innsatsbehov IN ($sql_innsatsgruppeIkkeStandard)) AS presentasjoner"
-        return executeHentStatistikkQuery(sql, hentStatistikk)
+        return executeHentStatistikkQuery(sql, forespørsel)
     }
 
-    fun hentAntallFåttJobben(hentStatistikk: HentStatistikk): Int {
+    fun hentAntallFåttJobben(forespørsel: StatistikkForespørsel): Int {
         val sql = "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe) AS fåttjobben"
-        return executeHentStatistikkQuery(sql, hentStatistikk)
+        return executeHentStatistikkQuery(sql, forespørsel)
     }
 
-    fun hentAntallFåttJobbenUnder30År(hentStatistikk: HentStatistikk): Int {
+    fun hentAntallFåttJobbenUnder30År(forespørsel: StatistikkForespørsel): Int {
         val sql =
             "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe AND k1.$alder < 30) AS fåttjobben"
-        return executeHentStatistikkQuery(sql, hentStatistikk)
+        return executeHentStatistikkQuery(sql, forespørsel)
     }
 
-    fun hentAntallFåttJobbenInnsatsgruppeIkkeStandard(hentStatistikk: HentStatistikk): Int {
+    fun hentAntallFåttJobbenInnsatsgruppeIkkeStandard(forespørsel: StatistikkForespørsel): Int {
         val sql_innsatsgruppeIkkeStandard = innsatsgrupperSomIkkeErStandardinnsats.joinToString(
             separator = "', '",
             prefix = "'",
@@ -181,16 +192,48 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         )
         val sql =
             "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe AND k1.$innsatsbehov IN ($sql_innsatsgruppeIkkeStandard)) AS fåttjobben"
-        return executeHentStatistikkQuery(sql, hentStatistikk)
+        return executeHentStatistikkQuery(sql, forespørsel)
     }
 
-    private fun executeHentStatistikkQuery(sqlQuery: String, hentStatistikk: HentStatistikk): Int {
+    fun hentAntallFåttJobben(forespørsel: StatistikkForespørsel, kategori: Stillingskategori): AntallFåttJobben {
+        val kategoriFilter = kategoriFilter(kategori)
+        return AntallFåttJobben(
+            totalt = antallFåttJobben(forespørsel, kategoriFilter, ekstraFilter = ""),
+            under30år = antallFåttJobben(forespørsel, kategoriFilter, ekstraFilter = "AND k1.$alder < 30"),
+            innsatsgruppeIkkeStandard = antallFåttJobben(
+                forespørsel,
+                kategoriFilter,
+                ekstraFilter = "AND k1.$innsatsbehov IN ($sqlInnsatsgrupperIkkeStandard)"
+            ),
+        )
+    }
+
+    private fun antallFåttJobben(forespørsel: StatistikkForespørsel, kategoriFilter: String, ekstraFilter: String): Int {
+        val sql =
+            "SELECT COUNT(fåttjobben.*) FROM ($sql_unikeFåttjobbenPerPersonOgListe $kategoriFilter $ekstraFilter) AS fåttjobben"
+        return executeHentStatistikkQuery(sql, forespørsel)
+    }
+
+    private fun kategoriFilter(kategori: Stillingskategori): String {
+        val erFormidling = erStillingskategori(Stillingskategori.FORMIDLING)
+        return when (kategori) {
+            Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING -> " AND k1.$rekrutteringstreffId IS NOT NULL"
+            Stillingskategori.FORMIDLING -> " AND k1.$rekrutteringstreffId IS NULL AND $erFormidling"
+            Stillingskategori.STILLING,
+            Stillingskategori.JOBBMESSE -> " AND k1.$rekrutteringstreffId IS NULL AND (k1.$stillingsid IS NULL OR NOT ($erFormidling))"
+        }
+    }
+
+    private fun erStillingskategori(kategori: Stillingskategori): String =
+        "k1.$stillingsid IN (SELECT ${StillingRepository.uuidLabel} FROM ${StillingRepository.stillingtabell} WHERE ${StillingRepository.stillingskategoriLabel} = '${kategori.name}')"
+
+    private fun executeHentStatistikkQuery(sqlQuery: String, forespørsel: StatistikkForespørsel): Int {
         log.debug("Skal forsøke å kjøre spørring: $sqlQuery")
         dataSource.connection.use {
             val resultSet = it.prepareStatement(sqlQuery).apply {
-                setTimestamp(1, Timestamp.valueOf(hentStatistikk.fra))
-                setTimestamp(2, Timestamp.valueOf(hentStatistikk.til))
-                setString(3, hentStatistikk.navKontor)
+                setTimestamp(1, Timestamp.valueOf(forespørsel.fra))
+                setTimestamp(2, Timestamp.valueOf(forespørsel.til))
+                setString(3, forespørsel.navKontor)
             }.executeQuery()
             if (resultSet.next()) {
                 return resultSet.getInt(1)
@@ -360,6 +403,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
         const val antallSendtForsøk = "antall_sendt_forsok"
         const val sisteSendtForsøk = "siste_sendt_forsok"
         const val alder = "alder"
+        const val rekrutteringstreffId = "rekrutteringstreff_id"
 
         fun konverterTilKandidatutfall(resultSet: ResultSet): Kandidatutfall =
             Kandidatutfall(
@@ -380,6 +424,7 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
                 sendtStatus = SendtStatus.valueOf(resultSet.getString(sendtStatus)),
                 sisteSendtForsøk = resultSet.getTimestamp(sisteSendtForsøk)?.toLocalDateTime(),
                 alder = if (resultSet.getObject(alder) == null) null else resultSet.getInt(alder),
+                rekrutteringstreffId = resultSet.getObject(rekrutteringstreffId, UUID::class.java),
             )
 
         private val sq_unikeUtfallPerPersonOgListe = """
@@ -394,6 +439,9 @@ class KandidatutfallRepository(private val dataSource: DataSource) {
 
         private val sql_unikeFåttjobbenPerPersonOgListe =
             "$sq_unikeUtfallPerPersonOgListe AND k1.$utfall = '${FATT_JOBBEN.name}'"
+
+        private val sqlInnsatsgrupperIkkeStandard =
+            innsatsgrupperSomIkkeErStandardinnsats.joinToString(separator = "', '", prefix = "'", postfix = "'")
 
         private val sql_unikePresentasjonerPerPersonOgListe =
             "$sq_unikeUtfallPerPersonOgListe AND (k1.$utfall = '${FATT_JOBBEN.name}' OR k1.$utfall = '${PRESENTERT.name}')"

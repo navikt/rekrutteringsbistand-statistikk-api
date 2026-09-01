@@ -20,6 +20,7 @@ data class Kandidatutfall(
     val antallSendtForsøk: Int,
     val sisteSendtForsøk: LocalDateTime?,
     val alder: Int?,
+    val rekrutteringstreffId: UUID?,
 )
 
 enum class SendtStatus {
@@ -70,6 +71,6 @@ enum class Innsatsgruppe {
             erIkkeStandardinnsats(Innsatsgruppe.valueOf(innsatsgruppe))
 
         val innsatsgrupperSomIkkeErStandardinnsats: Set<String> =
-            Innsatsgruppe.values().filter(this::erIkkeStandardinnsats).map(Innsatsgruppe::name).toSet()
+            entries.filter(this::erIkkeStandardinnsats).map(Innsatsgruppe::name).toSet()
     }
 }

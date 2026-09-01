@@ -1,7 +1,9 @@
 package no.nav.statistikkapi.hendelser
 
 import assertk.assertThat
-import assertk.assertions.*
+import assertk.assertions.hasSize
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
@@ -41,7 +43,7 @@ class SlettetStillingOgKandidatlisteLytterTest {
     @Test
     fun `Kan annullere kandidatutfall med SlettetStillingOgKandidatliste-melding`() {
         val utfallPresentert = etKandidatutfall.copy(utfall = PRESENTERT, aktørId = aktørId1)
-        val utfallFåttJobben = utfallPresentert.copy(utfall = Utfall.FATT_JOBBEN, aktørId = aktørId2)
+        val utfallFåttJobben = utfallPresentert.copy(utfall = FATT_JOBBEN, aktørId = aktørId2)
         repository.lagreUtfall(utfallPresentert)
         repository.lagreUtfall(utfallFåttJobben)
 
@@ -57,6 +59,7 @@ class SlettetStillingOgKandidatlisteLytterTest {
             assertThat(innsatsbehov).isNull()
             assertThat(hovedmål).isNull()
             assertThat(alder).isNull()
+            assertThat(rekrutteringstreffId).isNull()
         }
         utfallFraDb.find { u -> u.aktorId == utfallFåttJobben.aktørId && u.utfall == Utfall.IKKE_PRESENTERT }!!.apply {
             assertThat(kandidatlisteId.toString()).isEqualTo(utfallFåttJobben.kandidatlisteId)
@@ -65,6 +68,28 @@ class SlettetStillingOgKandidatlisteLytterTest {
             assertThat(innsatsbehov).isNull()
             assertThat(hovedmål).isNull()
             assertThat(alder).isNull()
+            assertThat(rekrutteringstreffId).isNull()
+        }
+    }
+
+    @Test
+    fun `Kan annullere fått jobben til ikke presentert med rekrutteringstreffId fra SlettetStillingOgKandidatliste-melding`() {
+        val forventetRekrutteringstreffId = UUID.fromString("2cb83e65-4fd3-4a62-bdc7-64d4a9fc335c")
+        val utfallFåttJobben = etKandidatutfall.copy(utfall = FATT_JOBBEN, aktørId = aktørId1)
+        repository.lagreUtfall(utfallFåttJobben)
+
+        rapid.sendTestMessage(
+            slettetStillingOgKandidatlisteMelding(
+                kandidatlisteId = utfallFåttJobben.kandidatlisteId,
+                rekrutteringstreffId = forventetRekrutteringstreffId,
+            )
+        )
+
+        val utfallFraDb = testRepository.hentUtfall()
+        assertThat(utfallFraDb).hasSize(2)
+        utfallFraDb.find { u -> u.aktorId == utfallFåttJobben.aktørId && u.utfall == Utfall.IKKE_PRESENTERT }!!.apply {
+            assertThat(utfall).isEqualTo(Utfall.IKKE_PRESENTERT)
+            assertThat(rekrutteringstreffId).isEqualTo(forventetRekrutteringstreffId)
         }
     }
 
@@ -88,7 +113,11 @@ class SlettetStillingOgKandidatlisteLytterTest {
     @Test
     fun `Skal ikke lagre nye utfall for andre kandidatlister`() {
         val utfallPresentert = etKandidatutfall.copy(utfall = PRESENTERT, aktørId = aktørId1)
-        val utfallPresentertAnnenKandidatliste = etKandidatutfall.copy(kandidatlisteId = UUID.randomUUID().toString(), utfall = PRESENTERT, aktørId = aktørId1)
+        val utfallPresentertAnnenKandidatliste = etKandidatutfall.copy(
+            kandidatlisteId = UUID.randomUUID().toString(),
+            utfall = PRESENTERT,
+            aktørId = aktørId1
+        )
         repository.lagreUtfall(utfallPresentert)
         repository.lagreUtfall(utfallPresentertAnnenKandidatliste)
         assertThat(testRepository.hentUtfall()).hasSize(2)
@@ -128,7 +157,10 @@ class SlettetStillingOgKandidatlisteLytterTest {
         assertThat(utfallFraDatabase[0].stillingskategori).isEqualTo(Stillingskategori.STILLING)
     }
 
-    private fun slettetStillingOgKandidatlisteMelding(kandidatlisteId: String) = """
+    private fun slettetStillingOgKandidatlisteMelding(
+        kandidatlisteId: String,
+        rekrutteringstreffId: UUID? = null,
+    ) = """
         {
           "kandidatlisteId": "$kandidatlisteId",
           "tidspunkt": "${nowOslo()}",
@@ -142,7 +174,8 @@ class SlettetStillingOgKandidatlisteLytterTest {
             "stillingsid": "b5919e46-9882-4b3c-8089-53ad02f26023",
             "eier": null,
             "notat": "sds",
-            "stillingskategori": null
+                        "stillingskategori": null,
+                        "rekrutteringstreffId": ${rekrutteringstreffId?.let { "\"$it\"" } ?: "null"}
           }
         }
     """.trimIndent()

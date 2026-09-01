@@ -16,6 +16,7 @@ import org.junit.Test
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
+import kotlin.test.assertFailsWith
 
 class PresenterteOgFåttJobbenKandidaterLytterTest {
 
@@ -210,316 +211,195 @@ class PresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(stillingskategori).isEqualTo(Stillingskategori.STILLING)
         }
     }
+
+    @Test
+    fun `Kan opprette kandidatutfall med rekrutteringstreffId for FåttJobben`() {
+        rapid.sendTestMessage(registrertFåttJobbenMeldingMedRekrutteringstreffId)
+
+        val utfallFraDb = testRepository.hentUtfall()
+        val stillingFraDb = testRepository.hentStilling()
+        assertThat(utfallFraDb).hasSize(1)
+        assertThat(stillingFraDb).hasSize(1)
+        utfallFraDb[0].apply {
+            assertThat(utfall).isEqualTo(Utfall.FATT_JOBBEN)
+            assertThat(rekrutteringstreffId).isEqualTo(UUID.fromString(etRekrutteringstreffId))
+        }
+        stillingFraDb[0].apply {
+            assertThat(stillingskategori).isEqualTo(Stillingskategori.REKRUTTERINGSTREFF_FORMIDLING)
+        }
+    }
+
+    @Test
+    fun `Ugyldig rekrutteringstreffId kaster exception`() {
+        assertFailsWith<IllegalArgumentException> {
+            rapid.sendTestMessage(registrertFåttJobbenMeldingMedUgyldigRekrutteringstreffId)
+        }
+
+        assertThat(testRepository.hentUtfall()).hasSize(0)
+    }
 }
 
-private fun registrertDeltCvmelding(tidspunkt: ZonedDateTime = ZonedDateTime.parse( "2023-02-13T09:57:34.643+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
+private const val etRekrutteringstreffId = "2cb83e65-4fd3-4a62-bdc7-64d4a9fc335c"
+
+private val standardInkludering = """
+    {
+      "harHullICv": true,
+      "alder": 53,
+      "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
+      "hovedmål": "SKAFFEA"
+    }
+""".trimIndent()
+
+private val standardStillingsinfo = """
+    {
+      "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+      "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+      "eier": null,
+      "notat": "sds",
+      "stillingskategori": "STILLING"
+    }
+""".trimIndent()
+
+private val standardStilling = """
+    {
+      "stillingstittel": "ergerg",
+      "erDirektemeldt": true,
+      "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
+      "antallStillinger": 3,
+      "organisasjonsnummer": "923282556",
+      "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
+    }
+""".trimIndent()
+
+private fun byggMelding(
+    eventName: String = "kandidat_v2.RegistrertDeltCv",
+    tidspunkt: String = "2023-02-13T09:57:34.643+01:00",
+    stillingsId: String? = "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+    synligKandidat: Boolean = true,
+    inkludering: String? = standardInkludering,
+    stillingsinfo: String? = standardStillingsinfo,
+    stilling: String? = standardStilling,
+): String {
+    val stillingsinfoBlokk = stillingsinfo?.let {
+        """
+            ,
+              "stillingsinfo": $it
+        """.trimIndent()
+    } ?: ""
+    val stillingBlokk = stilling?.let {
+        """
+            ,
+              "stilling": $it
+        """.trimIndent()
+    } ?: ""
+    return """
         {
           "aktørId": "2133747575903",
           "organisasjonsnummer": "894822082",
           "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
           "tidspunkt": "$tidspunkt",
-          "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+          "stillingsId": ${stillingsId?.let { "\"$it\"" } ?: "null"},
           "utførtAvNavIdent": "Z990281",
           "utførtAvNavKontorKode": "0314",
-          "synligKandidat": true,
-          "inkludering": {
-            "harHullICv": true,
-            "alder": 53,
-            "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
-            "hovedmål": "SKAFFEA"
-          },
-          "@event_name": "kandidat_v2.RegistrertDeltCv",
-          "@id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
-          "@opprettet": "2023-02-13T09:58:03.191128099",
-          "system_read_count": 0,
-          "system_participating_services": [
-            {
-              "id": "15379170-9d91-4670-bda1-94b4f4355131",
-              "time": "2023-02-13T09:58:01.055581269",
-              "service": "rekrutteringsbistand-stilling-api",
-              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
-            },
-            {
-              "id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
-              "time": "2023-02-13T09:58:03.191128099",
-              "service": "rekrutteringsbistand-stilling-api",
-              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
-            }
-          ],
-          "stillingsinfo": {
-            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
-            "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-            "eier": null,
-            "notat": "sds",
-            "stillingskategori": "STILLING"
-          },
-          "stilling": {
-            "stillingstittel": "ergerg",
-            "erDirektemeldt": true,
-            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
-            "antallStillinger": 3,
-            "organisasjonsnummer": "923282556",
-            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
-          },
-          "@forårsaket_av": {
-            "id": "15379170-9d91-4670-bda1-94b4f4355131",
-            "opprettet": "2023-02-13T09:58:01.055581269",
-            "event_name": "kandidat_v2.RegistrertDeltCv"
-          }
+          "synligKandidat": $synligKandidat,
+          "inkludering": ${inkludering ?: "null"},
+          "@event_name": "$eventName"$stillingsinfoBlokk$stillingBlokk
         }
     """.trimIndent()
+}
 
-private fun registrertDeltCvMeldingMedDeprecatedTilretteleggingsbehov(tidspunkt: ZonedDateTime = ZonedDateTime.parse( "2023-02-13T09:57:34.643+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
+private fun registrertDeltCvmelding(
+    tidspunkt: ZonedDateTime = ZonedDateTime
+        .parse("2023-02-13T09:57:34.643+01:00")
+        .withZoneSameInstant(ZoneId.of("Europe/Oslo"))
+) = byggMelding(tidspunkt = tidspunkt.toString())
+
+private fun registrertDeltCvMeldingMedDeprecatedTilretteleggingsbehov(
+    tidspunkt: ZonedDateTime = ZonedDateTime
+        .parse("2023-02-13T09:57:34.643+01:00")
+        .withZoneSameInstant(ZoneId.of("Europe/Oslo"))
+) = byggMelding(
+    tidspunkt = tidspunkt.toString(),
+    inkludering = """
         {
-          "aktørId": "2133747575903",
-          "organisasjonsnummer": "894822082",
-          "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
-          "tidspunkt": "$tidspunkt",
-          "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-          "utførtAvNavIdent": "Z990281",
-          "utførtAvNavKontorKode": "0314",
-          "synligKandidat": true,
-          "inkludering": {
-            "harHullICv": true,
-            "alder": 53,
-            "tilretteleggingsbehov": ["arbeidstid"],
-            "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
-            "hovedmål": "SKAFFEA"
-          },
-          "@event_name": "kandidat_v2.RegistrertDeltCv",
-          "@id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
-          "@opprettet": "2023-02-13T09:58:03.191128099",
-          "system_read_count": 0,
-          "system_participating_services": [
-            {
-              "id": "15379170-9d91-4670-bda1-94b4f4355131",
-              "time": "2023-02-13T09:58:01.055581269",
-              "service": "rekrutteringsbistand-stilling-api",
-              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
-            },
-            {
-              "id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
-              "time": "2023-02-13T09:58:03.191128099",
-              "service": "rekrutteringsbistand-stilling-api",
-              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
-            }
-          ],
-          "stillingsinfo": {
-            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
-            "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-            "eier": null,
-            "notat": "sds",
-            "stillingskategori": "STILLING"
-          },
-          "stilling": {
-            "stillingstittel": "ergerg",
-            "erDirektemeldt": true,
-            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
-            "antallStillinger": 3,
-            "organisasjonsnummer": "923282556",
-            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
-          },
-          "@forårsaket_av": {
-            "id": "15379170-9d91-4670-bda1-94b4f4355131",
-            "opprettet": "2023-02-13T09:58:01.055581269",
-            "event_name": "kandidat_v2.RegistrertDeltCv"
-          }
+          "harHullICv": true,
+          "alder": 53,
+          "tilretteleggingsbehov": ["arbeidstid"],
+          "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
+          "hovedmål": "SKAFFEA"
         }
     """.trimIndent()
+)
 
-private val registrertDeltCvmeldingUsynligKandidatUtenInkludering = """
-        {
-          "aktørId": "2133747575903",
-          "organisasjonsnummer": "894822082",
-          "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
-          "tidspunkt": "2023-02-13T09:57:34.643+01:00",
-          "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-          "utførtAvNavIdent": "Z990281",
-          "utførtAvNavKontorKode": "0314",
-          "synligKandidat": false,
-          "inkludering": null,
-          "@event_name": "kandidat_v2.RegistrertDeltCv",
-          "@id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
-          "@opprettet": "2023-02-13T09:58:03.191128099",
-          "system_read_count": 0,
-          "system_participating_services": [
-            {
-              "id": "15379170-9d91-4670-bda1-94b4f4355131",
-              "time": "2023-02-13T09:58:01.055581269",
-              "service": "rekrutteringsbistand-stilling-api",
-              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
-            },
-            {
-              "id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
-              "time": "2023-02-13T09:58:03.191128099",
-              "service": "rekrutteringsbistand-stilling-api",
-              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
-            }
-          ],
-          "stillingsinfo": {
-            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
-            "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-            "eier": null,
-            "notat": "sds",
-            "stillingskategori": "STILLING"
-          },
-          "stilling": {
-            "stillingstittel": "ergerg",
-            "erDirektemeldt": true,
-            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
-            "antallStillinger": 3,
-            "organisasjonsnummer": "923282556",
-            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
-          },
-          "@forårsaket_av": {
-            "id": "15379170-9d91-4670-bda1-94b4f4355131",
-            "opprettet": "2023-02-13T09:58:01.055581269",
-            "event_name": "kandidat_v2.RegistrertDeltCv"
-          }
-        }
-    """.trimIndent()
 
-private val registrertDeltCvmeldingMedNullverdier = """
-        {
-          "aktørId": "2133747575903",
-          "organisasjonsnummer": "894822082",
-          "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
-          "tidspunkt": "2023-02-13T09:57:34.643+01:00",
-          "stillingsId": null,
-          "utførtAvNavIdent": "Z990281",
-          "utførtAvNavKontorKode": "0314",
-          "synligKandidat": true,
-          "inkludering": null,
-          "@event_name": "kandidat_v2.RegistrertDeltCv",
-          "@id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
-          "@opprettet": "2023-02-13T09:58:03.191128099",
-          "system_read_count": 0,
-          "system_participating_services": [
-            {
-              "id": "15379170-9d91-4670-bda1-94b4f4355131",
-              "time": "2023-02-13T09:58:01.055581269",
-              "service": "rekrutteringsbistand-stilling-api",
-              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
-            },
-            {
-              "id": "1bbc0be5-8eb0-4d77-a64f-53bdad97de39",
-              "time": "2023-02-13T09:58:03.191128099",
-              "service": "rekrutteringsbistand-stilling-api",
-              "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
-            }
-          ],
-          "@forårsaket_av": {
-            "id": "15379170-9d91-4670-bda1-94b4f4355131",
-            "opprettet": "2023-02-13T09:58:01.055581269",
-            "event_name": "kandidat_v2.RegistrertDeltCv"
-          }
-        }
-    """.trimIndent()
+private val registrertDeltCvmeldingUsynligKandidatUtenInkludering = byggMelding(
+    synligKandidat = false,
+    inkludering = null
+)
 
-private val registrerDeltCVMeldingUtenStillingberikelse = """
+private val registrertDeltCvmeldingMedNullverdier = byggMelding(
+    stillingsId = null,
+    inkludering = null,
+    stillingsinfo = null,
+    stilling = null
+)
+
+private val registrerDeltCVMeldingUtenStillingberikelse = byggMelding(
+    stillingsinfo = null,
+    stilling = null
+)
+
+private val registrertFåttJobbenMelding = byggMelding(
+    eventName = "kandidat_v2.RegistrertFåttJobben",
+    tidspunkt = "2023-02-13T12:39:52.205+01:00"
+)
+
+val registrertFåttJobbenMeldingUtenStillingberikelse = byggMelding(
+    eventName = "kandidat_v2.RegistrertFåttJobben",
+    tidspunkt = "2023-02-13T10:03:02.145+01:00",
+    stillingsinfo = null,
+    stilling = null
+)
+
+private val standardRekrutteringstreffStilling = """
     {
-      "aktørId": "2133747575903",
-      "organisasjonsnummer": "894822082",
-      "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
-      "tidspunkt": "2023-02-13T09:57:34.643+01:00",
-      "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-      "utførtAvNavIdent": "Z990281",
-      "utførtAvNavKontorKode": "0314",
-      "synligKandidat": true,
-      "inkludering": {
-        "harHullICv": true,
-        "alder": 53,
-        "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
-        "hovedmål": "SKAFFEA"
-      },
-      "@event_name": "kandidat_v2.RegistrertDeltCv"
+      "stillingstittel": "Rekrutteringstreff",
+      "erDirektemeldt": true,
+      "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
+      "antallStillinger": 1,
+      "organisasjonsnummer": "923282556",
+      "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
     }
 """.trimIndent()
 
-
-private val registrertFåttJobbenMelding = """
-    {
-      "aktørId": "2133747575903",
-      "organisasjonsnummer": "894822082",
-      "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
-      "tidspunkt": "2023-02-13T12:39:52.205+01:00",
-      "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-      "utførtAvNavIdent": "Z990281",
-      "utførtAvNavKontorKode": "0314",
-      "synligKandidat": true,
-      "inkludering": {
-        "harHullICv": true,
-        "alder": 53,
-        "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
-        "hovedmål": "SKAFFEA"
-      },
-      "@event_name": "kandidat_v2.RegistrertFåttJobben",
-      "@id": "5f4531e7-f202-439b-88c0-68d14a05031f",
-      "@opprettet": "2023-02-13T12:40:02.161234100",
-      "system_read_count": 0,
-      "system_participating_services": [
+private val registrertFåttJobbenMeldingMedRekrutteringstreffId = byggMelding(
+    eventName = "kandidat_v2.RegistrertFåttJobben",
+    tidspunkt = "2023-02-13T12:39:52.205+01:00",
+    stillingsinfo = """
         {
-          "id": "506fbed0-a263-432b-8f74-c4aa96587c90",
-          "time": "2023-02-13T12:40:02.037858424",
-          "service": "rekrutteringsbistand-stilling-api",
-          "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
-          "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
-        },
-        {
-          "id": "5f4531e7-f202-439b-88c0-68d14a05031f",
-          "time": "2023-02-13T12:40:02.161234100",
-          "service": "rekrutteringsbistand-stilling-api",
-          "instance": "rekrutteringsbistand-stilling-api-675cfbd5fb-dxkcj",
-          "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:e9475052acb94e469ab72f0b2896830f12e3d23e"
+          "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+          "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+          "eier": null,
+          "notat": "sds",
+          "stillingskategori": "REKRUTTERINGSTREFF_FORMIDLING",
+          "rekrutteringstreffId": "$etRekrutteringstreffId"
         }
-      ],
-       "stillingsinfo": {
-            "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
-            "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-            "eier": null,
-            "notat": "sds",
-            "stillingskategori": "STILLING"
-          },
-          "stilling": {
-            "stillingstittel": "ergerg",
-            "erDirektemeldt": true,
-            "stillingOpprettetTidspunkt": "2022-04-11T14:32:47.215151+02:00[Europe/Oslo]",
-            "antallStillinger": 3,
-            "organisasjonsnummer": "923282556",
-            "stillingensPubliseringstidspunkt": "2022-04-12T01:00:00.000000+02:00[Europe/Oslo]"
-          },
-      "@forårsaket_av": {
-        "id": "506fbed0-a263-432b-8f74-c4aa96587c90",
-        "opprettet": "2023-02-13T12:40:02.037858424",
-        "event_name": "kandidat_v2.RegistrertFåttJobben"
-      }
-    }
-""".trimIndent()
+    """.trimIndent(),
+    stilling = standardRekrutteringstreffStilling,
+)
 
-val registrertFåttJobbenMeldingUtenStillingberikelse = """
-    {
-      "aktørId": "2133747575903",
-      "organisasjonsnummer": "894822082",
-      "kandidatlisteId": "6e22ced0-241b-4889-8285-7ca268d91b8d",
-      "tidspunkt": "2023-02-13T10:03:02.145+01:00",
-      "stillingsId": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
-      "utførtAvNavIdent": "Z990281",
-      "utførtAvNavKontorKode": "0314",
-      "synligKandidat": true,
-      "inkludering": {
-        "harHullICv": true,
-        "alder": 53,
-        "innsatsbehov": "SPESIELT_TILPASSET_INNSATS",
-        "hovedmål": "SKAFFEA"
-      },
-      "@event_name": "kandidat_v2.RegistrertFåttJobben"
-    }
-""".trimIndent()
+private val registrertFåttJobbenMeldingMedUgyldigRekrutteringstreffId = byggMelding(
+    eventName = "kandidat_v2.RegistrertFåttJobben",
+    tidspunkt = "2023-02-13T12:39:52.205+01:00",
+    stillingsinfo = """
+        {
+          "stillingsinfoid": "88cdcd85-aa9d-4166-84b9-1567e089e5cc",
+          "stillingsid": "b2d427a4-061c-4ba4-890b-b7b0e04fb000",
+          "eier": null,
+          "notat": "sds",
+          "stillingskategori": "REKRUTTERINGSTREFF_FORMIDLING",
+          "rekrutteringstreffId": "ikke-en-uuid"
+        }
+    """.trimIndent(),
+    stilling = standardRekrutteringstreffStilling,
+)

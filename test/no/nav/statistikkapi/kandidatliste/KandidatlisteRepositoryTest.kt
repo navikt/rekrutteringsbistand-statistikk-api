@@ -1,6 +1,7 @@
 package no.nav.statistikkapi.kandidatliste
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import no.nav.statistikkapi.db.TestDatabase
 import no.nav.statistikkapi.db.TestRepository
@@ -54,7 +55,7 @@ class KandidatlisteRepositoryTest {
 
         val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned()
 
-        assertThat(antallKandidatlister.values.contains(2))
+        assertThat(antallKandidatlister.values).contains(2)
     }
 
     @Test
@@ -62,9 +63,10 @@ class KandidatlisteRepositoryTest {
         kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = true))
         kandidatlisteRepository.lagreKandidatlistehendelse(lagOppdatertKandidatlisteHendelse(erDirektemeldt = false))
 
-        val antallKandidatlister = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned()
+        val antallKandidatlister =
+            kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned()
 
-        assertThat(antallKandidatlister.values.contains(1))
+        assertThat(antallKandidatlister.values).contains(1)
     }
 
     @Test
@@ -703,10 +705,16 @@ class KandidatlisteRepositoryTest {
 
     @Test
     fun `Skal returnere unike antall arbeidsgivere som har fått opprettet direktemeldt stilling`() {
-        val hendelseDirektemeldtStilling1 = lagOppdatertKandidatlisteHendelse(erDirektemeldt = true).copy(organisasjonsnummer = "1234")
-        val hendelseDirektemeldtStilling2 = lagOppdatertKandidatlisteHendelse(erDirektemeldt = true).copy(organisasjonsnummer = "2345")
-        val hendelseEksternStilling = lagOppdatertKandidatlisteHendelse(erDirektemeldt = false).copy(organisasjonsnummer = "3456")
-        val hendelseDirektemeldtStillingIkkePublisert = lagOpprettetKandidatlisteHendelse(erDirektemeldt = true, stillingOpprettetTidspunkt = null).copy(organisasjonsnummer = "4567")
+        val hendelseDirektemeldtStilling1 =
+            lagOppdatertKandidatlisteHendelse(erDirektemeldt = true).copy(organisasjonsnummer = "1234")
+        val hendelseDirektemeldtStilling2 =
+            lagOppdatertKandidatlisteHendelse(erDirektemeldt = true).copy(organisasjonsnummer = "2345")
+        val hendelseEksternStilling =
+            lagOppdatertKandidatlisteHendelse(erDirektemeldt = false).copy(organisasjonsnummer = "3456")
+        val hendelseDirektemeldtStillingIkkePublisert =
+            lagOpprettetKandidatlisteHendelse(erDirektemeldt = true, stillingOpprettetTidspunkt = null).copy(
+                organisasjonsnummer = "4567"
+            )
         kandidatlisteRepository.lagreKandidatlistehendelse(hendelseDirektemeldtStilling1)
         kandidatlisteRepository.lagreKandidatlistehendelse(hendelseDirektemeldtStilling2)
         kandidatlisteRepository.lagreKandidatlistehendelse(hendelseEksternStilling)
@@ -744,7 +752,8 @@ class KandidatlisteRepositoryTest {
         uniktKandidatutfall(annenKandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN)
             .also { kandidatutfallRepository.lagreUtfall(it) }
 
-        val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
+        val antall =
+            kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
 
         assertThat(antall).isEqualTo(1)
     }
@@ -790,7 +799,8 @@ class KandidatlisteRepositoryTest {
         uniktKandidatutfallIkkeIPrioritertMålgruppe(tredjeKandidatlisteId.toString()).copy(utfall = Utfall.PRESENTERT)
             .also { kandidatutfallRepository.lagreUtfall(it) }
 
-        val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
+        val antall =
+            kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
 
         assertThat(antall).isEqualTo(0)
     }
@@ -823,7 +833,8 @@ class KandidatlisteRepositoryTest {
             .also { kandidatutfallRepository.lagreUtfall(it) }
         uniktKandidatutfallIkkeIPrioritertMålgruppe(annenKandidatlisteId.toString()).copy(utfall = Utfall.FATT_JOBBEN) // TODO Are: Blir ikke brukt til noe. Bug?
 
-        val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
+        val antall =
+            kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
 
         assertThat(antall).isEqualTo(0)
     }
@@ -913,13 +924,15 @@ class KandidatlisteRepositoryTest {
             tidspunktForHendelsen = nowOslo().minusDays(1)
         )
         val presentertUtfall = fåttJobbenUtfall.copy(utfall = Utfall.PRESENTERT, tidspunktForHendelsen = nowOslo())
-        val annenPresentertUtfall = annenFåttJobbenUtfalll.copy(utfall = Utfall.PRESENTERT, tidspunktForHendelsen = nowOslo())
+        val annenPresentertUtfall =
+            annenFåttJobbenUtfalll.copy(utfall = Utfall.PRESENTERT, tidspunktForHendelsen = nowOslo())
         kandidatutfallRepository.lagreUtfall(fåttJobbenUtfall)
         kandidatutfallRepository.lagreUtfall(annenFåttJobbenUtfalll)
         kandidatutfallRepository.lagreUtfall(presentertUtfall)
         kandidatutfallRepository.lagreUtfall(annenPresentertUtfall)
 
-        val antall = kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
+        val antall =
+            kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
 
         assertThat(antall).isEqualTo(0)
     }

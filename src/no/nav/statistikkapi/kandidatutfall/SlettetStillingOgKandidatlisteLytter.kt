@@ -9,6 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.statistikkapi.json.asTextNullable
+import no.nav.statistikkapi.json.asUUIDNullable
 import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
@@ -35,7 +36,8 @@ class SlettetStillingOgKandidatlisteLytter(
                     "@event_name",
                     "@slutt_av_hendelseskjede",
                     "stillingsinfo",
-                    "stillingsinfo.stillingskategori"
+                    "stillingsinfo.stillingskategori",
+                    "stillingsinfo.rekrutteringstreffId"
                 )
 
                 it.requireKey(
@@ -60,12 +62,14 @@ class SlettetStillingOgKandidatlisteLytter(
         val stillingsId: String = packet["stillingsId"].asString()
         val stillingskategori: Stillingskategori =
             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
+        val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()
 
         secureLog.info(
             """
             kandidatlisteId: $kandidatlisteId
             tidspunkt: $tidspunkt
             utførtAvNavIdent: $utførtAvNavIdent
+            rekrutteringstreffId: $rekrutteringstreffId
             """.trimIndent()
         )
 
@@ -87,7 +91,8 @@ class SlettetStillingOgKandidatlisteLytter(
                     innsatsbehov = null,
                     hovedmål = null,
                     alder = null,
-                    tidspunktForHendelsen = tidspunkt
+                    tidspunktForHendelsen = tidspunkt,
+                    rekrutteringstreffId = rekrutteringstreffId ?: it.rekrutteringstreffId,
                 )
                 lagreUtfallOgStilling.lagreUtfallOgStilling(nyttUtfall, stillingsId, stillingskategori)
             }

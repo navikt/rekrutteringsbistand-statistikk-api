@@ -1,5 +1,5 @@
 val logbackVersion = "1.5.32"
-val ktorVersion = "3.4.3"
+val ktorVersion = "3.5.1"
 val flywayVersion = "12.6.1"
 val hikariVersion = "7.0.2"
 val logstashEncoderVersion = "9.0"

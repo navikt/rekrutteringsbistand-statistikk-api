@@ -117,6 +117,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(hullICv!!).isTrue()
             assertThat(innsatsbehov).isEqualTo("SPESIELT_TILPASSET_INNSATS")
             assertThat(hovedmål).isEqualTo("SKAFFEA")
+            assertThat(rekrutteringstreffId).isNull()
 
             assertThat(utfall).isEqualTo(Utfall.IKKE_PRESENTERT)
         }
@@ -202,6 +203,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytterTest {
             assertThat(hullICv!!).isTrue()
             assertThat(innsatsbehov).isEqualTo("SPESIELT_TILPASSET_INNSATS")
             assertThat(hovedmål).isEqualTo("SKAFFEA")
+            assertThat(rekrutteringstreffId).isNull()
 
             assertThat(utfall).isEqualTo(Utfall.PRESENTERT)
         }
