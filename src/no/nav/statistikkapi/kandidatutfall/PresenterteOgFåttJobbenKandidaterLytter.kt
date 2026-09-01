@@ -68,13 +68,20 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-        if (!erEntenKomplettStillingEllerIngenStilling(packet)) return
+        val stillingsId: String = packet["stillingsId"].asTextNullable() ?: run {
+            log.debug("Behandler ikke melding fordi den er uten stillingsId")
+            return
+        }
+
+        if (manglerStillingEllerStillingsinfo(packet)) {
+            log.debug("Behandler ikke melding fordi den mangler stilling eller stillingsinfo")
+            return
+        }
 
         val aktørId = packet["aktørId"].asString()
         val organisasjonsnummer = packet["organisasjonsnummer"].asString()
         val kandidatlisteId = packet["kandidatlisteId"].asString()
         val tidspunkt = ZonedDateTime.parse(packet["tidspunkt"].asString())
-        val stillingsId = packet["stillingsId"].asTextNullable()
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
         val utfall = Utfall.fraEventNamePostfix(eventNamePostfix)
         val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()
@@ -106,11 +113,6 @@ class PresenterteOgFåttJobbenKandidaterLytter(
             """.trimIndent()
         )
 
-        if (stillingsId == null) {
-            log.info("Behandler ikke melding fordi den er uten stilingsId")
-            return
-        }
-
         val opprettKandidatutfall = OpprettKandidatutfall(
             aktørId = aktørId,
             utfall = utfall,
@@ -137,9 +139,9 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         context.publish(packet.toJson())
     }
 
-    private fun erEntenKomplettStillingEllerIngenStilling(packet: JsonMessage): Boolean =
-        packet["stillingsId"].isMissingOrNull() ||
-                (packet["stilling"].exists() && packet["stillingsinfo"].exists())
+    private fun manglerStillingEllerStillingsinfo(packet: JsonMessage): Boolean =
+        packet["stillingsId"].exists() &&
+                (!packet["stilling"].exists() || !packet["stillingsinfo"].exists())
 
     override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
         log.error("Feil ved lesing av melding\n$problems")

@@ -56,7 +56,10 @@ class SendtTilArbeidsgiverKandidaterLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-        val stillingsId = packet["stillingsId"].asTextNullable()
+        val stillingsId: String = packet["stillingsId"].asTextNullable() ?: run {
+            log.warn("Denne koden burde aldri bli kjørt. Behandler ikke melding fordi den er uten stillingsId. stilingsId burde vært til stede pga filterlogikken i River.validate.requireKey.")
+            return
+        }
         val stillingskategori = packet["stillingsinfo.stillingskategori"].asTextNullable()
         val organisasjonsnummer = packet["organisasjonsnummer"].asString()
         val kandidatlisteId = packet["kandidatlisteId"].asString()
@@ -65,11 +68,6 @@ class SendtTilArbeidsgiverKandidaterLytter(
         val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"].asString()
         val arbeidsgiversEpostadresser = packet["arbeidsgiversEpostadresser"].toList().map(JsonNode::asString)
         val meldingTilArbeidsgiver = packet["meldingTilArbeidsgiver"].asString()
-
-        if (stillingsId == null) {
-            log.info("Behandler ikke melding fordi den er uten stillingsId")
-            return
-        }
 
         packet["kandidater"].properties().forEach { (aktørId, node) ->
             val harHullICv = node["harHullICv"].booleanValue()
