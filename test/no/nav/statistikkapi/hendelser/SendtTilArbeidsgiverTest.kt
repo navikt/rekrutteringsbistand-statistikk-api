@@ -145,9 +145,52 @@ class SendtTilArbeidsgiverTest {
         assertThat(stillingFraDb[0].stillingskategori).isEqualTo(Stillingskategori.STILLING)
     }
 
+    @Test
+    fun `Avviser melding der kandidater ikke er et JSON-objekt`() {
+        rapid.sendTestMessage(melding(kandidater = "[]"))
+
+        assertThat(testRepository.hentUtfall()).hasSize(0)
+    }
+
+    @Test
+    fun `Avviser melding der kandidat mangler eller har feil type på obligatoriske felt`() {
+        listOf(
+            kandidater().replace("\"harHullICv\": false,", ""),
+            kandidater().replace("\"alder\": 51", "\"alder\": \"51\""),
+            kandidater().replace("\"innsatsbehov\": \"SITUASJONSBESTEMT_INNSATS\",", "")
+        ).forEach { kandidater ->
+            rapid.sendTestMessage(melding(kandidater = kandidater))
+
+            assertThat(testRepository.hentUtfall()).hasSize(0)
+            rapid.reset()
+        }
+    }
+
+    @Test
+    fun `Behandler melding med null som slutt av hendelseskjede`() {
+        rapid.sendTestMessage(meldingMedSluttAvHendelseskjede("null"))
+
+        assertThat(testRepository.hentUtfall()).hasSize(2)
+    }
+
+    @Test
+    fun `Behandler melding med eksplisitt usann slutt av hendelseskjede`() {
+        rapid.sendTestMessage(meldingMedSluttAvHendelseskjede("false"))
+
+        assertThat(testRepository.hentUtfall()).hasSize(2)
+    }
+
+    @Test
+    fun `Avviser melding med sann slutt av hendelseskjede`() {
+        rapid.sendTestMessage(meldingMedSluttAvHendelseskjede("true"))
+
+        assertThat(testRepository.hentUtfall()).hasSize(0)
+    }
+
     private fun melding(
         tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-09T09:45:53.649+01:00")
             .withZoneSameInstant(ZoneId.of("Europe/Oslo")),
+        kandidater: String = kandidater(),
     ): String {
         return """
         {
@@ -165,21 +208,7 @@ class SendtTilArbeidsgiverTest {
             "enansatt@trygdeetaten.no"
           ],
           "meldingTilArbeidsgiver": "Hei, her er en god kandidat som vil føre til at du kan selge varene dine med høyere avanse!",
-          "kandidater": {
-            "2452127907551": {
-              "harHullICv": false,
-              "alder": 51,
-              "tilretteleggingsbehov": [],
-              "innsatsbehov": "SITUASJONSBESTEMT_INNSATS",
-              "hovedmål": "BEHOLDEA"
-            },
-            "2452127907123": {
-              "harHullICv": true,
-              "alder": 24,
-              "innsatsbehov": "VARIG_TILPASSET_INNSATS",
-              "hovedmål": "SKAFFERA"
-            }
-          },
+          "kandidater": $kandidater,
           "@event_name": "kandidat_v2.DelCvMedArbeidsgiver",
           "@id": "74b0b8dd-315f-406f-9979-e0bec5bcc5b6",
           "@opprettet": "2023-02-09T09:46:01.027221527",
@@ -218,6 +247,30 @@ class SendtTilArbeidsgiverTest {
         }
     """.trimIndent()
     }
+
+    private fun kandidater() = """
+        {
+          "2452127907551": {
+            "harHullICv": false,
+            "alder": 51,
+            "tilretteleggingsbehov": [],
+            "innsatsbehov": "SITUASJONSBESTEMT_INNSATS",
+            "hovedmål": "BEHOLDEA"
+          },
+          "2452127907123": {
+            "harHullICv": true,
+            "alder": 24,
+            "innsatsbehov": "VARIG_TILPASSET_INNSATS",
+            "hovedmål": "SKAFFERA"
+          }
+        }
+    """.trimIndent()
+
+    private fun meldingMedSluttAvHendelseskjede(verdi: String) =
+        melding().replace(
+            "\"@event_name\":",
+            "\"@slutt_av_hendelseskjede\": $verdi,\n\"@event_name\":"
+        )
 
     private fun meldingMedTilretteleggingsbehovSomErDeprecated(tidspunkt: ZonedDateTime = ZonedDateTime.parse("2023-02-09T09:45:53.649+01:00").withZoneSameInstant(ZoneId.of("Europe/Oslo"))) = """
         {

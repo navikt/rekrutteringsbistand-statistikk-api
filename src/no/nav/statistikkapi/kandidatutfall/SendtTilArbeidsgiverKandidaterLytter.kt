@@ -12,7 +12,6 @@ import no.nav.statistikkapi.json.asTextNullable
 import no.nav.statistikkapi.json.asZonedDateTime
 import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
-import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import tools.jackson.databind.JsonNode
 
@@ -27,7 +26,7 @@ class SendtTilArbeidsgiverKandidaterLytter(
         River(rapidsConnection).apply {
             precondition { packet ->
                 packet.requireValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
-                packet.requireValueIfPresent("@slutt_av_hendelseskjede", false)
+                packet.forbidValue("@slutt_av_hendelseskjede", true)
             }
             validate {
                 it.requireKey(
@@ -41,6 +40,16 @@ class SendtTilArbeidsgiverKandidaterLytter(
                     "meldingTilArbeidsgiver",
                     "kandidater"
                 )
+                it.require("kandidater") { kandidater ->
+                    require(kandidater.isObject) { "kandidater må være et JSON-objekt" }
+
+                    kandidater.properties().forEach { (_, kandidat) ->
+                        require(kandidat.isObject) { "hver kandidat må være et JSON-objekt" }
+                        require(kandidat["harHullICv"].isBoolean) { "hver kandidat må ha boolsk harHullICv" }
+                        require(kandidat["alder"].isInt) { "hver kandidat må ha heltallig alder" }
+                        require(kandidat["innsatsbehov"].isString) { "hver kandidat må ha tekstlig innsatsbehov" }
+                    }
+                }
                 it.interestedIn(
                     "@event_name",
                     "@slutt_av_hendelseskjede",

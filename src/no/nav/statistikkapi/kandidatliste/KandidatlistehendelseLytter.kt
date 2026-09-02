@@ -10,7 +10,6 @@ import io.micrometer.core.instrument.MeterRegistry
 import no.nav.statistikkapi.json.asZonedDateTime
 import no.nav.statistikkapi.json.asZonedDateTimeNullable
 import no.nav.statistikkapi.logging.log
-import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -29,7 +28,7 @@ class KandidatlistehendelseLytter(
                     listOf(opprettetKandidatlisteEventName, oppdaterteKandidatlisteEventName)
                 )
                 packet.requireKey("stilling", "stilling.stillingensPubliseringstidspunkt")
-                packet.requireValueIfPresent("@slutt_av_hendelseskjede", false)
+                packet.forbidValue("@slutt_av_hendelseskjede", true)
             }
             validate {
                 it.requireKey(

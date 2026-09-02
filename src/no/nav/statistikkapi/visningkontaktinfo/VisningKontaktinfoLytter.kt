@@ -9,7 +9,6 @@ import io.micrometer.core.instrument.MeterRegistry
 import no.nav.statistikkapi.json.asUUID
 import no.nav.statistikkapi.json.asZonedDateTime
 import no.nav.statistikkapi.logging.log
-import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 
 class VisningKontaktinfoLytter(
     rapidsConnection: RapidsConnection,
@@ -20,7 +19,7 @@ class VisningKontaktinfoLytter(
         River(rapidsConnection).apply {
             precondition { packet ->
                 packet.requireValue("@event_name", "arbeidsgiversKandidatliste.VisningKontaktinfo")
-                packet.requireValueIfPresent("@slutt_av_hendelseskjede", false)
+                packet.forbidValue("@slutt_av_hendelseskjede", true)
             }
             validate {
                 it.requireKey("aktørId", "stillingsId", "tidspunkt")

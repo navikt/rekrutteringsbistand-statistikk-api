@@ -15,7 +15,6 @@ import no.nav.statistikkapi.json.asTextNullable
 import no.nav.statistikkapi.json.asUUIDNullable
 import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
-import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import tools.jackson.databind.JsonNode
 import java.time.ZonedDateTime
@@ -32,7 +31,7 @@ class PresenterteOgFåttJobbenKandidaterLytter(
         River(rapidsConnection).apply {
             precondition { packet ->
                 packet.requireValue("@event_name", "kandidat_v2.$eventNamePostfix")
-                packet.requireValueIfPresent("@slutt_av_hendelseskjede", false)
+                packet.forbidValue("@slutt_av_hendelseskjede", true)
             }
             validate {
                 it.requireKey(

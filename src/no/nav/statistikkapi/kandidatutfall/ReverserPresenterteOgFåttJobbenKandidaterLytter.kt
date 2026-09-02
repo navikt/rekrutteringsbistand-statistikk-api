@@ -12,7 +12,6 @@ import no.nav.statistikkapi.json.asTextNullable
 import no.nav.statistikkapi.json.asUUIDNullable
 import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
-import no.nav.statistikkapi.rapidsandrivers.requireValueIfPresent
 import no.nav.statistikkapi.stillinger.Stillingskategori
 import java.time.ZonedDateTime
 
@@ -30,7 +29,7 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
             precondition { packet ->
                 packet.requireValue("@event_name", "kandidat_v2.$eventNamePostfix")
                 packet.requireKey("stillingsinfo")
-                packet.requireValueIfPresent("@slutt_av_hendelseskjede", false)
+                packet.forbidValue("@slutt_av_hendelseskjede", true)
             }
             validate {
                 it.requireKey(
