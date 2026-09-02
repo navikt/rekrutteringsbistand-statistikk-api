@@ -32,9 +32,13 @@ jobs:
       uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
       with:
         languages: ${{ matrix.language }}
-        
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+
+    - name: Build (manual instead of github/codeql-action/autobuild, because need more memory)
+      run: |
+        ./gradlew --no-daemon clean testClasses \
+          -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g" \
+          -Dkotlin.daemon.jvm.options="-Xmx2g" \
+          --max-workers=2
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
