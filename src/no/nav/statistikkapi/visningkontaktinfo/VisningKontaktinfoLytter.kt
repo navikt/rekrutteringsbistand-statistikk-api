@@ -23,7 +23,6 @@ class VisningKontaktinfoLytter(
             }
             validate {
                 it.requireKey("aktørId", "stillingsId", "tidspunkt")
-                it.interestedIn("@event_name", "@slutt_av_hendelseskjede")
             }
         }.register(this)
     }

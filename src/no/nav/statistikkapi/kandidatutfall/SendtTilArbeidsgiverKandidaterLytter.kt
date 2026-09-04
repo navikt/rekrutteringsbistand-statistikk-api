@@ -51,8 +51,6 @@ class SendtTilArbeidsgiverKandidaterLytter(
                     }
                 }
                 it.interestedIn(
-                    "@event_name",
-                    "@slutt_av_hendelseskjede",
                     "stillingsinfo.stillingskategori"
                 )
             }

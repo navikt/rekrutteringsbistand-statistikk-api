@@ -43,9 +43,6 @@ class ReverserPresenterteOgFåttJobbenKandidaterLytter(
                 )
 
                 it.interestedIn(
-                    "@event_name",
-                    "@slutt_av_hendelseskjede",
-                    "stillingsinfo",
                     "stillingsinfo.stillingskategori",
                     "stillingsinfo.rekrutteringstreffId"
                 )

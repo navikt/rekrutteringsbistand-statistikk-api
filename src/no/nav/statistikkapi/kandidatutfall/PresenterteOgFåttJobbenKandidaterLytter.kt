@@ -45,8 +45,6 @@ class PresenterteOgFåttJobbenKandidaterLytter(
                 )
 
                 it.interestedIn(
-                    "@event_name",
-                    "@slutt_av_hendelseskjede",
                     "stillingsinfo",
                     "stilling",
                     "stillingsId",
