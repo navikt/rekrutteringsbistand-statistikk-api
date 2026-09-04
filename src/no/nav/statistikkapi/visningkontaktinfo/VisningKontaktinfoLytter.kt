@@ -6,8 +6,8 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.statistikkapi.kandidatutfall.asUUID
-import no.nav.statistikkapi.kandidatutfall.asZonedDateTime
+import no.nav.statistikkapi.json.asUUID
+import no.nav.statistikkapi.json.asZonedDateTime
 import no.nav.statistikkapi.logging.log
 
 class VisningKontaktinfoLytter(
@@ -17,9 +17,11 @@ class VisningKontaktinfoLytter(
 
     init {
         River(rapidsConnection).apply {
+            precondition { packet ->
+                packet.requireValue("@event_name", "arbeidsgiversKandidatliste.VisningKontaktinfo")
+                packet.forbidValue("@slutt_av_hendelseskjede", true)
+            }
             validate {
-                it.rejectValue("@slutt_av_hendelseskjede", true)
-                it.demandValue("@event_name", "arbeidsgiversKandidatliste.VisningKontaktinfo")
                 it.requireKey("aktørId", "stillingsId", "tidspunkt")
             }
         }.register(this)
@@ -31,7 +33,7 @@ class VisningKontaktinfoLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-        val aktørId = packet["aktørId"].asText()
+        val aktørId = packet["aktørId"].asString()
         val stillingsId = packet["stillingsId"].asUUID()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
 

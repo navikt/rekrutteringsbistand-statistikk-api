@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.apache.*
+import io.ktor.client.engine.apache5.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -396,7 +396,7 @@ class HentStatistikkTest {
 
     @Test
     fun `Statistikk skal returnere unauthorized hvis man ikke er logget inn`() = runBlocking {
-        val uinnloggaClient = HttpClient(Apache) {
+        val uinnloggaClient = HttpClient(Apache5) {
             expectSuccess = false
         }
 
@@ -753,7 +753,7 @@ class HentStatistikkTest {
         }
     }
 
-    fun httpKlient() = HttpClient(Apache) {
+    fun httpKlient() = HttpClient(Apache5) {
         install(ContentNegotiation) {
             jackson {
                 registerModule(JavaTimeModule())

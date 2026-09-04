@@ -1,6 +1,5 @@
 package no.nav.statistikkapi.kandidatutfall
 
-import io.micrometer.core.instrument.Metrics
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.StillingRepository
 import no.nav.statistikkapi.stillinger.Stillingskategori

@@ -1,22 +1,23 @@
-package no.nav.statistikkapi.kandidatutfall
+package no.nav.statistikkapi.json
 
-import com.fasterxml.jackson.databind.JsonNode
+import tools.jackson.databind.JsonNode
 import java.time.ZonedDateTime
 import java.util.*
 
 fun JsonNode.asZonedDateTime(): ZonedDateTime =
-    asText().let(ZonedDateTime::parse)
+    asString().let(ZonedDateTime::parse)
 
 fun JsonNode.asZonedDateTimeNullable(): ZonedDateTime? =
     asTextNullable()?.let(ZonedDateTime::parse)
 
-fun JsonNode.asTextNullable() = asText(null)
+fun JsonNode.asTextNullable() =
+    if (isMissingNode || isNull) null else asString()
 
 fun JsonNode.asIntNullable() = asTextNullable()?.toInt()
 
 fun JsonNode.asBooleanNullable() = asTextNullable()?.toBoolean()
 
-fun JsonNode.asUUID() = UUID.fromString(asText())
+fun JsonNode.asUUID() = UUID.fromString(asString())
 
 fun JsonNode.asUUIDNullable() = asTextNullable()?.let(UUID::fromString)
 

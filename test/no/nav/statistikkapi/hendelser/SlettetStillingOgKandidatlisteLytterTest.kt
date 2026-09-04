@@ -1,7 +1,9 @@
 package no.nav.statistikkapi.hendelser
 
 import assertk.assertThat
-import assertk.assertions.*
+import assertk.assertions.hasSize
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.statistikkapi.*
 import no.nav.statistikkapi.db.TestDatabase
@@ -41,7 +43,7 @@ class SlettetStillingOgKandidatlisteLytterTest {
     @Test
     fun `Kan annullere kandidatutfall med SlettetStillingOgKandidatliste-melding`() {
         val utfallPresentert = etKandidatutfall.copy(utfall = PRESENTERT, aktørId = aktørId1)
-        val utfallFåttJobben = utfallPresentert.copy(utfall = Utfall.FATT_JOBBEN, aktørId = aktørId2)
+        val utfallFåttJobben = utfallPresentert.copy(utfall = FATT_JOBBEN, aktørId = aktørId2)
         repository.lagreUtfall(utfallPresentert)
         repository.lagreUtfall(utfallFåttJobben)
 
@@ -111,7 +113,11 @@ class SlettetStillingOgKandidatlisteLytterTest {
     @Test
     fun `Skal ikke lagre nye utfall for andre kandidatlister`() {
         val utfallPresentert = etKandidatutfall.copy(utfall = PRESENTERT, aktørId = aktørId1)
-        val utfallPresentertAnnenKandidatliste = etKandidatutfall.copy(kandidatlisteId = UUID.randomUUID().toString(), utfall = PRESENTERT, aktørId = aktørId1)
+        val utfallPresentertAnnenKandidatliste = etKandidatutfall.copy(
+            kandidatlisteId = UUID.randomUUID().toString(),
+            utfall = PRESENTERT,
+            aktørId = aktørId1
+        )
         repository.lagreUtfall(utfallPresentert)
         repository.lagreUtfall(utfallPresentertAnnenKandidatliste)
         assertThat(testRepository.hentUtfall()).hasSize(2)

@@ -3,7 +3,7 @@ package no.nav.statistikkapi
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.client.*
-import io.ktor.client.engine.apache.*
+import io.ktor.client.engine.apache5.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -27,7 +27,7 @@ fun hentToken(mockOAuth2Server: MockOAuth2Server, issuerId: String, expiry: Long
 
 fun randomPort(): Int = Random.nextInt(1000, 9999)
 
-fun httpKlientMedBearerToken(mockOAuth2Server: MockOAuth2Server) = HttpClient(Apache) {
+fun httpKlientMedBearerToken(mockOAuth2Server: MockOAuth2Server) = HttpClient(Apache5) {
     install(ContentNegotiation) {
         jackson {
             registerModule(JavaTimeModule())

@@ -54,16 +54,23 @@ enum class Innsatsgruppe {
     GRADERT_VARIG_TILPASSET_INNSATS;
 
 
-
     companion object {
         fun erIkkeStandardinnsats(innsatsgruppe: Innsatsgruppe): Boolean =
-            setOf(BATT, BFORM, VARIG, SPESIELT_TILPASSET_INNSATS, SITUASJONSBESTEMT_INNSATS, VARIG_TILPASSET_INNSATS, GRADERT_VARIG_TILPASSET_INNSATS)
+            setOf(
+                BATT,
+                BFORM,
+                VARIG,
+                SPESIELT_TILPASSET_INNSATS,
+                SITUASJONSBESTEMT_INNSATS,
+                VARIG_TILPASSET_INNSATS,
+                GRADERT_VARIG_TILPASSET_INNSATS
+            )
                 .contains(innsatsgruppe)
 
         fun erIkkeStandardinnsats(innsatsgruppe: String): Boolean =
             erIkkeStandardinnsats(Innsatsgruppe.valueOf(innsatsgruppe))
 
         val innsatsgrupperSomIkkeErStandardinnsats: Set<String> =
-            Innsatsgruppe.values().filter(this::erIkkeStandardinnsats).map(Innsatsgruppe::name).toSet()
+            entries.filter(this::erIkkeStandardinnsats).map(Innsatsgruppe::name).toSet()
     }
 }

@@ -36,7 +36,7 @@ class MetrikkJobb(
                 "antall_kandidatlister_tilknyttet_stilling_per_maaned",
                 Tags.of("maaned", it.key),
                 AtomicLong(it.value.toLong())
-            ) as AtomicLong
+            )
         }
 
         kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach {
@@ -44,7 +44,7 @@ class MetrikkJobb(
                 "antall_kandidatlister_tilknyttet_direktemeldt_stilling_per_maaned",
                 Tags.of("maaned", it.key),
                 AtomicLong(it.value.toLong())
-            ) as AtomicLong
+            )
         }
 
         kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned().forEach {
@@ -52,7 +52,7 @@ class MetrikkJobb(
                 "antall_direktemeldte_stillinger_med_minst_en_presentert_kandidat_per_maaned",
                 Tags.of("maaned", it.key),
                 AtomicLong(it.value.toLong())
-            ) as AtomicLong
+            )
         }
 
         visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned()
@@ -62,7 +62,7 @@ class MetrikkJobb(
                         "antall_kandidatlister_med_minst_en_kandidat_i_prioritert_maalgruppe_som_har_faatt_vist_sin_kontaktinfo_per_maaned",
                         Tags.of("maaned", it.key),
                         AtomicLong(it.value.toLong())
-                    ) as AtomicLong
+                    )
             }
 
         visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned()
@@ -72,7 +72,7 @@ class MetrikkJobb(
                         "antall_kandidatlister_med_minst_en_kandidat_som_har_faatt_vist_sin_kontaktinfo_per_maaned",
                         Tags.of("maaned", it.key),
                         AtomicLong(it.value.toLong())
-                    ) as AtomicLong
+                    )
             }
 
         kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned()
@@ -82,7 +82,7 @@ class MetrikkJobb(
                         "antall_kandidatlister_der_minst_en_kandidat_i_prioritert_maalgruppe_fikk_jobben_per_maaned",
                         Tags.of("maaned", it.key),
                         AtomicLong(it.value.toLong())
-                    ) as AtomicLong
+                    )
             }
 
     }
@@ -90,27 +90,27 @@ class MetrikkJobb(
     private val antallPresenterteKandidater: AtomicLong = prometheusMeterRegistry.gauge(
         "antall_presenterte_kandidater",
         AtomicLong(kandidatutfallRepository.hentAntallPresentertForAlleNavKontor().toLong())
-    )!!
+    )
 
     private val antallFåttJobben: AtomicLong = prometheusMeterRegistry.gauge(
         "antall_fått_jobben",
         AtomicLong(kandidatutfallRepository.hentAntallFåttJobbenForAlleNavKontor().toLong())
-    )!!
+    )
 
     private val antallKandidatlisterTilknyttetStilling: AtomicLong = prometheusMeterRegistry.gauge(
         "antall_kandidatlister_tilknyttet_stilling",
         AtomicLong(kandidatlisteRepository.hentAntallKandidatlisterForOpprettedeStillinger().toLong())
-    )!!
+    )
 
     private val antallKandidatlisterTilknyttetDirektemeldtStilling: AtomicLong = prometheusMeterRegistry.gauge(
         "antall_kandidatlister_tilknyttet_direktemeldt_stilling",
         AtomicLong(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldteStillinger().toLong())
-    )!!
+    )
 
     private val antallKandidatlisterTilknyttetEksternStilling: AtomicLong = prometheusMeterRegistry.gauge(
         "antall_kandidatlister_tilknyttet_ekstern_stilling",
         AtomicLong(kandidatlisteRepository.hentAntallKandidatlisterTilknyttetEksterneStillinger().toLong())
-    )!!
+    )
 
     private val antallStillingerForEksterneStillingsannonserMedKandidatliste: AtomicLong =
         prometheusMeterRegistry.gauge(
@@ -118,22 +118,22 @@ class MetrikkJobb(
             AtomicLong(
                 kandidatlisteRepository.hentAntallStillingerForEksterneStillingsannonserMedKandidatliste().toLong()
             )
-        )!!
+        )
 
     private val antallStillingerForDirektemeldteStillingsannonser: AtomicLong = prometheusMeterRegistry.gauge(
         "antall_stillinger_for_direktemeldte_stillingsannonser",
         AtomicLong(kandidatlisteRepository.hentAntallStillingerForDirektemeldteStillingsannonser().toLong())
-    )!!
+    )
 
     private val antallStillingerForStillingsannonserMedKandidatliste: AtomicLong = prometheusMeterRegistry.gauge(
         "antall_stillinger_for_stillingsannonser_med_kandidatliste",
         AtomicLong(kandidatlisteRepository.hentAntallStillingerForStillingsannonserMedKandidatliste().toLong())
-    )!!
+    )
 
     private val antallDirektemeldteStillingerMedMinstEnPresentertKandidat: AtomicLong = prometheusMeterRegistry.gauge(
         "antall_direktemeldte_stillinger_med_minst_en_presentert_kandidat",
         AtomicLong(kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidat().toLong())
-    )!!
+    )
 
     private val antallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo: AtomicLong =
         prometheusMeterRegistry.gauge(
@@ -142,7 +142,7 @@ class MetrikkJobb(
                 visningKontaktinfoRepository.hentAntallKandidaterIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
                     .toLong()
             )
-        )!!
+        )
 
     private val antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo: AtomicLong =
         prometheusMeterRegistry.gauge(
@@ -151,7 +151,7 @@ class MetrikkJobb(
                 visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfo()
                     .toLong()
             )
-        )!!
+        )
 
     private val antallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobben: AtomicLong =
         prometheusMeterRegistry.gauge(
@@ -160,17 +160,17 @@ class MetrikkJobb(
                 kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobben()
                     .toLong()
             )
-        )!!
+        )
 
     private val antallDirektemeldteStillingerSomHarTomKandidatliste: AtomicLong = prometheusMeterRegistry.gauge(
         "antall_direktemeldte_stillinger_som_har_tom_kandidatliste",
         AtomicLong(kandidatlisteRepository.hentAntallDirektemeldteStillingerSomHarTomKandidatliste().toLong())
-    )!!
+    )
 
     private val antallUnikeArbeidsgivereForDirektemeldteStillinger: AtomicLong = prometheusMeterRegistry.gauge(
         "antall_unike_arbeidsgivere_for_direktemeldte_stillinger",
         AtomicLong(kandidatlisteRepository.hentAntallUnikeArbeidsgivereForDirektemeldteStillinger().toLong())
-    )!!
+    )
 
     private val antallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben: AtomicLong =
         prometheusMeterRegistry.gauge(
@@ -179,7 +179,7 @@ class MetrikkJobb(
                 kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingDerMinstEnKandidatFikkJobben()
                     .toLong()
             )
-        )!!
+        )
 
     val executor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
 
@@ -187,7 +187,7 @@ class MetrikkJobb(
         val dayOfMonth = 1
 
         var dateTime: ZonedDateTime = ZonedDateTime.now()
-        if (dateTime.getDayOfMonth() >= dayOfMonth) {
+        if (dateTime.getDayOfMonth() >= dayOfMonth) { // TODO Are: Alltid true, er dette en feil?
             dateTime = dateTime.plusMonths(1)
         }
         dateTime = dateTime.withDayOfMonth(dayOfMonth)
@@ -205,7 +205,7 @@ class MetrikkJobb(
                 "antall_kandidatlister_tilknyttet_stilling_per_maaned",
                 Tags.of("maaned", it.key),
                 AtomicLong(it.value.toLong())
-            ) as AtomicLong
+            )
         }
 
         kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach {
@@ -213,7 +213,7 @@ class MetrikkJobb(
                 "antall_kandidatlister_tilknyttet_direktemeldt_stilling_per_maaned",
                 Tags.of("maaned", it.key),
                 AtomicLong(it.value.toLong())
-            ) as AtomicLong
+            )
         }
 
         kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned().forEach {
@@ -221,7 +221,7 @@ class MetrikkJobb(
                 "antall_direktemeldte_stillinger_med_minst_en_presentert_kandidat_per_maaned",
                 Tags.of("maaned", it.key),
                 AtomicLong(it.value.toLong())
-            ) as AtomicLong
+            )
         }
 
         visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned()
@@ -231,7 +231,7 @@ class MetrikkJobb(
                         "antall_kandidatlister_med_minst_en_kandidat_i_prioritert_maalgruppe_som_har_faatt_vist_sin_kontaktinfo_per_maaned",
                         Tags.of("maaned", it.key),
                         AtomicLong(it.value.toLong())
-                    ) as AtomicLong
+                    )
             }
 
         visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned()
@@ -241,7 +241,7 @@ class MetrikkJobb(
                         "antall_kandidatlister_med_minst_en_kandidat_som_har_faatt_vist_sin_kontaktinfo_per_maaned",
                         Tags.of("maaned", it.key),
                         AtomicLong(it.value.toLong())
-                    ) as AtomicLong
+                    )
             }
 
         kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned()
@@ -251,7 +251,7 @@ class MetrikkJobb(
                         "antall_kandidatlister_der_minst_en_kandidat_i_prioritert_maalgruppe_fikk_jobben_per_maaned",
                         Tags.of("maaned", it.key),
                         AtomicLong(it.value.toLong())
-                    ) as AtomicLong
+                    )
             }
     }
 

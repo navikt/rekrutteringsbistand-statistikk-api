@@ -8,6 +8,8 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.statistikkapi.json.asTextNullable
+import no.nav.statistikkapi.json.asUUIDNullable
 import no.nav.statistikkapi.logging.SecureLogLogger.Companion.secure
 import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.stillinger.Stillingskategori
@@ -23,11 +25,16 @@ class SlettetStillingOgKandidatlisteLytter(
 
     init {
         River(rapidsConnection).apply {
+            precondition { packet ->
+                packet.requireValue("@event_name", "kandidat_v2.SlettetStillingOgKandidatliste")
+                packet.requireKey("stillingsinfo")
+                packet.forbidValue("@slutt_av_hendelseskjede", true)
+            }
             validate {
-                it.demandValue("@event_name", "kandidat_v2.SlettetStillingOgKandidatliste")
-                it.rejectValue("@slutt_av_hendelseskjede", true)
-                it.demandKey("stillingsinfo")
-                it.interestedIn("stillingsinfo.stillingskategori", "stillingsinfo.rekrutteringstreffId")
+                it.interestedIn(
+                    "stillingsinfo.stillingskategori",
+                    "stillingsinfo.rekrutteringstreffId"
+                )
 
                 it.requireKey(
                     "kandidatlisteId",
@@ -45,10 +52,10 @@ class SlettetStillingOgKandidatlisteLytter(
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry
     ) {
-        val kandidatlisteId: String = packet["kandidatlisteId"].asText()
-        val tidspunkt: ZonedDateTime = ZonedDateTime.parse(packet["tidspunkt"].asText())
-        val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asText()
-        val stillingsId: String = packet["stillingsId"].asText()
+        val kandidatlisteId: String = packet["kandidatlisteId"].asString()
+        val tidspunkt: ZonedDateTime = ZonedDateTime.parse(packet["tidspunkt"].asString())
+        val utførtAvNavIdent: String = packet["utførtAvNavIdent"].asString()
+        val stillingsId: String = packet["stillingsId"].asString()
         val stillingskategori: Stillingskategori =
             Stillingskategori.fraNavn(packet["stillingsinfo.stillingskategori"].asTextNullable())
         val rekrutteringstreffId = packet["stillingsinfo.rekrutteringstreffId"].asUUIDNullable()

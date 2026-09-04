@@ -18,10 +18,12 @@ class Database(cluster: Cluster) {
             mountPath = "postgresql/preprod-fss",
             jdbcUrl = "jdbc:postgresql://b27dbvl033.preprod.local:5432/$databaseNavn"
         )
+
         Cluster.PROD_FSS -> DbConf(
             mountPath = "postgresql/prod-fss",
             jdbcUrl = "jdbc:postgresql://A01DBVL037.adeo.no:5432/$databaseNavn"
         )
+
         Cluster.LOKAL -> throw UnsupportedOperationException()
     }
 

@@ -413,7 +413,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 ) as unike_kandidatlister
                 where unike_kandidatlister.stilling_opprettet_tidspunkt >= '2023-03-01'
                 group by maaned;
-            """.trimIndent()).executeQuery()
+            """.trimIndent()
+            ).executeQuery()
 
             return generateSequence {
                 if (resultSet.next()) {
@@ -451,7 +452,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                         (fått_jobben_utfall.hull_i_cv is true) or 
                         (fått_jobben_utfall.innsatsbehov in ($ikkestandardInnsatsBehov))
                     )
-            """.trimIndent()).executeQuery()
+            """.trimIndent()
+            ).executeQuery()
 
             return if (resultSet.next()) {
                 resultSet.getInt(1)
@@ -496,7 +498,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                         (fått_jobben_utfall.innsatsbehov in ($ikkestandardInnsatsBehov))
                     )
                 group by maaned
-            """.trimIndent()).executeQuery()
+            """.trimIndent()
+            ).executeQuery()
 
             return generateSequence {
                 if (resultSet.next()) {
@@ -533,12 +536,14 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
 
     fun hentAntallUnikeArbeidsgivereForDirektemeldteStillinger(): Int {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("""
+            val resultSet = it.prepareStatement(
+                """
                 select count(distinct $organisasjonsnummerKolonne) 
                 from $kandidatlisteTabell
                 where $erDirektemeldtKolonne is true 
                 and $stillingOpprettetTidspunktKolonne is not null;
-            """.trimIndent()).executeQuery()
+            """.trimIndent()
+            ).executeQuery()
 
             return if (resultSet.next()) {
                 resultSet.getInt(1)
@@ -570,7 +575,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 where $kandidatlisteTabell.$stillingOpprettetTidspunktKolonne is not null
                     and $erDirektemeldtKolonne is true
                     and (stilling.stillingskategori = 'STILLING' or stilling.stillingskategori is null)
-            """.trimIndent()).executeQuery()
+            """.trimIndent()
+            ).executeQuery()
 
             return if (resultSet.next()) {
                 resultSet.getInt(1)
