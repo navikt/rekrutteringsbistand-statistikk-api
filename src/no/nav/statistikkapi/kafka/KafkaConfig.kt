@@ -13,6 +13,8 @@ class KafkaConfig {
 
     companion object {
         fun producerConfig(): Properties = Properties().apply {
+            System.setProperty("org.apache.avro.SERIALIZABLE_PACKAGES", "no.nav.rekrutteringsbistand")
+
             put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, systemEnv("KAFKA_BROKERS"))
             put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SSL.name)
 
