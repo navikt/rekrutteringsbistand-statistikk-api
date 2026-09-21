@@ -6,11 +6,11 @@ val logstashEncoderVersion = "9.0"
 val vaultJdbcVersion = "1.3.10"
 val postgresVersion = "42.7.13"
 val tokenValidationVersion = "5.0.30"
-val jacksonVersion = "2.21.6"
+val jacksonVersion = "2.22.2"
 val assertkVersion = "0.28.1"
 val kafkaClientsVersion = "4.2.1"
 val mockkVersion = "1.14.11"
-val kafkaAvroSerializerVersion = "8.2.1"
+val kafkaAvroSerializerVersion = "8.3.2"
 val shedlockVersion = "7.7.0"
 val pitestVersion = "1.15.0"
 val mockOAuth2ServerVersion = "4.0.1"
@@ -21,7 +21,7 @@ val jvmVersion = 25
 
 plugins {
     application
-    kotlin("jvm") version "2.3.21"
+    kotlin("jvm") version "2.4.20"
     id("com.github.ben-manes.versions") version "0.54.0"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
     id("info.solidsoft.pitest") version "1.19.0"
