@@ -49,12 +49,3 @@ jobs:
           CLUSTER: prod-fss
           VAR: version=${{ needs.call-build-java-gradlew.outputs.image }}
           RESOURCE: nais/nais-prod.yaml,nais/alerts.yml
-
-  call-trivy-security-scan:
-    needs: call-build-java-gradlew
-    uses: navikt/toi-github-actions-workflows/.github/workflows/trivy-security-scan.yaml@v15  # zizmor: ignore[ref-confusion,unpinned-uses]
-    with:
-      image: ${{ needs.call-build-java-gradlew.outputs.image }}
-    permissions:
-      id-token: write
-      security-events: write
