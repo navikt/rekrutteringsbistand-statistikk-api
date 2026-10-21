@@ -17,7 +17,7 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: call-build-java-gradlew
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/are-bump-rapidsandrivers'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/are-bump-rapidsandrivers'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -36,7 +36,7 @@ jobs:
     needs:
       - deploy-to-dev
       - call-build-java-gradlew
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
