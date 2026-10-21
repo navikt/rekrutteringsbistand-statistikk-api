@@ -1,13 +1,13 @@
 package no.nav.statistikkapi
 
 enum class Cluster {
-    DEV_FSS, PROD_FSS, LOKAL;
+    DEV_GCP, PROD_GCP, LOKAL;
 
     companion object {
         val current: Cluster by lazy {
             when (val c = System.getenv("NAIS_CLUSTER_NAME")) {
-                "dev-fss" -> DEV_FSS
-                "prod-fss" -> PROD_FSS
+                "dev-gcp" -> DEV_GCP
+                "prod-gcp" -> PROD_GCP
                 null -> LOKAL
                 else -> throw RuntimeException("Ukjent cluster: $c")
             }
