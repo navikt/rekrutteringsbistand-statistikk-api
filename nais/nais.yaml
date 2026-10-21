@@ -73,6 +73,8 @@ spec:
       value: "earliest"
     - name: HTTP_PORT
       value: "8080"
+    - name: KUN_FLYWAY_MIGRERING
+      value: "{{ kun_flyway_migrering }}"
   observability:
     autoInstrumentation:
       enabled: true

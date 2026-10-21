@@ -46,6 +46,14 @@ fun main() {
     log.info("Starter app.")
     secureLog.info("Starter app. Dette er ment å logges til Securelogs. Hvis du ser dette i den ordinære apploggen er noe galt, og sensitive data kan havne i feil logg.")
     try {
+        val database = Database()
+
+        if (skalKunKjøreFlywayMigrering()) {
+            log.info("$KUN_FLYWAY_MIGRERING er på. Flyway-migreringene er kjørt. Appen leser ikke fra rapiden, sender ikke til Datavarehus og har ikke statistikk-endepunktet.")
+            startKunHelseendepunkter(port = System.getenv("HTTP_PORT")?.toInt() ?: 8080)
+            return
+        }
+
         val tokenSupportConfig = TokenSupportConfig(
             IssuerConfig(
                 name = "azuread",
@@ -54,7 +62,7 @@ fun main() {
             )
         )
         val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaProducer(KafkaConfig.producerConfig()))
-        startApp(Database(), tokenSupportConfig, datavarehusKafkaProducer)
+        startApp(database, tokenSupportConfig, datavarehusKafkaProducer)
     } catch (e: Exception) {
         log.error("Feil i applikasjon", e)
         throw e

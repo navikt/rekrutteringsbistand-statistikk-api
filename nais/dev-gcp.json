@@ -8,6 +8,7 @@
   "inbound_applications": ["rekrutteringsbistand-frontend", "rekrutteringsbistand-frontend2"],
   "kafka_pool": "nav-dev",
   "kafka_consumer_group_id": "rekrutteringsbistand-statistikk-api-rapidconsumer-5",
+  "kun_flyway_migrering": "true",
   "gcp_db_tier": "db-f1-micro",
   "gcp_disk_autoresize": "false",
   "gcp_db_point_in_time_recovery": "false",

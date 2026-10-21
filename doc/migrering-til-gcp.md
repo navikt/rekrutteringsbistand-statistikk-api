@@ -15,7 +15,7 @@ Vi kjører hele løpet i dev først og måler hvor lenge appen er nede, før vi 
 - [x] `Cluster.kt`: Appen kjenner `dev-gcp` og `prod-gcp` i stedet for FSS-clusterne.
 - [x] `Database.kt`: Appen kobler til med `DB_JDBC_URL` fra Cloud SQL i stedet for `HikariCPVaultUtil`. Flyway kjører uten `SET ROLE`.
 - [x] `build.gradle.kts`: Avhengigheten `no.nav:vault-jdbc` er fjernet.
-- [ ] Legg til en bryter (miljøvariabel) som hindrer at appen starter `rapid.start()` og `startDatavarehusScheduler`. Scheduleren starter med en gang og skriver til `shedlock`. Flyway skal fortsatt kjøre.
+- [x] Bryteren `KUN_FLYWAY_MIGRERING` (`kun_flyway_migrering` i `nais/<miljø>-gcp.json`) får appen til å kjøre Flyway og bare svare på `/isalive` og `/isready`. Appen leser ikke fra rapiden, starter ikke Datavarehus-scheduleren og skriver ikke til `shedlock`. Bryteren er på i begge miljøene.
 
 ## Nais-manifest og workflow
 
@@ -36,7 +36,7 @@ Aiven-ACL-ene for `toi.rapid-1` og `toi.kandidatutfall` gjelder team og app, ikk
 
 Gjør stegene i denne rekkefølgen, først i dev og så i prod.
 
-Ikke merge kodeendringene til `main` før bryteren er på plass. Workflowen deployer til GCP ved merge, og uten bryteren begynner GCP-appen å lese fra rapiden med samme consumer group som FSS-appen.
+Ikke slå av bryteren før steg 9. Workflowen deployer til GCP ved hver merge til `main`, og uten bryteren begynner GCP-appen å lese fra rapiden med samme consumer group som FSS-appen.
 
 1. [ ] Deploy appen til GCP med bryteren på. Nais oppretter Cloud SQL-instansen, og Flyway lager tabellene.
 2. [ ] Gi oss selv tilgang med `nais cloudsql prepare --all-privileges` og `nais cloudsql grant`, og sjekk at tabellene finnes. Brukeren som importerer, trenger skrivetilgang til tabellene appbrukeren eier, og rollen `roles/cloudsql.admin`.
@@ -54,7 +54,7 @@ Ikke merge kodeendringene til `main` før bryteren er på plass. Workflowen depl
 
 7. [ ] Importer dumpen med `gcloud sql import sql <instans> gs://<bucket>/dump.sql.gz --database=rekrutteringsbistand-statistikk --user=<egen GCP-bruker>`.
 8. [ ] Kontroller dataene. Sammenlign antall rader per tabell, høyeste id, sekvensene og antall usendte rader til Datavarehus mellom FSS og GCP.
-9. [ ] Slå av bryteren og deploy på nytt. Appen leser nå fra rapiden og sender til Datavarehus.
+9. [ ] Slå av bryteren (sett `kun_flyway_migrering` til `"false"` i `nais/<miljø>-gcp.json`) og deploy på nytt. Appen leser nå fra rapiden og sender til Datavarehus.
 10. [ ] Endre URL og scope i appene som bruker statistikk-api (se [Konsumenter](#konsumenter)).
 
 ## Konsumenter
@@ -71,6 +71,12 @@ Kjente konsumenter:
 - [ ] `rekrutteringsbistand-frontend2` (dev)
 - [ ] Sjekk `toi-helseapp` i `toi-rapids-and-rivers`, som refererer til appnavnet.
 
+### Speiling til BigQuery
+
+Naisjoben `rekrutteringsbistand-bigquery` i prod-fss leser tabellene `kandidatliste`, `kandidatutfall`, `stilling` og `visning_kontaktinfo` direkte fra FSS-databasen hver natt og speiler dem til BigQuery (`toi-prod-324e.rekrutteringsbistand_statistikk_pg15`). Jobben bruker Vault-brukere til databasen og kan ikke nå Cloud SQL.
+
+- [ ] Finn ny løsning for speilingen av statistikkdatabasen, og fjern statistikk-delen fra jobben før FSS-databasen slettes.
+
 ## Rollback
 
 FSS-databasen er urørt helt til GCP-appen begynner å lese fra rapiden (steg 9). Før det kan vi starte FSS-appen igjen uten å miste data. Etter steg 9 skriver GCP-appen data som FSS-databasen ikke har, og går vi tilbake, mister vi de dataene.
@@ -79,6 +85,7 @@ FSS-databasen er urørt helt til GCP-appen begynner å lese fra rapiden (steg 9)
 
 - [ ] Slett bucketen med dumpen.
 - [ ] Slett FSS-databasen og oppsettet for appen i `vault-iac`.
+- [ ] Slett servicebrukeren `srv-rekbis-stat`. Fjern først monteringen i `nais.yaml` i `rekrutteringsbistand-bigquery`, ellers feiler Vault-oppstarten til jobben. Fjern også fila i `gruppetilgang-servicebruker`.
 - [ ] Slett FSS-appen og fss-pub-ingressene.
 - [ ] Oppdater README: databasetilgang via Vault, Grafana-lenker og loggspørringen med `cluster: prod-fss`.
-- [ ] Oppdater `doc/hvordan-lese-topic.md`, som viser til servicebrukeren i Vault.
+- [ ] Oppdater eller slett `doc/hvordan-lese-topic.md` og `doc/hvordan-opprette-topic.md`, som viser til servicebrukeren og on-prem Kafka.
