@@ -38,18 +38,10 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: rekrutteringsbistand-statistikk
-          cluster: dev-gcp
-        - application: rekrutteringsbistand-container
-          cluster: dev-gcp
-        - application: rekrutteringsbistand
-          cluster: dev-gcp
         - application: rekrutteringsbistand-frontend
           cluster: dev-gcp
         - application: rekrutteringsbistand-frontend2
           cluster: dev-gcp
-        - application: rekrutteringsbistand-kandidat-api
-          cluster: dev-fss
     outbound:
       rules:
         - application: logging
