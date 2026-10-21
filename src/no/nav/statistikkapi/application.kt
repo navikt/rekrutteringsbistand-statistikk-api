@@ -54,7 +54,7 @@ fun main() {
             )
         )
         val datavarehusKafkaProducer = DatavarehusKafkaProducerImpl(KafkaProducer(KafkaConfig.producerConfig()))
-        startApp(Database(Cluster.current), tokenSupportConfig, datavarehusKafkaProducer)
+        startApp(Database(), tokenSupportConfig, datavarehusKafkaProducer)
     } catch (e: Exception) {
         log.error("Feil i applikasjon", e)
         throw e

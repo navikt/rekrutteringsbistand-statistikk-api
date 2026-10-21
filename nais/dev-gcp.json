@@ -1,0 +1,18 @@
+{
+  "ingress": ["https://rekrutteringsbistand-statistikk-api.intern.dev.nav.no"],
+  "min_replicas": 1,
+  "max_replicas": 1,
+  "memory_limit": "384Mi",
+  "requested_cpu": "10m",
+  "requested_memory": "300Mi",
+  "inbound_applications": ["rekrutteringsbistand-frontend", "rekrutteringsbistand-frontend2"],
+  "kafka_pool": "nav-dev",
+  "kafka_consumer_group_id": "rekrutteringsbistand-statistikk-api-rapidconsumer-5",
+  "gcp_db_tier": "db-f1-micro",
+  "gcp_disk_autoresize": "false",
+  "gcp_db_point_in_time_recovery": "false",
+  "adGruppeModiaGenerellTilgang": "67a06857-0028-4a90-bf4c-9c9a92c7d733",
+  "adGruppeJobbsokerrettet": "0dba8374-bf36-4d89-bbba-662447d57b94",
+  "adGruppeArbeidsgiverrettet": "52bc2af7-38d1-468b-b68d-0f3a4de45af2",
+  "adGruppeUtvikler": "a1749d9a-52e0-4116-bb9f-935c38f6c74a"
+}

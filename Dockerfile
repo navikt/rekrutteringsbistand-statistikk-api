@@ -1,4 +1,5 @@
-FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-25
+ARG BASE_IMAGE_DIGEST_PINNED_REF
+FROM ${BASE_IMAGE_DIGEST_PINNED_REF}
 ENV TZ="Europe/Oslo"
 WORKDIR /rekrutteringsbistand-statistikk-api
 ADD build/distributions/rekrutteringsbistand-statistikk-api.tar /

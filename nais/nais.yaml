@@ -6,11 +6,12 @@ metadata:
   labels:
     team: toi
 spec:
-  image: {{version}}
+  image: {{ image }}
   port: 8080
   ingresses:
-    - https://arbeidsgiver.nais.adeo.no/rekrutteringsbistand-statistikk-api/
-    - https://rekrutteringsbistand-statistikk-api.prod-fss-pub.nais.io
+  {{#each ingress as |url|}}
+    - {{ url }}
+  {{/each}}
   liveness:
     path: /isalive
     initialDelay: 20
@@ -21,33 +22,36 @@ spec:
     enabled: true
     path: /rekrutteringsbistand-statistikk-api/metrics
   replicas:
-    min: 1
-    max: 2
+    min: {{ min_replicas }}
+    max: {{ max_replicas }}
     cpuThresholdPercentage: 75
   resources:
     limits:
-      memory: 512Mi
+      memory: {{ memory_limit }}
     requests:
-      cpu: 15m
-      memory: 384Mi
-  vault:
-    enabled: true
-    paths:
-      - kvPath: /serviceuser/data/prod/srv-rekbis-stat
-        mountPath: /secret/serviceuser
+      cpu: {{ requested_cpu }}
+      memory: {{ requested_memory }}
   accessPolicy:
     inbound:
       rules:
-        - application: rekrutteringsbistand-frontend
-          cluster: prod-gcp
+      {{#each inbound_applications as |app|}}
+        - application: {{ app }}
+      {{/each}}
     outbound:
       rules:
         - application: logging
           namespace: nais-system
-          cluster: prod-gcp
-  webproxy: true
   kafka:
-    pool: nav-prod
+    pool: {{ kafka_pool }}
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_18
+        tier: {{ gcp_db_tier }}
+        diskAutoresize: {{ gcp_disk_autoresize }}
+        pointInTimeRecovery: {{ gcp_db_point_in_time_recovery }}
+        databases:
+          - name: rekrutteringsbistand-statistikk
+            envVarPrefix: DB
   azure:
     application:
       enabled: true
@@ -56,17 +60,19 @@ spec:
         extra:
           - NAVident
         groups:
-          - id: "ea34edea-1e80-4759-a1d2-fbe696cf1709"   # adGruppeModiaGenerellTilgang
-          - id: "66b70a6a-3d05-47b3-8b5a-47c681dcd1d5"   # adGruppeJobbsøkerrettet
-          - id: "46c8e3b2-0469-4740-983f-d8cd2b6e4fee"   # adGruppeArbeidsgiverrettet
-          - id: "41080368-439f-4128-858a-afbef876431e"   # adGruppeUtvikler
+          - id: {{ adGruppeModiaGenerellTilgang }}
+          - id: {{ adGruppeJobbsokerrettet }}
+          - id: {{ adGruppeArbeidsgiverrettet }}
+          - id: {{ adGruppeUtvikler }}
   env:
     - name: KAFKA_RAPID_TOPIC
       value: toi.rapid-1
     - name: KAFKA_CONSUMER_GROUP_ID
-      value: "rekrutteringsbistand-statistikk-api-rapidconsumer-2"
+      value: {{ kafka_consumer_group_id }}
     - name: KAFKA_RESET_POLICY
       value: "earliest"
+    - name: HTTP_PORT
+      value: "8080"
   observability:
     autoInstrumentation:
       enabled: true
