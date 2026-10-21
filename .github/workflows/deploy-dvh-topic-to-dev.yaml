@@ -3,7 +3,7 @@ name: Deploy dvh-topic to dev
 on:
   push:
     branches:
-      - master
+      - main
       - oppgrader-workflows-og-shapin-versjonene
     paths:
       - .github/workflows/deploy-dvh-topic-to-dev.yaml
