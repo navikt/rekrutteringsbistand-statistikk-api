@@ -89,3 +89,81 @@ FSS-databasen er urørt helt til GCP-appen begynner å lese fra rapiden (steg 9)
 - [ ] Slett FSS-appen og fss-pub-ingressene.
 - [ ] Oppdater README: databasetilgang via Vault, Grafana-lenker og loggspørringen med `cluster: prod-fss`.
 - [ ] Oppdater eller slett `doc/hvordan-lese-topic.md` og `doc/hvordan-opprette-topic.md`, som viser til servicebrukeren og on-prem Kafka.
+
+
+## Flytting av database dev og prod
+https://doc.nais.io/persistence/cloudsql/how-to/migrating-databases-to-gcp/
+- [x] kubectl apply -f https://raw.githubusercontent.com/navikt/gcp-migrering/main/gcloud.yaml
+- [x] kubectl exec -it gcloud-54d8794db6-pzv6b -- /bin/bash
+- [X] gcloud auth login
+- [x] gcloud config set project <project id> (gcloud projects list --filter toi)
+- [x] export HOME=/tmp
+- [x] cd /tmp
+- [x] export MIGRATION_BUCKET=statistikk-api-bucket-dev
+- [x] gcloud auth login (usikker på hvorfor dette må gjøres to ganger)
+- [x] gsutil mb -l europe-north1 "gs://$MIGRATION_BUCKET"
+- [x] export SERVICE_ACCOUNT_EMAIL=$(gcloud sql instances describe rekrutteringsbistand-statistikk-api --format='value(serviceAccountEmailAddress)')
+- [x] gsutil iam ch "serviceAccount:$SERVICE_ACCOUNT_EMAIL:objectAdmin" "gs://$MIGRATION_BUCKET/"
+- [x] vault read postgresql/<preprod-fss/prod-fss>/creds/rekrutteringsbistand-statistikk-pg15-readonly
+- [x] scale ned til 0 replicas på fss appen (velg stopp i console) https://console.nav.cloud.nais.io/team/toi/dev-fss/app/rekrutteringsbistand-statistikk-api
+- [x] dump db med kommandoen under
+- [x] gsutil -o GSUtil:parallel_composite_upload_threshold=150M -h "Content-Type:application/x-gzip" cp dump.sql.gz "gs://$MIGRATION_BUCKET/"
+- [x] Gi all-privileges til alle brukere (kommando under)
+- [x] gcloud sql import sql rekrutteringsbistand-statistikk-api "gs://$MIGRATION_BUCKET/dump.sql.gz" --database=rekrutteringsbistand-statistikk --user=ken.ove.andersen@nav.no
+- [x] kubectl delete -f https://raw.githubusercontent.com/navikt/gcp-migrering/main/gcloud.yaml
+- [x] slett bucket manuelt
+- [x] sjekk at antall rader i tabllene stemmer med fss db (kommando under)
+
+nais cloudsql prepare \
+--team toi \
+--environment dev-gcp \
+--all-privileges \
+rekrutteringsbistand-statistikk-api
+
+nais cloudsql revoke \
+--team toi \
+--environment dev-gcp \
+rekrutteringsbistand-statistikk-api
+
+
+nais cloudsql prepare \
+--team toi \
+--environment dev-gcp \
+rekrutteringsbistand-statistikk-api
+
+
+pg_dump \
+-h b27dbvl033.preprod.local \
+-d rekrutteringsbistand-statistikk-pg15 \
+-U v-oidc-A166254-1793019942-PvovTsxx-rekrutteringsbistand \
+--exclude-table=flyway_schema_history \
+--exclude-table=kandidatutfall_kopi \
+--format=plain --no-owner --no-acl --data-only -Z 9 > dump.sql.gz
+
+
+pg_isready -h b27dbvl033.preprod.local -p 5432 -t 5
+
+
+SELECT
+schemaname AS schema_name,
+tablename AS table_name,
+(
+xpath(
+'/row/row_count/text()',
+query_to_xml(
+format(
+'SELECT count(*) AS row_count FROM %I.%I',
+schemaname,
+tablename
+),
+false,
+true,
+''
+)
+)
+)[1]::text::bigint AS row_count
+FROM pg_tables
+WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
+AND schemaname NOT LIKE 'pg_toast%'
+and tablename not like 'kandidatutfall_kopi'
+ORDER BY schema_name, table_name;
