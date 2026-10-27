@@ -49,6 +49,9 @@ spec:
         tier: {{ gcp_db_tier }}
         diskAutoresize: {{ gcp_disk_autoresize }}
         pointInTimeRecovery: {{ gcp_db_point_in_time_recovery }}
+        flags:
+          - name: work_mem
+            value: "65536"
         databases:
           - name: rekrutteringsbistand-statistikk
             envVarPrefix: DB
