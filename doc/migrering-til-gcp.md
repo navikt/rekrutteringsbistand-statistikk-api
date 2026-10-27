@@ -38,12 +38,12 @@ Gjør stegene i denne rekkefølgen, først i dev og så i prod.
 
 Ikke slå av bryteren før steg 9. Workflowen deployer til GCP ved hver merge til `main`, og uten bryteren begynner GCP-appen å lese fra rapiden med samme consumer group som FSS-appen.
 
-1. [ ] Deploy appen til GCP med bryteren på. Nais oppretter Cloud SQL-instansen, og Flyway lager tabellene.
-2. [ ] Gi oss selv tilgang med `nais cloudsql prepare --all-privileges` og `nais cloudsql grant`, og sjekk at tabellene finnes. Brukeren som importerer, trenger skrivetilgang til tabellene appbrukeren eier, og rollen `roles/cloudsql.admin`.
-3. [ ] Sjekk at FSS og GCP står på samme Flyway-versjon (nå V18). Ikke merge nye migreringer under flyttingen.
+1. [x] Deploy appen til GCP med bryteren på. Nais oppretter Cloud SQL-instansen, og Flyway lager tabellene.
+2. [x] Gi oss selv tilgang med `nais cloudsql prepare --all-privileges` og `nais cloudsql grant`, og sjekk at tabellene finnes. Brukeren som importerer, trenger skrivetilgang til tabellene appbrukeren eier, og rollen `roles/cloudsql.admin`.
+3. [x] Sjekk at FSS og GCP står på samme Flyway-versjon (nå V18). Ikke merge nye migreringer under flyttingen.
 4. [x] Deploy til FSS er fjernet fra `deploy.yml`.
-5. [ ] Stopp appen i FSS. Slett Application-ressursen eller deploy med 0 replicas. HPA overstyrer `kubectl scale` i prod.
-6. [ ] Ta dump fra en pod i FSS med imaget fra [navikt/gcp-migrering](https://github.com/navikt/gcp-migrering), og last den opp til en bucket. Se Nais-dokumentasjonen for kommandoene. Bruk en `pg_dump` med samme eller høyere versjon enn kilden (pg15), og disse flaggene:
+5. [x] Stopp appen i FSS. Slett Application-ressursen eller deploy med 0 replicas. HPA overstyrer `kubectl scale` i prod.
+6. [x] Ta dump fra en pod i FSS med imaget fra [navikt/gcp-migrering](https://github.com/navikt/gcp-migrering), og last den opp til en bucket. Se Nais-dokumentasjonen for kommandoene. Bruk en `pg_dump` med samme eller høyere versjon enn kilden (pg15), og disse flaggene:
 
    ```shell
    pg_dump -h <host> -d rekrutteringsbistand-statistikk-pg15 -U <bruker fra Vault> \
@@ -52,8 +52,8 @@ Ikke slå av bryteren før steg 9. Workflowen deployer til GCP ved hver merge ti
      -Z 9 > dump.sql.gz
    ```
 
-7. [ ] Importer dumpen med `gcloud sql import sql <instans> gs://<bucket>/dump.sql.gz --database=rekrutteringsbistand-statistikk --user=<egen GCP-bruker>`.
-8. [ ] Kontroller dataene. Sammenlign antall rader per tabell, høyeste id, sekvensene og antall usendte rader til Datavarehus mellom FSS og GCP.
+7. [x] Importer dumpen med `gcloud sql import sql <instans> gs://<bucket>/dump.sql.gz --database=rekrutteringsbistand-statistikk --user=<egen GCP-bruker>`.
+8. [x] Kontroller dataene. Sammenlign antall rader per tabell, høyeste id, sekvensene og antall usendte rader til Datavarehus mellom FSS og GCP.
 9. [ ] Slå av bryteren (sett `kun_flyway_migrering` til `"false"` i `nais/<miljø>-gcp.json`) og deploy på nytt. Appen leser nå fra rapiden og sender til Datavarehus.
 10. [ ] Endre URL og scope i appene som bruker statistikk-api (se [Konsumenter](#konsumenter)).
 
@@ -83,7 +83,8 @@ FSS-databasen er urørt helt til GCP-appen begynner å lese fra rapiden (steg 9)
 
 ## Opprydding
 
-- [ ] Slett bucketen med dumpen.
+- [x] Slett bucketen med dumpen.
+- [ ] Fjern switichen `KUN_FLYWAY_MIGRERING` og slett koden som bruker den.
 - [ ] Slett FSS-databasen og oppsettet for appen i `vault-iac`.
 - [ ] Slett servicebrukeren `srv-rekbis-stat`. Fjern først monteringen i `nais.yaml` i `rekrutteringsbistand-bigquery`, ellers feiler Vault-oppstarten til jobben. Fjern også fila i `gruppetilgang-servicebruker`.
 - [ ] Slett FSS-appen og fss-pub-ingressene.
@@ -94,25 +95,25 @@ FSS-databasen er urørt helt til GCP-appen begynner å lese fra rapiden (steg 9)
 ## Flytting av database dev og prod
 https://doc.nais.io/persistence/cloudsql/how-to/migrating-databases-to-gcp/
 - [x] kubectl apply -f https://raw.githubusercontent.com/navikt/gcp-migrering/main/gcloud.yaml
-- [x] kubectl exec -it gcloud-54d8794db6-pzv6b -- /bin/bash
-- [X] gcloud auth login
-- [x] gcloud config set project <project id> (gcloud projects list --filter toi)
+- [x] kubectl exec -it gcloud-5b4c76f984-vklps -- /bin/bash
+- [x] gcloud auth login
+- [x] gcloud config set project toi-prod-324e (gcloud projects list --filter toi)
 - [x] export HOME=/tmp
 - [x] cd /tmp
-- [x] export MIGRATION_BUCKET=statistikk-api-bucket-dev
+- [x] export MIGRATION_BUCKET=statistikk-api-bucket-prod
 - [x] gcloud auth login (usikker på hvorfor dette må gjøres to ganger)
 - [x] gsutil mb -l europe-north1 "gs://$MIGRATION_BUCKET"
 - [x] export SERVICE_ACCOUNT_EMAIL=$(gcloud sql instances describe rekrutteringsbistand-statistikk-api --format='value(serviceAccountEmailAddress)')
 - [x] gsutil iam ch "serviceAccount:$SERVICE_ACCOUNT_EMAIL:objectAdmin" "gs://$MIGRATION_BUCKET/"
-- [x] vault read postgresql/<preprod-fss/prod-fss>/creds/rekrutteringsbistand-statistikk-pg15-readonly
+- [x] vault read postgresql/prod-fss/creds/rekrutteringsbistand-statistikk-pg15-readonly
 - [x] scale ned til 0 replicas på fss appen (velg stopp i console) https://console.nav.cloud.nais.io/team/toi/dev-fss/app/rekrutteringsbistand-statistikk-api
 - [x] dump db med kommandoen under
 - [x] gsutil -o GSUtil:parallel_composite_upload_threshold=150M -h "Content-Type:application/x-gzip" cp dump.sql.gz "gs://$MIGRATION_BUCKET/"
 - [x] Gi all-privileges til alle brukere (kommando under)
 - [x] gcloud sql import sql rekrutteringsbistand-statistikk-api "gs://$MIGRATION_BUCKET/dump.sql.gz" --database=rekrutteringsbistand-statistikk --user=ken.ove.andersen@nav.no
+- [x] sjekk at antall rader i tabllene stemmer med fss db (kommando under)
 - [x] kubectl delete -f https://raw.githubusercontent.com/navikt/gcp-migrering/main/gcloud.yaml
 - [x] slett bucket manuelt
-- [x] sjekk at antall rader i tabllene stemmer med fss db (kommando under)
 
 nais cloudsql prepare \
 --team toi \
@@ -133,9 +134,9 @@ rekrutteringsbistand-statistikk-api
 
 
 pg_dump \
--h b27dbvl033.preprod.local \
+-h A01DBVL037.adeo.no \
 -d rekrutteringsbistand-statistikk-pg15 \
--U v-oidc-A166254-1793019942-PvovTsxx-rekrutteringsbistand \
+-U v-oidc-A166254-1793093141-LZroz8QQ-rekrutteringsbistand \
 --exclude-table=flyway_schema_history \
 --exclude-table=kandidatutfall_kopi \
 --format=plain --no-owner --no-acl --data-only -Z 9 > dump.sql.gz
@@ -167,3 +168,14 @@ WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
 AND schemaname NOT LIKE 'pg_toast%'
 and tablename not like 'kandidatutfall_kopi'
 ORDER BY schema_name, table_name;
+
+
+-- tall fra fss db
+public,flyway_schema_history,18
+public,kandidatliste,695003
+public,kandidatutfall,579506
+public,shedlock,1
+public,stilling,90675
+public,visning_kontaktinfo,106290
+
+
