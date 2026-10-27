@@ -9,7 +9,7 @@
   "kafka_pool": "nav-prod",
   "kafka_consumer_group_id": "rekrutteringsbistand-statistikk-api-rapidconsumer-2",
   "kun_flyway_migrering": "false",
-  "gcp_db_tier": "db-custom-1-3840",
+  "gcp_db_tier": "db-custom-2-5120",
   "gcp_disk_autoresize": "true",
   "gcp_db_point_in_time_recovery": "true",
   "adGruppeModiaGenerellTilgang": "ea34edea-1e80-4759-a1d2-fbe696cf1709",
