@@ -196,7 +196,7 @@ private fun startMetrikkJobbIBakgrunnen(
                 visningKontaktinfoRepository,
                 prometheusMeterRegistry
             ).start()
-            log.info("Metrikkjobben er startet etter ${System.currentTimeMillis() - start} ms.")
+            log.info("Metrikkjobben første gang brukte ${System.currentTimeMillis() - start} ms.")
         } catch (e: Exception) {
             log.error("Klarte ikke å starte metrikkjobben.", e)
         }
