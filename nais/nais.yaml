@@ -14,7 +14,7 @@ spec:
   {{/each}}
   liveness:
     path: /isalive
-    initialDelay: 600
+    initialDelay: 30
   readiness:
     path: /isready
     initialDelay: 20

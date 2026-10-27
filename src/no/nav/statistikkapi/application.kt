@@ -39,6 +39,7 @@ import java.time.ZoneId.of
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit.MILLIS
 import javax.sql.DataSource
+import kotlin.concurrent.thread
 
 fun main() {
     val log = noClassLogger()
@@ -84,13 +85,6 @@ fun startApp(
     val kandidatlisteRepository = KandidatlisteRepository(database.dataSource)
     val visningKontaktinfoRepository = VisningKontaktinfoRepository(database.dataSource)
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-
-    val metrikkJobb = MetrikkJobb(
-        kandidatutfallRepository,
-        kandidatlisteRepository,
-        visningKontaktinfoRepository,
-        prometheusMeterRegistry
-    )
 
     val rapid = RapidApplication.create(
         System.getenv(),
@@ -172,8 +166,41 @@ fun startApp(
         }
     )
 
-    metrikkJobb.start()
+    startMetrikkJobbIBakgrunnen(
+        kandidatutfallRepository,
+        kandidatlisteRepository,
+        visningKontaktinfoRepository,
+        prometheusMeterRegistry
+    )
     rapid.start()
+}
+
+/**
+ * MetrikkJobb kjører tunge spørringer når den opprettes. De kjøres i en egen tråd,
+ * slik at /isalive og /isready svarer uten å vente på dem.
+ */
+private fun startMetrikkJobbIBakgrunnen(
+    kandidatutfallRepository: KandidatutfallRepository,
+    kandidatlisteRepository: KandidatlisteRepository,
+    visningKontaktinfoRepository: VisningKontaktinfoRepository,
+    prometheusMeterRegistry: PrometheusMeterRegistry
+) {
+    val log = noClassLogger()
+    thread(name = "metrikkjobb-oppstart", isDaemon = true) {
+        log.info("Metrikkjobben henter tall for første gang.")
+        val start = System.currentTimeMillis()
+        try {
+            MetrikkJobb(
+                kandidatutfallRepository,
+                kandidatlisteRepository,
+                visningKontaktinfoRepository,
+                prometheusMeterRegistry
+            ).start()
+            log.info("Metrikkjobben er startet etter ${System.currentTimeMillis() - start} ms.")
+        } catch (e: Exception) {
+            log.error("Klarte ikke å starte metrikkjobben.", e)
+        }
+    }
 }
 
 private fun startDatavarehusScheduler(

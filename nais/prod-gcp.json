@@ -3,7 +3,7 @@
   "min_replicas": 1,
   "max_replicas": 2,
   "memory_limit": "512Mi",
-  "requested_cpu": "15m",
+  "requested_cpu": "300m",
   "requested_memory": "384Mi",
   "inbound_applications": ["rekrutteringsbistand-frontend"],
   "kafka_pool": "nav-prod",

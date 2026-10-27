@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.Tags
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.statistikkapi.kandidatliste.KandidatlisteRepository
 import no.nav.statistikkapi.kandidatutfall.KandidatutfallRepository
+import no.nav.statistikkapi.logging.log
 import no.nav.statistikkapi.visningkontaktinfo.VisningKontaktinfoRepository
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -183,6 +184,8 @@ class MetrikkJobb(
 
     val executor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
 
+    private val oppdateringsintervallMinutter = 10L
+
     fun start() {
         val dayOfMonth = 1
 
@@ -196,7 +199,23 @@ class MetrikkJobb(
             ZonedDateTime.now().until(dateTime, ChronoUnit.MILLIS),
             TimeUnit.MILLISECONDS
         )
-        executor.scheduleWithFixedDelay({ hentStatistikk() }, 5L, 20L, TimeUnit.SECONDS)
+        executor.scheduleWithFixedDelay(
+            { hentStatistikkOgLogg() },
+            oppdateringsintervallMinutter,
+            oppdateringsintervallMinutter,
+            TimeUnit.MINUTES
+        )
+    }
+
+    private fun hentStatistikkOgLogg() {
+        log.info("Metrikkjobben starter.")
+        val start = System.currentTimeMillis()
+        try {
+            hentStatistikk()
+            log.info("Metrikkjobben er ferdig etter ${System.currentTimeMillis() - start} ms.")
+        } catch (e: Exception) {
+            log.error("Metrikkjobben feilet etter ${System.currentTimeMillis() - start} ms.", e)
+        }
     }
 
     private fun initierNyeMåneder() {
@@ -300,57 +319,31 @@ class MetrikkJobb(
                 .toLong()
         )
 
-        antallKandidatlisterTilknyttetStillingPerMåned.keys.forEach { k ->
-            kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach {
-                if (k == it.key) {
-                    antallKandidatlisterTilknyttetStillingPerMåned[k]?.getAndSet(it.value.toLong())
-                }
+        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetStillingPerMåned().forEach { (måned, antall) ->
+            antallKandidatlisterTilknyttetStillingPerMåned[måned]?.set(antall.toLong())
+        }
+
+        kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach { (måned, antall) ->
+            antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[måned]?.set(antall.toLong())
+        }
+
+        kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned().forEach { (måned, antall) ->
+            antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned[måned]?.set(antall.toLong())
+        }
+
+        visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned()
+            .forEach { (måned, antall) ->
+                antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned[måned]?.set(antall.toLong())
             }
-        }
 
-        antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned.keys.forEach { k ->
-            kandidatlisteRepository.hentAntallKandidatlisterTilknyttetDirektemeldtStillingPerMåned().forEach {
-                if (k == it.key) {
-                    antallKandidatlisterTilknyttetDirektemeldtStillingPerMåned[k]?.getAndSet(it.value.toLong())
-                }
+        visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned()
+            .forEach { (måned, antall) ->
+                antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned[måned]?.set(antall.toLong())
             }
-        }
 
-        antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned.keys.forEach { k ->
-            kandidatlisteRepository.hentAntallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned().forEach {
-                if (k == it.key) {
-                    antallDirektemeldteStillingerMedMinstEnPresentertKandidatPerMåned[k]?.getAndSet(it.value.toLong())
-                }
+        kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned()
+            .forEach { (måned, antall) ->
+                antallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned[måned]?.set(antall.toLong())
             }
-        }
-
-        antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned.keys.forEach { k ->
-            visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned()
-                .forEach {
-                    if (k == it.key) {
-                        antallKandidatlisterMedMinstEnKandidatIPrioritertMålgruppeSomHarFåttVistSinKontaktinfoPerMåned[k]?.getAndSet(
-                            it.value.toLong()
-                        )
-                    }
-                }
-        }
-
-        antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned.keys.forEach { k ->
-            visningKontaktinfoRepository.hentAntallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned()
-                .forEach {
-                    if (k == it.key) {
-                        antallKandidatlisterMedMinstEnKandidatSomHarFåttVistSinKontaktinfoPerMåned[k]?.getAndSet(it.value.toLong())
-                    }
-                }
-        }
-
-        antallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned.keys.forEach { k ->
-            kandidatlisteRepository.hentAntallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned()
-                .forEach {
-                    if (k == it.key) {
-                        antallKandidatlisterDerMinstEnKandidatIPrioritertMålgruppeFikkJobbenPerMåned[k]?.getAndSet(it.value.toLong())
-                    }
-                }
-        }
     }
 }
