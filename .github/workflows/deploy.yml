@@ -6,46 +6,12 @@ permissions:
   contents: read
 
 jobs:
-  call-build-java-gradlew:
-    uses: navikt/toi-github-actions-workflows/.github/workflows/build-java-gradlew.yaml@v15 # zizmor: ignore[ref-confusion,unpinned-uses]
+  call-build-and-deploy:
+    uses: navikt/toi-github-actions-workflows/.github/workflows/build-and-deploy.yaml@v17 # zizmor: ignore[ref-confusion,unpinned-uses]
     with:
       java-version: "25"
+      deploy-to-dev-if-branch-name-is: 'deploy-til-gcp'
+      baseimage-tagged-ref: europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-25
     permissions:
       contents: read
       id-token: write
-
-  deploy-to-dev:
-    name: Deploy to dev
-    needs: call-build-java-gradlew
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/are-bump-rapidsandrivers'
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: nais/deploy/actions/deploy@849e900e3cfa7faf7ad1532bb3a3e6499c932199 # v2
-        env:
-          CLUSTER: dev-fss
-          VAR: version=${{ needs.call-build-java-gradlew.outputs.image }}
-          RESOURCE: nais/nais-dev.yaml
-
-  deploy-to-prod:
-    name: Deploy to prod
-    needs:
-      - deploy-to-dev
-      - call-build-java-gradlew
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: nais/deploy/actions/deploy@849e900e3cfa7faf7ad1532bb3a3e6499c932199 # v2
-        env:
-          CLUSTER: prod-fss
-          VAR: version=${{ needs.call-build-java-gradlew.outputs.image }}
-          RESOURCE: nais/nais-prod.yaml,nais/alerts.yml

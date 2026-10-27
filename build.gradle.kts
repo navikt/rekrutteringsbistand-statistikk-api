@@ -3,7 +3,6 @@ val ktorVersion = "3.6.0"
 val flywayVersion = "12.6.2"
 val hikariVersion = "7.0.2"
 val logstashEncoderVersion = "9.0"
-val vaultJdbcVersion = "1.3.10"
 val postgresVersion = "42.7.13"
 val tokenValidationVersion = "5.0.30"
 val jacksonVersion = "2.22.2"
@@ -87,7 +86,6 @@ dependencies {
     implementation("net.javacrumbs.shedlock:shedlock-core:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc:$shedlockVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
-    implementation("no.nav:vault-jdbc:$vaultJdbcVersion")
     implementation("no.nav.security:token-validation-ktor-v3:$tokenValidationVersion")
     implementation("org.apache.avro:avro:$avroVersion")
     implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")

@@ -15,12 +15,11 @@ Kan sjekke formidlingene tre plasser:
 
 - Amplitude: https://analytics.amplitude.com/nav/dashboard/rp6el7n
 - Grafana: https://grafana.adeo.no/d/GhdRa3mMz/rekrutteringsbistand-statistikk-api
-- Sjekke i databasen:
-  - Gå i Vault: https://vault.adeo.no/
-  - Åpne console i Vault og kjør: `vault read postgresql/prod-fss/creds/rekrutteringsbistand-statistikk-pg15-readonly`
-  - Bruk favoritt SQL-reader i tynnklient
-  - JDBC-URL: `jdbc:postgresql://prod-pg.intern.nav.no:5432/rekrutteringsbistand-statistikk`
-  - Logg inn med brukernavn og passord fra Vault
+- Sjekke i databasen (Cloud SQL i prod-gcp), se [Nais-dokumentasjonen om personlig databasetilgang](https://doc.nais.io/persistence/cloudsql/how-to/personal-access/):
+  - `nais cloudsql prepare --team toi --environment prod-gcp rekrutteringsbistand-statistikk-api` (én gang per database)
+  - `nais cloudsql grant --team toi --environment prod-gcp rekrutteringsbistand-statistikk-api`
+  - `nais cloudsql proxy --team toi --environment prod-gcp --reason "<begrunnelse>" rekrutteringsbistand-statistikk-api`
+  - Koble til `localhost:5432`, database `rekrutteringsbistand-statistikk`, med Google-kontoen din som brukernavn og tomt passord
 
 Diverse dokumentasjon ligger i [doc mappa](./doc).
 
@@ -45,7 +44,7 @@ Så anbefalt rekkefølge er:
 
 ## Kibana
 
-`application: rekrutteringsbistand-statistikk-api AND cluster: prod-fss AND (level: Warning OR level: Error)`
+`application: rekrutteringsbistand-statistikk-api AND cluster: prod-gcp AND (level: Warning OR level: Error)`
 
 ## Alerts
 
