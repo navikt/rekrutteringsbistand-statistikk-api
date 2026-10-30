@@ -16,7 +16,7 @@ Kan sjekke formidlingene tre plasser:
 - Amplitude: https://analytics.amplitude.com/nav/dashboard/rp6el7n
 - Grafana: https://grafana.adeo.no/d/GhdRa3mMz/rekrutteringsbistand-statistikk-api
 - Sjekke i databasen (Cloud SQL i prod-gcp), se [Nais-dokumentasjonen om personlig databasetilgang](https://doc.nais.io/persistence/cloudsql/how-to/personal-access/):
-  - `nais cloudsql prepare --team toi --environment prod-gcp rekrutteringsbistand-statistikk-api` (én gang per database)
+  - `nais cloudsql prepare --team toi --environment prod-gcp rekrutteringsbistand-statistikk-api` (én gang per database, ble kjørt i både `dev` og `prod` da databasene ble satt opp i GCP)
   - `nais cloudsql grant --team toi --environment prod-gcp rekrutteringsbistand-statistikk-api`
   - `nais cloudsql proxy --team toi --environment prod-gcp --reason "<begrunnelse>" rekrutteringsbistand-statistikk-api`
   - Koble til `localhost:5432`, database `rekrutteringsbistand-statistikk`, med Google-kontoen din som brukernavn og tomt passord
