@@ -51,6 +51,9 @@ Så anbefalt rekkefølge er:
 
 ## Metrikker
 
+Metrikkjobben henter statistikk ved oppstart og deretter med 60 minutters pause mellom hver fullførte kjøring og den neste.
+Spørringene tar mye CPU på database-serveren og vi trenger ikke oppdatere dataene oftere enn dette.
+
 https://grafana.nav.cloud.nais.io/d/9HNRaRJ4z/toi
 
 FSS-appen sine metrikker ble lagret i Prometheus datasource `prod-fss`. For å vise data fra GCP-appen (dvs etter 27. okt

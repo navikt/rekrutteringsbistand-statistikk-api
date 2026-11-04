@@ -184,7 +184,7 @@ class MetrikkJobb(
 
     val executor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
 
-    private val oppdateringsintervallMinutter = 10L
+    private val oppdateringsintervallMinutter = 60L
 
     fun start() {
         val dayOfMonth = 1
