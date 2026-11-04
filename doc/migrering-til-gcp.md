@@ -95,12 +95,12 @@ Grensen for enkel rollback er passert i begge miljøene. GCP-appen har skrevet n
 
 - [x] Slett bucketen med dumpen.
 - [x] Fjern bryteren `KUN_FLYWAY_MIGRERING`, koden og testene som bruker den og konfigurasjonen i Nais-manifestet og miljøfilene.
-- [ ] Slett FSS-databasen og oppsettet for appen i `vault-iac`.
-- [ ] Slett servicebrukeren `srv-rekbis-stat`. Fjern først monteringen i `nais.yaml` i `rekrutteringsbistand-bigquery`, ellers feiler Vault-oppstarten til jobben. Fjern også fila i `gruppetilgang-servicebruker`.
 - [x] Slett FSS-appen og fss-pub-ingressene.
 - [x] Oppdater README med Cloud SQL-tilgang og loggspørring med `cluster: prod-gcp`.
-- [ ] Kontroller Grafana-lenkene i README og at dashboardet viser data fra GCP.
+- [x] Kontroller Grafana-lenkene i README og at dashboardet viser data fra GCP.
 - [x] Slett `doc/hvordan-lese-topic.md` og `doc/hvordan-opprette-topic.md`, som viste til servicebrukeren og on-prem Kafka.
+- [ ] Slett FSS-databasen og oppsettet for appen i `vault-iac`.
+- [ ] Slett servicebrukeren `srv-rekbis-stat` når databasen er slettet. Fjern først monteringen i `nais.yaml` i `rekrutteringsbistand-bigquery`, ellers feiler Vault-oppstarten til jobben. Fjern også fila i `gruppetilgang-servicebruker`.
 
 
 ## Flytting av database dev og prod
