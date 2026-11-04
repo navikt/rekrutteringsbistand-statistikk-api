@@ -49,12 +49,6 @@ fun main() {
     try {
         val database = Database()
 
-        if (skalKunKjøreFlywayMigrering()) {
-            log.info("$KUN_FLYWAY_MIGRERING er på. Flyway-migreringene er kjørt. Appen leser ikke fra rapiden, sender ikke til Datavarehus og har ikke statistikk-endepunktet.")
-            startKunHelseendepunkter(port = System.getenv("HTTP_PORT")?.toInt() ?: 8080)
-            return
-        }
-
         val tokenSupportConfig = TokenSupportConfig(
             IssuerConfig(
                 name = "azuread",

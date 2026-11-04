@@ -6,7 +6,7 @@ Plan for å flytte `rekrutteringsbistand-statistikk-api` og databasen fra dev-fs
 
 Appen og databasen er flyttet til GCP i både dev og prod. Dataene er kontrollert, konsumentene er oppdatert, og FSS-appen og migreringsbucketene er slettet. Prod-appen begynte å lese fra rapiden i GCP 27. oktober.
 
-BigQuery-speiling fra Cloud SQL er satt opp med en nattlig spørring. Det gjenstår å fjerne migreringsbryteren fra koden, rydde opp i FSS-databasen, Vault-oppsettet og servicebrukeren, og oppdatere den gamle Kafka-dokumentasjonen. Se [Opprydding](#opprydding).
+BigQuery-speiling fra Cloud SQL er satt opp med en nattlig spørring. Migreringsbryteren er fjernet fra koden og Nais-konfigurasjonen. Det gjenstår å rydde opp i FSS-databasen, Vault-oppsettet og servicebrukeren, og oppdatere den gamle Kafka-dokumentasjonen. Se [Opprydding](#opprydding).
 
 Stegene under dokumenterer gjennomføringen, først i dev og så i prod.
 
@@ -21,7 +21,7 @@ Stegene under dokumenterer gjennomføringen, først i dev og så i prod.
 - [x] `Cluster.kt`: Appen kjenner `dev-gcp` og `prod-gcp` i stedet for FSS-clusterne.
 - [x] `Database.kt`: Appen kobler til med `DB_JDBC_URL` fra Cloud SQL i stedet for `HikariCPVaultUtil`. Flyway kjører uten `SET ROLE`.
 - [x] `build.gradle.kts`: Avhengigheten `no.nav:vault-jdbc` er fjernet.
-- [x] Bryteren `KUN_FLYWAY_MIGRERING` (`kun_flyway_migrering` i `nais/<miljø>-gcp.json`) lot appen kjøre Flyway og bare svare på `/isalive` og `/isready` under flyttingen. Med bryteren på leser appen ikke fra rapiden, starter ikke Datavarehus-scheduleren og skriver ikke til `shedlock`. Bryteren er nå av (`"false"`) i begge miljøene, men koden og konfigurasjonen er ikke fjernet.
+- [x] Bryteren `KUN_FLYWAY_MIGRERING` (`kun_flyway_migrering` i `nais/<miljø>-gcp.json`) lot appen kjøre Flyway og bare svare på `/isalive` og `/isready` under flyttingen. Med bryteren på leste appen ikke fra rapiden, startet ikke Datavarehus-scheduleren og skrev ikke til `shedlock`. Bryteren ble slått av i begge miljøene etter flyttingen og er nå fjernet fra koden og konfigurasjonen.
 
 ## Nais-manifest og workflow
 
@@ -94,7 +94,7 @@ Grensen for enkel rollback er passert i begge miljøene. GCP-appen har skrevet n
 ## Opprydding
 
 - [x] Slett bucketen med dumpen.
-- [ ] Fjern bryteren `KUN_FLYWAY_MIGRERING`, koden som bruker den og konfigurasjonen i Nais-manifestet og miljøfilene. Bryteren er slått av, men finnes fortsatt.
+- [x] Fjern bryteren `KUN_FLYWAY_MIGRERING`, koden og testene som bruker den og konfigurasjonen i Nais-manifestet og miljøfilene.
 - [ ] Slett FSS-databasen og oppsettet for appen i `vault-iac`.
 - [ ] Slett servicebrukeren `srv-rekbis-stat`. Fjern først monteringen i `nais.yaml` i `rekrutteringsbistand-bigquery`, ellers feiler Vault-oppstarten til jobben. Fjern også fila i `gruppetilgang-servicebruker`.
 - [x] Slett FSS-appen og fss-pub-ingressene.
@@ -191,4 +191,3 @@ public,kandidatutfall,579506
 public,shedlock,1
 public,stilling,90675
 public,visning_kontaktinfo,106290
-
