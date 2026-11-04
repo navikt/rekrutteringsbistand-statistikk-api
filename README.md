@@ -11,10 +11,9 @@ Får statistikk fra to hendelser i Rekrutteringsbistand sitt GUI:
 
 For hver endring av utfall på en kandidat, lagres en ny rad i databasen.
 
-Kan sjekke formidlingene tre plasser:
+Kan sjekke formidlingene to plasser:
 
-- Amplitude: https://analytics.amplitude.com/nav/dashboard/rp6el7n
-- Grafana: https://grafana.adeo.no/d/GhdRa3mMz/rekrutteringsbistand-statistikk-api
+- Grafana: https://grafana.nav.cloud.nais.io/d/9HNRaRJ4z/toi
 - Sjekke i databasen (Cloud SQL i prod-gcp), se [Nais-dokumentasjonen om personlig databasetilgang](https://doc.nais.io/persistence/cloudsql/how-to/personal-access/):
   - `nais cloudsql prepare --team toi --environment prod-gcp rekrutteringsbistand-statistikk-api` (én gang per database, ble kjørt i både `dev` og `prod` da databasene ble satt opp i GCP)
   - `nais cloudsql grant --team toi --environment prod-gcp rekrutteringsbistand-statistikk-api`
@@ -52,8 +51,10 @@ Så anbefalt rekkefølge er:
 
 ## Metrikker
 
-https://grafana.adeo.no/d/GhdRa3mMz/rekrutteringsbistand-statistikk-api
-https://analytics.amplitude.com/nav/dashboard/rp6el7n (nederst på siden)
+https://grafana.nav.cloud.nais.io/d/9HNRaRJ4z/toi
+
+FSS-appen sine metrikker ble lagret i Prometheus datasource `prod-fss`. For å vise data fra GCP-appen (dvs etter 27. okt
+2026) må hvert panel utvides med samme spørring mot datasource `prod-gcp`.
 
 ## Opprettelse av datapakke i datakatalogen
 
