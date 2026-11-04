@@ -6,7 +6,7 @@ Plan for å flytte `rekrutteringsbistand-statistikk-api` og databasen fra dev-fs
 
 Appen og databasen er flyttet til GCP i både dev og prod. Dataene er kontrollert, konsumentene er oppdatert, og FSS-appen og migreringsbucketene er slettet. Prod-appen begynte å lese fra rapiden i GCP 27. oktober.
 
-BigQuery-speiling fra Cloud SQL er satt opp med en nattlig spørring. Migreringsbryteren er fjernet fra koden og Nais-konfigurasjonen. Det gjenstår å rydde opp i FSS-databasen, Vault-oppsettet og servicebrukeren, og oppdatere den gamle Kafka-dokumentasjonen. Se [Opprydding](#opprydding).
+BigQuery-speiling fra Cloud SQL er satt opp med en nattlig spørring. Migreringsbryteren er fjernet fra koden og Nais-konfigurasjonen, og den gamle Kafka-dokumentasjonen er slettet. Det gjenstår å rydde opp i FSS-databasen, Vault-oppsettet og servicebrukeren. Se [Opprydding](#opprydding).
 
 Stegene under dokumenterer gjennomføringen, først i dev og så i prod.
 
@@ -100,7 +100,7 @@ Grensen for enkel rollback er passert i begge miljøene. GCP-appen har skrevet n
 - [x] Slett FSS-appen og fss-pub-ingressene.
 - [x] Oppdater README med Cloud SQL-tilgang og loggspørring med `cluster: prod-gcp`.
 - [ ] Kontroller Grafana-lenkene i README og at dashboardet viser data fra GCP.
-- [ ] Oppdater eller slett `doc/hvordan-lese-topic.md` og `doc/hvordan-opprette-topic.md`, som viser til servicebrukeren og on-prem Kafka.
+- [x] Slett `doc/hvordan-lese-topic.md` og `doc/hvordan-opprette-topic.md`, som viste til servicebrukeren og on-prem Kafka.
 
 
 ## Flytting av database dev og prod
