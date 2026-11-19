@@ -1,6 +1,11 @@
 name: Build & deploy
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    paths-ignore:
+      - 'doc/**'
+      - 'federated-queries/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
