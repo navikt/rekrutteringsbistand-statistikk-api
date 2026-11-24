@@ -99,8 +99,9 @@ Grensen for enkel rollback er passert i begge miljøene. GCP-appen har skrevet n
 - [x] Oppdater README med Cloud SQL-tilgang og loggspørring med `cluster: prod-gcp`.
 - [x] Kontroller Grafana-lenkene i README og at dashboardet viser data fra GCP.
 - [x] Slett `doc/hvordan-lese-topic.md` og `doc/hvordan-opprette-topic.md`, som viste til servicebrukeren og on-prem Kafka.
-- [ ] Slett FSS-databasen og oppsettet for appen i `vault-iac`.
-- [ ] Slett servicebrukeren `srv-rekbis-stat` når databasen er slettet. Fjern først monteringen i `nais.yaml` i `rekrutteringsbistand-bigquery`, ellers feiler Vault-oppstarten til jobben. Fjern også fila i `gruppetilgang-servicebruker`.
+- [x] Slett naisjoben `rekrutteringsbistand-bigquery` i prod-fss. Repoet `rekrutteringsbistand-bigquery` er arkivert, så `nais.yaml` der kunne ikke endres. Jobben måtte være borte før servicebrukeren slettes, ellers ville Vault-oppstarten til jobben feile.
+- [x] Fjern tilgangen i `vault-iac` før databasen slettes. [navikt/vault-iac#6076](https://github.com/navikt/vault-iac/pull/6076) er merget. Den slettet appfilene for statistikk-api, kandidat-api, sms og bigquery, og fjernet teamets tilgang til `rekrutteringsbistand-statistikk-pg15`, `rekrutteringsbistand-kandidat-pg15` og `rekrutteringsbistand-sms-pg15` i `toi.yml`. Apply-jobben ga `0 added, 2 changed, 45 destroyed`, som forventet. Vi kontrollerte at dataene var migrert før merge.
+- [x] Slett FSS-databasene: [navikt/database-iac#730](https://github.com/navikt/database-iac/pull/730) fjerner `rekrutteringsbistand-statistikk-pg15` fra `config/preprod-fss17-this-cluster-is-full.yml` og `config/prod-fss17-this-cluster-is-full.yml`, og `rekrutteringsbistand-kandidat-pg15` fra `config/preprod-fss19.yml` og `config/prod-fss17-this-cluster-is-full.yml`. `rekrutteringsbistand-sms-pg15` er allerede fjernet fra `database-iac`. Sletting av databasene er bestilt og blir utført av dem som har tilgang.
 
 
 ## Flytting av database dev og prod
