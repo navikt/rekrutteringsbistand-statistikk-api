@@ -379,9 +379,9 @@ class VisningKontaktinfoRepositoryTest {
     @Test
     fun `Skal telle en gang for kandidat med utfall på forskjellige lister, men med åpnet kontaktinfo på en`() {
         val kandidatutfallPåEnListe =
-            kandidatutfallIPrioritertMålgruppe.copy(aktørId = "10108000398", stillingsId = UUID.randomUUID().toString())
+            kandidatutfallIPrioritertMålgruppe.copy(aktørId = "aktørId-nr", stillingsId = UUID.randomUUID().toString())
         val kandidatutfallPåEnAnnenListe =
-            kandidatutfallIPrioritertMålgruppe.copy(aktørId = "10108000398", stillingsId = UUID.randomUUID().toString())
+            kandidatutfallIPrioritertMålgruppe.copy(aktørId = "aktørId-nr", stillingsId = UUID.randomUUID().toString())
 
         kandidatutfallRepository.lagreUtfall(kandidatutfallPåEnListe)
         kandidatutfallRepository.lagreUtfall(kandidatutfallPåEnAnnenListe)

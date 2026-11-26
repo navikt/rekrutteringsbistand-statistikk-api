@@ -399,7 +399,7 @@ class KandidatlisteRepositoryTest {
             kandidatutfallRepository.lagreUtfall(it)
         }
         uniktKandidatutfall(nyKandidatlisteId.toString()).also {
-            it.copy(aktørId = "10108000398")  // TODO Are: Blir ikke brukt til noe. Bug?
+            it.copy(aktørId = "aktørId-nr")  // TODO Are: Blir ikke brukt til noe. Bug?
             kandidatutfallRepository.lagreUtfall(it)
         }
 
