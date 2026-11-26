@@ -40,7 +40,7 @@ class VisningKontaktinfoLytterTest {
         val stillingsId = UUID.randomUUID()
         val tidspunkt = nowOslo()
         val melding = visningKontaktinfoMelding(
-            aktørId = "10108000398",
+            aktørId = "aktørId-nr",
             stillingsId = stillingsId,
             tidspunkt = tidspunkt
         )
@@ -50,7 +50,7 @@ class VisningKontaktinfoLytterTest {
         val lagretVisningerAvKontaktinfo = testRepository.hentVisningKontaktinfo()
         assertThat(lagretVisningerAvKontaktinfo.size).isEqualTo(1)
         val lagretVisning = lagretVisningerAvKontaktinfo.first()
-        assertThat(lagretVisning.aktørId).isEqualTo("10108000398")
+        assertThat(lagretVisning.aktørId).isEqualTo("aktørId-nr")
         assertThat(lagretVisning.stillingId).isEqualTo(stillingsId)
         assertThat(lagretVisning.tidspunkt).isEqualTo(tidspunkt)
     }
@@ -60,7 +60,7 @@ class VisningKontaktinfoLytterTest {
         val stillingsId = UUID.randomUUID()
         val tidspunkt = nowOslo()
         val melding = visningKontaktinfoMelding(
-            aktørId = "10108000398",
+            aktørId = "aktørId-nr",
             stillingsId = stillingsId,
             tidspunkt = tidspunkt
         )
